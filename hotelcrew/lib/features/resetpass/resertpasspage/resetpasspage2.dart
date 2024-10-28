@@ -1,49 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:email_validator/email_validator.dart';
-import 'resetpasspage2.dart';
 
 final resetpassemail = TextEditingController(text: "");
 
-class Resetpass extends StatefulWidget {
-  const Resetpass({super.key});
+class Resetpasslink extends StatefulWidget {
+  const Resetpasslink({super.key});
 
   @override
-  State<Resetpass> createState() => _ResetpassState();
+  State<Resetpasslink> createState() => _ResetpassState();
 }
 
-class _ResetpassState extends State<Resetpass> {
-  bool checkBoxValue = false;
- double svgHeight = 363; 
-  double svgWidth = 293.06; 
-  final FocusNode emailFocusNode = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-
-
-    emailFocusNode.addListener(() {
-      setState(() {
-        if (emailFocusNode.hasFocus) {
-
-          svgHeight = 117.22; 
-          svgWidth = 145.2; 
-        } else {
-
-          svgHeight = 363;
-          svgWidth = 293.06;
-        }
-      });
-    });
-  }
-
-   @override
-  void dispose() {
-    emailFocusNode.dispose(); 
-    super.dispose();
-  }
+class _ResetpassState extends State<Resetpasslink> {
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -72,10 +41,10 @@ class _ResetpassState extends State<Resetpass> {
                 ),
               ),
               Container(
-                height: 42,
+                height: 84,
                 width: 328,
                 child: Text(
-                  'Enter your email address to receive a password reset link.',
+                  'An email with password reset instructions has been sent to your inbox. Please check your email and follow the link to reset your password.',
                   style: GoogleFonts.montserrat(
                     textStyle: const TextStyle(
                       color: Color(0xFF4D5962),
@@ -87,9 +56,9 @@ class _ResetpassState extends State<Resetpass> {
                 ),
               ),
               SvgPicture.asset(
-                'assets/resetpass.svg', 
-                height: svgHeight,
-                width: svgWidth,
+                'assets/email-campaign.svg', 
+                height: 349,
+                width: 324,
                 fit: BoxFit.contain,
               ),
               const SizedBox(height: 20), 
@@ -98,37 +67,34 @@ class _ResetpassState extends State<Resetpass> {
                 width: 328,
                 child: Column(
                   children: [
-                    Form(
-                      autovalidateMode: AutovalidateMode.always,
-                      child: TextFormField(
-                        controller: resetpassemail,
-                        focusNode: emailFocusNode,
-                        maxLength: 320,
-                        validator: (value) => EmailValidator.validate(value ?? '') 
-                            ? null 
-                            : "Enter a valid email.",
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          border: OutlineInputBorder(),
+                    InkWell(
+                          onTap: () {
+                            // Add your onTap functionality here
+                          },
+                          child: Text(
+                            "Didn't Receive Email?",
+                            style: GoogleFonts.montserrat(
+                              textStyle: const TextStyle(
+                                color: Color(0xFF121212),
+                                fontWeight: FontWeight.w400,
+                                fontSize: 14,
+                                height: 1.5,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
+                    
+                    
                     const SizedBox(height: 20),
                     SizedBox(
                       height: 40,
                       width: 328,
                       child: ElevatedButton(
                         onPressed: () {
-                          print("Email: ${resetpassemail.text}");
-                          Navigator.pushReplacement<void, void>(
-        context,
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => Resetpasslink(),
-        ),
-      );
+                          
                         },
                         child: Text(
-                          'Send Reset Link',
+                          'Resend Link',
                           style: GoogleFonts.montserrat(
                             textStyle: const TextStyle(
                               color: Color(0xFFFAFAFA),
