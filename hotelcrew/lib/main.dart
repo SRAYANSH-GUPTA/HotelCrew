@@ -55,7 +55,7 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  State<MyHomePage> createState() => OnboardingPage();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -91,9 +91,12 @@ class _MyHomePageState extends State<MyHomePage> {
     await Future.delayed(const Duration(seconds: 1));
     print('go!');
     FlutterNativeSplash.remove();
-   Navigator.push(
+    Navigator.pushReplacement<void, void>(
     context,
-    MaterialPageRoute(builder: (context) => OnboardingPage()),
+    MaterialPageRoute<void>(
+      builder: (BuildContext context) => const OnboardingPage(),
+    ),
+    );
   }
 
   @override
