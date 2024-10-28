@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:email_validator/email_validator.dart';
+import '../../../resetpass/resertpasspage/resetpass.dart';
 
 
 final email = TextEditingController(text: "");
@@ -95,7 +96,12 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   InkWell(
                     onTap: () {
-                      // Add your onTap functionality here
+                      Navigator.pushReplacement<void, void>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => Resetpass(),
+        ),
+      );
                     },
                     child: Text(
                       'Forgot Password?',
