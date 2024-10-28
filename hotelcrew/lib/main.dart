@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'features/onboarding/page/onboarding_page.dart';
 
 void main() {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -54,7 +55,7 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MyHomePage> createState() => OnboardingPage();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -90,6 +91,9 @@ class _MyHomePageState extends State<MyHomePage> {
     await Future.delayed(const Duration(seconds: 1));
     print('go!');
     FlutterNativeSplash.remove();
+   Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => OnboardingPage()),
   }
 
   @override
