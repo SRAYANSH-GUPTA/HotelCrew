@@ -1,0 +1,6 @@
+import 'package:flutter/material.dart';
+
+class Pallete {
+  static const maincolor = Color(#47518C);
+  
+}
