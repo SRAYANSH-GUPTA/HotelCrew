@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:email_validator/email_validator.dart';
 
+
+final email = TextEditingController(text: "");
+final password = TextEditingController(text: "");
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -59,19 +63,33 @@ class _LoginPageState extends State<LoginPage> {
                 width: 202.05,
               ),
               const SizedBox(height: 20), // Space between the SVG and the text field
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+              Form(
+  autovalidateMode: AutovalidateMode.always,
+  child: TextFormField(
+    controller: email,
+    maxLength: 320,
+    validator: (value) => EmailValidator.validate(value ?? '') 
+        ? null 
+        : "Enter a valid email.",
+    decoration: InputDecoration(
+      labelText: 'Email',
+      border: OutlineInputBorder(),
+    ),
+  ),
+),
               const SizedBox(height: 20), // Space between the text fields
               TextFormField(
+                controller: password,
+                maxLength: 12,
                 decoration: InputDecoration(
                   labelText: 'Password',
+
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true,
+                obscuringCharacter: '●',
+  style: TextStyle(fontSize: 20,
+  color: Color(0xFF5B6C78))
               ),
               Row(
                 children: [
@@ -107,7 +125,8 @@ class _LoginPageState extends State<LoginPage> {
                 width: 328,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Add your onPressed functionality here
+                    print("Email: ${email.text}");
+                    print("Password: ${password.text}");
                   },
                   child: Text(
                     'Log In',
