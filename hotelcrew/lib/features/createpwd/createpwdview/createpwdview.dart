@@ -14,7 +14,25 @@ class createpwd extends StatefulWidget {
 
 class _createpwdState extends State<createpwd> {
   bool checkBoxValue = false;
-
+  bool svghide = false;
+  final FocusNode passwordFocusNode = FocusNode();
+  @override
+  void initState()
+  {
+    super.initState();
+    password.addListener((){
+      setState(() {
+        if (passwordFocusNode.hasFocus)
+        {
+          svghide = true; 
+        }
+        else
+        {
+          svghide = false;
+        }
+      });
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +70,7 @@ class _createpwdState extends State<createpwd> {
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                       height: 1.5,
-                    ),
+                    ), 
                   ),
                 ),
               ),
@@ -60,6 +78,7 @@ class _createpwdState extends State<createpwd> {
                 'assets/createpwd.svg', // Ensure the path is correct
                 height: 258.16,
                 width: 244.58,
+                excludeFromSemantics: svghide,
               ),
               const SizedBox(height: 20), // Space between the SVG and the text field
               TextFormField(
@@ -70,6 +89,7 @@ class _createpwdState extends State<createpwd> {
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true,
+                focusNode: passwordFocusNode,
                 obscuringCharacter: '●',
                 style: TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
               ),
