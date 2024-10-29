@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:email_validator/email_validator.dart';
-
+import 'package:hotelcrew/features/auth/view/pages/otpview.dart';
+import 'package:hotelcrew/features/createpwd/createpwdview/createpwdview.dart';
 
 final email = TextEditingController(text: "");
 final password = TextEditingController(text: "");
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -20,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView( // Allows scrolling when content is larger than the screen
+      body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -58,44 +60,48 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               SvgPicture.asset(
-                'assets/cuate.svg', // Ensure the path is correct
+                'assets/cuate.svg',
                 height: 205.85,
                 width: 202.05,
               ),
-              const SizedBox(height: 20), // Space between the SVG and the text field
+              const SizedBox(height: 20),
               Form(
-  autovalidateMode: AutovalidateMode.always,
-  child: TextFormField(
-    controller: email,
-    maxLength: 320,
-    validator: (value) => EmailValidator.validate(value ?? '') 
-        ? null 
-        : "Enter a valid email.",
-    decoration: InputDecoration(
-      labelText: 'Email',
-      border: OutlineInputBorder(),
-    ),
-  ),
-),
-              const SizedBox(height: 20), // Space between the text fields
+                autovalidateMode: AutovalidateMode.always,
+                child: TextFormField(
+                  controller: email,
+                  maxLength: 320,
+                  validator: (value) => EmailValidator.validate(value ?? '') ? null : "Enter a valid email.",
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: password,
                 maxLength: 12,
                 decoration: InputDecoration(
                   labelText: 'Password',
-
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true,
                 obscuringCharacter: '●',
-  style: TextStyle(fontSize: 20,
-  color: Color(0xFF5B6C78))
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Color(0xFF5B6C78),
+                ),
               ),
               Row(
                 children: [
                   InkWell(
                     onTap: () {
-                      // Add your onTap functionality here
+                      Navigator.pushReplacement<void, void>(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (BuildContext context) => Otpview(),
+                        ),
+                      );
                     },
                     child: Text(
                       'Forgot Password?',
@@ -113,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
                     value: checkBoxValue,
                     onChanged: (newValue) {
                       setState(() {
-                        checkBoxValue = newValue ?? false; // Ensure newValue is not null
+                        checkBoxValue = newValue ?? false;
                       });
                     },
                   ),
@@ -147,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20), // Added space for better layout
+              const SizedBox(height: 20),
               Container(
                 height: 28,
                 width: 328,
@@ -177,28 +183,26 @@ class _LoginPageState extends State<LoginPage> {
                         },
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.all(0),
-                          backgroundColor: Colors.white, // Background color
+                          backgroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                           // Button width and height
                         ),
                         child: Container(
                           height: 20,
                           width: 45,
                           child: Text(
-                              'Log In',
-                              style: GoogleFonts.poppins(
-                                textStyle: const TextStyle(
-                                  color: Color(0xFF4D5962),
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  height: 1.5,
-                                ),
+                            'Log In',
+                            style: GoogleFonts.poppins(
+                              textStyle: const TextStyle(
+                                color: Color(0xFF4D5962),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                height: 1.5,
                               ),
                             ),
+                          ),
                         ),
-                        
                       ),
                     ),
                   ],
@@ -211,4 +215,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-

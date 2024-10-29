@@ -19,7 +19,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
       Navigator.pushReplacement<void, void>(
         context,
         MaterialPageRoute<void>(
-          builder: (BuildContext context) => createpwd(),
+          builder: (BuildContext context) => LoginPage(),
         ),
       );
     });
