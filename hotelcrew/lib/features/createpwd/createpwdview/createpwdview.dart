@@ -14,23 +14,41 @@ class createpwd extends StatefulWidget {
 
 class _createpwdState extends State<createpwd> {
   bool checkBoxValue = false;
-  bool svghide = false;
+  double svgheight = 244.58;
+  double svgwidth =  258.16;
   final FocusNode passwordFocusNode = FocusNode();
+  bool isSvgVisible = true;
   @override
   void initState()
   {
     super.initState();
-    password.addListener((){
+    passwordFocusNode.addListener((){
       setState(() {
         if (passwordFocusNode.hasFocus)
         {
-          svghide = true; 
+          svgheight = 0;
+          svgwidth = 0; 
+          print("hassssfocus###### ${passwordFocusNode.hasFocus}");
         }
         else
         {
-          svghide = false;
+          svgheight = 244.58;
+          svgwidth = 258.16;
         }
       });
+    });
+  }
+  @override
+  void toggleSvgSize() {
+    setState(() {
+      if (isSvgVisible) {
+        svgheight = 0;
+        svgwidth = 0;
+      } else {
+        svgheight = 244.58;
+        svgwidth = 258.16;
+      }
+      isSvgVisible = !isSvgVisible;
     });
   }
   @override
@@ -76,22 +94,24 @@ class _createpwdState extends State<createpwd> {
               ),
               SvgPicture.asset(
                 'assets/createpwd.svg', // Ensure the path is correct
-                height: 258.16,
-                width: 244.58,
-                excludeFromSemantics: svghide,
+                height: svgheight,
+                width: svgwidth,
               ),
               const SizedBox(height: 20), // Space between the SVG and the text field
-              TextFormField(
-                controller: password,
-                maxLength: 12,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
+              InkWell(
+                onTap: toggleSvgSize,
+                child: TextFormField(
+                  controller: password,
+                  maxLength: 12,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(),
+                  ),
+                  obscureText: true,
+                  focusNode: passwordFocusNode,
+                  obscuringCharacter: '●',
+                  style: TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
                 ),
-                obscureText: true,
-                focusNode: passwordFocusNode,
-                obscuringCharacter: '●',
-                style: TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
               ),
               const SizedBox(height: 20), // Space between the text fields
               TextFormField(
