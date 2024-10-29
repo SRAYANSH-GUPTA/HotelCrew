@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../auth/view/pages/login_page.dart';
 import 'package:email_validator/email_validator.dart';
+import '../../createpwd/createpwdview/createpwdview.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -18,7 +19,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
       Navigator.pushReplacement<void, void>(
         context,
         MaterialPageRoute<void>(
-          builder: (BuildContext context) => LoginPage(),
+          builder: (BuildContext context) => createpwd(),
         ),
       );
     });

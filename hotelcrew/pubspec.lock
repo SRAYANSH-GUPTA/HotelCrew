@@ -248,6 +248,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.15.0"
+  password_strength_indicator:
+    dependency: "direct main"
+    description:
+      name: password_strength_indicator
+      sha256: bbb3dd286ea8536b2ceb6928e26b71d4ba273c743beaaa2e75c241ed44ba8598
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   path:
     dependency: transitive
     description:
