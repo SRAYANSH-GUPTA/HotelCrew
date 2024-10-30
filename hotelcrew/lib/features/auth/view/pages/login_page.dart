@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:email_validator/email_validator.dart';
+import '../../auth_view_model/loginpageviewmodel.dart';
 
 
 final email = TextEditingController(text: "");
@@ -15,6 +16,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool checkBoxValue = false;
+  final authViewModel = AuthViewModel();
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +82,6 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20), // Space between the text fields
               TextFormField(
                 controller: password,
-                maxLength: 12,
                 decoration: InputDecoration(
                   labelText: 'Password',
 
@@ -124,10 +125,46 @@ class _LoginPageState extends State<LoginPage> {
                 height: 40,
                 width: 328,
                 child: ElevatedButton(
-                  onPressed: () {
-                    print("Email: ${email.text}");
-                    print("Password: ${password.text}");
-                  },
+                  onPressed: () async {
+  try {
+    final loginResponse = await authViewModel.loginUser(email.text, password.text);
+    print("########################");
+    print("Login successful!");
+    print("User ID: ${loginResponse.user.id}");
+    print("Access Token: ${loginResponse.tokens.access}");
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Column(children: [
+              Text('Login Successful'),
+              Text('Username: ${loginResponse.user.firstName}'),
+              Text('AccessToken: ${loginResponse.tokens.access}'),
+            ],),
+        duration: const Duration(seconds: 2),
+        action: SnackBarAction(
+          label: 'ACTION',
+          onPressed: () { },
+        ),
+      ));
+    // You can add further actions here, such as navigating to a new page.
+    
+  } catch (e) {
+    print("###################");
+    print("Login failed: $e");
+    email.clear();
+    password.clear();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Column(children: [
+              Text('Login Unuccessful'),
+              Text('Try Again'),
+              
+            ],),
+        duration: const Duration(seconds: 2),
+        action: SnackBarAction(
+          label: 'ACTION',
+          onPressed: () { },
+        ),
+      ));
+  }
+},
                   child: Text(
                     'Log In',
                     style: GoogleFonts.montserrat(
