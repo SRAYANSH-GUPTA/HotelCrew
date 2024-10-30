@@ -4,8 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
 import 'package:hotelcrew/features/auth/view/pages/login_page.dart';
 import 'package:otp_pin_field/otp_pin_field.dart';
-
-final otp = TextEditingController(text: "");
+import 'package:otp_timer_button/otp_timer_button.dart';
 
 class Otpview extends StatefulWidget {
   const Otpview({super.key});
@@ -17,9 +16,11 @@ class Otpview extends StatefulWidget {
 class _OtpviewState extends State<Otpview> {
   final _otpPinFieldController = GlobalKey<OtpPinFieldState>();
   bool checkBoxValue = false;
-  double svgHeight = 363;
-  double svgWidth = 293.06;
+  double svgHeight = 232;
+  double svgWidth = 236;
   final FocusNode emailFocusNode = FocusNode();
+  final OtpTimerButtonController otp = OtpTimerButtonController();
+  String enteredOtp = ""; // Variable to store the OTP entered by the user
 
   @override
   void initState() {
@@ -27,11 +28,11 @@ class _OtpviewState extends State<Otpview> {
     emailFocusNode.addListener(() {
       setState(() {
         if (emailFocusNode.hasFocus) {
-          svgHeight = 117.22;
-          svgWidth = 145.2;
+          svgHeight = 0;
+          svgWidth = 0;
         } else {
-          svgHeight = 363;
-          svgWidth = 293.06;
+          svgHeight = 218.78;
+          svgWidth = 231.87;
         }
       });
     });
@@ -76,7 +77,7 @@ class _OtpviewState extends State<Otpview> {
                   ),
                 ),
                 Container(
-                  height: 42,
+                  height: 63,
                   width: 328,
                   child: Text(
                     "We've sent a 4-digit verification code to your email. Please enter it below to complete your sign-up.",
@@ -90,35 +91,43 @@ class _OtpviewState extends State<Otpview> {
                     ),
                   ),
                 ),
-                OtpPinField(
-                  key: _otpPinFieldController,
-                  autoFillEnable: false,
-                  textInputAction: TextInputAction.done,
-                  onSubmit: (text) {
-                    debugPrint('Entered pin is $text');
-                  },
-                  onChange: (text) {
-                    debugPrint('Enter on change pin is $text');
-                  },
-                  onCodeChanged: (code) {
-                    debugPrint('onCodeChanged  is $code');
-                  },
-                  otpPinFieldStyle: const OtpPinFieldStyle(
-                    showHintText: true,
-                    activeFieldBorderGradient:
-                        LinearGradient(colors: [Colors.black, Colors.redAccent]),
-                    filledFieldBorderGradient:
-                        LinearGradient(colors: [Colors.green, Colors.tealAccent]),
-                    defaultFieldBorderGradient:
-                        LinearGradient(colors: [Colors.orange, Colors.brown]),
-                    fieldBorderWidth: 3,
+                const SizedBox(height: 48),
+                Focus(
+                  focusNode: emailFocusNode,
+                  child: OtpPinField(
+                    autoFocus: false,
+                    key: _otpPinFieldController,
+                    autoFillEnable: false,
+                    textInputAction: TextInputAction.done,
+                    onSubmit: (text) {
+                      enteredOtp = text; // Update enteredOtp when OTP is submitted
+                      debugPrint('Entered pin is $enteredOtp');
+                    },
+                    onChange: (text) {
+                      enteredOtp = text; // Update enteredOtp on change
+                      debugPrint('Enter on change pin is $enteredOtp');
+                    },
+                    onCodeChanged: (code) {
+                      enteredOtp = code; // Update enteredOtp when code changes
+                      debugPrint('onCodeChanged is $enteredOtp');
+                    },
+                    otpPinFieldStyle: const OtpPinFieldStyle(
+                      showHintText: true,
+                      activeFieldBorderGradient:
+                          LinearGradient(colors: [Colors.black, Colors.redAccent]),
+                      filledFieldBorderGradient:
+                          LinearGradient(colors: [Colors.green, Colors.tealAccent]),
+                      defaultFieldBorderGradient:
+                          LinearGradient(colors: [Colors.orange, Colors.brown]),
+                      fieldBorderWidth: 3,
+                    ),
+                    maxLength: 4,
+                    showCursor: true,
+                    cursorColor: Colors.indigo,
+                    cursorWidth: 3,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    otpPinFieldDecoration: OtpPinFieldDecoration.defaultPinBoxDecoration,
                   ),
-                  maxLength: 4,
-                  showCursor: true,
-                  cursorColor: Colors.indigo,
-                  cursorWidth: 3,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  otpPinFieldDecoration: OtpPinFieldDecoration.defaultPinBoxDecoration,
                 ),
                 const SizedBox(height: 20),
                 SvgPicture.asset(
@@ -134,12 +143,36 @@ class _OtpviewState extends State<Otpview> {
                   child: Column(
                     children: [
                       const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Text("Didn’t receive the code?"),
+                          OtpTimerButton(
+                            height: 20,
+                            controller: otp,
+                            onPressed: () {},
+                            text: Text(
+                              'Resend',
+                              style: GoogleFonts.montserrat(
+                                textStyle: const TextStyle(
+                                  color: Color(0xFF5662AC),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ),
+                            duration: 30,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
                       SizedBox(
                         height: 40,
                         width: 328,
                         child: ElevatedButton(
                           onPressed: () {
-                            print("otp: ${otp.text}");
+                            print("#####################");
+                            print("Entered OTP: $enteredOtp");
                           },
                           child: Text(
                             'Verify',
@@ -153,7 +186,7 @@ class _OtpviewState extends State<Otpview> {
                             ),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF47518C),
+                            backgroundColor: const Color(0xFF47518C),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
