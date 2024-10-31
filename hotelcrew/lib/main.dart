@@ -94,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.pushReplacement<void, void>(
     context,
     MaterialPageRoute<void>(
-      builder: (BuildContext context) => OnboardingPage(),
+      builder: (BuildContext context) => const OnboardingPage(),
     ),
     );
   }

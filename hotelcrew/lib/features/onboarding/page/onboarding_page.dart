@@ -18,7 +18,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
       Navigator.pushReplacement<void, void>(
         context,
         MaterialPageRoute<void>(
-          builder: (BuildContext context) => LoginPage(),
+          builder: (BuildContext context) => const LoginPage(),
         ),
       );
     });
@@ -26,7 +26,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       backgroundColor: Colors.white,
       // Add some content to the OnboardingPage
       body: Center(
