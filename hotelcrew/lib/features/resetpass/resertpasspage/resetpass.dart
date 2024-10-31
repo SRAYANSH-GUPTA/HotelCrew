@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:email_validator/email_validator.dart';
 import 'resetpasspage2.dart';
+import '../models/resetpassemailmode.dart';
+import '../viewmodel/resetpassviewmodel.dart';
 
 final resetpassemail = TextEditingController(text: "");
 
@@ -15,33 +17,25 @@ class Resetpass extends StatefulWidget {
 
 class _ResetpassState extends State<Resetpass> {
   bool checkBoxValue = false;
- double svgHeight = 363; 
-  double svgWidth = 293.06; 
+  double svgHeight = 363;
+  double svgWidth = 293.06;
   final FocusNode emailFocusNode = FocusNode();
+  final ForgetPasswordViewModel viewModel = ForgetPasswordViewModel();
 
   @override
   void initState() {
     super.initState();
-
-
     emailFocusNode.addListener(() {
       setState(() {
-        if (emailFocusNode.hasFocus) {
-
-          svgHeight = 117.22; 
-          svgWidth = 145.2; 
-        } else {
-
-          svgHeight = 363;
-          svgWidth = 293.06;
-        }
+        svgHeight = emailFocusNode.hasFocus ? 117.22 : 363;
+        svgWidth = emailFocusNode.hasFocus ? 145.2 : 293.06;
       });
     });
   }
 
-   @override
+  @override
   void dispose() {
-    emailFocusNode.dispose(); 
+    emailFocusNode.dispose();
     super.dispose();
   }
 
@@ -49,7 +43,7 @@ class _ResetpassState extends State<Resetpass> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView( 
+      body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -87,12 +81,12 @@ class _ResetpassState extends State<Resetpass> {
                 ),
               ),
               SvgPicture.asset(
-                'assets/resetpass.svg', 
+                'assets/resetpass.svg',
                 height: svgHeight,
                 width: svgWidth,
                 fit: BoxFit.contain,
               ),
-              const SizedBox(height: 20), 
+              const SizedBox(height: 20),
               Container(
                 height: 190,
                 width: 328,
@@ -104,8 +98,8 @@ class _ResetpassState extends State<Resetpass> {
                         controller: resetpassemail,
                         focusNode: emailFocusNode,
                         maxLength: 320,
-                        validator: (value) => EmailValidator.validate(value ?? '') 
-                            ? null 
+                        validator: (value) => EmailValidator.validate(value ?? '')
+                            ? null
                             : "Enter a valid email.",
                         decoration: InputDecoration(
                           labelText: 'Email',
@@ -118,15 +112,32 @@ class _ResetpassState extends State<Resetpass> {
                       height: 40,
                       width: 328,
                       child: ElevatedButton(
-                        onPressed: () {
-                          print("Email: ${resetpassemail.text}");
-                          Navigator.pushReplacement<void, void>(
+                        onPressed: () async {
+  if (EmailValidator.validate(resetpassemail.text)) {
+    final response = await viewModel.sendForgetPasswordRequest(resetpassemail.text);
+
+    if (response is ForgetPasswordSuccessResponse) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Password reset email sent successfully.")),
+      );
+      Navigator.pushReplacement<void, void>(
         context,
         MaterialPageRoute<void>(
           builder: (BuildContext context) => Resetpasslink(),
         ),
       );
-                        },
+    } else if (response is ForgetPasswordErrorResponse) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("User doesn't exist.")),
+      );
+    }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Enter a valid email address.")),
+    );
+  }
+},
+
                         child: Text(
                           'Send Reset Link',
                           style: GoogleFonts.montserrat(
@@ -146,12 +157,12 @@ class _ResetpassState extends State<Resetpass> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20), 
+                    const SizedBox(height: 20),
                     Row(
                       children: [
                         InkWell(
                           onTap: () {
-                            // Add your onTap functionality here
+                      
                           },
                           child: Text(
                             'Remember Password?',
@@ -165,17 +176,17 @@ class _ResetpassState extends State<Resetpass> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8), 
+                        const SizedBox(width: 8),
                         Container(
                           width: 61,
                           height: 28,
                           child: TextButton(
                             onPressed: () {
-                              // Add your onPressed functionality here
+                        
                             },
                             style: TextButton.styleFrom(
                               padding: EdgeInsets.all(0),
-                              backgroundColor: Colors.white, // Background color
+                              backgroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
