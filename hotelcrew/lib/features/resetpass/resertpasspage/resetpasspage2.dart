@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../models/resetpassemailmode.dart';
+import '../viewmodel/resetpassviewmodel.dart';
+import '../resertpasspage/resetpass.dart';
 
-final resetpassemail = TextEditingController(text: "");
+
 
 class Resetpasslink extends StatefulWidget {
   const Resetpasslink({super.key});
@@ -13,7 +16,7 @@ class Resetpasslink extends StatefulWidget {
 
 class _ResetpassState extends State<Resetpasslink> {
  
-
+final ForgetPasswordViewModel viewModel = ForgetPasswordViewModel();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,9 +93,24 @@ class _ResetpassState extends State<Resetpasslink> {
                       height: 40,
                       width: 328,
                       child: ElevatedButton(
-                        onPressed: () {
-                          
-                        },
+                        onPressed: () async {
+    final response = await viewModel.sendForgetPasswordRequest(resetpassemail.text);
+
+    if (response is ForgetPasswordSuccessResponse) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Password reset email sent successfully.")),
+        
+      );
+      print(resetpassemail.text);
+        print('#############');
+      
+    } else  {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Email sent unsuccessful")),
+      );
+    }
+  
+},
                         child: Text(
                           'Resend Link',
                           style: GoogleFonts.montserrat(
