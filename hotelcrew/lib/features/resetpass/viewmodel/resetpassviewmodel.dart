@@ -47,10 +47,11 @@ class ForgetPasswordViewModel {
       }
     } on DioException catch (e) {
       print("Request error: ${e.response?.statusCode}");
-      
+      print(e.requestOptions);
+    print(e.message);      
       return ForgetPasswordErrorResponse(
         errors: ["Network error: ${e.message}"],
       );
-    }
+    }//overlay
   }
 }
