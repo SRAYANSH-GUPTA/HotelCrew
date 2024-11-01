@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'hoteldetailspage2.dart';
 class Hoteldetailspage1 extends StatefulWidget {
   const Hoteldetailspage1({super.key});
 
@@ -64,7 +65,12 @@ class _Hoteldetailspage1State extends State<Hoteldetailspage1> {
                 child: ElevatedButton(
                   onPressed: () {
                     print("Next!!!!!!!!");
-                   
+                    Navigator.pushReplacement<void, void>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => ProgressPageView(),
+        ),
+      );
                   },
                   child: Text(
                     'Log In',

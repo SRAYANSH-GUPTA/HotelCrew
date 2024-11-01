@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../auth/view/pages/login_page.dart';
 import 'package:email_validator/email_validator.dart';
-import '../../hoteldetails/hoteldetailspage1.dart';
+import '../../hoteldetails/pages/hoteldetailspage1.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -24,6 +24,7 @@ print('Device Pixel Ratio: $pixelRatio');
         MaterialPageRoute<void>(
           builder: (BuildContext context) => Hoteldetailspage1(),
         ),
+        
       );
     });
   }
