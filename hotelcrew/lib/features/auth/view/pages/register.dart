@@ -44,7 +44,7 @@ class _RegisterState extends State<Register> {
                   ),
                 ),
               ),
-              Container(
+              SizedBox(
                 height: 42,
                 width: 328,
                 child: Text(
@@ -59,7 +59,7 @@ class _RegisterState extends State<Register> {
                   ),
                 ),
               ),
-              Container(
+              SizedBox(
                 height: 86,
                 width: 328,
                 child: TextFormField(
@@ -71,7 +71,7 @@ class _RegisterState extends State<Register> {
                   style: const TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
                 ),
               ),
-              Container(
+              SizedBox(
                 height: 86,
                 width: 328,
                 child: TextFormField(
@@ -83,7 +83,7 @@ class _RegisterState extends State<Register> {
                   style: const TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
                 ),
               ),
-              Container(
+              SizedBox(
                 height: 86,
                 width: 328,
                 child: TextFormField(
@@ -97,7 +97,7 @@ class _RegisterState extends State<Register> {
                   style: const TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
                 ),
               ),
-              Container(
+              SizedBox(
                 height: 86,
                 width: 328,
                 child: TextFormField(
@@ -125,6 +125,12 @@ class _RegisterState extends State<Register> {
                       ),
                     );
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF47518C),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   child: Text(
                     'Create Account',
                     style: GoogleFonts.montserrat(
@@ -136,15 +142,9 @@ class _RegisterState extends State<Register> {
                       ),
                     ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF47518C),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
                 ),
               ),
-              Container(
+              SizedBox(
                 height: 58,
                 width: 328,
                 child: CheckboxListTile(

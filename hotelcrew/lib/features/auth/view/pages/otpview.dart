@@ -76,7 +76,7 @@ class _OtpviewState extends State<Otpview> {
                     ),
                   ),
                 ),
-                Container(
+                SizedBox(
                   height: 63,
                   width: 328,
                   child: Text(
@@ -137,7 +137,7 @@ class _OtpviewState extends State<Otpview> {
                   fit: BoxFit.contain,
                 ),
                 const SizedBox(height: 20),
-                Container(
+                SizedBox(
                   height: 190,
                   width: 328,
                   child: Column(
@@ -145,7 +145,7 @@ class _OtpviewState extends State<Otpview> {
                       const SizedBox(height: 20),
                       Row(
                         children: [
-                          Text("Didn’t receive the code?"),
+                          const Text("Didn’t receive the code?"),
                           OtpTimerButton(
                             height: 20,
                             controller: otp,
@@ -174,6 +174,12 @@ class _OtpviewState extends State<Otpview> {
                             print("#####################");
                             print("Entered OTP: $enteredOtp");
                           },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF47518C),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
                           child: Text(
                             'Verify',
                             style: GoogleFonts.montserrat(
@@ -183,12 +189,6 @@ class _OtpviewState extends State<Otpview> {
                                 fontSize: 14,
                                 height: 1.5,
                               ),
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF47518C),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
                             ),
                           ),
                         ),
@@ -208,7 +208,7 @@ class _OtpviewState extends State<Otpview> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Container(
+                          SizedBox(
                             width: 61,
                             height: 28,
                             child: TextButton(
@@ -219,7 +219,7 @@ class _OtpviewState extends State<Otpview> {
                                         builder: (context) => const LoginPage()));
                               },
                               style: TextButton.styleFrom(
-                                padding: EdgeInsets.all(0),
+                                padding: const EdgeInsets.all(0),
                                 backgroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),

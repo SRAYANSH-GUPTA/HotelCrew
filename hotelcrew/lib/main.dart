@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'features/onboarding/page/onboarding_page.dart';
-import 'features/auth/view/pages/register.dart';
 
 void main() {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -95,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.pushReplacement<void, void>(
     context,
     MaterialPageRoute<void>(
-      builder: (BuildContext context) => Register(),
+      builder: (BuildContext context) => const OnboardingPage(),
     ),
     );
   }
