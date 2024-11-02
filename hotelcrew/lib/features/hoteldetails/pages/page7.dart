@@ -11,6 +11,7 @@ class _PageFiveState extends State<PageFive> {
   final TextEditingController cnumberController = TextEditingController();
   final TextEditingController _controller = TextEditingController();
   final List<String> _items = ['Item 1', 'Item 2', 'Item 3'];
+  final FocusNode department = FocusNode();
   bool _isDropdownVisible = false; // To control dropdown visibility
   OverlayEntry? _dropdownOverlay;
 
@@ -18,7 +19,7 @@ class _PageFiveState extends State<PageFive> {
     String item = _controller.text.trim();
     if (item.isNotEmpty) {
       setState(() {
-        _items.add(item); 
+        _items.add(item);
         _controller.clear();
       });
     }
@@ -32,49 +33,50 @@ class _PageFiveState extends State<PageFive> {
     }
   }
 
-  void _showDropdown() {
-    final overlay = Overlay.of(context);
-    final RenderBox renderBox = context.findRenderObject() as RenderBox;
-    final size = renderBox.size;
-    final offset = renderBox.localToGlobal(Offset.zero);
+ void _showDropdown() {
+  final overlay = Overlay.of(context);
+  final RenderBox renderBox = context.findRenderObject() as RenderBox;
+  final size = renderBox.size;
+  final offset = renderBox.localToGlobal(Offset.zero);
 
-    _dropdownOverlay = OverlayEntry(
-      builder: (context) => Positioned(
-        left: offset.dx,
-        top: offset.dy + size.height,
-        width: size.width,
-        child: Material(
-          elevation: 4,
-          child: Container(
-            color: Colors.white,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: _items
-                  .map((String item) => ListTile(
-                        title: Text(item),
-                        trailing: IconButton(
-                          icon: Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            _deleteItem(item);
-                          },
-                        ),
-                        onTap: () {
-                          setState(() {
-                            _controller.text = item;
-                          });
-                          _hideDropdown();
-                        },
-                      ))
-                  .toList(),
-            ),
+  _dropdownOverlay = OverlayEntry(
+    builder: (context) => Positioned(
+      left: offset.dx,
+      top: offset.dy + size.height,
+      width: size.width,
+      child: Material(
+        elevation: 4,
+        child: Container(
+          color: Colors.white,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: _items.map((String item) {
+              return ListTile(
+                title: Text(item),
+                trailing: IconButton(
+                  icon: Icon(Icons.delete, color: Color(0xFF47518C)), // Always show the delete icon
+                  onPressed: () {
+                    _deleteItem(item); // Delete item from list when pressed
+                  },
+                ),
+                onTap: () {
+                  setState(() {
+                    _controller.text = item; // Set selected item in the TextField
+                  });
+                  _hideDropdown();
+                },
+              );
+            }).toList(),
           ),
         ),
       ),
-    );
+    ),
+  );
 
-    overlay.insert(_dropdownOverlay!);
-    setState(() => _isDropdownVisible = true);
-  }
+  overlay.insert(_dropdownOverlay!);
+  setState(() => _isDropdownVisible = true);
+}
+
 
   void _hideDropdown() {
     _dropdownOverlay?.remove();
@@ -92,6 +94,7 @@ class _PageFiveState extends State<PageFive> {
   void dispose() {
     cnumberController.dispose();
     _controller.dispose();
+    department.dispose(); // Dispose of the FocusNode
     super.dispose();
   }
 
@@ -112,6 +115,7 @@ class _PageFiveState extends State<PageFive> {
                   padding: const EdgeInsets.only(top: 8, bottom: 22),
                   child: TextFormField(
                     controller: cnumberController,
+                    focusNode: department, // Corrected from Department to department
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       labelText: 'Number Of Departments',
@@ -186,7 +190,7 @@ class _PageFiveState extends State<PageFive> {
                     child: TextField(
                       controller: _controller,
                       decoration: InputDecoration(
-                        labelText: 'Add Item',
+                        labelText: 'Department Names',
                         border: OutlineInputBorder(),
                         suffixIcon: Row(
                           mainAxisSize: MainAxisSize.min,
