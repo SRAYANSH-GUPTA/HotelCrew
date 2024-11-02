@@ -164,44 +164,47 @@ class _OnboardingPageState extends State<OnboardingPage> {
     );
   }
 
-  Widget _buildOnboardingPage(int index) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Container(
-        margin: EdgeInsets.only(top: 0),
-        height: 544,
-        width: 328,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _onboardingData[index]["title"]!,
-              style: GoogleFonts.montserrat(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
+ Widget _buildOnboardingPage(int index) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+    child: Container(
+      height: 544,
+      width: 328,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start, // Aligns children to the top
+        children: [
+          SizedBox(height: 98), // Optional space from the top
+          Text(
+            _onboardingData[index]["title"]!,
+            style: GoogleFonts.montserrat(
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              height: 1.3,
             ),
-            SizedBox(height: 20),
-            Text(
-              _onboardingData[index]["description"]!,
-              style: GoogleFonts.montserrat(
-                fontSize: 16,
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 16),
+          Text(
+            _onboardingData[index]["description"]!,
+            style: GoogleFonts.montserrat(
+              fontSize: 16,
+              height: 1.5,
+              fontWeight: FontWeight.w600,
             ),
-            SvgPicture.asset(
-                  'assets/onboarding${index + 1}.svg', // Ensure the path is correct
-                  height: 298.96,
-                  width: 301.96,
-                ),
-            
-          ],
-        ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 20), // Space between description and SVG
+          SvgPicture.asset(
+            'assets/onboarding${index + 1}.svg', // Ensure the path is correct
+            height: 298.96,
+            width: 301.96,
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   void _handleSignUp() {
     // Implement your sign-up logic here
