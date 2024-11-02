@@ -71,7 +71,7 @@ class _ResetpassState extends State<Resetpass> {
                   ),
                 ),
               ),
-              Container(
+              SizedBox(
                 height: 42,
                 width: 328,
                 child: Text(
@@ -93,7 +93,7 @@ class _ResetpassState extends State<Resetpass> {
                 fit: BoxFit.contain,
               ),
               const SizedBox(height: 20), 
-              Container(
+              SizedBox(
                 height: 190,
                 width: 328,
                 child: Column(
@@ -107,7 +107,7 @@ class _ResetpassState extends State<Resetpass> {
                         validator: (value) => EmailValidator.validate(value ?? '') 
                             ? null 
                             : "Enter a valid email.",
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Email',
                           border: OutlineInputBorder(),
                         ),
@@ -123,10 +123,16 @@ class _ResetpassState extends State<Resetpass> {
                           Navigator.pushReplacement<void, void>(
         context,
         MaterialPageRoute<void>(
-          builder: (BuildContext context) => Resetpasslink(),
+          builder: (BuildContext context) => const Resetpasslink(),
         ),
       );
                         },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF47518C),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
                         child: Text(
                           'Send Reset Link',
                           style: GoogleFonts.montserrat(
@@ -136,12 +142,6 @@ class _ResetpassState extends State<Resetpass> {
                               fontSize: 14,
                               height: 1.5,
                             ),
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF47518C),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                       ),
@@ -166,7 +166,7 @@ class _ResetpassState extends State<Resetpass> {
                           ),
                         ),
                         const SizedBox(width: 8), 
-                        Container(
+                        SizedBox(
                           width: 61,
                           height: 28,
                           child: TextButton(
@@ -174,13 +174,13 @@ class _ResetpassState extends State<Resetpass> {
                               // Add your onPressed functionality here
                             },
                             style: TextButton.styleFrom(
-                              padding: EdgeInsets.all(0),
+                              padding: const EdgeInsets.all(0),
                               backgroundColor: Colors.white, // Background color
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child: Container(
+                            child: SizedBox(
                               height: 20,
                               width: 45,
                               child: Text(

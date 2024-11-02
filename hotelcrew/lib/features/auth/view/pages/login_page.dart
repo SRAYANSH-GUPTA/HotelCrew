@@ -46,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-              Container(
+              SizedBox(
                 height: 42,
                 width: 328,
                 child: Text(
@@ -73,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
                   controller: email,
                   maxLength: 320,
                   validator: (value) => EmailValidator.validate(value ?? '') ? null : "Enter a valid email.",
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Email',
                     border: OutlineInputBorder(),
                   ),
@@ -83,13 +83,13 @@ class _LoginPageState extends State<LoginPage> {
               TextFormField(
                 controller: password,
                 maxLength: 12,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Password',
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true,
                 obscuringCharacter: '●',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 20,
                   color: Color(0xFF5B6C78),
                 ),
@@ -101,7 +101,7 @@ class _LoginPageState extends State<LoginPage> {
                       Navigator.pushReplacement<void, void>(
                         context,
                         MaterialPageRoute<void>(
-                          builder: (BuildContext context) => Otpview(),
+                          builder: (BuildContext context) => const Otpview(),
                         ),
                       );
                     },
@@ -136,6 +136,12 @@ class _LoginPageState extends State<LoginPage> {
                     print("Email: ${email.text}");
                     print("Password: ${password.text}");
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF47518C),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   child: Text(
                     'Log In',
                     style: GoogleFonts.montserrat(
@@ -147,16 +153,10 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF47518C),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
                 ),
               ),
               const SizedBox(height: 20),
-              Container(
+              SizedBox(
                 height: 28,
                 width: 328,
                 child: Row(
@@ -176,7 +176,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       width: 61,
                       height: 28,
                       child: TextButton(
@@ -184,13 +184,13 @@ class _LoginPageState extends State<LoginPage> {
                           // Add your onPressed functionality here
                         },
                         style: TextButton.styleFrom(
-                          padding: EdgeInsets.all(0),
+                          padding: const EdgeInsets.all(0),
                           backgroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: Container(
+                        child: SizedBox(
                           height: 20,
                           width: 45,
                           child: Text(

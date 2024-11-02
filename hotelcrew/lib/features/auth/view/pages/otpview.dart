@@ -16,8 +16,8 @@ class Otpview extends StatefulWidget {
 class _OtpviewState extends State<Otpview> {
   final _otpPinFieldController = GlobalKey<OtpPinFieldState>();
   bool checkBoxValue = false;
-  double svgHeight = 232;
-  double svgWidth = 236;
+  double svgHeight = 236.03;
+  double svgWidth = 232.28;
   final FocusNode emailFocusNode = FocusNode();
   final OtpTimerButtonController otp = OtpTimerButtonController();
   String enteredOtp = ""; // Variable to store the OTP entered by the user
@@ -55,195 +55,229 @@ class _OtpviewState extends State<Otpview> {
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 328,
-                  height: 32,
-                  margin: const EdgeInsets.only(top: 58),
-                  child: Text(
-                    'Verify Your Account',
-                    style: GoogleFonts.montserrat(
-                      textStyle: const TextStyle(
-                        color: Color(0xFF121212),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 24,
-                        height: 1.3,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 16,right: 16,top: 64),
+            child: SizedBox(
+              width: 328,
+              height: 700,
+          
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 328,
+                    height: 32,
+                
+                    child: Text(
+                      'Verify Your Account',
+                      style: GoogleFonts.montserrat(
+                        textStyle: const TextStyle(
+                          color: Color(0xFF121212),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 24,
+                          height: 1.3,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Container(
-                  height: 63,
-                  width: 328,
-                  child: Text(
-                    "We've sent a 4-digit verification code to your email. Please enter it below to complete your sign-up.",
-                    style: GoogleFonts.montserrat(
-                      textStyle: const TextStyle(
-                        color: Color(0xFF4D5962),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        height: 1.5,
+                  SizedBox(
+                    height: 42,
+                    width: 328,
+                    child: Text(
+                      "We've sent a 4-digit verification code to your email abcXXX@gmail.com",
+                      style: GoogleFonts.montserrat(
+                        textStyle: const TextStyle(
+                          color: Color(0xFF4D5962),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          height: 1.5,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 48),
-                Focus(
-                  focusNode: emailFocusNode,
-                  child: OtpPinField(
-                    autoFocus: false,
-                    key: _otpPinFieldController,
-                    autoFillEnable: false,
-                    textInputAction: TextInputAction.done,
-                    onSubmit: (text) {
-                      enteredOtp = text; // Update enteredOtp when OTP is submitted
-                      debugPrint('Entered pin is $enteredOtp');
-                    },
-                    onChange: (text) {
-                      enteredOtp = text; // Update enteredOtp on change
-                      debugPrint('Enter on change pin is $enteredOtp');
-                    },
-                    onCodeChanged: (code) {
-                      enteredOtp = code; // Update enteredOtp when code changes
-                      debugPrint('onCodeChanged is $enteredOtp');
-                    },
-                    otpPinFieldStyle: const OtpPinFieldStyle(
-                      showHintText: true,
-                      activeFieldBorderGradient:
-                          LinearGradient(colors: [Colors.black, Colors.redAccent]),
-                      filledFieldBorderGradient:
-                          LinearGradient(colors: [Colors.green, Colors.tealAccent]),
-                      defaultFieldBorderGradient:
-                          LinearGradient(colors: [Colors.orange, Colors.brown]),
-                      fieldBorderWidth: 3,
+                  const SizedBox(height: 48),
+                  Focus(
+                    focusNode: emailFocusNode,
+                    child: SizedBox(
+                      width: 328,
+                      height: 45,
+                      child: OtpPinField(
+                        autoFocus: false,
+                        key: _otpPinFieldController,
+                        autoFillEnable: false,
+                        textInputAction: TextInputAction.done,
+                        onSubmit: (text) {
+                          enteredOtp = text; // Update enteredOtp when OTP is submitted
+                          debugPrint('Entered pin is $enteredOtp');
+                        },
+                        onChange: (text) {
+                          enteredOtp = text; // Update enteredOtp on change
+                          debugPrint('Enter on change pin is $enteredOtp');
+                        },
+                        onCodeChanged: (code) {
+                          enteredOtp = code; // Update enteredOtp when code changes
+                          debugPrint('onCodeChanged is $enteredOtp');
+                        },
+                        otpPinFieldStyle: const OtpPinFieldStyle(
+                          // fieldBorderRadius: BorderRadius.circular(80),
+                          showHintText: true,
+                          activeFieldBorderGradient:
+                              LinearGradient(colors: [Color(0xFF4CAF50), Color(0xFF4CAF50)]),
+                            
+                          filledFieldBorderGradient:
+                              LinearGradient(colors: [Color(0xFFBA4872), Color(0xFFBA4872)]),
+                          defaultFieldBorderGradient:
+                              LinearGradient(colors: [Color(0xFF6F8393), Color(0xFF6F8393)]),
+                          fieldBorderWidth: 2,
+                    
+                        ),
+                        maxLength: 4,
+                        showCursor: true,
+                        cursorColor: Colors.indigo,
+                        cursorWidth: 3,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        otpPinFieldDecoration: OtpPinFieldDecoration.defaultPinBoxDecoration,
+                      ),
                     ),
-                    maxLength: 4,
-                    showCursor: true,
-                    cursorColor: Colors.indigo,
-                    cursorWidth: 3,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    otpPinFieldDecoration: OtpPinFieldDecoration.defaultPinBoxDecoration,
                   ),
-                ),
-                const SizedBox(height: 20),
-                SvgPicture.asset(
-                  'assets/otp.svg',
-                  height: svgHeight,
-                  width: svgWidth,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  height: 190,
-                  width: 328,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          Text("Didn’t receive the code?"),
-                          OtpTimerButton(
-                            height: 20,
-                            controller: otp,
-                            onPressed: () {},
-                            text: Text(
-                              'Resend',
+                  const SizedBox(height: 57),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 45.98,right: 45.98),
+                    child: SvgPicture.asset(
+                      'assets/otp.svg',
+                      height: svgHeight,
+                      width: svgWidth,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    height: 190,
+                    width: 328,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 20),
+                        Row(mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            
+                            const Text("Didn’t receive the code?"),
+                            Container(
+                              width: 97,
+                              height: 30,
+                              child: OtpTimerButton(
+                                buttonType: ButtonType.text_button,
+                                backgroundColor: Colors.black,
+                            
+                                controller: otp,
+                                onPressed: () {
+                                  Navigator.pushReplacement<void, void>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => Otpview(),
+        ),
+      );
+                                },
+                                text: Text(
+                                  'Resend',
+                                  style: GoogleFonts.montserrat(
+                                    textStyle: const TextStyle(
+                                      color: Color(0xFF5662AC),
+                                      
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12,
+                                      height: 1.5,
+                                    ),
+                                  ),
+                                ),
+                                duration: 30,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          height: 40,
+                          width: 328,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              print("#####################");
+                              print("Entered OTP: $enteredOtp");
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF47518C),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: Text(
+                              'Verify',
                               style: GoogleFonts.montserrat(
                                 textStyle: const TextStyle(
-                                  color: Color(0xFF5662AC),
+                                  color: Color(0xFFFAFAFA),
                                   fontWeight: FontWeight.w600,
                                   fontSize: 14,
                                   height: 1.5,
                                 ),
                               ),
                             ),
-                            duration: 30,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        height: 40,
-                        width: 328,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            print("#####################");
-                            print("Entered OTP: $enteredOtp");
-                          },
-                          child: Text(
-                            'Verify',
-                            style: GoogleFonts.montserrat(
-                              textStyle: const TextStyle(
-                                color: Color(0xFFFAFAFA),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                height: 1.5,
-                              ),
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF47518C),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          Text(
-                            'Back To',
-                            style: GoogleFonts.poppins(
-                              textStyle: const TextStyle(
-                                color: Color(0xFF4D5962),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                height: 1.5,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Container(
-                            width: 61,
-                            height: 28,
-                            child: TextButton(
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => const LoginPage()));
-                              },
-                              style: TextButton.styleFrom(
-                                padding: EdgeInsets.all(0),
-                                backgroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(left: 104),
                               child: Text(
-                                'Sign Up',
+                                
+                                'Back To',
                                 style: GoogleFonts.poppins(
                                   textStyle: const TextStyle(
-                                    color: Color(0xFF4D5962),
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
+                                    color: Color(0xFF121212),
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 12,
                                     height: 1.5,
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                            const SizedBox(width: 4),
+                            SizedBox(
+                              width: 61,
+                              height: 28,
+                              child: TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => const LoginPage()));
+                                },
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.only(left: 0),
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Sign Up',
+                                  style: GoogleFonts.poppins(
+                                    textStyle: const TextStyle(
+                                      color: Color(0xFF5662AC),
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      height: 1.5,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

@@ -80,7 +80,7 @@ class _createpwdState extends State<createpwd> {
                   ),
                 ),
               ),
-              Container(
+              SizedBox(
                 height: 42,
                 width: 328,
                 child: Text(
@@ -106,27 +106,27 @@ class _createpwdState extends State<createpwd> {
                 child: TextFormField(
                   controller: password,
                   maxLength: 12,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Password',
                     border: OutlineInputBorder(),
                   ),
                   obscureText: true,
                   focusNode: passwordFocusNode,
                   obscuringCharacter: '●',
-                  style: TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
+                  style: const TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
                 ),
               ),
               const SizedBox(height: 20), // Space between the text fields
               TextFormField(
                 controller: confirmpassword,
                 maxLength: 12,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Confirm Password',
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true,
                 obscuringCharacter: '●',
-                style: TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
+                style: const TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
               ),
               const SizedBox(height: 20), // Space between the text fields
               SizedBox(
@@ -139,10 +139,16 @@ class _createpwdState extends State<createpwd> {
                     Navigator.pushReplacement<void, void>(
         context,
         MaterialPageRoute<void>(
-          builder: (BuildContext context) => Otpview(),
+          builder: (BuildContext context) => const Otpview(),
         ),
       );
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF47518C),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   child: Text(
                     'Save Password',
                     style: GoogleFonts.montserrat(
@@ -152,12 +158,6 @@ class _createpwdState extends State<createpwd> {
                         fontSize: 14,
                         height: 1.5,
                       ),
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF47518C),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                 ),
