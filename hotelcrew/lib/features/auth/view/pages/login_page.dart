@@ -49,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
       child: Scaffold(
         backgroundColor: Colors.white,
         body: Padding(
-          padding: const EdgeInsets.all(0),
+          padding: const EdgeInsets.only(top: 20),
           child: SingleChildScrollView(
             child: Container(
               padding: const EdgeInsets.all(16.0),
@@ -100,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 30.69),
                   Container(
-                
+                  
                     child: Form(
                       autovalidateMode: AutovalidateMode.always,
                       child: Padding(
@@ -189,7 +189,7 @@ class _LoginPageState extends State<LoginPage> {
                           style: GoogleFonts.poppins(
                             textStyle: const TextStyle(
                               color: Color(0xFF4D5962),
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w400,
                               fontSize: 14,
                               height: 1.5,
                             ),
@@ -208,19 +208,32 @@ class _LoginPageState extends State<LoginPage> {
                                 child: SizedBox(
                                   height: 18,
                                   width: 18,
-                                  child: Checkbox(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(4),
-                                      side: BorderSide(color: Colors.transparent),
-                                    ),
-                                    value: checkBoxValue,
-                                    splashRadius: 0,
-                                    fillColor: const WidgetStatePropertyAll(Color(0xFFC6D6DB)),
-                                    onChanged: (newValue) {
-                                      setState(() {
-                                        checkBoxValue = newValue ?? false;
-                                      });
-                                    },
+                                  child: CheckboxTheme(
+                                      data: CheckboxThemeData(
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+    side: BorderSide(width: 0, color: Colors.transparent),  // Removes outline
+  ),
+                                    child:Checkbox(
+  checkColor: Colors.white, // Color of the check mark
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(4),
+    side: BorderSide(color: Colors.transparent),
+  ),
+  value: checkBoxValue,
+  splashRadius: 0,
+  fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+    if (states.contains(WidgetState.selected)) {
+      return Color(0xFF5662AC); // Color when the checkbox is checked
+    }
+    return Color(0xFFC6D6DB); // Color when unchecked
+  }),
+  onChanged: (newValue) {
+    setState(() {
+      checkBoxValue = newValue ?? false;
+    });
+  },
+)
+
                                   ),
                                 ),
                               ),
@@ -235,7 +248,7 @@ class _LoginPageState extends State<LoginPage> {
                                   textStyle: const TextStyle(
                                     color: Color(0xFF4D5962),
                                     fontWeight: FontWeight.w400,
-                                    fontSize: 14,
+                                    fontSize: 13.6,
                                     height: 1.5,
                                   ),
                                 ),
@@ -323,7 +336,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             )
                           : Text(
-                              'Log In',
+                            'Log In',
                               style: GoogleFonts.montserrat(
                                 textStyle: const TextStyle(
                                   color: Color(0xFFFAFAFA),
@@ -344,26 +357,26 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         Container(
                     
-                          width: 125,
+                          width: 96,
                           height: 18,
                           child: Text(
-                            'Already a member?',
+                            'Not a member?',
                             style: GoogleFonts.montserrat(
                               textStyle: const TextStyle(
                                 color: Color(0xFF121212),
                                 fontWeight: FontWeight.w400,
-                                fontSize: 12,
+                                fontSize: 11.5,
                               ),
                             ),
                           ),
                         ),
                         Container(
                         
-                          width: 61,
+                          width: 73,
                           height: 28,
                           child: Container(
                             height: 20,
-                            width: 45,
+                            width: 57,
                             child: TextButton(
                               onPressed: () {
                                 // Add your onPressed functionality here
@@ -376,10 +389,10 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                               child: Text(
-                                'Log In',
+                                'Sign Up',
                                 style: GoogleFonts.poppins(
                                   textStyle: const TextStyle(
-                                    color: Color(0xFF4D5962),
+                                    color: Color(0xFF5662AC),
                                     fontWeight: FontWeight.w600,
                                     fontSize: 14,
                                     height: 1.5,
