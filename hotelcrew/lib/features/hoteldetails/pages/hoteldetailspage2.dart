@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:hotelcrew/features/hoteldetails/pages/setupcomplete.dart';
 import 'page3.dart';
 import 'page4.dart';
 import 'page5.dart';
 import 'page6.dart';
 import 'page7.dart';
+import 'page8.dart';
+import 'setupcomplete.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ProgressPageView extends StatefulWidget {
@@ -22,6 +25,7 @@ class _ProgressPageViewState extends State<ProgressPageView> {
     PageThree(),
     PageFour(),
     PageFive(),
+    Document(),
   ];
 
   // List of strings to display based on the page number
@@ -32,6 +36,7 @@ class _ProgressPageViewState extends State<ProgressPageView> {
     'Operational Information',
     'Staff Management',
     'Documents Upload',
+
   ];
 
   @override
@@ -173,10 +178,18 @@ class _ProgressPageViewState extends State<ProgressPageView> {
             width: 328,
             child: ElevatedButton(
               onPressed: () {
-                _goToNextPage();
+                if(_currentPage != _totalPages-1){_goToNextPage();}
+                else{
+                  Navigator.pushReplacement<void, void>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => SetupComplete(),
+        ),
+      );
+                }
               },
               child: Text(
-                _currentPage < _totalPages - 1 ? 'Next' : 'Finish',
+                _currentPage < _totalPages - 1 ? 'Next' : 'Save Information',
                 style: GoogleFonts.montserrat(
                   textStyle: const TextStyle(
                     color: Color(0xFFFAFAFA),
