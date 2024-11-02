@@ -56,18 +56,16 @@ class _OtpviewState extends State<Otpview> {
         backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.only(left: 16,right: 16,top: 64),
+            padding: const EdgeInsets.only(left: 16, right: 16, top: 64),
             child: SizedBox(
               width: 328,
-              height: 700,
-          
+              height: 800,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
                     width: 328,
                     height: 32,
-                
                     child: Text(
                       'Verify Your Account',
                       style: GoogleFonts.montserrat(
@@ -119,17 +117,13 @@ class _OtpviewState extends State<Otpview> {
                           debugPrint('onCodeChanged is $enteredOtp');
                         },
                         otpPinFieldStyle: const OtpPinFieldStyle(
-                          // fieldBorderRadius: BorderRadius.circular(80),
-                          showHintText: true,
                           activeFieldBorderGradient:
                               LinearGradient(colors: [Color(0xFF4CAF50), Color(0xFF4CAF50)]),
-                            
                           filledFieldBorderGradient:
                               LinearGradient(colors: [Color(0xFFBA4872), Color(0xFFBA4872)]),
                           defaultFieldBorderGradient:
                               LinearGradient(colors: [Color(0xFF6F8393), Color(0xFF6F8393)]),
                           fieldBorderWidth: 2,
-                    
                         ),
                         maxLength: 4,
                         showCursor: true,
@@ -141,8 +135,39 @@ class _OtpviewState extends State<Otpview> {
                     ),
                   ),
                   const SizedBox(height: 57),
+                  // Conditional error message when svgHeight is 0
+                  if (svgHeight == 0)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 72),
+                      child: Container(color: Colors.blue,
+                        width: 185,
+                        height: 39,
+                        child: Column(mainAxisAlignment: MainAxisAlignment.center,
+                          children: [Text(
+                            "Incorrect code.",
+                            style: GoogleFonts.montserrat(
+                              textStyle: const TextStyle(
+                                color: Color(0xFFBA4872),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                          Text(
+                          "Check and try again",
+                          style: GoogleFonts.montserrat(
+                            textStyle: const TextStyle(
+                              color: Color(0xFFBA4872),
+                              fontWeight: FontWeight.w500,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),]
+                        ),
+                      ),
+                    ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 45.98,right: 45.98),
+                    padding: const EdgeInsets.only(left: 45.98, right: 45.98),
                     child: SvgPicture.asset(
                       'assets/otp.svg',
                       height: svgHeight,
@@ -157,9 +182,9 @@ class _OtpviewState extends State<Otpview> {
                     child: Column(
                       children: [
                         const SizedBox(height: 20),
-                        Row(mainAxisAlignment: MainAxisAlignment.center,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            
                             const Text("Didn’t receive the code?"),
                             Container(
                               width: 97,
@@ -167,22 +192,18 @@ class _OtpviewState extends State<Otpview> {
                               child: OtpTimerButton(
                                 buttonType: ButtonType.text_button,
                                 backgroundColor: Colors.black,
-                            
                                 controller: otp,
                                 onPressed: () {
-                                  Navigator.pushReplacement<void, void>(
-        context,
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => Otpview(),
-        ),
-      );
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => Otpview()),
+                                  );
                                 },
                                 text: Text(
                                   'Resend',
                                   style: GoogleFonts.montserrat(
                                     textStyle: const TextStyle(
                                       color: Color(0xFF5662AC),
-                                      
                                       fontWeight: FontWeight.w600,
                                       fontSize: 12,
                                       height: 1.5,
@@ -200,7 +221,6 @@ class _OtpviewState extends State<Otpview> {
                           width: 328,
                           child: ElevatedButton(
                             onPressed: () {
-                              print("#####################");
                               print("Entered OTP: $enteredOtp");
                             },
                             style: ElevatedButton.styleFrom(
@@ -222,13 +242,12 @@ class _OtpviewState extends State<Otpview> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 4),
                         Row(
                           children: [
                             Padding(
-                              padding: EdgeInsets.only(left: 104),
+                              padding: const EdgeInsets.only(left: 104),
                               child: Text(
-                                
                                 'Back To',
                                 style: GoogleFonts.poppins(
                                   textStyle: const TextStyle(
@@ -247,9 +266,9 @@ class _OtpviewState extends State<Otpview> {
                               child: TextButton(
                                 onPressed: () {
                                   Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => const LoginPage()));
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                                  );
                                 },
                                 style: TextButton.styleFrom(
                                   padding: const EdgeInsets.only(left: 0),
