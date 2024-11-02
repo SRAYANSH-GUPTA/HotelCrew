@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:hotelcrew/features/hoteldetails/pages/setupcomplete.dart';
+
 
 class Staffdetails extends StatefulWidget {
   const Staffdetails({super.key});
@@ -120,7 +122,7 @@ Future<void> _pickFile() async {
                 ),
                 SizedBox(height: 10),
                 Container(
-                  color: Color(0xFF4D5962),
+                  color: Color(0xFFC6D6DB),
                   height: 1,
                   width: 360,
                 ),
@@ -133,8 +135,8 @@ Future<void> _pickFile() async {
                 ? Center(
                     child: SvgPicture.asset(
                 'assets/cuate.svg', // Your empty state SVG file
-                      width: 100, // Set width or height as needed
-                      height: 100,
+                      width: 295.27, // Set width or height as needed
+                      height: 277.8,
                     ),
                   )
                 : ListView.builder(
@@ -152,7 +154,7 @@ Future<void> _pickFile() async {
           ),
           SizedBox(height: 20), // Additional spacing
           Container(
-            margin: EdgeInsets.only(left: 113, right: 113),
+            //margin: EdgeInsets.only(left: 113, right: 113),
             decoration: BoxDecoration(
               color: Color(0xFFD2E0F3),
               borderRadius: BorderRadius.circular(8),
@@ -168,9 +170,9 @@ Future<void> _pickFile() async {
               ),
               child: Row(
                 children: [
-                  SizedBox(width: 16),
+                  //SizedBox(width: 16),
                   Container(
-                    padding: EdgeInsets.only(top: 11, left: 16),
+                    
                     height: 18,
                     width: 18,
                     child: SvgPicture.asset('assets/add.svg'), // Fixed asset path
@@ -195,8 +197,41 @@ Future<void> _pickFile() async {
               ),
             ),
           ),
-          SizedBox(height: 20), // Additional spacing
-        ],
+          SizedBox(height: 86), // Additional spacing
+        
+        SizedBox(
+                height: 40,
+                width: 328,
+                child: ElevatedButton(
+                  onPressed: () {
+                    print("Next!!!!!!!!");
+                    Navigator.pushReplacement<void, void>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => SetupComplete(),
+        ),
+      );
+                  },
+                  child: Text(
+                    'Submit',
+                    style: GoogleFonts.montserrat(
+                      textStyle: const TextStyle(
+                        color: Color(0xFFFAFAFA),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF47518C),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 46,)],
       ),
     );
   }

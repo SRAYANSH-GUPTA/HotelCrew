@@ -104,7 +104,7 @@ class _ProgressPageViewState extends State<ProgressPageView> {
                   ),
                 ),
                 Container(
-                  width: 24,
+                  width: 25,
                   height: 21,
                   margin: const EdgeInsets.only(left: 10, right: 4,top: 0),
                   child: Text(
