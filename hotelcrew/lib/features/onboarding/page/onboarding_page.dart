@@ -59,9 +59,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 ),
               ),
               Positioned(
-                top: 54,
+                top: 42,
                 right: 16,
-                child: _currentPage < _onboardingData.length - 1
+                child: (_currentPage < _onboardingData.length - 1 && _currentPage != 0) 
                     ? TextButton(
                         onPressed: () {
                           // Skip to the last page
@@ -69,8 +69,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         },
                         child: Text(
                           'Skip',
-                          style: TextStyle(color: Colors.blue),
-                        ),
+                          style: TextStyle(color: Color(0xFF5662AC),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          height: 1.3,
+                        ),)
                       )
                     : SizedBox.shrink(),
               ),
@@ -196,8 +199,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
           SizedBox(height: 20), // Space between description and SVG
           SvgPicture.asset(
             'assets/onboarding${index + 1}.svg', // Ensure the path is correct
-            height: 298.96,
-            width: 301.96,
+            height: 300.08,
+            width: 309.96,
           ),
         ],
       ),
