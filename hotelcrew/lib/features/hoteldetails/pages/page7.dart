@@ -8,270 +8,207 @@ class PageFive extends StatefulWidget {
 }
 
 class _PageFiveState extends State<PageFive> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController businessController = TextEditingController();
-  final TextEditingController yearController = TextEditingController(); // Controller for Year Established
-  final TextEditingController licenseController = TextEditingController(); // Controller for License/Registration Number
-  final FocusNode nameFocusNode = FocusNode();
-  final FocusNode businessFocusNode = FocusNode();
-  final FocusNode yearFocusNode = FocusNode(); // FocusNode for Year Established
-  final FocusNode licenseFocusNode = FocusNode(); // FocusNode for License/Registration Number
+  final TextEditingController cnumberController = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
+  final List<String> _items = ['Item 1', 'Item 2', 'Item 3'];
+  bool _isDropdownVisible = false; // To control dropdown visibility
+  OverlayEntry? _dropdownOverlay;
 
-  @override
-  void initState() {
-    super.initState();
-    
-    // Listen for focus changes to update the UI
-    nameFocusNode.addListener(() => setState(() {}));
-    businessFocusNode.addListener(() => setState(() {}));
-    yearFocusNode.addListener(() => setState(() {}));
-    licenseFocusNode.addListener(() => setState(() {}));
+  void _addItem() {
+    String item = _controller.text.trim();
+    if (item.isNotEmpty) {
+      setState(() {
+        _items.add(item); 
+        _controller.clear();
+      });
+    }
+  }
+
+  void _toggleDropdown() {
+    if (_isDropdownVisible) {
+      _hideDropdown();
+    } else {
+      _showDropdown();
+    }
+  }
+
+  void _showDropdown() {
+    final overlay = Overlay.of(context);
+    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final size = renderBox.size;
+    final offset = renderBox.localToGlobal(Offset.zero);
+
+    _dropdownOverlay = OverlayEntry(
+      builder: (context) => Positioned(
+        left: offset.dx,
+        top: offset.dy + size.height,
+        width: size.width,
+        child: Material(
+          elevation: 4,
+          child: Container(
+            color: Colors.white,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: _items
+                  .map((String item) => ListTile(
+                        title: Text(item),
+                        trailing: IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            _deleteItem(item);
+                          },
+                        ),
+                        onTap: () {
+                          setState(() {
+                            _controller.text = item;
+                          });
+                          _hideDropdown();
+                        },
+                      ))
+                  .toList(),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(_dropdownOverlay!);
+    setState(() => _isDropdownVisible = true);
+  }
+
+  void _hideDropdown() {
+    _dropdownOverlay?.remove();
+    setState(() => _isDropdownVisible = false);
+  }
+
+  void _deleteItem(String item) {
+    setState(() {
+      _items.remove(item);
+      _hideDropdown(); // Close the dropdown after deletion
+    });
   }
 
   @override
   void dispose() {
-    nameController.dispose();
-    businessController.dispose();
-    yearController.dispose();
-    licenseController.dispose();
-    nameFocusNode.dispose();
-    businessFocusNode.dispose();
-    yearFocusNode.dispose();
-    licenseFocusNode.dispose();
+    cnumberController.dispose();
+    _controller.dispose();
     super.dispose();
-  }
-
-  // Method to pick year
-  Future<void> _pickYear() async {
-    int? selectedYear;
-    int currentYear = DateTime.now().year;
-
-    // Create a list of years to display
-    List<int> years = List.generate(101, (index) => currentYear - index); // Last 100 years
-
-    // Show the dialog for year selection
-    selectedYear = await showDialog<int>(
-      context: context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: Text('Select Year'),
-          children: years.map((year) {
-            return SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, year);
-              },
-              child: Text(year.toString()),
-            );
-          }).toList(),
-        );
-      },
-    );
-
-    if (selectedYear != null) {
-      setState(() {
-        yearController.text = selectedYear.toString(); // Update year in TextFormField
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(top: 24, left: 16, right: 16),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              height: 86,
-              width: 328,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8, bottom: 22),
-                child: TextFormField(
-                  controller: nameController,
-                  focusNode: nameFocusNode,
-                  decoration: InputDecoration(
-                    labelText: 'Hotel Name',
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                        width: 1.0,
+      child: Container(
+        height: 392,
+        width: 328,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                height: 86,
+                width: 328,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8, bottom: 22),
+                  child: TextFormField(
+                    controller: cnumberController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Number Of Departments',
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide(color: Colors.grey, width: 1.0),
                       ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(
-                        color: Colors.blue,
-                        width: 2.0,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       ),
-                    ),
-                    suffixIcon: nameFocusNode.hasFocus && nameController.text.isNotEmpty
-                        ? IconButton(
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
                             icon: SvgPicture.asset(
-                              'assets/removeline.svg',
+                              'assets/plus.svg',
                               height: 24,
                               width: 24,
                             ),
                             onPressed: () {
-                              nameController.clear();
+                              int currentValue = int.tryParse(cnumberController.text) ?? 0;
+                              cnumberController.text = (currentValue + 1).toString();
+                              cnumberController.selection = TextSelection.fromPosition(
+                                TextPosition(offset: cnumberController.text.length),
+                              );
                             },
-                          )
-                        : null,
-                  ),
-                  style: GoogleFonts.montserrat(
-                    textStyle: const TextStyle(
-                      color: Color(0xFF4D5962),
-                      fontWeight: FontWeight.w400,
-                      fontSize: 16,
-                      height: 1.5,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 8),
-            Container(
-              height: 86,
-              width: 328,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8, bottom: 22),
-                child: TextFormField(
-                  controller: businessController,
-                  focusNode: businessFocusNode,
-                  decoration: InputDecoration(
-                    labelText: 'Legal Business Name',
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                        width: 1.0,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(
-                        color: Colors.blue,
-                        width: 2.0,
-                      ),
-                    ),
-                    suffixIcon: businessFocusNode.hasFocus && businessController.text.isNotEmpty
-                        ? IconButton(
-                            icon: SvgPicture.asset(
-                              'assets/removeline.svg',
-                              height: 24,
-                              width: 24,
-                            ),
-                            onPressed: () {
-                              businessController.clear();
-                            },
-                          )
-                        : null,
-                  ),
-                  style: GoogleFonts.montserrat(
-                    textStyle: const TextStyle(
-                      color: Color(0xFF4D5962),
-                      fontWeight: FontWeight.w400,
-                      fontSize: 16,
-                      height: 1.5,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 8),
-            // Year Established TextFormField
-            Container(
-              height: 86,
-              width: 328,
-              padding: const EdgeInsets.only(top: 8, bottom: 22),
-              child: TextFormField(
-                controller: yearController,
-                focusNode: yearFocusNode,
-                readOnly: true, // Make it readonly so users must use the year picker
-                decoration: InputDecoration(
-                  labelText: 'Year Established',
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(
-                      color: Colors.grey,
-                      width: 1.0,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(
-                      color: Colors.blue,
-                      width: 2.0,
-                    ),
-                  ),
-                  suffixIcon: IconButton(
-                    icon: SvgPicture.asset(
-                      'assets/calender.svg',
-                      height: 24,
-                      width: 24,
-                    ),
-                    onPressed: _pickYear,
-                  ),
-                ),
-                style: GoogleFonts.montserrat(
-                  textStyle: const TextStyle(
-                    color: Color(0xFF4D5962),
-                    fontWeight: FontWeight.w400,
-                    fontSize: 16,
-                    height: 1.5,
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 8),
-            // License/Registration Number TextFormField
-            Container(
-              height: 86,
-              width: 328,
-              padding: const EdgeInsets.only(top: 8, bottom: 22),
-              child: TextFormField(
-                controller: licenseController,
-                focusNode: licenseFocusNode,
-                decoration: InputDecoration(
-                  labelText: 'License/Registration Number',
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(
-                      color: Colors.grey,
-                      width: 1.0,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(
-                      color: Colors.blue,
-                      width: 2.0,
-                    ),
-                  ),
-                  suffixIcon: licenseFocusNode.hasFocus && licenseController.text.isNotEmpty
-                      ? IconButton(
-                          icon: SvgPicture.asset(
-                            'assets/removeline.svg',
-                            height: 24,
-                            width: 24,
                           ),
-                          onPressed: () {
-                            licenseController.clear();
-                          },
-                        )
-                      : null,
-                ),
-                style: GoogleFonts.montserrat(
-                  textStyle: const TextStyle(
-                    color: Color(0xFF4D5962),
-                    fontWeight: FontWeight.w400,
-                    fontSize: 16,
-                    height: 1.5,
+                          IconButton(
+                            icon: SvgPicture.asset(
+                              'assets/minus.svg',
+                              height: 24,
+                              width: 24,
+                            ),
+                            onPressed: () {
+                              int currentValue = int.tryParse(cnumberController.text) ?? 0;
+                              if (currentValue > 0) {
+                                cnumberController.text = (currentValue - 1).toString();
+                                cnumberController.selection = TextSelection.fromPosition(
+                                  TextPosition(offset: cnumberController.text.length),
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    style: GoogleFonts.montserrat(
+                      textStyle: const TextStyle(
+                        color: Color(0xFF4D5962),
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16,
+                        height: 1.5,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+              SizedBox(height: 16),
+
+              // TextField with Dropdown Toggle
+              GestureDetector(
+                onTap: () {
+                  // Show the dropdown when the TextField is tapped
+                  _toggleDropdown();
+                },
+                child: Container(
+                  height: 86,
+                  width: 328,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8, bottom: 22),
+                    child: TextField(
+                      controller: _controller,
+                      decoration: InputDecoration(
+                        labelText: 'Add Item',
+                        border: OutlineInputBorder(),
+                        suffixIcon: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.add),
+                              onPressed: _addItem,
+                              color: Colors.blue,
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.arrow_drop_down),
+                              onPressed: _toggleDropdown,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

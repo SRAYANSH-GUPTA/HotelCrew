@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:email_validator/email_validator.dart';
 
 class PageThree extends StatefulWidget {
   @override
@@ -8,272 +9,425 @@ class PageThree extends StatefulWidget {
 }
 
 class _PageThreeState extends State<PageThree> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController businessController = TextEditingController();
-  final TextEditingController yearController = TextEditingController(); // Controller for Year Established
-  final TextEditingController licenseController = TextEditingController(); // Controller for License/Registration Number
-  final FocusNode nameFocusNode = FocusNode();
-  final FocusNode businessFocusNode = FocusNode();
-  final FocusNode yearFocusNode = FocusNode(); // FocusNode for Year Established
-  final FocusNode licenseFocusNode = FocusNode(); // FocusNode for License/Registration Number
+  final TextEditingController cnumberController = TextEditingController();
+  final TextEditingController enumberController = TextEditingController();
+  final TextEditingController emailController = TextEditingController(); 
+  final TextEditingController addressController = TextEditingController(); 
+  final TextEditingController parkingCapacityController = TextEditingController();
+
+  final FocusNode cnumberFocusNode = FocusNode();
+  final FocusNode enumberFocusNode = FocusNode();
+  final FocusNode emailFocusNode = FocusNode(); 
+  final FocusNode addressFocusNode = FocusNode(); 
+  final FocusNode parkingCapacityFocusNode = FocusNode(); // Added focus node for parking capacity
+
+  String? _selectedAvailability; 
+  String _selectedCountryCode = '+1'; // Default selected code
 
   @override
   void initState() {
     super.initState();
     
     // Listen for focus changes to update the UI
-    nameFocusNode.addListener(() => setState(() {}));
-    businessFocusNode.addListener(() => setState(() {}));
-    yearFocusNode.addListener(() => setState(() {}));
-    licenseFocusNode.addListener(() => setState(() {}));
+    cnumberFocusNode.addListener(() => setState(() {}));
+    enumberFocusNode.addListener(() => setState(() {}));
+    emailFocusNode.addListener(() => setState(() {}));
+    addressFocusNode.addListener(() => setState(() {}));
+    parkingCapacityFocusNode.addListener(() => setState(() {})); // Listen to parking capacity focus
   }
 
   @override
   void dispose() {
-    nameController.dispose();
-    businessController.dispose();
-    yearController.dispose();
-    licenseController.dispose();
-    nameFocusNode.dispose();
-    businessFocusNode.dispose();
-    yearFocusNode.dispose();
-    licenseFocusNode.dispose();
+    cnumberController.dispose();
+    enumberController.dispose();
+    emailController.dispose();
+    addressController.dispose();
+    parkingCapacityController.dispose(); // Dispose of the parking capacity controller
+    cnumberFocusNode.dispose();
+    enumberFocusNode.dispose();
+    emailFocusNode.dispose();
+    addressFocusNode.dispose();
+    parkingCapacityFocusNode.dispose(); // Dispose of the parking capacity focus node
     super.dispose();
-  }
-
-  // Method to pick year
-  Future<void> _pickYear() async {
-    int? selectedYear;
-    int currentYear = DateTime.now().year;
-
-    // Create a list of years to display
-    List<int> years = List.generate(101, (index) => currentYear - index); // Last 100 years
-
-    // Show the dialog for year selection
-    selectedYear = await showDialog<int>(
-      context: context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: Text('Select Year'),
-          children: years.map((year) {
-            return SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, year);
-              },
-              child: Text(year.toString()),
-            );
-          }).toList(),
-        );
-      },
-    );
-
-    if (selectedYear != null) {
-      setState(() {
-        yearController.text = selectedYear.toString(); // Update year in TextFormField
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(top: 24, left: 16, right: 16),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              height: 86,
-              width: 328,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8, bottom: 22),
-                child: TextFormField(
-                  controller: nameController,
-                  focusNode: nameFocusNode,
-                  decoration: InputDecoration(
-                    labelText: 'Hotel Name',
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                        width: 1.0,
+      child: Container(
+        height: 392,
+        width: 328,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Primary Contact Number
+              Container(
+                height: 86,
+                width: 328,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8, bottom: 22),
+                  child: TextFormField(
+                    controller: cnumberController,
+                    focusNode: cnumberFocusNode,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Total Number Of Rooms',
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
                       ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(
-                        color: Colors.blue,
-                        width: 2.0,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide(
+                          color: Colors.blue,
+                          width: 2.0,
+                        ),
                       ),
-                    ),
-                    suffixIcon: nameFocusNode.hasFocus && nameController.text.isNotEmpty
-                        ? IconButton(
-                            icon: SvgPicture.asset(
-                              'assets/removeline.svg',
-                              height: 24,
-                              width: 24,
-                            ),
-                            onPressed: () {
-                              nameController.clear();
-                            },
+                      suffixIcon: cnumberFocusNode.hasFocus 
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: SvgPicture.asset(
+                                  'assets/plus.svg', // Path to your + icon
+                                  height: 24,
+                                  width: 24,
+                                ),
+                                onPressed: () {
+                                  // Increase the number
+                                  int currentValue = int.tryParse(cnumberController.text) ?? 0;
+                                  cnumberController.text = (currentValue + 1).toString();
+                                  cnumberController.selection = TextSelection.fromPosition(
+                                    TextPosition(offset: cnumberController.text.length),
+                                  );
+                                },
+                              ),
+                              IconButton(
+                                icon: SvgPicture.asset(
+                                  'assets/minus.svg', // Path to your - icon
+                                  height: 24,
+                                  width: 24,
+                                ),
+                                onPressed: () {
+                                  // Decrease the number
+                                  int currentValue = int.tryParse(cnumberController.text) ?? 0;
+                                  if (currentValue > 0) { // Prevent negative numbers
+                                    cnumberController.text = (currentValue - 1).toString();
+                                    cnumberController.selection = TextSelection.fromPosition(
+                                      TextPosition(offset: cnumberController.text.length),
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
                           )
                         : null,
-                  ),
-                  style: GoogleFonts.montserrat(
-                    textStyle: const TextStyle(
-                      color: Color(0xFF4D5962),
-                      fontWeight: FontWeight.w400,
-                      fontSize: 16,
-                      height: 1.5,
+                    ),
+                    style: GoogleFonts.montserrat(
+                      textStyle: const TextStyle(
+                        color: Color(0xFF4D5962),
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16,
+                        height: 1.5,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            SizedBox(height: 8),
-            Container(
-              height: 86,
-              width: 328,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8, bottom: 22),
-                child: TextFormField(
-                  controller: businessController,
-                  focusNode: businessFocusNode,
-                  decoration: InputDecoration(
-                    labelText: 'Legal Business Name',
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                        width: 1.0,
+              SizedBox(height: 16),
+
+              // Emergency Contact Number
+              Container(
+                height: 86,
+                width: 328,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8, bottom: 22),
+                  child: TextFormField(
+                    controller: enumberController,
+                    focusNode: enumberFocusNode,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Types Of Rooms Available',
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
                       ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(
-                        color: Colors.blue,
-                        width: 2.0,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide(
+                          color: Colors.blue,
+                          width: 2.0,
+                        ),
                       ),
-                    ),
-                    suffixIcon: businessFocusNode.hasFocus && businessController.text.isNotEmpty
-                        ? IconButton(
-                            icon: SvgPicture.asset(
-                              'assets/removeline.svg',
-                              height: 24,
-                              width: 24,
-                            ),
-                            onPressed: () {
-                              businessController.clear();
-                            },
+                      suffixIcon: enumberFocusNode.hasFocus 
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: SvgPicture.asset(
+                                  'assets/plus.svg', // Path to your + icon
+                                  height: 24,
+                                  width: 24,
+                                ),
+                                onPressed: () {
+                                  // Increase the number
+                                  int currentValue = int.tryParse(enumberController.text) ?? 0;
+                                  enumberController.text = (currentValue + 1).toString();
+                                  enumberController.selection = TextSelection.fromPosition(
+                                    TextPosition(offset: enumberController.text.length),
+                                  );
+                                },
+                              ),
+                              IconButton(
+                                icon: SvgPicture.asset(
+                                  'assets/minus.svg', // Path to your - icon
+                                  height: 24,
+                                  width: 24,
+                                ),
+                                onPressed: () {
+                                  // Decrease the number
+                                  int currentValue = int.tryParse(cnumberController.text) ?? 0;
+                                  if (currentValue > 0) { // Prevent negative numbers
+                                    enumberController.text = (currentValue - 1).toString();
+                                    enumberController.selection = TextSelection.fromPosition(
+                                      TextPosition(offset: enumberController.text.length),
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
                           )
                         : null,
-                  ),
-                  style: GoogleFonts.montserrat(
-                    textStyle: const TextStyle(
-                      color: Color(0xFF4D5962),
-                      fontWeight: FontWeight.w400,
-                      fontSize: 16,
-                      height: 1.5,
+                    ),
+                    style: GoogleFonts.montserrat(
+                      textStyle: const TextStyle(
+                        color: Color(0xFF4D5962),
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16,
+                        height: 1.5,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            SizedBox(height: 8),
-            // Year Established TextFormField
-            Container(
-              height: 86,
-              width: 328,
-              padding: const EdgeInsets.only(top: 8, bottom: 22),
-              child: TextFormField(
-                controller: yearController,
-                focusNode: yearFocusNode,
-                readOnly: true, // Make it readonly so users must use the year picker
-                decoration: InputDecoration(
-                  labelText: 'Year Established',
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(
-                      color: Colors.grey,
-                      width: 1.0,
+              SizedBox(height: 8),
+
+              // Email TextFormField
+              Container(
+                height: 86,
+                width: 328,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8, bottom: 22),
+                  child: TextFormField(
+                    controller: emailController,
+                    focusNode: emailFocusNode,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Total Number Of Rooms',
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide(
+                          color: Colors.blue,
+                          width: 2.0,
+                        ),
+                      ),
+                      suffixIcon: emailFocusNode.hasFocus 
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: SvgPicture.asset(
+                                  'assets/plus.svg', // Path to your + icon
+                                  height: 24,
+                                  width: 24,
+                                ),
+                                onPressed: () {
+                                  // Increase the number
+                                  int currentValue = int.tryParse(emailController.text) ?? 0;
+                                  emailController.text = (currentValue + 1).toString();
+                                  emailController.selection = TextSelection.fromPosition(
+                                    TextPosition(offset: emailController.text.length),
+                                  );
+                                },
+                              ),
+                              IconButton(
+                                icon: SvgPicture.asset(
+                                  'assets/minus.svg', // Path to your - icon
+                                  height: 24,
+                                  width: 24,
+                                ),
+                                onPressed: () {
+                                  // Decrease the number
+                                  int currentValue = int.tryParse(emailController.text) ?? 0;
+                                  if (currentValue > 0) { // Prevent negative numbers
+                                    emailController.text = (currentValue - 1).toString();
+                                    emailController.selection = TextSelection.fromPosition(
+                                      TextPosition(offset: emailController.text.length),
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          )
+                        : null,
                     ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(
-                      color: Colors.blue,
-                      width: 2.0,
+                    style: GoogleFonts.montserrat(
+                      textStyle: const TextStyle(
+                        color: Color(0xFF4D5962),
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16,
+                        height: 1.5,
+                      ),
                     ),
-                  ),
-                  suffixIcon: IconButton(
-                    icon: SvgPicture.asset(
-                      'assets/calender.svg',
-                      height: 24,
-                      width: 24,
-                    ),
-                    onPressed: _pickYear,
-                  ),
-                ),
-                style: GoogleFonts.montserrat(
-                  textStyle: const TextStyle(
-                    color: Color(0xFF4D5962),
-                    fontWeight: FontWeight.w400,
-                    fontSize: 16,
-                    height: 1.5,
                   ),
                 ),
               ),
-            ),
-            SizedBox(height: 8),
-            // License/Registration Number TextFormField
-            Container(
-              height: 86,
-              width: 328,
-              padding: const EdgeInsets.only(top: 8, bottom: 22),
-              child: TextFormField(
-                controller: licenseController,
-                focusNode: licenseFocusNode,
-                decoration: InputDecoration(
-                  labelText: 'License/Registration Number',
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(
-                      color: Colors.grey,
-                      width: 1.0,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(
-                      color: Colors.blue,
-                      width: 2.0,
-                    ),
-                  ),
-                  suffixIcon: licenseFocusNode.hasFocus && licenseController.text.isNotEmpty
-                      ? IconButton(
-                          icon: SvgPicture.asset(
-                            'assets/removeline.svg',
-                            height: 24,
-                            width: 24,
+              SizedBox(height: 8),
+
+              // Complete Address TextFormField
+              Column(
+                children: [
+                  // Dropdown for Availability
+                  Container(
+                    height: 86,
+                    width: 328,
+                    padding: const EdgeInsets.only(top: 8, bottom: 22),
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedAvailability,
+                      hint: Text('Select Availability'),
+                      items: [
+                        DropdownMenuItem(value: 'Available', child: Text('Available')),
+                        DropdownMenuItem(value: 'Not Available', child: Text('Not Available')),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedAvailability = value; // Update the selected availability
+                          if (value == 'Available') {
+                            // Show Parking Capacity when Available is selected
+                          } else {
+                            parkingCapacityController.clear(); // Clear parking capacity when Not Available is selected
+                          }
+                        });
+                      },
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide(
+                            color: Colors.grey,
+                            width: 1.0,
                           ),
-                          onPressed: () {
-                            licenseController.clear();
-                          },
-                        )
-                      : null,
-                ),
-                style: GoogleFonts.montserrat(
-                  textStyle: const TextStyle(
-                    color: Color(0xFF4D5962),
-                    fontWeight: FontWeight.w400,
-                    fontSize: 16,
-                    height: 1.5,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide(
+                            color: Colors.blue,
+                            width: 2.0,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  SizedBox(height: 8),
+
+                  // Parking Capacity TextFormField
+                  if (_selectedAvailability == 'Available') // Only show if Available is selected
+                    Container(
+                      height: 86,
+                      width: 328,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 8, bottom: 22),
+                        child: TextFormField(
+                          controller: parkingCapacityController,
+                          focusNode: parkingCapacityFocusNode,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: 'Parking Capacity',
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              borderSide: BorderSide(
+                                color: Colors.grey,
+                                width: 1.0,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              borderSide: BorderSide(
+                                color: Colors.blue,
+                                width: 2.0,
+                              ),
+                            ),
+                            suffixIcon: parkingCapacityFocusNode.hasFocus
+                              ? Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: SvgPicture.asset(
+                                        'assets/plus.svg', // Path to your + icon
+                                        height: 24,
+                                        width: 24,
+                                      ),
+                                      onPressed: () {
+                                        // Increase the parking capacity
+                                        int currentValue = int.tryParse(parkingCapacityController.text) ?? 0;
+                                        parkingCapacityController.text = (currentValue + 1).toString();
+                                        parkingCapacityController.selection = TextSelection.fromPosition(
+                                          TextPosition(offset: parkingCapacityController.text.length),
+                                        );
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: SvgPicture.asset(
+                                        'assets/minus.svg', // Path to your - icon
+                                        height: 24,
+                                        width: 24,
+                                      ),
+                                      onPressed: () {
+                                        // Decrease the parking capacity
+                                        int currentValue = int.tryParse(parkingCapacityController.text) ?? 0;
+                                        if (currentValue > 0) { // Prevent negative numbers
+                                          parkingCapacityController.text = (currentValue - 1).toString();
+                                          parkingCapacityController.selection = TextSelection.fromPosition(
+                                            TextPosition(offset: parkingCapacityController.text.length),
+                                          );
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                )
+                              : null,
+                          ),
+                          style: GoogleFonts.montserrat(
+                            textStyle: const TextStyle(
+                              color: Color(0xFF4D5962),
+                              fontWeight: FontWeight.w400,
+                              fontSize: 16,
+                              height: 1.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
+

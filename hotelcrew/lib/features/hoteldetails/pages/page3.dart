@@ -11,12 +11,15 @@ class PageOne extends StatefulWidget {
 class _PageOneState extends State<PageOne> {
   final TextEditingController cnumberController = TextEditingController();
   final TextEditingController enumberController = TextEditingController();
-  final TextEditingController emailController = TextEditingController(); // Controller for Year Established
-  final TextEditingController addressController = TextEditingController(); // Controller for License/Registration Number
+  final TextEditingController emailController = TextEditingController(); 
+  final TextEditingController addressController = TextEditingController(); 
+
   final FocusNode cnumberFocusNode = FocusNode();
   final FocusNode enumberFocusNode = FocusNode();
-  final FocusNode emailFocusNode = FocusNode(); // FocusNode for Year Established
-  final FocusNode addressFocusNode = FocusNode(); // FocusNode for License/Registration Number
+  final FocusNode emailFocusNode = FocusNode(); 
+  final FocusNode addressFocusNode = FocusNode(); 
+
+  String _selectedCountryCode = '+1'; // Default selected code
 
   @override
   void initState() {
@@ -33,7 +36,7 @@ class _PageOneState extends State<PageOne> {
   void dispose() {
     cnumberController.dispose();
     enumberController.dispose();
-    emailController.dispose(); // Corrected variable name
+    emailController.dispose();
     addressController.dispose();
     cnumberFocusNode.dispose();
     enumberFocusNode.dispose();
@@ -52,6 +55,7 @@ class _PageOneState extends State<PageOne> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              // Primary Contact Number
               Container(
                 height: 86,
                 width: 328,
@@ -60,8 +64,27 @@ class _PageOneState extends State<PageOne> {
                   child: TextFormField(
                     controller: cnumberController,
                     focusNode: cnumberFocusNode,
+                    keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       labelText: 'Primary Contact Number',
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.only(left: 8, right: 8),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: _selectedCountryCode,
+                            items: [
+                              DropdownMenuItem(value: '+1', child: Text('+1')),
+                              DropdownMenuItem(value: '+44', child: Text('+44')),
+                              DropdownMenuItem(value: '+91', child: Text('+91')),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedCountryCode = value!;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                         borderSide: BorderSide(
@@ -101,6 +124,8 @@ class _PageOneState extends State<PageOne> {
                 ),
               ),
               SizedBox(height: 16),
+
+              // Emergency Contact Number
               Container(
                 height: 86,
                 width: 328,
@@ -109,9 +134,27 @@ class _PageOneState extends State<PageOne> {
                   child: TextFormField(
                     controller: enumberController,
                     focusNode: enumberFocusNode,
-                    keyboardType: TextInputType.numberWithOptions(),
+                    keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       labelText: 'Emergency Contact Number',
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.only(left: 8, right: 8),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: _selectedCountryCode,
+                            items: [
+                              DropdownMenuItem(value: '+1', child: Text('+1')),
+                              DropdownMenuItem(value: '+44', child: Text('+44')),
+                              DropdownMenuItem(value: '+91', child: Text('+91')),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedCountryCode = value!;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                         borderSide: BorderSide(
@@ -151,28 +194,31 @@ class _PageOneState extends State<PageOne> {
                 ),
               ),
               SizedBox(height: 8),
-              // Year Established TextFormField
+
+              // Email TextFormField
               Container(
                 height: 86,
                 width: 328,
-                padding: const EdgeInsets.only(top: 8, bottom: 22),
+                padding: const EdgeInsets.only(top: 8),
                 child: Form(
                   autovalidateMode: AutovalidateMode.always,
                   child: TextFormField(
-                    controller: emailController, // Corrected variable name
+                    controller: emailController,
                     maxLength: 320,
                     validator: (value) => EmailValidator.validate(value ?? '') 
                         ? null 
                         : "Enter a valid email.",
                     decoration: InputDecoration(
-                      labelText: 'Hotel Email',
-                      border: OutlineInputBorder(),
+                      labelText: 'Email',
+                      counterText: "",
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
                     ),
                   ),
                 ),
               ),
               SizedBox(height: 8),
-              // License/Registration Number TextFormField
+
+              // Complete Address TextFormField
               Container(
                 height: 86,
                 width: 328,
