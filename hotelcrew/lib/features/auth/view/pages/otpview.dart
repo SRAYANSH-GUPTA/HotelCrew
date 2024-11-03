@@ -24,7 +24,7 @@ class _OtpviewState extends State<Otpview> {
   final FocusNode emailFocusNode = FocusNode();
   final OtpTimerButtonController otp = OtpTimerButtonController();
   String enteredOtp = ""; // Variable to store the OTP entered by the user
-
+bool isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -142,7 +142,7 @@ class _OtpviewState extends State<Otpview> {
                   if (svgHeight == 0 && otperror)
                     Padding(
                       padding: const EdgeInsets.only(left: 0),
-                      child: Container(
+                      child: SizedBox(
                         width: 326,
                         height: 39,
                         child: Center(
@@ -191,7 +191,7 @@ class _OtpviewState extends State<Otpview> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Text("Didn’t receive the code?"),
-                            Container(
+                            SizedBox(
                               width: 97,
                               height: 30,
                               child: OtpTimerButton(
@@ -201,7 +201,7 @@ class _OtpviewState extends State<Otpview> {
                                 onPressed: () {
                                   Navigator.pushReplacement(
                                     context,
-                                    MaterialPageRoute(builder: (context) => Otpview()),
+                                    MaterialPageRoute(builder: (context) => const Otpview()),
                                   );
                                 },
                                 text: Text(
@@ -225,46 +225,72 @@ class _OtpviewState extends State<Otpview> {
                           height: 40,
                           width: 328,
                           child: ElevatedButton(
-                            onPressed: () async {
-  final dioClient = DioClient();
-  
-  final otpRequest = OtpRequest(
-    email: 'sr.gupta621@gmail.com',
-    otp: 2568,
-  );
-
-  try {
-    await dioClient.sendOtp(otpRequest);
-    print('OTP sent successfully.');
-  } on ApiError catch (e) {
-    // Handle API error
+  onPressed: isLoading ? null : () async { // Disable button when loading
     setState(() {
-      otperror = true;
+      isLoading = true; // Set loading state to true
     });
-    print('API Error: ${e.error.join(', ')}');
-  } catch (e) {
-    // Handle any unexpected errors
-    print('An unexpected error occurred: $e');
-  }
-},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF47518C),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: Text(
-                              'Verify',
-                              style: GoogleFonts.montserrat(
-                                textStyle: const TextStyle(
-                                  color: Color(0xFFFAFAFA),
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  height: 1.5,
-                                ),
-                              ),
-                            ),
-                          ),
+
+    final dioClient = DioClient();
+    final otpRequest = OtpRequest(
+      email: 'srayansh.mail@gmail.com,',
+      otp: int.parse(enteredOtp),
+    );
+
+    try {
+      // Await the response message
+      String message = await dioClient.sendOtp(otpRequest);
+      print(message);
+      // Show the success message in the Snackbar
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(message),
+      ));
+    } on ApiError catch (e) {
+      // Handle API error
+      setState(() {
+        otperror = true;
+      });
+      print('API Error: ${e.error.join(', ')}');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(e.error.join(',')),
+      ));
+    } catch (e) {
+      // Handle any unexpected errors
+      print('An unexpected error occurred: $e');
+    } finally {
+      // Reset loading state after API call
+      setState(() {
+        isLoading = false; // Set loading state to false
+      });
+    }
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFF47518C),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+  ),
+  child: isLoading
+      ? const SizedBox(
+          height: 20,
+          width: 20,
+          child: CircularProgressIndicator(
+            color: Colors.white, // Change color as needed
+            strokeWidth: 2,
+          ),
+        )
+      : Text(
+          'Verify',
+          style: GoogleFonts.montserrat(
+            textStyle: const TextStyle(
+              color: Color(0xFFFAFAFA),
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              height: 1.5,
+            ),
+          ),
+        ),
+),
+
                         ),
                         const SizedBox(height: 4),
                         Row(

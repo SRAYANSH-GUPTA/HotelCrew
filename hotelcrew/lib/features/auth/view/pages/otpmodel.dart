@@ -27,8 +27,13 @@ class ApiError {
 
   // Factory constructor to create an instance from JSON
   factory ApiError.fromJson(Map<String, dynamic> json) {
+    // Check if json['error'] is not null and is of type List
+    var errorList = json['error'] is List 
+        ? List<String>.from(json['error']) 
+        : <String>[]; // Provide an empty list if it's null or not a list
+    
     return ApiError(
-      error: List<String>.from(json['error']),
+      error: errorList,
     );
   }
 
@@ -39,3 +44,4 @@ class ApiError {
     };
   }
 }
+

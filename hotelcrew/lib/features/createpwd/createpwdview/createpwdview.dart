@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hotelcrew/features/auth/view/pages/otpview.dart';
-import 'package:password_strength_indicator/password_strength_indicator.dart';
-import '../../auth/view/pages/login_page.dart';
 
 final confirmpassword = TextEditingController(text: "");
 final password = TextEditingController(text: "");

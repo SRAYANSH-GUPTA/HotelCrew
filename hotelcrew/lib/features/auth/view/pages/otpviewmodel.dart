@@ -1,51 +1,68 @@
-import 'package:dio/dio.dart';
-import 'dart:convert';
-import 'otpmodel.dart';
+ElevatedButton(
+  onPressed = isLoading ? null : () async { // Disable button when loading
+    setState(() {
+      isLoading = true; // Set loading state to true
+    });
 
-class DioClient {
-  final Dio dio;
+    final dioClient = DioClient();
+    final otpRequest = OtpRequest(
+      email: 'srayansh2310022@akgec.ac.in',
+      otp: int.parse(enteredOtp),
+    );
 
-  DioClient() : dio = Dio() {
-    // Set up interceptors
-    dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) {
-        options.headers['Content-Type'] = 'application/json';
-        return handler.next(options);
-      },
-      onResponse: (response, handler) {
-        return handler.next(response);
-      },
-      onError: (DioError e, handler) {
-        print('Error occurred: ${e.response?.data}');
-        return handler.next(e);
-      },
-    ));
-  }
-
-  // Function to send OTP
-  Future<void> sendOtp(OtpRequest otpRequest) async {
     try {
-      final response = await dio.post(
-        'https://hotelcrew-1.onrender.com/api/auth/register/',
-        data: json.encode(otpRequest.toJson()),
-      );
-
-      if (response.statusCode == 200) {
-        // Handle successful response
-        print('OTP sent successfully');
-      } else {
-        // Handle API error
-        throw ApiError.fromJson(response.data);
-      }
-    } on DioError catch (e) {
-      // Handle Dio specific errors
-      if (e.response != null) {
-        // Server responded with an error
-        throw ApiError.fromJson(e.response!.data);
-      } else {
-        // Something went wrong before reaching the server
-        throw Exception('Network error: ${e.message}');
-      }
+      // Await the response message
+      String message = await dioClient.sendOtp(otpRequest);
+      print(message); // Debugging line to see the message
+      // Show the success message in the Snackbar
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 3), // Ensure it lasts long enough
+      ));
+    } on ApiError catch (e) {
+      // Handle API error
+      setState(() {
+        otperror = true;
+      });
+      print('API Error: ${e.error.join(', ')}'); // Debugging line
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(e.error.join(',')),
+        duration: const Duration(seconds: 3), // Ensure it lasts long enough
+      ));
+    } catch (e) {
+      // Handle any unexpected errors
+      print('An unexpected error occurred: $e'); // Debugging line
+    } finally {
+      // Reset loading state after API call
+      setState(() {
+        isLoading = false; // Set loading state to false
+      });
     }
-  }
-}
+  },
+  style = ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFF47518C),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+  ),
+  child = isLoading
+      ? SizedBox(
+          height: 20,
+          width: 20,
+          child: CircularProgressIndicator(
+            color: Colors.white,
+            strokeWidth: 2,
+          ),
+        )
+      : Text(
+          'Verify',
+          style: GoogleFonts.montserrat(
+            textStyle: const TextStyle(
+              color: Color(0xFFFAFAFA),
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              height: 1.5,
+            ),
+          ),
+        ),
+),

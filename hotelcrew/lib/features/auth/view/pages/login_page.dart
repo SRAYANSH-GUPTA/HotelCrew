@@ -3,8 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:hotelcrew/features/auth/view/pages/otpview.dart';
-import 'package:hotelcrew/features/createpwd/createpwdview/createpwdview.dart';
-import '../../../resetpass/resertpasspage/resetpass.dart';
 
 
 final email = TextEditingController(text: "");
