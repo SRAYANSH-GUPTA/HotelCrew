@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../view/pages/login_page.dart';
+import '../../models/register.dart';
+import '../../auth_view_model/registerviewmodel.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:email_validator/email_validator.dart';
 
 final confirmpassword = TextEditingController(text: "");
 final password = TextEditingController(text: "");
 final username = TextEditingController(text: "");
-final email = TextEditingController(text: "");
+final emailController = TextEditingController(text: ""); // Fixed variable name to match usage
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -17,6 +21,28 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   bool checkBoxValue = false;
   final FocusNode passwordFocusNode = FocusNode();
+  bool _obscurePassword = true;
+  bool validEmail = true;
+
+  @override
+  void initState() {
+    super.initState();
+    emailController.addListener(() {
+      setState(() {
+        validEmail = EmailValidator.validate(emailController.text);
+        // Reset invalid credentials when the email is changed
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    password.dispose(); // Fixed to dispose of the correct controller
+    confirmpassword.dispose(); // Added disposal for confirm password controller
+    username.dispose(); // Added disposal for username controller
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,66 +90,154 @@ class _RegisterState extends State<Register> {
                 width: 328,
                 child: TextFormField(
                   controller: username,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'User Name',
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
                   ),
                   style: const TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
                 ),
               ),
-              SizedBox(
-                height: 86,
-                width: 328,
-                child: TextFormField(
-                  controller: email,
-                  decoration: const InputDecoration(
-                    labelText: 'Email Address',
-                    border: OutlineInputBorder(),
+              Container(
+                child: Form(
+                  autovalidateMode: AutovalidateMode.always,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 4, bottom: 22),
+                    child: TextFormField(
+                      controller: emailController,
+                      maxLength: 320,
+                      validator: (value) {
+                        if (EmailValidator.validate(value ?? '')) {
+                          return null;
+                        } else {
+                          return "Enter a valid email.";
+                        }
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        counterText: "",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        errorBorder: validEmail
+                            ? null
+                            : OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.red, width: 2.0),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                        suffixIcon: validEmail
+                            ? null
+                            : const Icon(
+                                Icons.error,
+                                color: Color(0xFFC80D0D),
+                              ),
+                      ),
+                    ),
                   ),
-                  style: const TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
                 ),
               ),
-              SizedBox(
-                height: 86,
-                width: 328,
-                child: TextFormField(
-                  controller: password,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
+              Container(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 4, bottom: 22),
+                  child: TextFormField(
+                    controller: password,
+                    maxLength: 25,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      counterText: "",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      suffixIcon: IconButton(
+                        icon: _obscurePassword
+                            ? SvgPicture.asset('assets/nopassword.svg')
+                            : SvgPicture.asset('assets/passwordvisible.svg'),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
+                    ),
+                    obscureText: _obscurePassword,
+                    obscuringCharacter: '●',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      color: Color(0xFF5B6C78),
+                    ),
                   ),
-                  obscureText: true,
-                  obscuringCharacter: '●',
-                  style: const TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
                 ),
               ),
-              SizedBox(
-                height: 86,
-                width: 328,
-                child: TextFormField(
-                  controller: confirmpassword,
-                  decoration: const InputDecoration(
-                    labelText: 'Confirm Password',
-                    border: OutlineInputBorder(),
+              Container(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 4, bottom: 22),
+                  child: TextFormField(
+                    controller: confirmpassword,
+                    maxLength: 25,
+                    validator: (value) {
+                      if (value != password.text) {
+                        return "Passwords do not match.";
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Confirm Password',
+                      counterText: "",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      // suffixIcon: IconButton(
+                      //   icon: _obscurePassword
+                      //       ? SvgPicture.asset('assets/nopassword.svg')
+                      //       : SvgPicture.asset('assets/passwordvisible.svg'),
+                      //   onPressed: () {
+                      //     setState(() {
+                      //       _obscurePassword = !_obscurePassword;
+                      //     });
+                      //   },
+                      // ),
+                    ),
+                    obscureText: _obscurePassword,
+                    obscuringCharacter: '●',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      color: Color(0xFF5B6C78),
+                    ),
                   ),
-                  obscureText: true,
-                  obscuringCharacter: '●',
-                  style: const TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
                 ),
               ),
               SizedBox(
                 height: 40,
                 width: 328,
                 child: ElevatedButton(
-                  onPressed: () {
-                    print("Password: ${password.text}");
-                    print("Confirm Password: ${confirmpassword.text}");
-                    Navigator.pushReplacement<void, void>(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) => const LoginPage(),
-                      ),
-                    );
+                  onPressed: () async {
+  print("Password: ${password.text}");
+  print("Confirm Password: ${confirmpassword.text}");
+
+  final dioClient = DioClient();
+
+  final registerRequest = RegisterRequest(
+    email: "sr.gupta621@gmail.com",
+    password: password.text,
+    confirmPassword: confirmpassword.text,
+  );
+
+  try {
+    print("Trying to register...");
+    final response = await dioClient.registerUser(registerRequest);
+    print('Registration successful: ${response.otp}');
+  } catch (e) {
+    print('Registration failed: $e');
+  }
+
+
+                    // Navigator.pushReplacement<void, void>(
+                    //   context,
+                    //   MaterialPageRoute<void>(
+                    //     builder: (BuildContext context) => const LoginPage(),
+                    //   ),
+                    // );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF47518C),
@@ -144,38 +258,86 @@ class _RegisterState extends State<Register> {
                   ),
                 ),
               ),
+              SizedBox(height: 30,),
               SizedBox(
-                height: 58,
-                width: 328,
-                child: CheckboxListTile(
-                  title: const Text("I agree to the"),
-                  value: checkBoxValue,
-                  onChanged: (newValue) {
-                    setState(() {
-                      checkBoxValue = newValue ?? false;
-                    });
-                  },
-                  controlAffinity: ListTileControlAffinity.leading,
+                height: 34,
+                width: 26,
+                child: Row(
+                  children: [
+                    Container(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 7),
+                        child: SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CheckboxTheme(
+                            data: CheckboxThemeData(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+                              side: const BorderSide(width: 0, color: Colors.transparent), // Removes outline
+                            ),
+                            child: Checkbox(
+                              checkColor: Colors.white, // Color of the check mark
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4),
+                                side: const BorderSide(color: Colors.transparent),
+                              ),
+                              value: checkBoxValue,
+                              splashRadius: 0,
+                              fillColor: MaterialStateProperty.resolveWith<Color>((states) {
+                                if (states.contains(MaterialState.selected)) {
+                                  return const Color(0xFF5662AC); // Color when the checkbox is checked
+                                }
+                                return const Color(0xFFC6D6DB); // Color when unchecked
+                              }),
+                              onChanged: (newValue) {
+                                setState(() {
+                                  checkBoxValue = newValue ?? false;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width:328,
+                      height: 58,
+                      child: Row(
+                        children: [Text(
+                        'I agree to the',
+                        style: GoogleFonts.montserrat(
+                          textStyle: const TextStyle(
+                            color: Color(0xFF4D5962),
+                            fontWeight: FontWeight.w400,
+                            fontSize: 14,
+                            height: 1.5,
+                          ),
+                        ),
+                      ),
+                          Container(
+                            width: 140,
+                            height: 21,
+                            child: InkWell(
+                              onTap: () => print('Terms and Conditions link'),
+                              child: const Text(
+                                "Terms & Conditions",
+                                style: TextStyle(color: Color(0xFF5662AC)),
+                              ),
+                            ),
+                          ),
+                          const Text(" and "),
+                          InkWell(
+                            onTap: () => print("Privacy Policy"),
+                            child: const Text(
+                              "Privacy Policy",
+                              style: TextStyle(color: Color(0xFF5662AC)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              Row(
-                children: [
-                  InkWell(
-                    onTap: () => print('Terms and Conditions link'),
-                    child: const Text(
-                      "Terms & Conditions",
-                      style: TextStyle(color: Color(0xFF5662AC)),
-                    ),
-                  ),
-                  const Text(" and "),
-                  InkWell(
-                    onTap: () => print("Privacy Policy"),
-                    child: const Text(
-                      "Privacy Policy",
-                      style: TextStyle(color: Color(0xFF5662AC)),
-                    ),
-                  ),
-                ],
               ),
             ],
           ),
