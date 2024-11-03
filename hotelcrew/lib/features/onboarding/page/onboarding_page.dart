@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../auth/view/pages/login_page.dart';
 class OnboardingPage extends StatefulWidget {
   @override
   _OnboardingPageState createState() => _OnboardingPageState();
@@ -210,12 +211,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
 
   void _handleSignUp() {
-    // Implement your sign-up logic here
+    
     print("Sign Up pressed");
   }
 
   void _handleLogin() {
-    // Implement your log-in logic here
+    Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => LoginPage(),
+  ),
+);
+
     print("Log In pressed");
   }
 }
