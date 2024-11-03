@@ -1,19 +1,28 @@
-
-
-// Request model for registration
-class RegisterRequest {
+class UserRegistrationRequest {
+  final String userName;
   final String email;
   final String password;
   final String confirmPassword;
 
-  RegisterRequest({
+  UserRegistrationRequest({
+    required this.userName,
     required this.email,
     required this.password,
     required this.confirmPassword,
   });
 
+  factory UserRegistrationRequest.fromJson(Map<String, dynamic> json) {
+    return UserRegistrationRequest(
+      userName: json['user_name'],
+      email: json['email'],
+      password: json['password'],
+      confirmPassword: json['confirm_password'],
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
+      'user_name': userName,
       'email': email,
       'password': password,
       'confirm_password': confirmPassword,
@@ -21,15 +30,19 @@ class RegisterRequest {
   }
 }
 
-// Response model for registration
-class RegisterResponse {
-  final List<String>? otp;
+class UserRegistrationResponse {
+  final String message;
 
-  RegisterResponse({this.otp});
+  UserRegistrationResponse({required this.message});
 
-  factory RegisterResponse.fromJson(Map<String, dynamic> json) {
-    return RegisterResponse(
-      otp: json['otp'] != null ? List<String>.from(json['otp']) : null,
+  factory UserRegistrationResponse.fromJson(Map<String, dynamic> json) {
+    return UserRegistrationResponse(
+      message: json['message'],
     );
   }
+}
+class ApiError {
+  final String message;
+
+  ApiError(this.message);
 }

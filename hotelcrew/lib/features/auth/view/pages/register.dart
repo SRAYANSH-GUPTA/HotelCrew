@@ -10,7 +10,7 @@ final confirmpassword = TextEditingController(text: "");
 final password = TextEditingController(text: "");
 final username = TextEditingController(text: "");
 final emailController = TextEditingController(text: ""); // Fixed variable name to match usage
-
+bool _isLoading = false;
 class Register extends StatefulWidget {
   const Register({super.key});
 
@@ -114,6 +114,7 @@ class _RegisterState extends State<Register> {
                           return "Enter a valid email.";
                         }
                       },
+                      style: const TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
                       decoration: InputDecoration(
                         labelText: 'Email',
                         counterText: "",
@@ -212,133 +213,158 @@ class _RegisterState extends State<Register> {
                 width: 328,
                 child: ElevatedButton(
                   onPressed: () async {
-  print("Password: ${password.text}");
-  print("Confirm Password: ${confirmpassword.text}");
-
+                    if (_isLoading) return; // Prevent multiple taps while loading
   final dioClient = DioClient();
 
-  final registerRequest = RegisterRequest(
-    email: "sr.gupta621@gmail.com",
-    password: password.text,
-    confirmPassword: confirmpassword.text,
-  );
-
-  try {
-    print("Trying to register...");
-    final response = await dioClient.registerUser(registerRequest);
-    print('Registration successful: ${response.otp}');
-  } catch (e) {
-    print('Registration failed: $e');
+  if (password.text == confirmpassword.text) {
+    final registrationRequest = UserRegistrationRequest(
+      userName: "hello123",
+      email: "user123@example.com",
+      password: "user0987",
+      confirmPassword: "user0987",
+    );
+setState(() {
+            _isLoading = true; // Start loading
+          });
+    try {
+      final response = await dioClient.registerUser(registrationRequest);
+      setState(() {
+            _isLoading = false; // Start loading
+          });
+      if (response != null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(response.message),
+        ));
+      }
+    } on ApiError catch (e) {
+      // Handle the ApiError and show it to the user
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(e.message),
+        duration: const Duration(seconds: 2),
+      ));
+    } catch (e) {
+      // Handle any unexpected errors
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('An unexpected error occurred. Please try again.'),
+      ));
+    }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: const Text('Passwords do not match'),
+      duration: const Duration(seconds: 2),
+    ));
   }
+},
 
 
-                    // Navigator.pushReplacement<void, void>(
-                    //   context,
-                    //   MaterialPageRoute<void>(
-                    //     builder: (BuildContext context) => const LoginPage(),
-                    //   ),
-                    // );
-                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF47518C),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Text(
-                    'Create Account',
-                    style: GoogleFonts.montserrat(
-                      textStyle: const TextStyle(
-                        color: Color(0xFFFAFAFA),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
+                  child: _isLoading // Check if loading
+          ? Container(
+            height: 30,
+            width: 30,
+            child: CircularProgressIndicator(
+                color: Colors.white, // Set the indicator color
+              ),
+          )
+          : Text(
+              'Create Account',
+              style: GoogleFonts.montserrat(
+                textStyle: const TextStyle(
+                  color: Color(0xFFFAFAFA),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  height: 1.5,
                 ),
+              ),
+            ),
+    )
               ),
               SizedBox(height: 30,),
-              SizedBox(
-                height: 34,
-                width: 26,
-                child: Row(
-                  children: [
-                    Container(
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 7),
-                        child: SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CheckboxTheme(
-                            data: CheckboxThemeData(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
-                              side: const BorderSide(width: 0, color: Colors.transparent), // Removes outline
-                            ),
-                            child: Checkbox(
-                              checkColor: Colors.white, // Color of the check mark
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4),
-                                side: const BorderSide(color: Colors.transparent),
-                              ),
-                              value: checkBoxValue,
-                              splashRadius: 0,
-                              fillColor: MaterialStateProperty.resolveWith<Color>((states) {
-                                if (states.contains(MaterialState.selected)) {
-                                  return const Color(0xFF5662AC); // Color when the checkbox is checked
-                                }
-                                return const Color(0xFFC6D6DB); // Color when unchecked
-                              }),
-                              onChanged: (newValue) {
-                                setState(() {
-                                  checkBoxValue = newValue ?? false;
-                                });
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width:328,
-                      height: 58,
-                      child: Row(
-                        children: [Text(
-                        'I agree to the',
-                        style: GoogleFonts.montserrat(
-                          textStyle: const TextStyle(
-                            color: Color(0xFF4D5962),
-                            fontWeight: FontWeight.w400,
-                            fontSize: 14,
-                            height: 1.5,
-                          ),
-                        ),
-                      ),
-                          Container(
-                            width: 140,
-                            height: 21,
-                            child: InkWell(
-                              onTap: () => print('Terms and Conditions link'),
-                              child: const Text(
-                                "Terms & Conditions",
-                                style: TextStyle(color: Color(0xFF5662AC)),
-                              ),
-                            ),
-                          ),
-                          const Text(" and "),
-                          InkWell(
-                            onTap: () => print("Privacy Policy"),
-                            child: const Text(
-                              "Privacy Policy",
-                              style: TextStyle(color: Color(0xFF5662AC)),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // SizedBox(
+              //   height: 34,
+              //   width: 26,
+              //   child: Row(
+              //     children: [
+              //       Container(
+              //         child: Padding(
+              //           padding: const EdgeInsets.only(right: 7),
+              //           child: SizedBox(
+              //             height: 18,
+              //             width: 18,
+              //             child: CheckboxTheme(
+              //               data: CheckboxThemeData(
+              //                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+              //                 side: const BorderSide(width: 0, color: Colors.transparent), // Removes outline
+              //               ),
+              //               child: Checkbox(
+              //                 checkColor: Colors.white, // Color of the check mark
+              //                 shape: RoundedRectangleBorder(
+              //                   borderRadius: BorderRadius.circular(4),
+              //                   side: const BorderSide(color: Colors.transparent),
+              //                 ),
+              //                 value: checkBoxValue,
+              //                 splashRadius: 0,
+              //                 fillColor: MaterialStateProperty.resolveWith<Color>((states) {
+              //                   if (states.contains(MaterialState.selected)) {
+              //                     return const Color(0xFF5662AC); // Color when the checkbox is checked
+              //                   }
+              //                   return const Color(0xFFC6D6DB); // Color when unchecked
+              //                 }),
+              //                 onChanged: (newValue) {
+              //                   setState(() {
+              //                     checkBoxValue = newValue ?? false;
+              //                   });
+              //                 },
+              //               ),
+              //             ),
+              //           ),
+              //         ),
+              //       ),
+              //       Container(
+              //         width:328,
+              //         height: 58,
+              //         child: Row(
+              //           children: [Text(
+              //           'I agree to the',
+              //           style: GoogleFonts.montserrat(
+              //             textStyle: const TextStyle(
+              //               color: Color(0xFF4D5962),
+              //               fontWeight: FontWeight.w400,
+              //               fontSize: 14,
+              //               height: 1.5,
+              //             ),
+              //           ),
+              //         ),
+              //             Container(
+              //               width: 140,
+              //               height: 21,
+              //               child: InkWell(
+              //                 onTap: () => print('Terms and Conditions link'),
+              //                 child: const Text(
+              //                   "Terms & Conditions",
+              //                   style: TextStyle(color: Color(0xFF5662AC)),
+              //                 ),
+              //               ),
+              //             ),
+              //             const Text(" and "),
+              //             InkWell(
+              //               onTap: () => print("Privacy Policy"),
+              //               child: const Text(
+              //                 "Privacy Policy",
+              //                 style: TextStyle(color: Color(0xFF5662AC)),
+              //               ),
+              //             ),
+              //           ],
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
             ],
           ),
         ),

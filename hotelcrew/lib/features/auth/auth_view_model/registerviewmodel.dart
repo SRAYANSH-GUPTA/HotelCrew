@@ -1,35 +1,67 @@
 import 'package:dio/dio.dart';
+import 'dart:convert';
 import '../models/register.dart';
-class DioClient {
-  final Dio _dio;
 
-  DioClient() : _dio = Dio() {
-    _dio.options.baseUrl = 'https://hotelcrew-1.onrender.com/api/';
-    _dio.interceptors.add(InterceptorsWrapper(
+// Dio Client Setup
+class DioClient {
+  final Dio dio;
+
+  DioClient() : dio = Dio() {
+    dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
-        print('Request: ${options.method} ${options.path}');
-        print('Request Data: ${options.data}');
-        handler.next(options);
+        options.headers['Content-Type'] = 'application/json';
+        return handler.next(options);
       },
       onResponse: (response, handler) {
-        print('Response: ${response.statusCode} ${response.data}');
-        handler.next(response);
+        return handler.next(response);
       },
-      onError: (DioError e, handler) {
-        print('Error: ${e.response?.statusCode} ${e.message}');
-        handler.next(e);
+      onError: (DioException e, handler) {
+        String errorMessage;
+
+        switch (e.type) {
+          case DioExceptionType.connectionTimeout:
+            errorMessage = 'Connection timeout. Please try again.';
+            break;
+          case DioExceptionType.receiveTimeout:
+            errorMessage = 'Server is taking too long to respond.';
+            break;
+          case DioExceptionType.badResponse:
+            errorMessage = 'Received invalid status code: ${e.response?.statusCode}';
+            break;
+          case DioExceptionType.cancel:
+            errorMessage = 'Request to API was cancelled.';
+            break;
+          case DioExceptionType.unknown:
+          default:
+            errorMessage = 'Unexpected error: ${e.message}';
+            break;
+        }
+
+        // Reject the error with the error message
+        return handler.reject(DioException(
+          requestOptions: e.requestOptions, // Pass the requestOptions here
+          type: e.type,
+          error: errorMessage,
+        ));
       },
     ));
   }
 
-  Future<RegisterResponse> registerUser(RegisterRequest request) async {
+  Future<UserRegistrationResponse?> registerUser(UserRegistrationRequest user) async {
     try {
-      final response = await _dio.post('auth/register/', data: request.toJson());
-      return RegisterResponse.fromJson(response.data);
-    } on DioError catch (e) {
-      // Handle error
-      print('Error during registration: ${e.message}');
-      throw e;
+      final response = await dio.post(
+        'https://hotelcrew-1.onrender.com/api/auth/registrationOTP/',
+        data: json.encode(user.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        return UserRegistrationResponse.fromJson(response.data);
+      } else {
+        return null;
+      }
+    } on DioException catch (e) {
+      // Handle Dio specific errors
+      throw ApiError('An unexpected error occurred: ${e.message}');
     }
   }
 }
