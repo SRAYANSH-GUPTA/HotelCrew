@@ -18,15 +18,43 @@ class _createpwdState extends State<createpwd> {
   bool checkBoxValue = false;
   double svgheight = 244.58;
   double svgwidth =  258.16;
+  bool _obscurePassword = true;
   final FocusNode passwordFocusNode = FocusNode();
+  final FocusNode confirmFocusNode = FocusNode();
   bool isSvgVisible = true;
+  double _calculateStrength(String password1) {
+    int score = 0;
+
+    // Check the length
+    if (password1.length >= 8) {
+      score++;
+    }
+
+    // Check for uppercase letters
+    if (password1.contains(RegExp(r'[A-Z]'))) {
+      score++;
+    }
+
+    // Check for numbers
+    if (password1.contains(RegExp(r'\d'))) {
+      score++;
+    }
+
+    // Check for special characters
+    if (password1.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
+      score++;
+    }
+
+    // Convert the score to a strength value between 0.0 and 1.0
+    return score / 4; // Since we have 4 criteria
+  }
   @override
   void initState()
   {
     super.initState();
     passwordFocusNode.addListener((){
       setState(() {
-        if (passwordFocusNode.hasFocus)
+        if (passwordFocusNode.hasFocus || confirmFocusNode.hasFocus)
         {
           svgheight = 0;
           svgwidth = 0; 
@@ -94,40 +122,126 @@ class _createpwdState extends State<createpwd> {
                   ),
                 ),
               ),
-              SvgPicture.asset(
-                'assets/createpwd.svg', // Ensure the path is correct
-                height: svgheight,
-                width: svgwidth,
+              if(!isSvgVisible)
+              SizedBox(height: 26),
+              Padding(
+                padding: EdgeInsets.only(left:34,bottom: 36.42),
+                child: SvgPicture.asset(
+                  'assets/createpwd.svg', // Ensure the path is correct
+                  height: svgheight,
+                  width: svgwidth,
+                ),
               ),
+              if(!isSvgVisible)
               const SizedBox(height: 20), // Space between the SVG and the text field
               InkWell(
                 onTap: toggleSvgSize,
                 child: TextFormField(
                   controller: password,
-                  maxLength: 12,
+                  maxLength: 25,
+                  onChanged: (password) {
+            setState(() {}); // Rebuild to update strength indicator
+          },
                   decoration: InputDecoration(
+                    counterText: "",
                     labelText: 'Password',
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    suffixIcon: IconButton(
+                            icon: _obscurePassword
+                                ? SvgPicture.asset('assets/nopassword.svg')
+                                : SvgPicture.asset('assets/passwordvisible.svg'),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
                   ),
-                  obscureText: true,
+                  buildCounter: null,
+                  
+                  obscureText: _obscurePassword,
                   focusNode: passwordFocusNode,
                   obscuringCharacter: '●',
                   style: TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
                 ),
               ),
+              SizedBox(height: 22,),
+              if(passwordFocusNode.hasFocus)
+              PasswordStrengthIndicator(
+                password: password.text,
+  width: 150, // Change the width of the strength bar
+  thickness: 3, // Change the thickness of the strength bar
+  backgroundColor: Color(0xFFC6D6DB), // Change the background color of the strength bar
+  radius: 8, // Change the radius of the strength bar
+  colors: StrengthColors(
+    // Customize the colors of the strength bar
+    weak: Color(0xFFA0365A),
+    medium: Color(0xFFEF7A07),
+    strong: Color(0xFF6BBD6E),
+  ),
+  duration: Duration(milliseconds: 300), // Set the animation duration
+  curve: Curves.easeOut, // Set the animation curve
+  callback: (double strength) {
+    // Receive the strength value of the password
+    print('Password Strength: $strength');
+  },
+  strengthBuilder: (String password) {
+            // Calculate and return the strength value
+            return _calculateStrength(password);
+          },
+  style: StrengthBarStyle.dashed, // Choose a style for the strength bar
+),
               const SizedBox(height: 20), // Space between the text fields
               TextFormField(
                 controller: confirmpassword,
-                maxLength: 12,
+                maxLength: 25,
+                onChanged: (confirmpassword) {
+            setState(() {}); // Rebuild to update strength indicator
+          },validator: (value) {
+    // Check if the passwords match
+    if (value != password.text) {
+      return 'Passwords do not match';
+    }
+    return null; // Return null if validation is successful
+  },
+                buildCounter: null,
+                focusNode: confirmFocusNode,
                 decoration: InputDecoration(
+                  errorBorder: confirmFocusNode.hasFocus && confirmpassword.text != password.text
+                                ? OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.red, width: 1.0),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  )
+                                : null,
+                  counterText: "",
                   labelText: 'Confirm Password',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0),
+                  ),
                 ),
-                obscureText: true,
+                obscureText: _obscurePassword,
                 obscuringCharacter: '●',
                 style: TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
               ),
-              const SizedBox(height: 20), // Space between the text fields
+              const SizedBox(height: 20),
+              if(passwordFocusNode.hasFocus || confirmFocusNode.hasFocus)
+              SizedBox(
+                    height: 42,
+                    width: 328,
+                    child: Text(
+                      'Use 8-12 characters with at least one uppercase letter, number, and special character.',
+                      style: GoogleFonts.montserrat(
+                        textStyle: const TextStyle(
+                          color: Color(0xFF4D5962),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20,), // Space between the text fields
               SizedBox(
                 height: 40,
                 width: 328,
@@ -161,6 +275,7 @@ class _createpwdState extends State<createpwd> {
                   ),
                 ),
               ),
+              
             ],
           ),
         ),
