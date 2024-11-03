@@ -4,8 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:email_validator/email_validator.dart';
 import '../../auth_view_model/loginpageviewmodel.dart';
 
-final emailController = TextEditingController(text: "");
-final passwordController = TextEditingController(text: "");
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,6 +15,8 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool checkBoxValue = false;
+  final emailController = TextEditingController(text: "");
+final passwordController = TextEditingController(text: "");
   final authViewModel = AuthViewModel();
   bool validEmail = true;
   bool _obscurePassword = true;
@@ -107,6 +108,10 @@ class _LoginPageState extends State<LoginPage> {
                         child: TextFormField(
                           controller: emailController,
                           maxLength: 320,
+                          style: const TextStyle(
+                          fontSize: 20,
+                          color: Color(0xFF5B6C78),
+                        ),
                           validator: (value) {
                             if (EmailValidator.validate(value ?? '')) {
                               return null;
@@ -122,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             errorBorder: validEmail
                                 ? OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.red, width: 1.0),
+                                    borderSide: const BorderSide(color: Colors.red, width: 1.0),
                                     borderRadius: BorderRadius.circular(8.0),
                                   )
                                 : null,
@@ -234,7 +239,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                             ),
-                            Container(
+                            SizedBox(
                               height: 21,
                               width: 103,
                               child: Text(
