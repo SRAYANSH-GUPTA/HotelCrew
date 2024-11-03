@@ -19,6 +19,7 @@ class _createpwdState extends State<createpwd> {
   double svgheight = 244.58;
   double svgwidth =  258.16;
   bool _obscurePassword = true;
+  bool notequal = false;
   final FocusNode passwordFocusNode = FocusNode();
   final FocusNode confirmFocusNode = FocusNode();
   bool isSvgVisible = true;
@@ -139,9 +140,18 @@ class _createpwdState extends State<createpwd> {
                 child: TextFormField(
                   controller: password,
                   maxLength: 25,
-                  onChanged: (password) {
-            setState(() {}); // Rebuild to update strength indicator
-          },
+                  onChanged: (value) {
+              setState(() {
+                if(password.text != confirmpassword.text && confirmFocusNode.hasFocus)
+                {
+                  notequal = true;
+                }
+                else
+                {
+                  notequal = false;
+                }
+              }); // Rebuild to update strength indicator
+            },
                   decoration: InputDecoration(
                     counterText: "",
                     labelText: 'Password',
@@ -155,6 +165,7 @@ class _createpwdState extends State<createpwd> {
                             onPressed: () {
                               setState(() {
                                 _obscurePassword = !_obscurePassword;
+
                               });
                             },
                           ),
@@ -193,23 +204,35 @@ class _createpwdState extends State<createpwd> {
           },
   style: StrengthBarStyle.dashed, // Choose a style for the strength bar
 ),
-              const SizedBox(height: 20), // Space between the text fields
+              const SizedBox(height: 22), // Space between the text fields
               TextFormField(
                 controller: confirmpassword,
                 maxLength: 25,
-                onChanged: (confirmpassword) {
-            setState(() {}); // Rebuild to update strength indicator
-          },validator: (value) {
-    // Check if the passwords match
-    if (value != password.text) {
-      return 'Passwords do not match';
-    }
-    return null; // Return null if validation is successful
-  },
+                validator: (value) {
+              // Check if the passwords match
+              if (value != password.text) {
+                return 'Passwords do not match';
+              }
+              return null; // Return null if validation is successful
+            },
+            onChanged: (value) {
+              setState(() {
+                if(password.text.isNotEmpty && confirmpassword.text.isNotEmpty)
+                {
+                  notequal = true;
+                }
+              }); // Rebuild to update strength indicator
+            },
                 buildCounter: null,
                 focusNode: confirmFocusNode,
                 decoration: InputDecoration(
-                  errorBorder: confirmFocusNode.hasFocus && confirmpassword.text != password.text
+                  //  suffixIcon: notequal
+                  //               ? null
+                  //               : const Icon(
+                  //                   Icons.error,
+                  //                   color: Color(0xFFC80D0D),
+                  //                 ),
+                  errorBorder: notequal
                                 ? OutlineInputBorder(
                                     borderSide: BorderSide(color: Colors.red, width: 1.0),
                                     borderRadius: BorderRadius.circular(8.0),
@@ -230,7 +253,7 @@ class _createpwdState extends State<createpwd> {
                     height: 42,
                     width: 328,
                     child: Text(
-                      'Use 8-12 characters with at least one uppercase letter, number, and special character.',
+                      'Use 8-25 characters with at least one uppercase letter, number, and special character.',
                       style: GoogleFonts.montserrat(
                         textStyle: const TextStyle(
                           color: Color(0xFF4D5962),
@@ -249,12 +272,16 @@ class _createpwdState extends State<createpwd> {
                   onPressed: () {
                     print("Password: ${password.text}");
                     print("Confirm Password: ${confirmpassword.text}");
-                    Navigator.pushReplacement<void, void>(
-        context,
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => LoginPage(),
-        ),
-      );
+                    if (password.text.isNotEmpty && confirmpassword.text.isNotEmpty) {
+    if (password.text == confirmpassword.text) {
+        // Navigate to the next screen
+    } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Passwords do not match!')),
+        );
+    }
+}
+
                   },
                   child: Text(
                     'Save Password',
