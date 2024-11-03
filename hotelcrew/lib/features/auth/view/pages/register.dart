@@ -215,14 +215,18 @@ class _RegisterState extends State<Register> {
                   onPressed: () async {
                     if (_isLoading) return; // Prevent multiple taps while loading
   final dioClient = DioClient();
-
+  print(username.text);
+  print(emailController.text);
+  print(password.text);
+  print(confirmpassword.text);
   if (password.text == confirmpassword.text) {
     final registrationRequest = UserRegistrationRequest(
-      userName: "hello123",
-      email: "user123@example.com",
+      userName: username.text,
+      email: emailController.text,
       password: "user0987",
       confirmPassword: "user0987",
     );
+    print(registrationRequest);
 setState(() {
             _isLoading = true; // Start loading
           });
@@ -235,6 +239,7 @@ setState(() {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(response.message),
         ));
+        print("#############");
       }
     } on ApiError catch (e) {
       // Handle the ApiError and show it to the user

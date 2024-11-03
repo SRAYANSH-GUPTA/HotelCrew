@@ -22,11 +22,11 @@ class UserRegistrationRequest {
 
   Map<String, dynamic> toJson() {
     return {
-      'user_name': userName,
-      'email': email,
-      'password': password,
-      'confirm_password': confirmPassword,
-    };
+    "user_name":userName,
+    "email":email,
+    "password":password,
+    "confirm_password":confirmPassword
+};
   }
 }
 
