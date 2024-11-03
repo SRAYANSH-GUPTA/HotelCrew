@@ -89,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 29.26),
                   Container(
-                                    child: Padding(
+                    child: Padding(
                       padding: const EdgeInsets.only(left: 52.73, right: 69.42),
                       child: SvgPicture.asset(
                         'assets/login.svg', // Ensure the path is correct
@@ -100,7 +100,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 30.69),
                   Container(
-                  
                     child: Form(
                       autovalidateMode: AutovalidateMode.always,
                       child: Padding(
@@ -140,7 +139,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 4),
                   Container(
-              
                     child: Padding(
                       padding: const EdgeInsets.only(top: 4, bottom: 22),
                       child: TextFormField(
@@ -202,38 +200,36 @@ class _LoginPageState extends State<LoginPage> {
                         child: Row(
                           children: [
                             Container(
-                              
                               child: Padding(
                                 padding: const EdgeInsets.only(right: 7),
                                 child: SizedBox(
                                   height: 18,
                                   width: 18,
                                   child: CheckboxTheme(
-                                      data: CheckboxThemeData(
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
-    side: BorderSide(width: 0, color: Colors.transparent),  // Removes outline
-  ),
-                                    child:Checkbox(
-  checkColor: Colors.white, // Color of the check mark
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(4),
-    side: BorderSide(color: Colors.transparent),
-  ),
-  value: checkBoxValue,
-  splashRadius: 0,
-  fillColor: WidgetStateProperty.resolveWith<Color>((states) {
-    if (states.contains(WidgetState.selected)) {
-      return Color(0xFF5662AC); // Color when the checkbox is checked
-    }
-    return Color(0xFFC6D6DB); // Color when unchecked
-  }),
-  onChanged: (newValue) {
-    setState(() {
-      checkBoxValue = newValue ?? false;
-    });
-  },
-)
-
+                                    data: CheckboxThemeData(
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+                                      side: const BorderSide(width: 0, color: Colors.transparent),  // Removes outline
+                                    ),
+                                    child: Checkbox(
+                                      checkColor: Colors.white, // Color of the check mark
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(4),
+                                        side: const BorderSide(color: Colors.transparent),
+                                      ),
+                                      value: checkBoxValue,
+                                      splashRadius: 0,
+                                      fillColor: MaterialStateProperty.resolveWith<Color>((states) {
+                                        if (states.contains(MaterialState.selected)) {
+                                          return const Color(0xFF5662AC); // Color when the checkbox is checked
+                                        }
+                                        return const Color(0xFFC6D6DB); // Color when unchecked
+                                      }),
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          checkBoxValue = newValue ?? false;
+                                        });
+                                      },
+                                    ),
                                   ),
                                 ),
                               ),
@@ -241,7 +237,6 @@ class _LoginPageState extends State<LoginPage> {
                             Container(
                               height: 21,
                               width: 103,
-                              
                               child: Text(
                                 'Remember Me',
                                 style: GoogleFonts.poppins(
@@ -264,7 +259,7 @@ class _LoginPageState extends State<LoginPage> {
                     height: 40,
                     width: 328,
                     child: ElevatedButton(
-                      onPressed: _isLoading
+                      onPressed: _isLoading || emailController.text.isEmpty || passwordController.text.isEmpty
                           ? null // Disable button while loading
                           : () async {
                               setState(() {
@@ -276,44 +271,46 @@ class _LoginPageState extends State<LoginPage> {
                                   emailController.text,
                                   passwordController.text,
                                 );
-                                print("########################");
-                                print("Login successful!");
-                                print("User ID: ${loginResponse.user.id}");
-                                print("Access Token: ${loginResponse.tokens.access}");
-                                login = 1;
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                  content: Column(
-                                    children: [
-                                      const Text('Login Successful'),
-                                      Text('Username: ${loginResponse.user.firstName}'),
-                                      Text('AccessToken: ${loginResponse.tokens.access}'),
-                                    ],
-                                  ),
-                                  duration: const Duration(seconds: 2),
-                                  action: SnackBarAction(
-                                    label: 'ACTION',
-                                    onPressed: () {},
-                                  ),
-                                ));
-                                // You can add further actions here, such as navigating to a new page.
+
+                                // Only if login is successful
+                                if (loginResponse.status != 'error') {
+                                  print("########################");
+                                  print("Login successful!");
+                                  print("User ID: ${loginResponse.user?.id ?? "Not available"}");
+                                  print("AccessToken: ${loginResponse.tokens?.access ?? "Not available"}");
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                    content: Column(
+                                      children: [
+                                        const Text('Login Successful'),
+                                        Text('User ID: ${loginResponse.user?.id ?? "Not available"}'),
+                                        Text('Role of User: '), // Assuming you have a role field
+                                      ],
+                                    ),
+                                    duration: const Duration(seconds: 2),
+                                    action: SnackBarAction(
+                                      label: 'ACTION',
+                                      onPressed: () {},
+                                    ),
+                                  ));
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                    content: const Column(
+                                      children: [
+                                        Text('Login Unsuccessful'),
+                                        Text('Try Again'),
+                                      ],
+                                    ),
+                                    duration: const Duration(seconds: 2),
+                                  ));
+                                }
                               } catch (e) {
                                 print("###################");
                                 print("Login failed: $e");
                                 emailController.clear();
-                                login = 2;
                                 passwordController.clear();
                                 setState(() {
-                                  _isInvalidCredentials = true; // Set flag for invalid credentials
+                                  _isInvalidCredentials = true; // Show invalid credentials message
                                 });
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                  content: const Column(
-                                    children: [
-                                      Text('Login Unsuccessful'),
-                                      Text('Try Again'),
-                                    ],
-                                  ),
-                                  duration: const Duration(seconds: 2),
-                                ));
                               } finally {
                                 setState(() {
                                   _isLoading = false; // Stop loading
@@ -321,89 +318,61 @@ class _LoginPageState extends State<LoginPage> {
                               }
                             },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF47518C),
+                        backgroundColor: const Color(0xFF5662AC),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: _isLoading
+                      child: _isLoading // Conditional loading indicator
                           ? SizedBox(
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
+                                color: Color(0xFFFAFAFA),
                               ),
                             )
-                          : Text(
-                            'Log In',
-                              style: GoogleFonts.montserrat(
-                                textStyle: const TextStyle(
-                                  color: Color(0xFFFAFAFA),
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  height: 1.5,
-                                ),
+                          : const Text(
+                              'Log In',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
                               ),
                             ),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  SizedBox(
-                    height: 28,
-                    width: 328,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                    
-                          width: 96,
-                          height: 18,
-                          child: Text(
-                            'Not a member?',
-                            style: GoogleFonts.montserrat(
-                              textStyle: const TextStyle(
-                                color: Color(0xFF121212),
-                                fontWeight: FontWeight.w400,
-                                fontSize: 11.5,
-                              ),
+                  const SizedBox(height: 0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Not a member?",
+                        style: GoogleFonts.poppins(
+                          textStyle: const TextStyle(
+                            color: Color(0xFF4D5962),
+                            fontWeight: FontWeight.w400,
+                            fontSize: 12,
+                            height: 1.5,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/signup'); // Adjust your route here
+                        },
+                        child: Text(
+                          "Sign Up",
+                          style: GoogleFonts.poppins(
+                            textStyle: const TextStyle(
+                              color: const Color(0xFF5662AC),
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              height: 1.3,
                             ),
                           ),
                         ),
-                        Container(
-                        
-                          width: 73,
-                          height: 28,
-                          child: Container(
-                            height: 20,
-                            width: 57,
-                            child: TextButton(
-                              onPressed: () {
-                                // Add your onPressed functionality here
-                              },
-                              style: TextButton.styleFrom(
-                                padding: const EdgeInsets.all(0),
-                                backgroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Text(
-                                'Sign Up',
-                                style: GoogleFonts.poppins(
-                                  textStyle: const TextStyle(
-                                    color: Color(0xFF5662AC),
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                    height: 1.5,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
