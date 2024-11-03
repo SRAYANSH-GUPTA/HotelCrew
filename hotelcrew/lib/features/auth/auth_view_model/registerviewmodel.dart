@@ -57,7 +57,7 @@ class DioClient {
       if (response.statusCode == 200) {
         return UserRegistrationResponse.fromJson(response.data);
       } else {
-        return null;
+        print(response.statusCode);
       }
     } on DioException catch (e) {
       // Handle Dio specific errors

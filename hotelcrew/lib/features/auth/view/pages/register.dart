@@ -223,8 +223,8 @@ class _RegisterState extends State<Register> {
     final registrationRequest = UserRegistrationRequest(
       userName: username.text,
       email: emailController.text,
-      password: "user0987",
-      confirmPassword: "user0987",
+      password: password.text,
+      confirmPassword: confirmpassword.text,
     );
     print(registrationRequest);
 setState(() {
