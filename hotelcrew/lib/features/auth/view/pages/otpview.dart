@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:hotelcrew/features/auth/view/pages/login_page.dart';
 import 'package:otp_pin_field/otp_pin_field.dart';
 import 'package:otp_timer_button/otp_timer_button.dart';
+import 'otpviewmodel.dart';
+import 'otpmodel.dart';
 
 class Otpview extends StatefulWidget {
   const Otpview({super.key});
@@ -18,6 +20,7 @@ class _OtpviewState extends State<Otpview> {
   bool checkBoxValue = false;
   double svgHeight = 236.03;
   double svgWidth = 232.28;
+  bool otperror = false;
   final FocusNode emailFocusNode = FocusNode();
   final OtpTimerButtonController otp = OtpTimerButtonController();
   String enteredOtp = ""; // Variable to store the OTP entered by the user
@@ -136,33 +139,35 @@ class _OtpviewState extends State<Otpview> {
                   ),
                   const SizedBox(height: 57),
                   // Conditional error message when svgHeight is 0
-                  if (svgHeight == 0)
+                  if (svgHeight == 0 && otperror)
                     Padding(
-                      padding: const EdgeInsets.only(left: 72),
-                      child: Container(color: Colors.blue,
-                        width: 185,
+                      padding: const EdgeInsets.only(left: 0),
+                      child: Container(
+                        width: 326,
                         height: 39,
-                        child: Column(mainAxisAlignment: MainAxisAlignment.center,
-                          children: [Text(
-                            "Incorrect code.",
+                        child: Center(
+                          child: Column(mainAxisAlignment: MainAxisAlignment.center,
+                            children: [Text(
+                              "Incorrect code or Invalid User.",
+                              style: GoogleFonts.montserrat(
+                                textStyle: const TextStyle(
+                                  color: Color(0xFFBA4872),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            Text(
+                            "Check and try again",
                             style: GoogleFonts.montserrat(
                               textStyle: const TextStyle(
                                 color: Color(0xFFBA4872),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
                               ),
                             ),
+                          ),]
                           ),
-                          Text(
-                          "Check and try again",
-                          style: GoogleFonts.montserrat(
-                            textStyle: const TextStyle(
-                              color: Color(0xFFBA4872),
-                              fontWeight: FontWeight.w500,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),]
                         ),
                       ),
                     ),
@@ -220,9 +225,28 @@ class _OtpviewState extends State<Otpview> {
                           height: 40,
                           width: 328,
                           child: ElevatedButton(
-                            onPressed: () {
-                              print("Entered OTP: $enteredOtp");
-                            },
+                            onPressed: () async {
+  final dioClient = DioClient();
+  
+  final otpRequest = OtpRequest(
+    email: 'sr.gupta621@gmail.com',
+    otp: 2568,
+  );
+
+  try {
+    await dioClient.sendOtp(otpRequest);
+    print('OTP sent successfully.');
+  } on ApiError catch (e) {
+    // Handle API error
+    setState(() {
+      otperror = true;
+    });
+    print('API Error: ${e.error.join(', ')}');
+  } catch (e) {
+    // Handle any unexpected errors
+    print('An unexpected error occurred: $e');
+  }
+},
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF47518C),
                               shape: RoundedRectangleBorder(
