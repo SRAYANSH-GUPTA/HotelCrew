@@ -3,12 +3,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../auth/view/pages/login_page.dart';
 import '../../auth/view/pages/register.dart';
-class OnboardingPage extends StatefulWidget {
+class Onboarding extends StatefulWidget {
   @override
-  _OnboardingPageState createState() => _OnboardingPageState();
+  _OnboardingState createState() => _OnboardingState();
 }
 
-class _OnboardingPageState extends State<OnboardingPage> {
+class _OnboardingState extends State<Onboarding> {
   PageController _pageController = PageController();
   int _currentPage = 0;
 
@@ -56,7 +56,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   },
                   itemCount: _onboardingData.length,
                   itemBuilder: (context, index) {
-                    return _buildOnboardingPage(index);
+                    return _buildOnboarding(index);
                   },
                 ),
               ),
@@ -169,7 +169,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     );
   }
 
- Widget _buildOnboardingPage(int index) {
+ Widget _buildOnboarding(int index) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16.0),
     child: Container(

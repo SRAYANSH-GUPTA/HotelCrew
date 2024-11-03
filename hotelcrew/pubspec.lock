@@ -280,6 +280,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  otp_pin_field:
+    dependency: "direct main"
+    description:
+      name: otp_pin_field
+      sha256: "9f2dbe1bd799a770ead7bf5be3d18bf2a1ab6e76e7d6e2ff61e3b980fb3b357d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.1"
+  otp_timer_button:
+    dependency: "direct main"
+    description:
+      name: otp_timer_button
+      sha256: "2c1dae65db0147add42f52558f88ad71a4a29a612d891e81323ea01bac983dcf"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.1"
+  password_strength_indicator:
+    dependency: "direct main"
+    description:
+      name: password_strength_indicator
+      sha256: bbb3dd286ea8536b2ceb6928e26b71d4ba273c743beaaa2e75c241ed44ba8598
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   path:
     dependency: transitive
     description:

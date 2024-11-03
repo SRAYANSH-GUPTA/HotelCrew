@@ -5,6 +5,7 @@ import '../../models/register.dart';
 import '../../auth_view_model/registerviewmodel.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:email_validator/email_validator.dart';
+import 'otpview.dart';
 
 
 class Register extends StatefulWidget {
@@ -240,7 +241,14 @@ setState(() {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(response.message),
         ));
+        Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => Otpview(email: emailController.text),
+  ),
+);
         print("#############");
+
       }
     } on ApiError catch (e) {
       // Handle the ApiError and show it to the user
