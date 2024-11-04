@@ -24,6 +24,7 @@ final passwordController = TextEditingController(text: "");
   bool _isLoading = false; // Track loading state
   bool _isInvalidCredentials = false; // Track invalid credentials state
   int login = 0;
+String p = "";
 
   @override
   void initState() {
@@ -148,6 +149,11 @@ final passwordController = TextEditingController(text: "");
                     child: Padding(
                       padding: const EdgeInsets.only(top: 4, bottom: 22),
                       child: TextFormField(
+                         onChanged: (newValue) {
+                                        setState(() {
+                                          p = newValue;
+                                        });
+                                      },
                         controller: passwordController,
                         validator: (value) {
                           if (_isInvalidCredentials) {
@@ -271,7 +277,7 @@ final passwordController = TextEditingController(text: "");
                     height: 40,
                     width: 328,
                     child: ElevatedButton(
-                      onPressed: _isLoading || emailController.text.isEmpty || passwordController.text.isEmpty
+                      onPressed: _isLoading || emailController.text.isEmpty || p.isEmpty
                           ? null // Disable button while loading
                           : () async {
                               setState(() {

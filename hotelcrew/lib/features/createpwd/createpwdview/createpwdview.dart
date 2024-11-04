@@ -293,10 +293,12 @@ class _createpwdState extends State<createpwd> {
               backgroundColor: Colors.green,
             ),
           );
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginPage()),
-          );
+          Navigator.pushReplacement<void, void>(
+    context,
+    MaterialPageRoute<void>(
+      builder: (BuildContext context) => const LoginPage(),
+    ),
+  );
         } else if (viewModel.errorMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
