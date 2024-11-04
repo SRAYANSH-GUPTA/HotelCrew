@@ -17,6 +17,7 @@ class Resetpass extends StatefulWidget {
 
 class _ResetpassState extends State<Resetpass> {
   bool checkBoxValue = false;
+  bool _isLoading = false;
   double svgHeight = 228.88;
   double svgWidth = 322.88;
   final FocusNode emailFocusNode = FocusNode();
@@ -124,10 +125,15 @@ class _ResetpassState extends State<Resetpass> {
                       height: 40,
                       width: 328,
                       child: ElevatedButton(
-                        onPressed: () async {
+                        onPressed: _isLoading ? null :() async {
   if (EmailValidator.validate(resetpassemail.text)) {
+     setState(() {
+      _isLoading = true; // Start loading
+    });
     final response = await viewModel.sendForgetPasswordRequest(resetpassemail.text);
-
+setState(() {
+      _isLoading = false; // Stop loading
+    });
     if (response is ForgetPasswordSuccessResponse) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Password Reset Otp sent successfully.")),
@@ -150,7 +156,14 @@ class _ResetpassState extends State<Resetpass> {
   }
 },
 
-                        child: Text(
+                        child: _isLoading
+    ? SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Color(0xFFFAFAFA),
+                              ),
+                            ):Text(
                           'Send Reset Otp',
                           style: GoogleFonts.montserrat(
                             textStyle: const TextStyle(
