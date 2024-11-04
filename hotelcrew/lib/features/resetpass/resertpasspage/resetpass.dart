@@ -17,8 +17,8 @@ class Resetpass extends StatefulWidget {
 
 class _ResetpassState extends State<Resetpass> {
   bool checkBoxValue = false;
-  double svgHeight = 363;
-  double svgWidth = 293.06;
+  double svgHeight = 228.88;
+  double svgWidth = 322.88;
   final FocusNode emailFocusNode = FocusNode();
   final ForgetPasswordViewModel viewModel = ForgetPasswordViewModel();
 
@@ -27,8 +27,8 @@ class _ResetpassState extends State<Resetpass> {
     super.initState();
     emailFocusNode.addListener(() {
       setState(() {
-        svgHeight = emailFocusNode.hasFocus ? 117.22 : 363;
-        svgWidth = emailFocusNode.hasFocus ? 145.2 : 293.06;
+        svgHeight = emailFocusNode.hasFocus ? 0 : 228.88;
+        svgWidth = emailFocusNode.hasFocus ? 0 : 322.88;
       });
     });
   }
@@ -45,9 +45,9 @@ class _ResetpassState extends State<Resetpass> {
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Container(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.only(top:20,left: 16,right:16),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            
             children: [
               Container(
                 width: 328,
@@ -80,16 +80,24 @@ class _ResetpassState extends State<Resetpass> {
                   ),
                 ),
               ),
-              SvgPicture.asset(
-                'assets/resetpass.svg',
-                height: svgHeight,
-                width: svgWidth,
-                fit: BoxFit.contain,
-              ),
-              const SizedBox(height: 20),
+             Container(
+  height: !emailFocusNode.hasFocus ? 85.72 : 0,
+),
+
               Container(
-                height: 190,
-                width: 328,
+                child: SvgPicture.asset(
+                  'assets/otpsentreset.svg',
+                  height: svgHeight,
+                  width: svgWidth,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              Container(
+  height: !emailFocusNode.hasFocus ? 85.4 : 48,
+),
+
+              Container(
+               
                 child: Column(
                   children: [
                     Form(
@@ -102,12 +110,16 @@ class _ResetpassState extends State<Resetpass> {
                             ? null
                             : "Enter a valid email.",
                         decoration: InputDecoration(
+                          counterText: "",
                           labelText: 'Email',
-                          border: OutlineInputBorder(),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0),),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    Container(
+  height: !emailFocusNode.hasFocus ? 48 : 137,
+),
+
                     SizedBox(
                       height: 40,
                       width: 328,
@@ -118,7 +130,7 @@ class _ResetpassState extends State<Resetpass> {
 
     if (response is ForgetPasswordSuccessResponse) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Password reset email sent successfully.")),
+        SnackBar(content: Text("Password Reset Otp sent successfully.")),
       );
       Navigator.pushReplacement<void, void>(
         context,
@@ -139,7 +151,7 @@ class _ResetpassState extends State<Resetpass> {
 },
 
                         child: Text(
-                          'Send Reset Link',
+                          'Send Reset Otp',
                           style: GoogleFonts.montserrat(
                             textStyle: const TextStyle(
                               color: Color(0xFFFAFAFA),
@@ -157,8 +169,9 @@ class _ResetpassState extends State<Resetpass> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 4),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         InkWell(
                           onTap: () {
@@ -166,17 +179,17 @@ class _ResetpassState extends State<Resetpass> {
                           },
                           child: Text(
                             'Remember Password?',
-                            style: GoogleFonts.poppins(
+                            style: GoogleFonts.montserrat(
                               textStyle: const TextStyle(
                                 color: Color(0xFF4D5962),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                fontSize: 12,
                                 height: 1.5,
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 4),
                         Container(
                           width: 61,
                           height: 28,
@@ -200,7 +213,7 @@ class _ResetpassState extends State<Resetpass> {
                                   textStyle: const TextStyle(
                                     color: Color(0xFF4D5962),
                                     fontWeight: FontWeight.w600,
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     height: 1.5,
                                   ),
                                 ),

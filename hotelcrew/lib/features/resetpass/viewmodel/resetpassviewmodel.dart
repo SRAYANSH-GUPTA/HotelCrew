@@ -26,7 +26,7 @@ class ForgetPasswordViewModel {
 
     try {
       final response = await _dio.post(
-        'https://hotelcrew-1.onrender.com/api/auth/forgetpassword/',
+        'https://hotelcrew-1.onrender.com/api/auth/forget-password/',
         options: Options(headers: {
           'Content-Type': 'application/json',
         }),
