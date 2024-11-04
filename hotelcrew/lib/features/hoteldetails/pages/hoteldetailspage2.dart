@@ -124,6 +124,7 @@ class _ProgressPageViewState extends State<ProgressPageView> {
                 ),
               ],
             ),
+            
             const SizedBox(height: 24), // Space between row and text
             Padding(
               padding: EdgeInsets.only(left: 16,right: 16,bottom: 10),
@@ -182,7 +183,7 @@ class _ProgressPageViewState extends State<ProgressPageView> {
               onPressed: () {
                 if(_currentPage != _totalPages-1){_goToNextPage();}
                 else{
-                  Navigator.pushReplacement<void, void>(
+                  Navigator.push(
         context,
         MaterialPageRoute<void>(
           builder: (BuildContext context) => SetupComplete(),

@@ -3,8 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:hotelcrew/features/auth/view/pages/register.dart';
+import 'package:hotelcrew/features/hoteldetails/pages/hoteldetailspage1.dart';
 import '../../auth_view_model/loginpageviewmodel.dart';
 import '../../../resetpass/resertpasspage/resetpass.dart';
+import '../../../hoteldetails/pages/hoteldetailspage1.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -310,6 +312,10 @@ String p = "";
                                       onPressed: () {},
                                     ),
                                   ));
+                                  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const Hoteldetailspage1()),
+  );
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                     content: const Column(

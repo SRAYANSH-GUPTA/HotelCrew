@@ -46,87 +46,92 @@ Future<void> _pickFile() async {
             margin: EdgeInsets.only(top: 44),
             height: 158,
             width: 360,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(top: 14, left: 16),
-                      child: Container(
-                        height: 16,
-                        width: 8,
-                        child: SvgPicture.asset(
-                          'assets/backarrow.svg',
-                          width: 6.32,
-                          height: 11.31,
+            child: InkWell(
+              onTap: ()=>{
+                Navigator.pop(context),
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(top: 14, left: 16),
+                        child: Container(
+                          height: 16,
+                          width: 8,
+                          child: SvgPicture.asset(
+                            'assets/backarrow.svg',
+                            width: 6.32,
+                            height: 11.31,
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(width: 8),
-                    Padding(
-                      padding: EdgeInsets.only(top: 14, left: 0),
-                      child: Container(
-                        width: 50,
-                        height: 24,
-                        child: Text(
-                          'Back',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.montserrat(
-                            textStyle: TextStyle(
-                              color: Color(0xFF4D5962),
-                              fontWeight: FontWeight.w400,
-                              fontSize: 16,
-                              height: 1.3,
+                      SizedBox(width: 8),
+                      Padding(
+                        padding: EdgeInsets.only(top: 14, left: 0),
+                        child: Container(
+                          width: 50,
+                          height: 24,
+                          child: Text(
+                            'Back',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.montserrat(
+                              textStyle: TextStyle(
+                                color: Color(0xFF4D5962),
+                                fontWeight: FontWeight.w400,
+                                fontSize: 16,
+                                height: 1.3,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 24),
-                Container(
-                  margin: EdgeInsets.only(left: 16),
-                  height: 32,
-                  width: 328,
-                  child: Text(
-                    'Upload Staff Details',
-                    style: GoogleFonts.montserrat(
-                      textStyle: TextStyle(
-                        color: Color(0xFF121212),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 24,
-                        height: 1.3,
+                    ],
+                  ),
+                  SizedBox(height: 24),
+                  Container(
+                    margin: EdgeInsets.only(left: 16),
+                    height: 32,
+                    width: 328,
+                    child: Text(
+                      'Upload Staff Details',
+                      style: GoogleFonts.montserrat(
+                        textStyle: TextStyle(
+                          color: Color(0xFF121212),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 24,
+                          height: 1.3,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(height: 11),
-                Container(
-                  margin: EdgeInsets.only(left: 16),
-                  height: 42,
-                  width: 328,
-                  child: Text(
-                    'Upload an Excel file with staff names, emails, and departments for easy team management.',
-                    style: GoogleFonts.montserrat(
-                      textStyle: TextStyle(
-                        color: Color(0xFF4D5962),
-                        fontWeight: FontWeight.w400,
-                        fontSize: 14,
-                        height: 1.5,
+                  SizedBox(height: 11),
+                  Container(
+                    margin: EdgeInsets.only(left: 16),
+                    height: 42,
+                    width: 328,
+                    child: Text(
+                      'Upload an Excel file with staff names, emails, and departments for easy team management.',
+                      style: GoogleFonts.montserrat(
+                        textStyle: TextStyle(
+                          color: Color(0xFF4D5962),
+                          fontWeight: FontWeight.w400,
+                          fontSize: 14,
+                          height: 1.5,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(height: 10),
-                Container(
-                  color: Color(0xFFC6D6DB),
-                  height: 1,
-                  width: 360,
-                ),
-              ],
+                  SizedBox(height: 10),
+                  Container(
+                    color: Color(0xFFC6D6DB),
+                    height: 1,
+                    width: 360,
+                  ),
+                ],
+              ),
             ),
           ),
           // Display the list of uploaded files or an SVG if empty

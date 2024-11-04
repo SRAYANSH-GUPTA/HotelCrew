@@ -10,7 +10,7 @@ class PageFive extends StatefulWidget {
 class _PageFiveState extends State<PageFive> {
   final TextEditingController cnumberController = TextEditingController();
   final TextEditingController _controller = TextEditingController();
-  final List<String> _items = ['Item 1', 'Item 2', 'Item 3'];
+  final List<String> _items = [];
   final FocusNode department = FocusNode();
   bool _isDropdownVisible = false; // To control dropdown visibility
   OverlayEntry? _dropdownOverlay;
@@ -39,14 +39,18 @@ class _PageFiveState extends State<PageFive> {
   final size = renderBox.size;
   final offset = renderBox.localToGlobal(Offset.zero);
 
+  // Adjust this value to change the height from the top
+  final dropdownHeightOffset = 370.0; // Set to your desired height offset
+
   _dropdownOverlay = OverlayEntry(
     builder: (context) => Positioned(
       left: offset.dx,
-      top: offset.dy + size.height,
-      width: size.width,
+      top: dropdownHeightOffset, // Add offset here
       child: Material(
         elevation: 4,
         child: Container(
+          margin: EdgeInsets.only(left: 16),
+          width: 328, // Set your desired width here
           color: Colors.white,
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -76,6 +80,7 @@ class _PageFiveState extends State<PageFive> {
   overlay.insert(_dropdownOverlay!);
   setState(() => _isDropdownVisible = true);
 }
+
 
 
   void _hideDropdown() {
@@ -196,9 +201,13 @@ class _PageFiveState extends State<PageFive> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              icon: Icon(Icons.add),
+                               icon: SvgPicture.asset(
+                              'assets/plus.svg',
+                              height: 24,
+                              width: 24,
+                            ),
                               onPressed: _addItem,
-                              color: Colors.blue,
+                              color: Colors.black,
                             ),
                             IconButton(
                               icon: Icon(Icons.arrow_drop_down),

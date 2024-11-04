@@ -73,7 +73,7 @@ class _Hoteldetailspage1State extends State<Hoteldetailspage1> {
       );
                   },
                   child: Text(
-                    'Log In',
+                    'Next',
                     style: GoogleFonts.montserrat(
                       textStyle: const TextStyle(
                         color: Color(0xFFFAFAFA),
