@@ -244,7 +244,8 @@ setState(() {
         Navigator.push(
   context,
   MaterialPageRoute(
-    builder: (context) => Otpview(email: emailController.text),
+    builder: (context) => Otpview(email: emailController.text, username: username.text,password: password.text,
+    confirmpassword: confirmpassword.text,),
   ),
 );
         print("#############");

@@ -9,6 +9,8 @@ import 'package:otp_pin_field/otp_pin_field.dart';
 import 'package:otp_timer_button/otp_timer_button.dart';
 import '../models/otpresetmodel.dart';
 import '../viewmodel/otpresetviewmodel.dart';
+import '../models/resetpassemailmode.dart';
+import '../viewmodel/resetpassviewmodel.dart' as reset;
 
 class Otpreset extends StatefulWidget {
   final String email; // Assuming you pass the email to this page
@@ -22,12 +24,14 @@ class Otpreset extends StatefulWidget {
 
 class _OtpresetState extends State<Otpreset> {
   late OtpresetModel viewModel;
+
   final _otpPinFieldController = GlobalKey<OtpPinFieldState>();
   bool checkBoxValue = false;
   double svgHeight = 236.03;
   double svgWidth = 232.28;
   bool otperror = false;
    bool _isLoading = false; 
+   final reset.ForgetPasswordViewModel resetviewModel = reset.ForgetPasswordViewModel();
   final FocusNode emailFocusNode = FocusNode();
   final OtpTimerButtonController otp = OtpTimerButtonController();
   String enteredOtp = ""; // Variable to store the OTP entered by the user
@@ -206,12 +210,28 @@ bool isLoading = false;
                                 buttonType: ButtonType.text_button,
                                 backgroundColor: Colors.black,
                                 controller: otp,
-                                onPressed: () {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => Otpreset(email: widget.email,)),
-                                  );
-                                },
+                               onPressed: _isLoading ? null :() async {
+  
+     setState(() {
+      _isLoading = true; // Start loading
+    });
+    final response = await reset.ForgetPasswordViewModel().sendForgetPasswordRequest(widget.email);
+setState(() {
+      _isLoading = false; // Stop loading
+    });
+    if (response is ForgetPasswordSuccessResponse) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Password Reset Otp sent successfully.")),
+      );
+      
+    } else if (response is ForgetPasswordErrorResponse) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("User doesn't exist.")),
+      );
+    }
+  
+},
+
                                 text: Text(
                                   'Resend',
                                   style: GoogleFonts.montserrat(

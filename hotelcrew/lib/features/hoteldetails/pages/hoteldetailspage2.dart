@@ -72,8 +72,10 @@ class _ProgressPageViewState extends State<ProgressPageView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
+        
   preferredSize: Size.fromHeight(147.0),
   child: AppBar(
+    automaticallyImplyLeading: false,
     flexibleSpace: Padding(
       padding: const EdgeInsets.only(top: 44.0, bottom: 0),
       child: Container(

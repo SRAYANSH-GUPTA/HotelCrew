@@ -8,11 +8,18 @@ import 'package:otp_pin_field/otp_pin_field.dart';
 import 'package:otp_timer_button/otp_timer_button.dart';
 import 'otpviewmodel.dart';
 import 'otpmodel.dart';
+import '../../models/register.dart';
+import '../../auth_view_model/registerviewmodel.dart' as reg;
+
 
 class Otpview extends StatefulWidget {
-  final String email; // Assuming you pass the email to this page
+  final String email;
+  final String password;
+  final String confirmpassword;
+  final String username;
+   // Assuming you pass the email to this page
 
-  Otpview({required this.email});
+  Otpview({required this.email,required this.password,required this.confirmpassword,required this.username});
 
 
   @override
@@ -92,7 +99,7 @@ bool isLoading = false;
                     height: 42,
                     width: 328,
                     child: Text(
-                      "We've sent a 4-digit verification code to your email abcXXX@gmail.com",
+                      "We've sent a 4-digit verification code to your email ${widget.email}",
                       style: GoogleFonts.montserrat(
                         textStyle: const TextStyle(
                           color: Color(0xFF4D5962),
@@ -205,12 +212,57 @@ bool isLoading = false;
                                 buttonType: ButtonType.text_button,
                                 backgroundColor: Colors.black,
                                 controller: otp,
-                                onPressed: () {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => Otpview(email: widget.email,)),
-                                  );
-                                },
+                                onPressed: () async {
+                    if (_isLoading) return; // Prevent multiple taps while loading
+  final dioClient = reg.DioClient();
+  print(widget.username);
+  print(widget.email);
+  print(widget.password);
+  print(widget.confirmpassword);
+  if (widget.password == widget.confirmpassword) {
+    final registrationRequest = UserRegistrationRequest(
+      userName: widget.username,
+      email: widget.email,
+      password: widget.password,
+      confirmPassword: widget.confirmpassword,
+    );
+    print(registrationRequest);
+setState(() {
+            _isLoading = true; // Start loading
+          });
+    try {
+      final response = await dioClient.registerUser(registrationRequest);
+      setState(() {
+            _isLoading = false; // Start loading
+          });
+      if (response != null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(response.message),
+        ));
+        print("#############");
+
+      }
+    } on ApiError catch (e) {
+      // Handle the ApiError and show it to the user
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(e.message),
+        duration: const Duration(seconds: 2),
+      ));
+    } catch (e) {
+      // Handle any unexpected errors
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('An unexpected error occurred. Please try again.'),
+      ));
+    }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: const Text('Passwords do not match'),
+      duration: const Duration(seconds: 2),
+    ));
+  }
+},
+
+
                                 text: Text(
                                   'Resend',
                                   style: GoogleFonts.montserrat(
@@ -254,6 +306,9 @@ bool isLoading = false;
         isLoading = false;
       });
         } else if (viewModel.errorMessage != null) {
+          setState(() {
+        otperror = true;
+      });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(viewModel.errorMessage!),
