@@ -67,10 +67,12 @@ class _PageOneState extends State<PageOne> {
       },
     );
 
-    setState(() {
-      yearController.text = selectedYear.toString(); // Update year in TextFormField
-    });
+    if (selectedYear != null) {
+      setState(() {
+        yearController.text = selectedYear.toString(); // Update year in TextFormField
+      });
     }
+  }
 
   @override
   Widget build(BuildContext context) {

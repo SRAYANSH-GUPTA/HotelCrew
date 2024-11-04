@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../../auth/view/pages/login_page.dart';
-import '../../auth/view/pages/register.dart';
+import 'package:hotelcrew/features/auth/view/pages/login_page.dart';
+import 'package:hotelcrew/features/auth/view/pages/register.dart';
+
 class Onboarding extends StatefulWidget {
   @override
   _OnboardingState createState() => _OnboardingState();
@@ -212,23 +213,19 @@ class _OnboardingState extends State<Onboarding> {
 
 
   void _handleSignUp() {
-    Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => Register(),
-  ),
-);
+    // Implement your sign-up logic here
+     Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => Register()),
+  );
     print("Sign Up pressed");
   }
 
   void _handleLogin() {
-    Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => LoginPage(),
-  ),
-);
-
+     Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => LoginPage()),
+  );
     print("Log In pressed");
   }
 }

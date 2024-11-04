@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
 import 'package:hotelcrew/features/auth/view/pages/login_page.dart';
+import 'package:hotelcrew/features/hoteldetails/pages/hoteldetailspage1.dart';
 import 'package:otp_pin_field/otp_pin_field.dart';
 import 'package:otp_timer_button/otp_timer_button.dart';
 import 'otpviewmodel.dart';
@@ -244,6 +245,10 @@ bool isLoading = false;
               backgroundColor: Colors.green,
             ),
           );
+           Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const Hoteldetailspage1()),
+  );
           setState(() {
         isLoading = false;
       });

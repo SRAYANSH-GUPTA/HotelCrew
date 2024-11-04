@@ -137,7 +137,7 @@ class _createpwdState extends State<createpwd> {
                     Navigator.pushReplacement<void, void>(
         context,
         MaterialPageRoute<void>(
-          builder: (BuildContext context) => const Otpview(),
+          builder: (BuildContext context) => Otpview(email: ,),
         ),
       );
                   },
