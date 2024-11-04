@@ -25,6 +25,36 @@ final password = TextEditingController(text: "");
 final username = TextEditingController(text: "");
 final emailController = TextEditingController(text: ""); // Fixed variable name to match usage
 bool _isLoading = false;
+bool _isVisible = false;
+bool isPasswordValid(String password, String username, String email) {
+  // Check for length
+  if (password.length < 8) return false;
+
+  // Check if the password is entirely numeric
+  if (RegExp(r'^\d+$').hasMatch(password)) return false;
+
+  // Add more checks for similarity to username or email
+  if (password.toLowerCase().contains(username.toLowerCase()) ||
+      password.toLowerCase().contains(email.toLowerCase().split('@')[0])) {
+    return false;
+  }
+
+  // Check against commonly used passwords (example list)
+  const commonPasswords = [
+    'password', '12345678', 'qwerty', 'abc123', 'letmein', 'iloveyou'
+  ];
+  if (commonPasswords.contains(password.toLowerCase())) return false;
+
+  return true;
+}
+void _showSnackbar(String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      duration: const Duration(seconds: 2),
+    ),
+  );
+}
 
   @override
   void initState() {
@@ -35,6 +65,9 @@ bool _isLoading = false;
         // Reset invalid credentials when the email is changed
       });
     });
+    password.addListener(() {
+    setState(() {}); // Trigger rebuild to check button state
+  });
   }
 
   @override
@@ -215,61 +248,77 @@ bool _isLoading = false;
                 width: 328,
                 child: ElevatedButton(
                   onPressed: () async {
-                    if (_isLoading) return; // Prevent multiple taps while loading
-  final dioClient = DioClient();
-  print(username.text);
-  print(emailController.text);
-  print(password.text);
-  print(confirmpassword.text);
-  if (password.text == confirmpassword.text) {
-    final registrationRequest = UserRegistrationRequest(
-      userName: username.text,
-      email: emailController.text,
-      password: password.text,
-      confirmPassword: confirmpassword.text,
-    );
-    print(registrationRequest);
-setState(() {
-            _isLoading = true; // Start loading
-          });
-    try {
-      final response = await dioClient.registerUser(registrationRequest);
+  if (isPasswordValid(password.text, username.text, emailController.text)) {
+    if (_isLoading) return; // Prevent multiple taps while loading
+    final dioClient = DioClient();
+    print(username.text);
+    print(emailController.text);
+    print(password.text);
+    print(confirmpassword.text);
+    
+    if (password.text == confirmpassword.text) {
+      final registrationRequest = UserRegistrationRequest(
+        userName: username.text,
+        email: emailController.text,
+        password: password.text,
+        confirmPassword: confirmpassword.text,
+      );
+      print(registrationRequest);
+      
       setState(() {
-            _isLoading = false; // Start loading
-          });
-      if (response != null) {
+        _isLoading = true; // Start loading
+      });
+      
+      try {
+        final response = await dioClient.registerUser(registrationRequest);
+        setState(() {
+          _isLoading = false;
+          _isVisible = false; // End loading
+        });
+        
+        if (response != null) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(response.message),
+          ));
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Otpview(
+                email: emailController.text,
+                username: username.text,
+                password: password.text,
+                confirmpassword: confirmpassword.text,
+              ),
+            ),
+          );
+          print("#############");
+        }
+      } on ApiError catch (e) {
+        // Handle the ApiError and show it to the user
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(response.message),
+          content: Text(e.message),
+          duration: const Duration(seconds: 2),
         ));
-        Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => Otpview(email: emailController.text, username: username.text,password: password.text,
-    confirmpassword: confirmpassword.text,),
-  ),
-);
-        print("#############");
-
+      } catch (e) {
+        // Handle any unexpected errors
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('An unexpected error occurred. Please try again.'),
+        ));
       }
-    } on ApiError catch (e) {
-      // Handle the ApiError and show it to the user
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(e.message),
+        content: const Text('Passwords do not match'),
         duration: const Duration(seconds: 2),
-      ));
-    } catch (e) {
-      // Handle any unexpected errors
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('An unexpected error occurred. Please try again.'),
       ));
     }
   } else {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: const Text('Passwords do not match'),
-      duration: const Duration(seconds: 2),
-    ));
+    _showSnackbar('Password does not meet the requirements.');
+    setState(() {
+      _isVisible = true;
+    });
   }
 },
+
 
 
                   style: ElevatedButton.styleFrom(
@@ -380,6 +429,18 @@ setState(() {
               //     ],
               //   ),
               // ),
+              _isVisible 
+  ? Container(
+                height:126,
+                width:328,
+                child: Column(children: [
+                  Text("Password must be at least 8 characters long and"),
+                  Text("include"),
+      Text('One Upper case character'),
+      Text('One number'),
+      Text("One Special Character"),
+                ],),
+                ) : SizedBox.shrink(),
             ],
           ),
         ),
