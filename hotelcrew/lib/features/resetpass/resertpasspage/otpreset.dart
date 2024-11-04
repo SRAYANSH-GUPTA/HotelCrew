@@ -6,21 +6,21 @@ import 'package:hotelcrew/features/auth/view/pages/login_page.dart';
 import 'package:hotelcrew/features/hoteldetails/pages/hoteldetailspage1.dart';
 import 'package:otp_pin_field/otp_pin_field.dart';
 import 'package:otp_timer_button/otp_timer_button.dart';
-import 'otpviewmodel.dart';
-import 'otpmodel.dart';
+import '../models/otpresetmodel.dart';
+import '../viewmodel/otpresetviewmodel.dart';
 
-class Otpview extends StatefulWidget {
+class Otpreset extends StatefulWidget {
   final String email; // Assuming you pass the email to this page
 
-  Otpview({required this.email});
+  Otpreset({required this.email});
 
 
   @override
-  State<Otpview> createState() => _OtpviewState();
+  State<Otpreset> createState() => _OtpresetState();
 }
 
-class _OtpviewState extends State<Otpview> {
-  late OtpViewModel viewModel;
+class _OtpresetState extends State<Otpreset> {
+  late OtpresetModel viewModel;
   final _otpPinFieldController = GlobalKey<OtpPinFieldState>();
   bool checkBoxValue = false;
   double svgHeight = 236.03;
@@ -34,7 +34,7 @@ bool isLoading = false;
   @override
   void initState() {
     super.initState();
-    viewModel = OtpViewModel(); 
+    viewModel = OtpresetModel(); 
     emailFocusNode.addListener(() {
       setState(() {
         if (emailFocusNode.hasFocus) {
@@ -208,7 +208,7 @@ bool isLoading = false;
                                 onPressed: () {
                                   Navigator.pushReplacement(
                                     context,
-                                    MaterialPageRoute(builder: (context) => Otpview(email: widget.email,)),
+                                    MaterialPageRoute(builder: (context) => Otpreset(email: widget.email,)),
                                   );
                                 },
                                 text: Text(

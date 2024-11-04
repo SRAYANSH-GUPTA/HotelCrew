@@ -11,7 +11,7 @@ class AuthViewModel {
         return handler.next(options);
       },
       onResponse: (response, handler) {
-        // Log the response
+      
         print("Response received: ${response.data}");
         return handler.next(response);
       },

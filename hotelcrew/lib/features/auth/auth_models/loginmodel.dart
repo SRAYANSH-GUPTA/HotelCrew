@@ -11,7 +11,7 @@ class LoginResponse {
     this.tokens,
   });
 
-  // Factory constructor to create an instance from JSON
+
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     return LoginResponse(
       status: json['status'],
@@ -43,7 +43,7 @@ class User {
     required this.email,
   });
 
-  // Factory constructor to create an instance from JSON
+  
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'],
@@ -71,7 +71,7 @@ class Tokens {
     required this.refresh,
   });
 
-  // Factory constructor to create an instance from JSON
+  
   factory Tokens.fromJson(Map<String, dynamic> json) {
     return Tokens(
       access: json['access'],

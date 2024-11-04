@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:hotelcrew/features/auth/view/pages/register.dart';
 import '../../auth_view_model/loginpageviewmodel.dart';
-
+import '../../../resetpass/resertpasspage/resetpass.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -185,7 +186,13 @@ final passwordController = TextEditingController(text: "");
                     children: [
                       InkWell(
                         onTap: () {
-                          // Add your onTap functionality here
+                          Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => Resetpass(),
+  ),
+);
+
                         },
                         child: Text(
                           'Forgot Password?',
@@ -363,7 +370,13 @@ final passwordController = TextEditingController(text: "");
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/signup'); // Adjust your route here
+                          Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => Register(),
+  ),
+);
+ // Adjust your route here
                         },
                         child: Text(
                           "Sign Up",
