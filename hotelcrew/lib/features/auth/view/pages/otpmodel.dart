@@ -28,12 +28,24 @@ class ErrorResponse {
 
 class SuccessResponse {
   final String message;
+  final String accessToken;
+  final String refreshToken;
+  final int userId;
 
-  SuccessResponse({required this.message});
+  SuccessResponse({
+    required this.message,
+    required this.accessToken,
+    required this.refreshToken,
+    required this.userId,
+  });
 
   factory SuccessResponse.fromJson(Map<String, dynamic> json) {
     return SuccessResponse(
       message: json['message'],
+      accessToken: json['access_token'],
+      refreshToken: json['refresh_token'],
+      userId: json['user_id'],
     );
   }
 }
+

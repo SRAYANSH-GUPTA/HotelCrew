@@ -35,6 +35,8 @@ class DioClient {
 
       if (response.statusCode == 201) {
         final successResponse = SuccessResponse.fromJson(response.data);
+        print(successResponse.accessToken);
+        print("%%%%%%%%%%%%%%%%");
         return successResponse.message;
       } else if (response.statusCode == 400) {
         final errorResponse = ErrorResponse.fromJson(response.data);
