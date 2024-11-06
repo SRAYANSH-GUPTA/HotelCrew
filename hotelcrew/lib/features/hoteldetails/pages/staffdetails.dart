@@ -88,6 +88,7 @@ Future<void> _pickFile() async {
         'https://hotelcrew-1.onrender.com/api/hoteldetails/register/',
         data: formData,
       );
+     dio.options.validateStatus = (status) => true; // Allows all responses through for debugging
 
       if (response.statusCode == 201) {
         print('Upload successful: ${response.data['message']}');
@@ -118,35 +119,38 @@ Future<void> _pickFile() async {
             margin: const EdgeInsets.only(top: 44),
             height: 158,
             width: 360,
-            child: InkWell(
-              onTap: () => Navigator.pop(context),
+          
+              
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 14, left: 16),
-                        child: Container(
-                          height: 16,
-                          width: 8,
-                          child: SvgPicture.asset('assets/backarrow.svg'),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 14),
-                        child: Text(
-                          'Back',
-                          style: GoogleFonts.montserrat(
-                            color: const Color(0xFF4D5962),
-                            fontWeight: FontWeight.w400,
-                            fontSize: 16,
+                  InkWell(
+                    onTap: () => Navigator.pop(context),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 14, left: 16),
+                          child: Container(
+                            height: 16,
+                            width: 8,
+                            child: SvgPicture.asset('assets/backarrow.svg'),
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 14),
+                          child: Text(
+                            'Back',
+                            style: GoogleFonts.montserrat(
+                              color: const Color(0xFF4D5962),
+                              fontWeight: FontWeight.w400,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 24),
                   Container(
@@ -178,31 +182,35 @@ Future<void> _pickFile() async {
                   ),
                 ],
               ),
+            
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 38),
+            child: Expanded(
+              
+              child: uploadedFiles.isEmpty
+                  ? Center(
+                      child: SvgPicture.asset(
+                        'assets/cuate.svg',
+                        width: 295.27,
+                        height: 277.8,
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: uploadedFiles.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text(uploadedFiles[index]),
+                          trailing: IconButton(
+                            icon: SvgPicture.asset('assets/remove.svg'),
+                            onPressed: () => _deleteFile(index),
+                          ),
+                        );
+                      },
+                    ),
             ),
           ),
-          Expanded(
-            child: uploadedFiles.isEmpty
-                ? Center(
-                    child: SvgPicture.asset(
-                      'assets/cuate.svg',
-                      width: 295.27,
-                      height: 277.8,
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: uploadedFiles.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(uploadedFiles[index]),
-                        trailing: IconButton(
-                          icon: SvgPicture.asset('assets/remove.svg'),
-                          onPressed: () => _deleteFile(index),
-                        ),
-                      );
-                    },
-                  ),
-          ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 34.2),
           Container(
             decoration: BoxDecoration(
               color: const Color(0xFFD2E0F3),
@@ -228,33 +236,40 @@ Future<void> _pickFile() async {
               ),
             ),
           ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () async {
-              if (uploadedFiles.isNotEmpty) {
-                String fileName = uploadedFiles.first;
-                await uploadFile(fileName, fileName);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SetupComplete()),
-                );
-              } else {
-                print('No file selected for upload.');
-              }
-            },
-            child: Text(
-              'Submit',
-              style: GoogleFonts.montserrat(
-                color: const Color(0xFFFAFAFA),
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF47518C),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+          const SizedBox(height: 86),
+          Container(
+            width:331,
+            height:40,
+            child: ElevatedButton(
+              onPressed: () async {
+                if (uploadedFiles.isNotEmpty) {
+                  String fileName = uploadedFiles.first;
+                  await uploadFile(fileName, fileName);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SetupComplete()),
+                  );
+                } else {
+                  print('No file selected for upload.');
+                }
+              },
+              child: Text(
+                      'Submit',
+                      style: GoogleFonts.montserrat(
+                        textStyle: const TextStyle(
+                          color: Color(0xFFFAFAFA),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF47518C),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
             ),
           ),
         ],

@@ -7,7 +7,7 @@ import 'package:hotelcrew/features/hoteldetails/pages/hoteldetailspage1.dart';
 import '../../auth_view_model/loginpageviewmodel.dart';
 import '../../../resetpass/resertpasspage/resetpass.dart';
 import '../../../hoteldetails/pages/hoteldetailspage1.dart';
-
+import 'package:dio/dio.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -279,68 +279,118 @@ String p = "";
                     height: 40,
                     width: 328,
                     child: ElevatedButton(
-                      onPressed: _isLoading || emailController.text.isEmpty || p.isEmpty
-                          ? null // Disable button while loading
-                          : () async {
-                              setState(() {
-                                _isLoading = true; // Start loading
-                                _isInvalidCredentials = false; // Reset invalid credentials flag
-                              });
-                              try {
-                                final loginResponse = await authViewModel.loginUser(
-                                  emailController.text,
-                                  passwordController.text,
-                                );
+                    
 
-                                // Only if login is successful
-                                if (loginResponse.status != 'error') {
-                                  print("########################");
-                                  print("Login successful!");
-                                  print("User ID: ${loginResponse.user?.id ?? "Not available"}");
-                                  print("AccessToken: ${loginResponse.tokens?.access ?? "Not available"}");
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                    content: Column(
-                                      children: [
-                                        const Text('Login Successful'),
-                                        Text('User ID: ${loginResponse.user?.id ?? "Not available"}'),
-                                        Text('Role of User: '), // Assuming you have a role field
-                                      ],
-                                    ),
-                                    duration: const Duration(seconds: 2),
-                                    action: SnackBarAction(
-                                      label: 'ACTION',
-                                      onPressed: () {},
-                                    ),
-                                  ));
-                                  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const Hoteldetailspage1()),
-  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                    content: const Column(
-                                      children: [
-                                        Text('Login Unsuccessful'),
-                                        Text('Try Again'),
-                                      ],
-                                    ),
-                                    duration: const Duration(seconds: 2),
-                                  ));
-                                }
-                              } catch (e) {
-                                print("###################");
-                                print("Login failed: $e");
-                                emailController.clear();
-                                passwordController.clear();
-                                setState(() {
-                                  _isInvalidCredentials = true; // Show invalid credentials message
-                                });
-                              } finally {
-                                setState(() {
-                                  _isLoading = false; // Stop loading
-                                });
-                              }
-                            },
+onPressed: _isLoading || emailController.text.isEmpty || p.isEmpty
+    ? null // Disable button while loading
+    : () async {
+        setState(() {
+          _isLoading = true; // Start loading
+          _isInvalidCredentials = false; // Reset invalid credentials flag
+        });
+
+        try {
+          final loginResponse = await authViewModel.loginUser(
+            emailController.text,
+            passwordController.text,
+          );
+
+          // Only if login is successful (checking for valid response)
+          if (loginResponse.role != "error") {
+            print("########################");
+            print("Login successful!");
+            print("User Full Name: ${loginResponse.userData.fullName ?? "Not available"}");
+            print("AccessToken: ${loginResponse.accessToken ?? "Not available"}");
+            print("RefreshToken: ${loginResponse.refreshToken ?? "Not available"}");
+
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Login Successful'),
+                  Text('User Full Name: ${loginResponse.userData.fullName ?? "Not available"}'),
+                  Text('Role: ${loginResponse.role}'),
+                  Text('Access Token: ${loginResponse.accessToken}'),
+                ],
+              ),
+              duration: const Duration(seconds: 3),
+              action: SnackBarAction(
+                label: 'ACTION',
+                onPressed: () {},
+              ),
+            ));
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Hoteldetailspage1()),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: const Column(
+                children: [
+                  Text('Login Unsuccessful'),
+                  Text('Invalid credentials, please try again.'),
+                ],
+              ),
+              duration: const Duration(seconds: 2),
+            ));
+          }
+        } catch (e) {
+          print("###################");
+          print("Login failed: $e");
+          emailController.clear();
+          passwordController.clear();
+
+          setState(() {
+            _isInvalidCredentials = true; // Show invalid credentials message
+          });
+
+          // Check if the error is a DioError
+          if (e is DioError) {
+            // Handle DioError specifically
+            String? errorMessage = e.message;
+
+            if (errorMessage != null) {
+              if (errorMessage.contains("Connection timed out")) {
+                // Connection timeout
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: const Text('Connection timed out. Please check your internet connection.'),
+                  duration: const Duration(seconds: 2),
+                ));
+              } else if (errorMessage.contains("TimeoutException")) {
+                // Receive timeout
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: const Text('Server response timed out. Please try again.'),
+                  duration: const Duration(seconds: 2),
+                ));
+              } else if (errorMessage.contains("No Internet")) {
+                // Network error
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: const Text('No internet connection or unknown error. Please check your connection.'),
+                  duration: const Duration(seconds: 2),
+                ));
+              } else {
+                // Handle other Dio errors here
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: const Text('An unexpected error occurred. Please try again.'),
+                  duration: const Duration(seconds: 2),
+                ));
+              }
+            }
+          } else {
+            // Handle other types of exceptions
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: const Text('Failed to log in: An error occurred.'),
+              duration: const Duration(seconds: 2),
+            ));
+          }
+        } finally {
+          setState(() {
+            _isLoading = false; // Stop loading
+          });
+        }
+      },
+
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF5662AC),
                         shape: RoundedRectangleBorder(
