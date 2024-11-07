@@ -19,6 +19,7 @@ class _RegisterState extends State<Register> {
   bool checkBoxValue = false;
   final FocusNode passwordFocusNode = FocusNode();
   bool _obscurePassword = true;
+  bool _obscureconfirmPassword = true;
   bool validEmail = true;
   final confirmpassword = TextEditingController(text: "");
 final password = TextEditingController(text: "");
@@ -223,18 +224,18 @@ void _showSnackbar(String message) {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      // suffixIcon: IconButton(
-                      //   icon: _obscurePassword
-                      //       ? SvgPicture.asset('assets/nopassword.svg')
-                      //       : SvgPicture.asset('assets/passwordvisible.svg'),
-                      //   onPressed: () {
-                      //     setState(() {
-                      //       _obscurePassword = !_obscurePassword;
-                      //     });
-                      //   },
-                      // ),
+                      suffixIcon: IconButton(
+                        icon: _obscureconfirmPassword
+                            ? SvgPicture.asset('assets/nopassword.svg')
+                            : SvgPicture.asset('assets/passwordvisible.svg'),
+                        onPressed: () {
+                          setState(() {
+                            _obscureconfirmPassword = !_obscureconfirmPassword;
+                          });
+                        },
+                      ),
                     ),
-                    obscureText: _obscurePassword,
+                    obscureText: _obscureconfirmPassword,
                     obscuringCharacter: '●',
                     style: const TextStyle(
                       fontSize: 20,
