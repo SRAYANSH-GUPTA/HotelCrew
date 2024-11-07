@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PageOne extends StatefulWidget {
   @override
@@ -10,18 +11,18 @@ class PageOne extends StatefulWidget {
 class _PageOneState extends State<PageOne> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController businessController = TextEditingController();
-  final TextEditingController yearController = TextEditingController(); // Controller for Year Established
-  final TextEditingController licenseController = TextEditingController(); // Controller for License/Registration Number
+  final TextEditingController yearController = TextEditingController();
+  final TextEditingController licenseController = TextEditingController();
   final FocusNode nameFocusNode = FocusNode();
   final FocusNode businessFocusNode = FocusNode();
-  final FocusNode yearFocusNode = FocusNode(); // FocusNode for Year Established
-  final FocusNode licenseFocusNode = FocusNode(); // FocusNode for License/Registration Number
+  final FocusNode yearFocusNode = FocusNode();
+  final FocusNode licenseFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    
-    // Listen for focus changes to update the UI
+    loadData();  // Load data when the page is initialized
+
     nameFocusNode.addListener(() => setState(() {}));
     businessFocusNode.addListener(() => setState(() {}));
     yearFocusNode.addListener(() => setState(() {}));
@@ -30,10 +31,7 @@ class _PageOneState extends State<PageOne> {
 
   @override
   void dispose() {
-    nameController.dispose();
-    businessController.dispose();
-    yearController.dispose();
-    licenseController.dispose();
+    saveData();  // Save data when the page is disposed (before navigating)
     nameFocusNode.dispose();
     businessFocusNode.dispose();
     yearFocusNode.dispose();
@@ -46,10 +44,8 @@ class _PageOneState extends State<PageOne> {
     int? selectedYear;
     int currentYear = DateTime.now().year;
 
-    // Create a list of years to display
     List<int> years = List.generate(101, (index) => currentYear - index); // Last 100 years
 
-    // Show the dialog for year selection
     selectedYear = await showDialog<int>(
       context: context,
       builder: (BuildContext context) {
@@ -74,6 +70,38 @@ class _PageOneState extends State<PageOne> {
     }
   }
 
+  // Method to save data
+  Future<void> saveData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('hotel_name', nameController.text);
+    await prefs.setString('legal_business_name', businessController.text);
+    await prefs.setString('year_established', yearController.text);
+    await prefs.setString('license_number', licenseController.text);
+  }
+
+  // Method to load saved data
+  Future<void> loadData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? savedHotelName = prefs.getString('hotel_name');
+    String? savedBusinessName = prefs.getString('legal_business_name');
+    String? savedYear = prefs.getString('year_established');
+    String? savedLicense = prefs.getString('license_number');
+
+    // If saved data exists, populate the fields
+    if (savedHotelName != null) {
+      nameController.text = savedHotelName;
+    }
+    if (savedBusinessName != null) {
+      businessController.text = savedBusinessName;
+    }
+    if (savedYear != null) {
+      yearController.text = savedYear;
+    }
+    if (savedLicense != null) {
+      licenseController.text = savedLicense;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -81,6 +109,7 @@ class _PageOneState extends State<PageOne> {
       child: SingleChildScrollView(
         child: Column(
           children: [
+            // Hotel Name TextFormField
             Container(
               height: 86,
               width: 328,
@@ -130,6 +159,7 @@ class _PageOneState extends State<PageOne> {
               ),
             ),
             SizedBox(height: 8),
+            // Legal Business Name TextFormField
             Container(
               height: 86,
               width: 328,

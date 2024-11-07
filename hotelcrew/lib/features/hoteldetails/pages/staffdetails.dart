@@ -6,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hotelcrew/features/hoteldetails/pages/setupcomplete.dart';
 import 'dart:developer';
-
+import 'package:shared_preferences/shared_preferences.dart';
 class Staffdetails extends StatefulWidget {
   const Staffdetails({super.key});
 
@@ -60,26 +60,29 @@ Future<void> _pickFile() async {
         'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzMzNTEzNjI4LCJpYXQiOjE3MzA5MjE2MjgsImp0aSI6Ijk4YjNlOWIwNjAwYzQzZDNiMWMyOTVkOGFjYzAyMGVmIiwidXNlcl9pZCI6NX0.9u5z8h2ilJgUs1HWoyyFwf5Z5f77xSmmdetQFfiGHTo', // Replace with actual token
       };
       dio.options.validateStatus = (status) => true; // Allows all status codes for debugging
-
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      print("##########");
+      print(prefs.getString('userid'));
       FormData formData = FormData.fromMap({
-        'user': '5',
-        'hotel_name': 'Example Hotel',
-        'legal_business_name': 'Example Business',
-        'year_established': '1999',
-        'license_registration_numbers': '12345678',
-        'complete_address': '123 Example St, City, Country',
-        'main_phone_number': '1234567890',
-        'emergency_phone_number': '0987654321',
-        'email_address': 'hotel@gmail.com',
-        'total_number_of_rooms': '120',
-        'number_of_floors': '5',
-        'valet_parking_available': 'True',
-        'valet_parking_capacity': '20',
-        'check_in_time': '14:00:00',
-        'check_out_time': '12:00:00',
-        'payment_methods': 'Cash, Credit Card',
+        'user': prefs.getString('userid'),
+        'hotel_name': prefs.getString('hotel_name'),
+        'legal_business_name': prefs.getString('legal_business_name'),
+        'year_established': prefs.getString('year_established'),
+        'license_registration_numbers': prefs.getString('license_number'),
+        'complete_address': prefs.getString('address'),
+        'main_phone_number': prefs.getString('primary_contact'),
+        'emergency_phone_number': prefs.getString('emergency_contact'),
+        'email_address': prefs.getString('email'),
+        'total_number_of_rooms': prefs.getString('numberofrooms'),
+        'number_of_floors': prefs.getString('numberoffloors'),
+        'valet_parking_available': prefs.getString('availability'),
+        'valet_parking_capacity': prefs.getString('parkingCapacity'),
+        'check_in_time': (prefs.getString('checkin_time') ?? "00:00") + ":00",
+        'check_out_time': (prefs.getString('checkout_time') ?? "00:00") + ":00",
+
+        'payment_methods': prefs.getString('payment_method'),
         'room_price': '150.00',
-        'number_of_departments': '5',
+        'number_of_departments': prefs.getString('numberOfDepartments'),
         'department_names': 'Reception, Housekeeping, Maintenance, Kitchen, Security',
         'staff_excel_sheet': await MultipartFile.fromFile(filePath, filename: fileName),
       });
@@ -92,9 +95,26 @@ Future<void> _pickFile() async {
 
       if (response.statusCode == 201) {
         print('Upload successful: ${response.data['message']}');
+         ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Hotel Registered Successfully"),
+              backgroundColor: Colors.green,
+            ),
+          );
+           Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => SetupComplete()),
+          );
       } else if (response.statusCode == 401) {
         print('Unauthorized: ${response.data}');
         log('Response data for 401 error: ${response.data}');
+         ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("User Not Found or Repetitive data in file"),
+              backgroundColor: Colors.red,
+            ),
+          );
+         
       } else {
         print('Upload failed with status code: ${response.statusCode}');
         log('Error data: ${response.data}');

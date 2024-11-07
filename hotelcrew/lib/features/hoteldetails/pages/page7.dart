@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PageFive extends StatefulWidget {
   @override
@@ -8,12 +9,35 @@ class PageFive extends StatefulWidget {
 }
 
 class _PageFiveState extends State<PageFive> {
-  final TextEditingController cnumberController = TextEditingController();
+  final TextEditingController numberofdeptController = TextEditingController();
   final TextEditingController _controller = TextEditingController();
   final List<String> _items = [];
   final FocusNode department = FocusNode();
   bool _isDropdownVisible = false; // To control dropdown visibility
   OverlayEntry? _dropdownOverlay;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData(); // Load data when the page is initialized
+  }
+
+  // Load data from SharedPreferences
+  Future<void> _loadData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      numberofdeptController.text = prefs.getString('numberOfDepartments') ?? '0';
+      _items.clear();
+      _items.addAll(prefs.getStringList('departmentNames') ?? []);
+    });
+  }
+
+  // Save data to SharedPreferences
+  Future<void> _saveData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('numberOfDepartments', numberofdeptController.text);
+    prefs.setStringList('departmentNames', _items);
+  }
 
   void _addItem() {
     String item = _controller.text.trim();
@@ -22,6 +46,7 @@ class _PageFiveState extends State<PageFive> {
         _items.add(item);
         _controller.clear();
       });
+      _saveData(); // Save data after adding an item
     }
   }
 
@@ -33,55 +58,53 @@ class _PageFiveState extends State<PageFive> {
     }
   }
 
- void _showDropdown() {
-  final overlay = Overlay.of(context);
-  final RenderBox renderBox = context.findRenderObject() as RenderBox;
-  final size = renderBox.size;
-  final offset = renderBox.localToGlobal(Offset.zero);
+  void _showDropdown() {
+    final overlay = Overlay.of(context);
+    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final size = renderBox.size;
+    final offset = renderBox.localToGlobal(Offset.zero);
 
-  // Adjust this value to change the height from the top
-  final dropdownHeightOffset = 370.0; // Set to your desired height offset
+    // Adjust this value to change the height from the top
+    final dropdownHeightOffset = 370.0; // Set to your desired height offset
 
-  _dropdownOverlay = OverlayEntry(
-    builder: (context) => Positioned(
-      left: offset.dx,
-      top: dropdownHeightOffset, // Add offset here
-      child: Material(
-        elevation: 4,
-        child: Container(
-          margin: EdgeInsets.only(left: 16),
-          width: 328, // Set your desired width here
-          color: Colors.white,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: _items.map((String item) {
-              return ListTile(
-                title: Text(item),
-                trailing: IconButton(
-                  icon: Icon(Icons.delete, color: Color(0xFF47518C)), // Always show the delete icon
-                  onPressed: () {
-                    _deleteItem(item); // Delete item from list when pressed
+    _dropdownOverlay = OverlayEntry(
+      builder: (context) => Positioned(
+        left: offset.dx,
+        top: dropdownHeightOffset, // Add offset here
+        child: Material(
+          elevation: 4,
+          child: Container(
+            margin: EdgeInsets.only(left: 16),
+            width: 328, // Set your desired width here
+            color: Colors.white,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: _items.map((String item) {
+                return ListTile(
+                  title: Text(item),
+                  trailing: IconButton(
+                    icon: Icon(Icons.delete, color: Color(0xFF47518C)), // Always show the delete icon
+                    onPressed: () {
+                      _deleteItem(item); // Delete item from list when pressed
+                    },
+                  ),
+                  onTap: () {
+                    setState(() {
+                      _controller.text = item; // Set selected item in the TextField
+                    });
+                    _hideDropdown();
                   },
-                ),
-                onTap: () {
-                  setState(() {
-                    _controller.text = item; // Set selected item in the TextField
-                  });
-                  _hideDropdown();
-                },
-              );
-            }).toList(),
+                );
+              }).toList(),
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
 
-  overlay.insert(_dropdownOverlay!);
-  setState(() => _isDropdownVisible = true);
-}
-
-
+    overlay.insert(_dropdownOverlay!);
+    setState(() => _isDropdownVisible = true);
+  }
 
   void _hideDropdown() {
     _dropdownOverlay?.remove();
@@ -92,12 +115,13 @@ class _PageFiveState extends State<PageFive> {
     setState(() {
       _items.remove(item);
       _hideDropdown(); // Close the dropdown after deletion
+      _saveData(); // Save data after deletion
     });
   }
 
   @override
   void dispose() {
-    cnumberController.dispose();
+    numberofdeptController.dispose();
     _controller.dispose();
     department.dispose(); // Dispose of the FocusNode
     super.dispose();
@@ -119,7 +143,7 @@ class _PageFiveState extends State<PageFive> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8, bottom: 22),
                   child: TextFormField(
-                    controller: cnumberController,
+                    controller: numberofdeptController,
                     focusNode: department, // Corrected from Department to department
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
@@ -142,11 +166,12 @@ class _PageFiveState extends State<PageFive> {
                               width: 24,
                             ),
                             onPressed: () {
-                              int currentValue = int.tryParse(cnumberController.text) ?? 0;
-                              cnumberController.text = (currentValue + 1).toString();
-                              cnumberController.selection = TextSelection.fromPosition(
-                                TextPosition(offset: cnumberController.text.length),
+                              int currentValue = int.tryParse(numberofdeptController.text) ?? 0;
+                              numberofdeptController.text = (currentValue + 1).toString();
+                              numberofdeptController.selection = TextSelection.fromPosition(
+                                TextPosition(offset: numberofdeptController.text.length),
                               );
+                              _saveData(); // Save data after increment
                             },
                           ),
                           IconButton(
@@ -156,12 +181,13 @@ class _PageFiveState extends State<PageFive> {
                               width: 24,
                             ),
                             onPressed: () {
-                              int currentValue = int.tryParse(cnumberController.text) ?? 0;
+                              int currentValue = int.tryParse(numberofdeptController.text) ?? 0;
                               if (currentValue > 0) {
-                                cnumberController.text = (currentValue - 1).toString();
-                                cnumberController.selection = TextSelection.fromPosition(
-                                  TextPosition(offset: cnumberController.text.length),
+                                numberofdeptController.text = (currentValue - 1).toString();
+                                numberofdeptController.selection = TextSelection.fromPosition(
+                                  TextPosition(offset: numberofdeptController.text.length),
                                 );
+                                _saveData(); // Save data after decrement
                               }
                             },
                           ),

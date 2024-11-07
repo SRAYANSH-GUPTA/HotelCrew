@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:email_validator/email_validator.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 class PageThree extends StatefulWidget {
   @override
   _PageThreeState createState() => _PageThreeState();
@@ -10,11 +10,11 @@ class PageThree extends StatefulWidget {
 
 class _PageThreeState extends State<PageThree> {
   final TextEditingController numberofroomsController = TextEditingController();
-  final TextEditingController enumberController = TextEditingController();
-  final TextEditingController emailController = TextEditingController(); 
+  final TextEditingController typesofroomController = TextEditingController();
+  final TextEditingController numberoffloorsController = TextEditingController(); 
   final TextEditingController addressController = TextEditingController(); 
   final TextEditingController parkingCapacityController = TextEditingController();
-
+  bool parking = false;
   final FocusNode cnumberFocusNode = FocusNode();
   final FocusNode enumberFocusNode = FocusNode();
   final FocusNode emailFocusNode = FocusNode(); 
@@ -24,32 +24,68 @@ class _PageThreeState extends State<PageThree> {
   String? _selectedAvailability; 
   String _selectedCountryCode = '+1'; // Default selected code
 
+  
   @override
   void initState() {
     super.initState();
-    
+    _loadSavedData();  // Load data from SharedPreferences
     // Listen for focus changes to update the UI
     cnumberFocusNode.addListener(() => setState(() {}));
     enumberFocusNode.addListener(() => setState(() {}));
     emailFocusNode.addListener(() => setState(() {}));
     addressFocusNode.addListener(() => setState(() {}));
-    parkingCapacityFocusNode.addListener(() => setState(() {})); // Listen to parking capacity focus
+    parkingCapacityFocusNode.addListener(() => setState(() {})); 
   }
+void _loadSavedData() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  @override
+  setState(() {
+    numberofroomsController.text = prefs.getString('numberofrooms') ?? '';
+    typesofroomController.text = prefs.getString('typesofroom') ?? '';
+    numberoffloorsController.text = prefs.getString('numberoffloors') ?? '';
+    addressController.text = prefs.getString('address') ?? '';
+    parkingCapacityController.text = prefs.getString('parkingCapacity') ?? '';
+
+    // Retrieve availability as "True" or "False" and set the availability state accordingly
+    String? availability = prefs.getString('availability') ?? 'False';
+    if (availability == 'True') {
+      _selectedAvailability = 'Available';
+      parking = true;
+    } else {
+      _selectedAvailability = 'Not Available';
+      parking = false;
+    }
+  });
+}
+
+   @override
   void dispose() {
+    _saveData();  // Save data to SharedPreferences
     numberofroomsController.dispose();
-    enumberController.dispose();
-    emailController.dispose();
+    typesofroomController.dispose();
+    numberoffloorsController.dispose();
     addressController.dispose();
-    parkingCapacityController.dispose(); // Dispose of the parking capacity controller
+    parkingCapacityController.dispose(); 
     cnumberFocusNode.dispose();
     enumberFocusNode.dispose();
     emailFocusNode.dispose();
     addressFocusNode.dispose();
-    parkingCapacityFocusNode.dispose(); // Dispose of the parking capacity focus node
+    parkingCapacityFocusNode.dispose(); 
     super.dispose();
   }
+
+  // Save the data to SharedPreferences
+  void _saveData() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString('numberofrooms', numberofroomsController.text);
+  prefs.setString('typesofroom', typesofroomController.text);
+  prefs.setString('numberoffloors', numberoffloorsController.text);
+  prefs.setString('address', addressController.text);
+  prefs.setString('parkingCapacity', parkingCapacityController.text);
+
+  // Save availability as "True" or "False" based on the parking state
+  prefs.setString('availability', parking ? "True" : "False");
+}
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +183,7 @@ class _PageThreeState extends State<PageThree> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8, bottom: 22),
                   child: TextFormField(
-                    controller: enumberController,
+                    controller: typesofroomController,
                     focusNode: enumberFocusNode,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
@@ -178,10 +214,10 @@ class _PageThreeState extends State<PageThree> {
                                 ),
                                 onPressed: () {
                                   // Increase the number
-                                  int currentValue = int.tryParse(enumberController.text) ?? 0;
-                                  enumberController.text = (currentValue + 1).toString();
-                                  enumberController.selection = TextSelection.fromPosition(
-                                    TextPosition(offset: enumberController.text.length),
+                                  int currentValue = int.tryParse(typesofroomController.text) ?? 0;
+                                  typesofroomController.text = (currentValue + 1).toString();
+                                  typesofroomController.selection = TextSelection.fromPosition(
+                                    TextPosition(offset: typesofroomController.text.length),
                                   );
                                 },
                               ),
@@ -195,9 +231,9 @@ class _PageThreeState extends State<PageThree> {
                                   // Decrease the number
                                   int currentValue = int.tryParse(numberofroomsController.text) ?? 0;
                                   if (currentValue > 0) { // Prevent negative numbers
-                                    enumberController.text = (currentValue - 1).toString();
-                                    enumberController.selection = TextSelection.fromPosition(
-                                      TextPosition(offset: enumberController.text.length),
+                                    typesofroomController.text = (currentValue - 1).toString();
+                                    typesofroomController.selection = TextSelection.fromPosition(
+                                      TextPosition(offset: typesofroomController.text.length),
                                     );
                                   }
                                 },
@@ -226,11 +262,11 @@ class _PageThreeState extends State<PageThree> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8, bottom: 22),
                   child: TextFormField(
-                    controller: emailController,
+                    controller: numberoffloorsController,
                     focusNode: emailFocusNode,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      labelText: 'Total Number Of Rooms',
+                      labelText: 'Total Number Of Floors',
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                         borderSide: BorderSide(
@@ -257,10 +293,10 @@ class _PageThreeState extends State<PageThree> {
                                 ),
                                 onPressed: () {
                                   // Increase the number
-                                  int currentValue = int.tryParse(emailController.text) ?? 0;
-                                  emailController.text = (currentValue + 1).toString();
-                                  emailController.selection = TextSelection.fromPosition(
-                                    TextPosition(offset: emailController.text.length),
+                                  int currentValue = int.tryParse(numberoffloorsController.text) ?? 0;
+                                  numberoffloorsController.text = (currentValue + 1).toString();
+                                  numberoffloorsController.selection = TextSelection.fromPosition(
+                                    TextPosition(offset: numberoffloorsController.text.length),
                                   );
                                 },
                               ),
@@ -272,11 +308,11 @@ class _PageThreeState extends State<PageThree> {
                                 ),
                                 onPressed: () {
                                   // Decrease the number
-                                  int currentValue = int.tryParse(emailController.text) ?? 0;
+                                  int currentValue = int.tryParse(numberoffloorsController.text) ?? 0;
                                   if (currentValue > 0) { // Prevent negative numbers
-                                    emailController.text = (currentValue - 1).toString();
-                                    emailController.selection = TextSelection.fromPosition(
-                                      TextPosition(offset: emailController.text.length),
+                                    numberoffloorsController.text = (currentValue - 1).toString();
+                                    numberoffloorsController.selection = TextSelection.fromPosition(
+                                      TextPosition(offset: numberoffloorsController.text.length),
                                     );
                                   }
                                 },
@@ -307,39 +343,39 @@ class _PageThreeState extends State<PageThree> {
                     width: 328,
                     padding: const EdgeInsets.only(top: 8, bottom: 22),
                     child: DropdownButtonFormField<String>(
-                      value: _selectedAvailability,
-                      hint: Text('Select Availability'),
-                      items: [
-                        DropdownMenuItem(value: 'Available', child: Text('Available')),
-                        DropdownMenuItem(value: 'Not Available', child: Text('Not Available')),
-                      ],
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedAvailability = value; // Update the selected availability
-                          if (value == 'Available') {
-                            // Show Parking Capacity when Available is selected
-                          } else {
-                            parkingCapacityController.clear(); // Clear parking capacity when Not Available is selected
-                          }
-                        });
-                      },
-                      decoration: InputDecoration(
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                          borderSide: BorderSide(
-                            color: Colors.grey,
-                            width: 1.0,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                          borderSide: BorderSide(
-                            color: Colors.blue,
-                            width: 2.0,
-                          ),
-                        ),
-                      ),
-                    ),
+  value: _selectedAvailability,
+  hint: Text('Select Availability'),
+  items: [
+    DropdownMenuItem(value: 'Available', child: Text('Available')),
+    DropdownMenuItem(value: 'Not Available', child: Text('Not Available')),
+  ],
+  onChanged: (value) {
+    setState(() {
+      _selectedAvailability = value;
+      parking = value == 'Available'; // Update parking based on selection
+      if (!parking) {
+        parkingCapacityController.clear(); // Clear parking capacity if not available
+      }
+    });
+  },
+  decoration: InputDecoration(
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8.0),
+      borderSide: BorderSide(
+        color: Colors.grey,
+        width: 1.0,
+      ),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8.0),
+      borderSide: BorderSide(
+        color: Colors.blue,
+        width: 2.0,
+      ),
+    ),
+  ),
+),
+
                   ),
                   SizedBox(height: 8),
 

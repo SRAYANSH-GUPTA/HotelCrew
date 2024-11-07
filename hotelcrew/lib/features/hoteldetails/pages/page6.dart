@@ -4,24 +4,22 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
 import 'package:intl/intl.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 class PageFour extends StatefulWidget {
   @override
   _PageFourState createState() => _PageFourState();
 }
 
 class _PageFourState extends State<PageFour> {
-  final TextEditingController cnumberController = TextEditingController();
-  final TextEditingController enumberController = TextEditingController();
-  final TextEditingController emailController = TextEditingController(); 
-  final TextEditingController addressController = TextEditingController(); 
+  final TextEditingController checkintimeController = TextEditingController();
+  final TextEditingController checkouttimeController = TextEditingController();
+ 
   final TextEditingController parkingCapacityController = TextEditingController();
  final TextEditingController paymentController = TextEditingController();
   final List<String> paymentMethods = ['Cash', 'Debit Card', 'Credit Card', 'Digital Card'];
   final FocusNode cnumberFocusNode = FocusNode();
   final FocusNode enumberFocusNode = FocusNode();
-  final FocusNode emailFocusNode = FocusNode(); 
-  final FocusNode addressFocusNode = FocusNode(); 
+
   final FocusNode parkingCapacityFocusNode = FocusNode();
   final List<String> roomTypes = ['Deluxe', 'Suites', 'Standard', 'Economy'];
   final Map<String, TextEditingController> priceControllers = {}; // Added focus node for parking capacity
@@ -112,39 +110,63 @@ bool _showClock = false;
     );
   }
 
-  @override
+   @override
   void initState() {
     super.initState();
     for (String roomType in roomTypes) {
       priceControllers[roomType] = TextEditingController();
     }
-    // Listen for focus changes to update the UI
+    _loadData(); // Load saved data when the page is initialized
     cnumberFocusNode.addListener(() => setState(() {}));
     enumberFocusNode.addListener(() => setState(() {}));
-    emailFocusNode.addListener(() => setState(() {}));
-    addressFocusNode.addListener(() => setState(() {}));
-    parkingCapacityFocusNode.addListener(() => setState(() {})); // Listen to parking capacity focus
+    parkingCapacityFocusNode.addListener(() => setState(() {}));
   }
-
   @override
   void dispose() {
+    _saveData(); // Save data when the page is disposed
     for (TextEditingController controller in priceControllers.values) {
       controller.dispose();
     }
-    cnumberController.dispose();
-    enumberController.dispose();
-    paymentController.dispose(); 
-    emailController.dispose();
-    addressController.dispose();
-    parkingCapacityController.dispose(); // Dispose of the parking capacity controller
+    checkintimeController.dispose();
+    checkouttimeController.dispose();
+    paymentController.dispose();
+    parkingCapacityController.dispose();
     cnumberFocusNode.dispose();
     enumberFocusNode.dispose();
-    emailFocusNode.dispose();
-    addressFocusNode.dispose();
-    parkingCapacityFocusNode.dispose(); // Dispose of the parking capacity focus node
+    parkingCapacityFocusNode.dispose();
     super.dispose();
   }
+void _loadData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      checkintimeController.text = prefs.getString('checkin_time') ?? '';
+      checkouttimeController.text = prefs.getString('checkout_time') ?? '';
+      paymentController.text = prefs.getString('payment_method') ?? '';
+      parkingCapacityController.text = prefs.getString('parking_capacity') ?? '';
 
+      // Load price controllers for room types
+      roomTypes.forEach((roomType) {
+        priceControllers[roomType]?.text = prefs.getString('price_$roomType') ?? '';
+      });
+    });
+  }
+
+
+  // Method to save data to SharedPreferences
+  void _saveData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('checkin_time', checkintimeController.text);
+    prefs.setString('checkout_time', checkouttimeController.text);
+    prefs.setString('payment_method', paymentController.text);
+    prefs.setString('parking_capacity', parkingCapacityController.text);
+
+    // Save price controllers for room types
+    roomTypes.forEach((roomType) {
+      prefs.setString('price_$roomType', priceControllers[roomType]?.text ?? '');
+    });
+  }
+
+  
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -162,7 +184,7 @@ bool _showClock = false;
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8, bottom: 22),
                   child: TextFormField(
-                    controller: cnumberController, // Check-in time controller
+                    controller: checkintimeController, // Check-in time controller
                     focusNode: cnumberFocusNode,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
@@ -201,7 +223,7 @@ bool _showClock = false;
                                 ).then((time) {
                                   if (time != null) {
                                     final timeString = DateFormat("HH:mm").format(DateTimeField.convert(time)!);
-                                    cnumberController.text = timeString; // Store the selected time in the text box
+                                    checkintimeController.text = timeString; // Store the selected time in the text box
                                   }
                                 });
                               },
@@ -227,7 +249,7 @@ bool _showClock = false;
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8, bottom: 22),
                   child: TextFormField(
-                    controller: enumberController, // Check-out time controller
+                    controller: checkouttimeController, // Check-out time controller
                     focusNode: enumberFocusNode,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
@@ -266,7 +288,7 @@ bool _showClock = false;
                                 ).then((time) {
                                   if (time != null) {
                                     final timeString = DateFormat("HH:mm").format(DateTimeField.convert(time)!);
-                                    enumberController.text = timeString; // Store the selected time in the text box
+                                    checkouttimeController.text = timeString; // Store the selected time in the text box
                                   }
                                 });
                               },

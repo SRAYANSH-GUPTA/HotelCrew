@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PageTwo extends StatefulWidget {
   @override
@@ -24,6 +25,7 @@ class _PageTwoState extends State<PageTwo> {
   @override
   void initState() {
     super.initState();
+    loadData();  // Load data when the page is initialized
     
     // Listen for focus changes to update the UI
     cnumberFocusNode.addListener(() => setState(() {}));
@@ -34,6 +36,7 @@ class _PageTwoState extends State<PageTwo> {
 
   @override
   void dispose() {
+    saveData();  // Save data when the page is disposed (before navigating)
     cnumberController.dispose();
     enumberController.dispose();
     emailController.dispose();
@@ -43,6 +46,45 @@ class _PageTwoState extends State<PageTwo> {
     emailFocusNode.dispose();
     addressFocusNode.dispose();
     super.dispose();
+  }
+
+  // Method to save data
+  Future<void> saveData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('primary_contact', cnumberController.text);
+    await prefs.setString('emergency_contact', enumberController.text);
+    await prefs.setString('email', emailController.text);
+    await prefs.setString('address', addressController.text);
+    await prefs.setString('country_code', _selectedCountryCode);
+  }
+
+  // Method to load saved data
+  Future<void> loadData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? savedCNumber = prefs.getString('primary_contact');
+    String? savedENumber = prefs.getString('emergency_contact');
+    String? savedEmail = prefs.getString('email');
+    String? savedAddress = prefs.getString('address');
+    String? savedCountryCode = prefs.getString('country_code');
+
+    // If saved data exists, populate the fields
+    if (savedCNumber != null) {
+      cnumberController.text = savedCNumber;
+    }
+    if (savedENumber != null) {
+      enumberController.text = savedENumber;
+    }
+    if (savedEmail != null) {
+      emailController.text = savedEmail;
+    }
+    if (savedAddress != null) {
+      addressController.text = savedAddress;
+    }
+    if (savedCountryCode != null) {
+      setState(() {
+        _selectedCountryCode = savedCountryCode;
+      });
+    }
   }
 
   @override
