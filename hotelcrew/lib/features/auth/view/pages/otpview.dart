@@ -142,7 +142,7 @@ bool isLoading = false;
                             activeFieldBackgroundColor: Color(0xFFF4F8F9),
                             filledFieldBackgroundColor: Color(0xFFF4F8F9),
                             fieldBorderWidth: 0,
-                            
+
                             fieldPadding: 25.33,
                             activeFieldBorderGradient:
                                 LinearGradient(colors: [Color(0xFF6F8393), Color(0xFF6F8393)]),
@@ -316,9 +316,9 @@ setState(() {
               ),
             );
 
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const Hoteldetailspage1()),
+              MaterialPageRoute(builder: (context) => LoginPage()),
             );
           } else if (viewModel.errorMessage != null) {
             setState(() {

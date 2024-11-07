@@ -6,8 +6,10 @@ import 'package:hotelcrew/features/auth/view/pages/register.dart';
 import 'package:hotelcrew/features/hoteldetails/pages/hoteldetailspage1.dart';
 import '../../auth_view_model/loginpageviewmodel.dart';
 import '../../../resetpass/resertpasspage/resetpass.dart';
-import '../../../hoteldetails/pages/hoteldetailspage1.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:developer';
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -302,7 +304,29 @@ onPressed: _isLoading || emailController.text.isEmpty || p.isEmpty
             print("User Full Name: ${loginResponse.userData.fullName ?? "Not available"}");
             print("AccessToken: ${loginResponse.accessToken ?? "Not available"}");
             print("RefreshToken: ${loginResponse.refreshToken ?? "Not available"}");
+            if(checkBoxValue)
+            {
+              print("hello done");
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+            prefs.setString('access_token', loginResponse.accessToken);
+            prefs.setString('refresh_token', loginResponse.refreshToken);
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+  content: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text('Login Successful'),
+      const Text('Tokens Saved Successfully'), // Fixed the syntax error here
+    ],
+  ),
+  duration: const Duration(seconds: 3),
+  action: SnackBarAction(
+    label: 'ACTION',
+    onPressed: () {},
+  ),
+));
 
+
+            }
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
