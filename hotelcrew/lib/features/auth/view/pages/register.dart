@@ -28,26 +28,29 @@ final emailController = TextEditingController(text: ""); // Fixed variable name 
 bool _isLoading = false;
 bool _isVisible = false;
 bool isPasswordValid(String password, String username, String email) {
-  // Check for length
+  // Check for at least 8 characters
   if (password.length < 8) return false;
-
-  // Check if the password is entirely numeric
+  
+  // Check for at least one uppercase letter, one number, and one special character
+  if (!RegExp(r'[A-Z]').hasMatch(password)) return false;
+  if (!RegExp(r'[0-9]').hasMatch(password)) return false;
+  if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password)) return false;
+  
+  // Check if the password contains only digits (to prevent weak numeric passwords)
   if (RegExp(r'^\d+$').hasMatch(password)) return false;
 
-  // Add more checks for similarity to username or email
-  if (password.toLowerCase().contains(username.toLowerCase()) ||
-      password.toLowerCase().contains(email.toLowerCase().split('@')[0])) {
-    return false;
-  }
+  // Check if the password contains the username or email prefix
+  // The email prefix is taken up to the first '@'
+  
 
-  // Check against commonly used passwords (example list)
+  // List of common passwords to reject
   const commonPasswords = [
     'password', '12345678', 'qwerty', 'abc123', 'letmein', 'iloveyou'
   ];
-  if (commonPasswords.contains(password.toLowerCase())) return false;
-
-  return true;
+  return !commonPasswords.contains(password.toLowerCase());
 }
+
+
 void _showSnackbar(String message) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
@@ -206,6 +209,7 @@ void _showSnackbar(String message) {
                   ),
                 ),
               ),
+              
               Container(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 4, bottom: 22),
@@ -244,40 +248,136 @@ void _showSnackbar(String message) {
                   ),
                 ),
               ),
+        
+             SizedBox(
+  height: 58,
+  width: 328,
+  child: Row(
+    crossAxisAlignment: CrossAxisAlignment.start, // Aligns checkbox to the top of text
+    children: [
+      Padding(
+        padding: const EdgeInsets.only(right: 7),
+        child: SizedBox(
+          height: 18,
+          width: 18,
+          child: CheckboxTheme(
+            data: CheckboxThemeData(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+              side: const BorderSide(width: 0, color: Colors.transparent), // Removes outline
+            ),
+            child: Checkbox(
+              checkColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+              value: checkBoxValue,
+              splashRadius: 0,
+              fillColor: MaterialStateProperty.resolveWith<Color>((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return const Color(0xFF5662AC);
+                }
+                return const Color(0xFFC6D6DB);
+              }),
+              onChanged: (newValue) {
+                setState(() {
+                  checkBoxValue = newValue ?? false;
+                });
+              },
+            ),
+          ),
+        ),
+      ),
+      Flexible(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 0),
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 4, // Space between text widgets
+            children: [
+              Text(
+                'I agree to the',
+                style: GoogleFonts.montserrat(
+                  textStyle: const TextStyle(
+                    color: Color(0xFF121212),
+                    fontWeight: FontWeight.w400,
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: () => print('Terms and Conditions link'),
+                child: const Text(
+                  "Terms & Conditions",
+                  style: TextStyle(color: Color(0xFF5662AC),
+                   fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    height: 1.5,),
+                ),
+              ),
+              const Text("and"),
+              InkWell(
+                onTap: () => print("Privacy Policy"),
+                child: const Text(
+                  "Privacy Policy",
+                  style: TextStyle(color: Color(0xFF5662AC),
+                   fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    height: 1.5,
+                ),),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ],
+  ),
+),
+SizedBox(height: 72,),
+
               SizedBox(
                 height: 40,
                 width: 328,
                 child: ElevatedButton(
                   onPressed: () async {
-  if (isPasswordValid(password.text, username.text, emailController.text)) {
-    if (_isLoading) return; // Prevent multiple taps while loading
+  if (!checkBoxValue) {
+    _showSnackbar('Accept Terms and Conditions');
+    return; // Exit if terms are not accepted
+  }
+  if (!password.text.isNotEmpty || !username.text.isNotEmpty || !emailController.text.isNotEmpty) {
+    _showSnackbar('Fill All the Fields First.');
+    return;
+  }
+  if (!isPasswordValid(password.text, username.text, emailController.text)) {
+    _showSnackbar('Password does not meet the requirements.');
+    setState(() {
+      _isVisible = true;
+    });
+    return;
+  }
+
+  if (_isLoading) return; // Prevent multiple taps
+
+  setState(() {
+    _isLoading = true; // Start loading
+    _isVisible = false; // Hide password requirements
+  });
+
+  if (password.text == confirmpassword.text) {
+    final registrationRequest = UserRegistrationRequest(
+      userName: username.text,
+      email: emailController.text,
+      password: password.text,
+      confirmPassword: confirmpassword.text,
+    );
     final dioClient = DioClient();
-    print(username.text);
-    print(emailController.text);
-    print(password.text);
-    print(confirmpassword.text);
-    
-    if (password.text == confirmpassword.text) {
-      final registrationRequest = UserRegistrationRequest(
-        userName: username.text,
-        email: emailController.text,
-        password: password.text,
-        confirmPassword: confirmpassword.text,
-      );
-      print(registrationRequest);
-      
-      setState(() {
-        _isLoading = true; // Start loading
-      });
-      
-      try {
-        final response = await dioClient.registerUser(registrationRequest);
-        setState(() {
-          _isLoading = false;
-          _isVisible = false; // End loading
-        });
-        
-        if (response != null) {
+
+    try {
+      final response = await dioClient.registerUser(registrationRequest);
+      setState(() => _isLoading = false);
+
+      if (response != null) {
+        if (response.message == 'OTP sent successfully') {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(response.message),
           ));
@@ -292,34 +392,29 @@ void _showSnackbar(String message) {
               ),
             ),
           );
-          print("#############");
-        }
-      } on ApiError catch (e) {
-        // Handle the ApiError and show it to the user
+        } 
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(e.message),
-          duration: const Duration(seconds: 2),
-        ));
-      } catch (e) {
-        // Handle any unexpected errors
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('An unexpected error occurred. Please try again.'),
+          content: Text('Error: User already exists or another issue'),
         ));
       }
-    } else {
+    } on ApiError catch (e) {
+      setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text('Passwords do not match'),
+        content: Text("User Already Exist"),
         duration: const Duration(seconds: 2),
+      ));
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('An unexpected error occurred. Please try again.'),
       ));
     }
   } else {
-    _showSnackbar('Password does not meet the requirements.');
-    setState(() {
-      _isVisible = true;
-    });
+    setState(() => _isLoading = false);
+    _showSnackbar('Passwords do not match');
   }
 },
-
 
 
                   style: ElevatedButton.styleFrom(
@@ -349,87 +444,7 @@ void _showSnackbar(String message) {
             ),
     )
               ),
-              SizedBox(height: 30,),
-              // SizedBox(
-              //   height: 34,
-              //   width: 26,
-              //   child: Row(
-              //     children: [
-              //       Container(
-              //         child: Padding(
-              //           padding: const EdgeInsets.only(right: 7),
-              //           child: SizedBox(
-              //             height: 18,
-              //             width: 18,
-              //             child: CheckboxTheme(
-              //               data: CheckboxThemeData(
-              //                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
-              //                 side: const BorderSide(width: 0, color: Colors.transparent), // Removes outline
-              //               ),
-              //               child: Checkbox(
-              //                 checkColor: Colors.white, // Color of the check mark
-              //                 shape: RoundedRectangleBorder(
-              //                   borderRadius: BorderRadius.circular(4),
-              //                   side: const BorderSide(color: Colors.transparent),
-              //                 ),
-              //                 value: checkBoxValue,
-              //                 splashRadius: 0,
-              //                 fillColor: MaterialStateProperty.resolveWith<Color>((states) {
-              //                   if (states.contains(MaterialState.selected)) {
-              //                     return const Color(0xFF5662AC); // Color when the checkbox is checked
-              //                   }
-              //                   return const Color(0xFFC6D6DB); // Color when unchecked
-              //                 }),
-              //                 onChanged: (newValue) {
-              //                   setState(() {
-              //                     checkBoxValue = newValue ?? false;
-              //                   });
-              //                 },
-              //               ),
-              //             ),
-              //           ),
-              //         ),
-              //       ),
-              //       Container(
-              //         width:328,
-              //         height: 58,
-              //         child: Row(
-              //           children: [Text(
-              //           'I agree to the',
-              //           style: GoogleFonts.montserrat(
-              //             textStyle: const TextStyle(
-              //               color: Color(0xFF4D5962),
-              //               fontWeight: FontWeight.w400,
-              //               fontSize: 14,
-              //               height: 1.5,
-              //             ),
-              //           ),
-              //         ),
-              //             Container(
-              //               width: 140,
-              //               height: 21,
-              //               child: InkWell(
-              //                 onTap: () => print('Terms and Conditions link'),
-              //                 child: const Text(
-              //                   "Terms & Conditions",
-              //                   style: TextStyle(color: Color(0xFF5662AC)),
-              //                 ),
-              //               ),
-              //             ),
-              //             const Text(" and "),
-              //             InkWell(
-              //               onTap: () => print("Privacy Policy"),
-              //               child: const Text(
-              //                 "Privacy Policy",
-              //                 style: TextStyle(color: Color(0xFF5662AC)),
-              //               ),
-              //             ),
-              //           ],
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
+              
               _isVisible 
   ? Container(
                 height:126,
