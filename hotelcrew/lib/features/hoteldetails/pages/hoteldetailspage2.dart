@@ -6,6 +6,7 @@ import 'page5.dart';
 import 'page6.dart';
 import 'page7.dart';
 import 'page8.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'setupcomplete.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -82,13 +83,14 @@ class _ProgressPageViewState extends State<ProgressPageView> {
         width: double.infinity, // Occupy full width
         height: 141,
         child: Column(
+          
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Padding(
                   padding: EdgeInsets.only(top: 10,left: 16,right: 0,bottom:16),
-                  child: Container(
+                  child: Container(color: Colors.blue,
                     width: 288,
                     height: 8,
                     decoration: BoxDecoration(
@@ -124,8 +126,44 @@ class _ProgressPageViewState extends State<ProgressPageView> {
                 ),
               ],
             ),
-            
-            const SizedBox(height: 24), // Space between row and text
+            Container(
+              color: Colors.blue,
+              margin: EdgeInsets.only(top: 20,left: 16),
+              height: 24,
+              width: 58,
+              child: Padding(
+                padding: EdgeInsets.only(left: 0),
+                child: InkWell(
+                        onTap: () {_goToPreviousPage();},
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 0, left: 0),
+                              child: Container(
+                                height: 16,
+                                width: 8,
+                                child: SvgPicture.asset('assets/backarrow.svg'),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 0),
+                              child: Text(
+                                'Back',
+                                style: GoogleFonts.montserrat(
+                                  color: const Color(0xFF4D5962),
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+              ),
+            ),
+          
             Padding(
               padding: EdgeInsets.only(left: 16,right: 16,bottom: 10),
               child: Container(

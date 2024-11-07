@@ -13,7 +13,6 @@ class _OnboardingState extends State<Onboarding> {
   PageController _pageController = PageController();
   int _currentPage = 0;
 
-  // Define the onboarding content
   final List<Map<String, String>> _onboardingData = [
     {
       "title": "Welcome to HotelCrew!",
@@ -27,11 +26,11 @@ class _OnboardingState extends State<Onboarding> {
       "title": "Stay Connected Across Departments",
       "description": "Send messages, make announcements, and keep everyone updated.",
     },
-     {
+    {
       "title": "Monitor and Optimize",
       "description": "View staff performance and track hotel operations in real time.",
     },
-     {
+    {
       "title": "Ready to Get Started?",
       "description": "Sign up to create a new account or log in to access your existing account.",
     },
@@ -64,21 +63,38 @@ class _OnboardingState extends State<Onboarding> {
               Positioned(
                 top: 42,
                 right: 16,
-                child: (_currentPage < _onboardingData.length - 1 && _currentPage != 0) 
+                child: (_currentPage < _onboardingData.length - 1 && _currentPage != 0)
                     ? TextButton(
                         onPressed: () {
-                          // Skip to the last page
                           _pageController.jumpToPage(_onboardingData.length - 1);
                         },
                         child: Text(
                           'Skip',
-                          style: TextStyle(color: Color(0xFF5662AC),
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          height: 1.3,
-                        ),)
+                          style: TextStyle(
+                            color: Color(0xFF5662AC),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            height: 1.3,
+                          ),
+                        ),
                       )
                     : SizedBox.shrink(),
+              ),
+              // Dot Indicators
+              Positioned(
+                top: 634,
+                left: 0,
+                right: 0,
+                child: Container(
+                  width: 122,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      _onboardingData.length,
+                      (index) => _buildDot(index),
+                    ),
+                  ),
+                ),
               ),
               Positioned(
                 bottom: 40,
@@ -95,69 +111,67 @@ class _OnboardingState extends State<Onboarding> {
                         child: Text(
                           _currentPage == 0 ? 'Getting Started' : 'Next',
                           style: GoogleFonts.montserrat(
-                      textStyle: const TextStyle(
-                        color: Color(0xFFFAFAFA),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        height: 1.5,
-                      ),
-                    ),
+                            textStyle: const TextStyle(
+                              color: Color(0xFFFAFAFA),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              height: 1.5,
+                            ),
+                          ),
                         ),
                         style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF47518C),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
+                          backgroundColor: Color(0xFF47518C),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
                       )
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: () {
-                                // Handle sign-up action
-                                _handleSignUp();
-                              },
-                              child: Text('Sign Up',
-                              style: GoogleFonts.montserrat(
-                      textStyle: const TextStyle(
-                        color: Color(0xFFFAFAFA),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        height: 1.5,
-                      ),
-                    ),),
+                              onPressed: _handleSignUp,
+                              child: Text(
+                                'Sign Up',
+                                style: GoogleFonts.montserrat(
+                                  textStyle: const TextStyle(
+                                    color: Color(0xFFFAFAFA),
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ),
                               style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF47518C),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
+                                backgroundColor: Color(0xFF47518C),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
                             ),
                           ),
-                          SizedBox(width: 16), // Space between the buttons
+                          SizedBox(width: 16),
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: () {
-                                // Handle log-in action
-                                _handleLogin();
-                              },
-                              child: Text('Log In',
-                              style: GoogleFonts.montserrat(
-                      textStyle: const TextStyle(
-                        color: Color(0xFFFAFAFA),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        height: 1.5,
-                      ),
-                    ),),
+                              onPressed: _handleLogin,
+                              child: Text(
+                                'Log In',
+                                style: GoogleFonts.montserrat(
+                                  textStyle: const TextStyle(
+                                    color: Color(0xFFFAFAFA),
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ),
                               style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF47518C),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
+                                backgroundColor: Color(0xFF47518C),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -170,62 +184,71 @@ class _OnboardingState extends State<Onboarding> {
     );
   }
 
- Widget _buildOnboarding(int index) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-    child: Container(
-      height: 544,
-      width: 328,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start, // Aligns children to the top
-        children: [
-          SizedBox(height: 98), // Optional space from the top
-          Text(
-            _onboardingData[index]["title"]!,
-            style: GoogleFonts.montserrat(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              height: 1.3,
+  Widget _buildOnboarding(int index) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Container(
+        height: 544,
+        width: 328,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SizedBox(height: 98),
+            Text(
+              _onboardingData[index]["title"]!,
+              style: GoogleFonts.montserrat(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                height: 1.3,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 16),
-          Text(
-            _onboardingData[index]["description"]!,
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              height: 1.5,
-              fontWeight: FontWeight.w600,
+            SizedBox(height: 16),
+            Text(
+              _onboardingData[index]["description"]!,
+              style: GoogleFonts.montserrat(
+                fontSize: 16,
+                height: 1.5,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 20), // Space between description and SVG
-          SvgPicture.asset(
-            'assets/onboarding${index + 1}.svg', // Ensure the path is correct
-            height: 300.08,
-            width: 309.96,
-          ),
-        ],
+            SizedBox(height: 20),
+            SvgPicture.asset(
+              'assets/onboarding${index + 1}.svg',
+              height: 300.08,
+              width: 309.96,
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
+  Widget _buildDot(int index) {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      margin: EdgeInsets.symmetric(horizontal: 4),
+      height: 8,
+      width: _currentPage == index ? 24 : 8, // Oval for active, circle for others
+      decoration: BoxDecoration(
+        color: _currentPage == index ? Color(0xFF5662AC) : Colors.grey,
+        borderRadius: BorderRadius.circular(10),
+      ),
+    );
+  }
 
   void _handleSignUp() {
-    // Implement your sign-up logic here
-     Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => Register()),
-  );
-    print("Sign Up pressed");
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Register()),
+    );
   }
 
   void _handleLogin() {
-     Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => LoginPage()),
-  );
-    print("Log In pressed");
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
   }
 }
