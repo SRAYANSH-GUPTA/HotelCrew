@@ -113,41 +113,52 @@ bool isLoading = false;
                   const SizedBox(height: 48),
                   Focus(
                     focusNode: emailFocusNode,
-                    child: SizedBox(
+                    child: Container(
                       width: 328,
                       height: 45,
-                      child: OtpPinField(
-                        autoFocus: false,
-                        key: _otpPinFieldController,
-                        autoFillEnable: false,
-                        textInputAction: TextInputAction.done,
-                        onSubmit: (text) {
-                          enteredOtp = text; // Update enteredOtp when OTP is submitted
-                          debugPrint('Entered pin is $enteredOtp');
-                        },
-                        onChange: (text) {
-                          enteredOtp = text; // Update enteredOtp on change
-                          debugPrint('Enter on change pin is $enteredOtp');
-                        },
-                        onCodeChanged: (code) {
-                          enteredOtp = code; // Update enteredOtp when code changes
-                          debugPrint('onCodeChanged is $enteredOtp');
-                        },
-                        otpPinFieldStyle: const OtpPinFieldStyle(
-                          activeFieldBorderGradient:
-                              LinearGradient(colors: [Color(0xFF4CAF50), Color(0xFF4CAF50)]),
-                          filledFieldBorderGradient:
-                              LinearGradient(colors: [Color(0xFFBA4872), Color(0xFFBA4872)]),
-                          defaultFieldBorderGradient:
-                              LinearGradient(colors: [Color(0xFF6F8393), Color(0xFF6F8393)]),
-                          fieldBorderWidth: 2,
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 0),
+                        child: OtpPinField(
+                          
+                          fieldHeight: 45,
+                          fieldWidth: 45,
+                          autoFocus: false,
+                          key: _otpPinFieldController,
+                          autoFillEnable: false,
+                          textInputAction: TextInputAction.done,
+                          onSubmit: (text) {
+                            enteredOtp = text; // Update enteredOtp when OTP is submitted
+                            debugPrint('Entered pin is $enteredOtp');
+                          },
+                          onChange: (text) {
+                            enteredOtp = text; // Update enteredOtp on change
+                            debugPrint('Enter on change pin is $enteredOtp');
+                          },
+                          onCodeChanged: (code) {
+                            enteredOtp = code; // Update enteredOtp when code changes
+                            debugPrint('onCodeChanged is $enteredOtp');
+                          },
+                          otpPinFieldStyle: const OtpPinFieldStyle(
+                            activeFieldBackgroundColor: Color(0xFFF4F8F9),
+                            filledFieldBackgroundColor: Color(0xFFF4F8F9),
+                            fieldBorderWidth: 0,
+                            
+                            fieldPadding: 25.33,
+                            activeFieldBorderGradient:
+                                LinearGradient(colors: [Color(0xFF6F8393), Color(0xFF6F8393)]),
+                            filledFieldBorderGradient:
+                                LinearGradient(colors: [Color(0xFF6F8393), Color(0xFF6F8393)]),
+                            defaultFieldBorderGradient:
+                                LinearGradient(colors: [Color(0xFF6F8393), Color(0xFF6F8393)]),
+                          
+                          ),
+                          maxLength: 4,
+                          showCursor: true,
+                          cursorColor: Colors.indigo,
+                          cursorWidth: 3,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          otpPinFieldDecoration: OtpPinFieldDecoration.defaultPinBoxDecoration,
                         ),
-                        maxLength: 4,
-                        showCursor: true,
-                        cursorColor: Colors.indigo,
-                        cursorWidth: 3,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        otpPinFieldDecoration: OtpPinFieldDecoration.defaultPinBoxDecoration,
                       ),
                     ),
                   ),
@@ -205,9 +216,10 @@ bool isLoading = false;
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Text("Didn’t receive the code?"),
-                            SizedBox(
-                              width: 97,
-                              height: 30,
+                            Container(
+                              width: 108,
+                              height: 40,
+                              padding: EdgeInsets.only(left: 0),
                               child: OtpTimerButton(
                                 buttonType: ButtonType.text_button,
                                 backgroundColor: Colors.black,
@@ -269,7 +281,7 @@ setState(() {
                                     textStyle: const TextStyle(
                                       color: Color(0xFF5662AC),
                                       fontWeight: FontWeight.w600,
-                                      fontSize: 12,
+                                      fontSize: 14,
                                       height: 1.5,
                                     ),
                                   ),
@@ -284,43 +296,47 @@ setState(() {
                           height: 40,
                           width: 328,
                           child: ElevatedButton(
- onPressed: isLoading
-    ? null
-    : () async {
-        await viewModel.sendOtp(widget.email, enteredOtp); // Ensure to replace `email` and `otp` with actual values or inputs
-        setState(() {
-        isLoading = true;
-      });
-        if (viewModel.successMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(viewModel.successMessage!),
-              backgroundColor: Colors.green,
-            ),
-          );
-           Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const Hoteldetailspage1()),
-  );
+  onPressed: isLoading
+      ? null
+      : () async {
+          // Start the loading indicator before calling the async function
           setState(() {
-        isLoading = false;
-      });
-        } else if (viewModel.errorMessage != null) {
-          setState(() {
-        otperror = true;
-      });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(viewModel.errorMessage!),
-              backgroundColor: Colors.red,
-            ),
-          );
-          setState(() {
-        isLoading = false;
-      });
-        }
-      },
+            isLoading = true;
+          });
 
+          // Call the view model's sendOtp method
+          await viewModel.sendOtp(widget.email, enteredOtp);
+
+          // Check if the response contains a success message
+          if (viewModel.successMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(viewModel.successMessage!),
+                backgroundColor: Colors.green,
+              ),
+            );
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Hoteldetailspage1()),
+            );
+          } else if (viewModel.errorMessage != null) {
+            setState(() {
+              otperror = true;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(viewModel.errorMessage!),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+
+          // Stop the loading indicator after the response is handled
+          setState(() {
+            isLoading = false;
+          });
+        },
   style: ElevatedButton.styleFrom(
     backgroundColor: const Color(0xFF47518C),
     shape: RoundedRectangleBorder(
@@ -347,7 +363,8 @@ setState(() {
             ),
           ),
         ),
-),
+)
+
 
                         ),
                         const SizedBox(height: 4),
