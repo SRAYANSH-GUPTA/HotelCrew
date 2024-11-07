@@ -221,12 +221,12 @@ class _ProgressPageViewState extends State<ProgressPageView> {
               onPressed: () {
                 if(_currentPage != _totalPages-1){_goToNextPage();}
                 else{
-                  Navigator.push(
-        context,
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => SetupComplete(),
-        ),
-      );
+      //             Navigator.push(
+      //   context,
+      //   MaterialPageRoute<void>(
+      //     builder: (BuildContext context) => SetupComplete(),
+      //   ),
+      // );
                 }
               },
               child: Text(

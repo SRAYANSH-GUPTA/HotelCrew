@@ -133,7 +133,7 @@ void clear() async
         log('Response data for 401 error: ${response.data}');
          ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("User Not Found"),
+              content: Text("User Not Found or file data already exist"),
               backgroundColor: Colors.red,
             ),
           );
@@ -144,7 +144,7 @@ void clear() async
         log('Response data for 400 error: ${response.data}');
          ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("Users In file Already Exist or Fill all the information"),
+              content: Text("Users In file Already Exist"),
               backgroundColor: Colors.red,
             ),
           );
