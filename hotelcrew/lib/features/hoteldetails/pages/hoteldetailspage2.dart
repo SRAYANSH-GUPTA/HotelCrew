@@ -74,14 +74,14 @@ class _ProgressPageViewState extends State<ProgressPageView> {
     return Scaffold(
       appBar: PreferredSize(
         
-  preferredSize: Size.fromHeight(147.0),
+  preferredSize: Size.fromHeight(158.0),
   child: AppBar(
     automaticallyImplyLeading: false,
     flexibleSpace: Padding(
       padding: const EdgeInsets.only(top: 44.0, bottom: 0),
       child: Container(
         width: double.infinity, // Occupy full width
-        height: 141,
+        height: 144,
         child: Column(
           
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,7 +90,7 @@ class _ProgressPageViewState extends State<ProgressPageView> {
               children: [
                 Padding(
                   padding: EdgeInsets.only(top: 10,left: 16,right: 0,bottom:16),
-                  child: Container(color: Colors.blue,
+                  child: Container(
                     width: 288,
                     height: 8,
                     decoration: BoxDecoration(
@@ -127,7 +127,7 @@ class _ProgressPageViewState extends State<ProgressPageView> {
               ],
             ),
             Container(
-              color: Colors.blue,
+          
               margin: EdgeInsets.only(top: 20,left: 16),
               height: 24,
               width: 58,

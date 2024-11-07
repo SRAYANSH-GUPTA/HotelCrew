@@ -9,7 +9,7 @@ class PageThree extends StatefulWidget {
 }
 
 class _PageThreeState extends State<PageThree> {
-  final TextEditingController cnumberController = TextEditingController();
+  final TextEditingController numberofroomsController = TextEditingController();
   final TextEditingController enumberController = TextEditingController();
   final TextEditingController emailController = TextEditingController(); 
   final TextEditingController addressController = TextEditingController(); 
@@ -38,7 +38,7 @@ class _PageThreeState extends State<PageThree> {
 
   @override
   void dispose() {
-    cnumberController.dispose();
+    numberofroomsController.dispose();
     enumberController.dispose();
     emailController.dispose();
     addressController.dispose();
@@ -68,7 +68,7 @@ class _PageThreeState extends State<PageThree> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8, bottom: 22),
                   child: TextFormField(
-                    controller: cnumberController,
+                    controller: numberofroomsController,
                     focusNode: cnumberFocusNode,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
@@ -99,10 +99,10 @@ class _PageThreeState extends State<PageThree> {
                                 ),
                                 onPressed: () {
                                   // Increase the number
-                                  int currentValue = int.tryParse(cnumberController.text) ?? 0;
-                                  cnumberController.text = (currentValue + 1).toString();
-                                  cnumberController.selection = TextSelection.fromPosition(
-                                    TextPosition(offset: cnumberController.text.length),
+                                  int currentValue = int.tryParse(numberofroomsController.text) ?? 0;
+                                  numberofroomsController.text = (currentValue + 1).toString();
+                                  numberofroomsController.selection = TextSelection.fromPosition(
+                                    TextPosition(offset: numberofroomsController.text.length),
                                   );
                                 },
                               ),
@@ -114,11 +114,11 @@ class _PageThreeState extends State<PageThree> {
                                 ),
                                 onPressed: () {
                                   // Decrease the number
-                                  int currentValue = int.tryParse(cnumberController.text) ?? 0;
+                                  int currentValue = int.tryParse(numberofroomsController.text) ?? 0;
                                   if (currentValue > 0) { // Prevent negative numbers
-                                    cnumberController.text = (currentValue - 1).toString();
-                                    cnumberController.selection = TextSelection.fromPosition(
-                                      TextPosition(offset: cnumberController.text.length),
+                                    numberofroomsController.text = (currentValue - 1).toString();
+                                    numberofroomsController.selection = TextSelection.fromPosition(
+                                      TextPosition(offset: numberofroomsController.text.length),
                                     );
                                   }
                                 },
@@ -193,7 +193,7 @@ class _PageThreeState extends State<PageThree> {
                                 ),
                                 onPressed: () {
                                   // Decrease the number
-                                  int currentValue = int.tryParse(cnumberController.text) ?? 0;
+                                  int currentValue = int.tryParse(numberofroomsController.text) ?? 0;
                                   if (currentValue > 0) { // Prevent negative numbers
                                     enumberController.text = (currentValue - 1).toString();
                                     enumberController.selection = TextSelection.fromPosition(

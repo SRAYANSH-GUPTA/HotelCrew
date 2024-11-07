@@ -23,6 +23,7 @@ class _createpwdState extends State<createpwd> {
   bool isLoading = false;
   double svgwidth =  258.16;
   bool _obscurePassword = true;
+  bool _obscureconfirmPassword = true;
   bool notequal = false;
   final FocusNode passwordFocusNode = FocusNode();
   final FocusNode confirmFocusNode = FocusNode();
@@ -232,12 +233,17 @@ class _createpwdState extends State<createpwd> {
                 buildCounter: null,
                 focusNode: confirmFocusNode,
                 decoration: InputDecoration(
-                  //  suffixIcon: notequal
-                  //               ? null
-                  //               : const Icon(
-                  //                   Icons.error,
-                  //                   color: Color(0xFFC80D0D),
-                  //                 ),
+                  suffixIcon: IconButton(
+                            icon: _obscurePassword
+                                ? SvgPicture.asset('assets/nopassword.svg')
+                                : SvgPicture.asset('assets/passwordvisible.svg'),
+                            onPressed: () {
+                              setState(() {
+                                _obscureconfirmPassword = !_obscureconfirmPassword;
+
+                              });
+                            },
+                          ),
                   errorBorder: notequal
                                 ? OutlineInputBorder(
                                     borderSide: BorderSide(color: Colors.red, width: 1.0),
@@ -249,7 +255,7 @@ class _createpwdState extends State<createpwd> {
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                obscureText: _obscurePassword,
+                obscureText: _obscureconfirmPassword,
                 obscuringCharacter: '●',
                 style: TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
               ),
@@ -278,7 +284,9 @@ class _createpwdState extends State<createpwd> {
                   onPressed: isLoading
     ? null
     : () async {
-        setState(() {
+        if(_calculateStrength(password.text) == 1)
+        {
+          setState(() {
           // Start loading state
           isLoading = true; // Directly access the ViewModel's loading state
         });
@@ -302,7 +310,7 @@ class _createpwdState extends State<createpwd> {
         } else if (viewModel.errorMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(viewModel.errorMessage!),
+              content: Text("Comply with the rules of password."),
               backgroundColor: Colors.red,
             ),
           );
@@ -312,6 +320,16 @@ class _createpwdState extends State<createpwd> {
           // End loading state
           isLoading = false; // Update the loading state in the ViewModel
         });
+        }
+        else
+        {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Comply with the rules of password."),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       },
 
                   child: Text(
