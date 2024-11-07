@@ -30,12 +30,14 @@ class _OtpresetState extends State<Otpreset> {
   double svgHeight = 236.03;
   double svgWidth = 232.28;
   bool otperror = false;
-   bool _isLoading = false; 
+  bool _isLoading = false;
+  
    final reset.ForgetPasswordViewModel resetviewModel = reset.ForgetPasswordViewModel();
   final FocusNode emailFocusNode = FocusNode();
   final OtpTimerButtonController otp = OtpTimerButtonController();
   String enteredOtp = ""; // Variable to store the OTP entered by the user
 bool isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -97,7 +99,7 @@ bool isLoading = false;
                     height: 42,
                     width: 328,
                     child: Text(
-                      "We've sent a 4-digit verification code to your email abcXXX@gmail.com",
+                      "We've sent a 4-digit verification code to your email ${widget.email}",
                       style: GoogleFonts.montserrat(
                         textStyle: const TextStyle(
                           color: Color(0xFF4D5962),
@@ -115,6 +117,8 @@ bool isLoading = false;
                       width: 328,
                       height: 45,
                       child: OtpPinField(
+                        fieldHeight: 45,
+                          fieldWidth: 45,
                         autoFocus: false,
                         key: _otpPinFieldController,
                         autoFillEnable: false,
@@ -132,13 +136,19 @@ bool isLoading = false;
                           debugPrint('onCodeChanged is $enteredOtp');
                         },
                         otpPinFieldStyle: const OtpPinFieldStyle(
+                            activeFieldBackgroundColor: Color(0xFFF4F8F9),
+                            filledFieldBackgroundColor: Color(0xFFF4F8F9),
+                            fieldBorderWidth: 0,
+                            fieldBorderRadius: 8,
+
+                            fieldPadding: 25.33,
                           activeFieldBorderGradient:
                               LinearGradient(colors: [Color(0xFF4CAF50), Color(0xFF4CAF50)]),
                           filledFieldBorderGradient:
                               LinearGradient(colors: [Color(0xFFBA4872), Color(0xFFBA4872)]),
                           defaultFieldBorderGradient:
                               LinearGradient(colors: [Color(0xFF6F8393), Color(0xFF6F8393)]),
-                          fieldBorderWidth: 2,
+                      
                         ),
                         maxLength: 4,
                         showCursor: true,
@@ -149,18 +159,18 @@ bool isLoading = false;
                       ),
                     ),
                   ),
-                  const SizedBox(height: 57),
+                  const SizedBox(height: 24),
                   // Conditional error message when svgHeight is 0
                   if (svgHeight == 0 && otperror)
                     Padding(
                       padding: const EdgeInsets.only(left: 0),
-                      child: SizedBox(
+                      child: Container(
                         width: 326,
                         height: 39,
                         child: Center(
                           child: Column(mainAxisAlignment: MainAxisAlignment.center,
                             children: [Text(
-                              "Incorrect code or Invalid User.",
+                              "Incorrect code.",
                               style: GoogleFonts.montserrat(
                                 textStyle: const TextStyle(
                                   color: Color(0xFFBA4872),
@@ -204,20 +214,20 @@ bool isLoading = false;
                           children: [
                             const Text("Didn’t receive the code?"),
                             SizedBox(
-                              width: 97,
-                              height: 30,
+                              width: 108,
+                              height: 40,
                               child: OtpTimerButton(
                                 buttonType: ButtonType.text_button,
                                 backgroundColor: Colors.black,
                                 controller: otp,
-                               onPressed: _isLoading ? null :() async {
+                               onPressed: isLoading ? null :() async {
   
      setState(() {
-      _isLoading = true; // Start loading
+      isLoading = true; // Start loading
     });
     final response = await reset.ForgetPasswordViewModel().sendForgetPasswordRequest(widget.email);
 setState(() {
-      _isLoading = false; // Stop loading
+      isLoading = false; // Stop loading
     });
     if (response is ForgetPasswordSuccessResponse) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -238,7 +248,7 @@ setState(() {
                                     textStyle: const TextStyle(
                                       color: Color(0xFF5662AC),
                                       fontWeight: FontWeight.w600,
-                                      fontSize: 12,
+                                      fontSize: 14,
                                       height: 1.5,
                                     ),
                                   ),
@@ -253,13 +263,14 @@ setState(() {
                           height: 40,
                           width: 328,
                           child: ElevatedButton(
- onPressed: isLoading
+ onPressed: _isLoading
     ? null
     : () async {
-        await viewModel.sendOtp(widget.email, enteredOtp); // Ensure to replace `email` and `otp` with actual values or inputs
-        setState(() {
-        isLoading = true;
+       setState(() {
+        _isLoading = true;
       });
+        await viewModel.sendOtp(widget.email, enteredOtp); // Ensure to replace `email` and `otp` with actual values or inputs
+       
         if (viewModel.successMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -272,9 +283,12 @@ setState(() {
     MaterialPageRoute(builder: (context) => createpwd(email: widget.email,)),
   );
           setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
         } else if (viewModel.errorMessage != null) {
+          setState(() {
+            otperror = true;
+          });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(viewModel.errorMessage!),
@@ -282,18 +296,18 @@ setState(() {
             ),
           );
           setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
         }
       },
 
-  style: ElevatedButton.styleFrom(
+   style: ElevatedButton.styleFrom(
     backgroundColor: const Color(0xFF47518C),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(8),
     ),
   ),
-  child: isLoading
+  child: _isLoading
       ? const SizedBox(
           height: 20,
           width: 20,
@@ -313,7 +327,8 @@ setState(() {
             ),
           ),
         ),
-),
+)
+
 
                         ),
                         const SizedBox(height: 4),

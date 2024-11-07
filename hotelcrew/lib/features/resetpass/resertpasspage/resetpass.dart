@@ -70,7 +70,7 @@ class _ResetpassState extends State<Resetpass> {
                 height: 42,
                 width: 328,
                 child: Text(
-                  'Enter your email address to receive a password reset link.',
+                  'Enter your email address to receive a verification code.',
                   style: GoogleFonts.montserrat(
                     textStyle: const TextStyle(
                       color: Color(0xFF4D5962),
@@ -164,7 +164,7 @@ setState(() {
                                 color: Color(0xFFFAFAFA),
                               ),
                             ):Text(
-                          'Send Reset Otp',
+                          'Send Verification Code',
                           style: GoogleFonts.montserrat(
                             textStyle: const TextStyle(
                               color: Color(0xFFFAFAFA),

@@ -12,6 +12,7 @@ import '../../models/register.dart';
 import '../../auth_view_model/registerviewmodel.dart' as reg;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:developer';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 
 class Otpview extends StatefulWidget {
@@ -35,6 +36,7 @@ class _OtpviewState extends State<Otpview> {
   double svgHeight = 236.03;
   double svgWidth = 232.28;
   bool otperror = false;
+  final storage = FlutterSecureStorage();
    bool _isLoading = false; 
   final FocusNode emailFocusNode = FocusNode();
   final OtpTimerButtonController otp = OtpTimerButtonController();
