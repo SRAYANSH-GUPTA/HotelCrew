@@ -308,8 +308,20 @@ onPressed: _isLoading || emailController.text.isEmpty || p.isEmpty
             {
               print("hello done");
               SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.remove("access_token");
+              prefs.remove("refresh_token");
+              prefs.remove("email");
+              prefs.remove("password");
             prefs.setString('access_token', loginResponse.accessToken);
             prefs.setString('refresh_token', loginResponse.refreshToken);
+            prefs.setString('email', emailController.text);
+            prefs.setString('password', passwordController.text);
+            print(prefs.getString('access_token') ?? "Not Available");
+            log(prefs.getString('access_token') ?? "Not Available");
+            log(prefs.getString('password') ?? "Not Available");
+            log(prefs.getString('email') ?? "Not Available");
+            log(prefs.getString('refresh_token') ?? "Not Available");
+
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
   content: Column(
     crossAxisAlignment: CrossAxisAlignment.start,

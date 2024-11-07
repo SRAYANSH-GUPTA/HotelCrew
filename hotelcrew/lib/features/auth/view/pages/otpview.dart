@@ -10,6 +10,8 @@ import 'otpviewmodel.dart';
 import 'otpmodel.dart';
 import '../../models/register.dart';
 import '../../auth_view_model/registerviewmodel.dart' as reg;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:developer';
 
 
 class Otpview extends StatefulWidget {
@@ -297,46 +299,79 @@ setState(() {
                           width: 328,
                           child: ElevatedButton(
   onPressed: isLoading
-      ? null
-      : () async {
-          // Start the loading indicator before calling the async function
+    ? null
+    : () async {
+        setState(() {
+          isLoading = true;
+        });
+
+        // Call the view model's sendOtp method
+        await viewModel.sendOtp(widget.email, enteredOtp);
+
+        if (viewModel.successMessage != null) {
+          print('Access Token: ${viewModel.accessToken}');
+          print('Refresh Token: ${viewModel.refreshToken}');
+          print('User ID: ${viewModel.userId}');
+           // Access us print("hello done");
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.remove("access_token");
+              prefs.remove("refresh_token");
+              prefs.remove("userid");
+            prefs.setString('access_token',viewModel.accessToken ?? "");
+            prefs.setString('refresh_token', viewModel.refreshToken ?? "");
+            prefs.setString('userid', viewModel.userId.toString());
+            print(prefs.getString('access_token') ?? "Not Available");
+
+            print("#############");
+            print(prefs.getString('userid'));
+            log(prefs.getString('access_token') ?? "Not Available");
+            log(prefs.getString('password') ?? "Not Available");
+            log(prefs.getString('email') ?? "Not Available");
+            log(prefs.getString('refresh_token') ?? "Not Available");
+
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+  content: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text('Login Successful'),
+      const Text('Tokens Saved Successfully'), // Fixed the syntax error here
+    ],
+  ),
+  duration: const Duration(seconds: 3),
+  action: SnackBarAction(
+    label: 'ACTION',
+    onPressed: () {},
+  ),
+));
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(viewModel.successMessage!),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginPage()),
+          );
+        } else if (viewModel.errorMessage != null) {
           setState(() {
-            isLoading = true;
+            otperror = true;
           });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(viewModel.errorMessage!),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
 
-          // Call the view model's sendOtp method
-          await viewModel.sendOtp(widget.email, enteredOtp);
+        setState(() {
+          isLoading = false;
+        });
+      },
 
-          // Check if the response contains a success message
-          if (viewModel.successMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(viewModel.successMessage!),
-                backgroundColor: Colors.green,
-              ),
-            );
-
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => LoginPage()),
-            );
-          } else if (viewModel.errorMessage != null) {
-            setState(() {
-              otperror = true;
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(viewModel.errorMessage!),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
-
-          // Stop the loading indicator after the response is handled
-          setState(() {
-            isLoading = false;
-          });
-        },
   style: ElevatedButton.styleFrom(
     backgroundColor: const Color(0xFF47518C),
     shape: RoundedRectangleBorder(
