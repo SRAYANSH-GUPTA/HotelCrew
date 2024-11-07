@@ -55,7 +55,7 @@ class _PageTwoState extends State<PageTwo> {
     await prefs.setString('emergency_contact', enumberController.text);
     await prefs.setString('email', emailController.text);
     await prefs.setString('address', addressController.text);
-    await prefs.setString('country_code', _selectedCountryCode);
+    
   }
 
   // Method to load saved data
@@ -65,7 +65,7 @@ class _PageTwoState extends State<PageTwo> {
     String? savedENumber = prefs.getString('emergency_contact');
     String? savedEmail = prefs.getString('email');
     String? savedAddress = prefs.getString('address');
-    String? savedCountryCode = prefs.getString('country_code');
+  
 
     // If saved data exists, populate the fields
     if (savedCNumber != null) {
@@ -80,11 +80,7 @@ class _PageTwoState extends State<PageTwo> {
     if (savedAddress != null) {
       addressController.text = savedAddress;
     }
-    if (savedCountryCode != null) {
-      setState(() {
-        _selectedCountryCode = savedCountryCode;
-      });
-    }
+    
   }
 
   @override

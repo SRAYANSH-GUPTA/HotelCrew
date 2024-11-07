@@ -43,7 +43,29 @@ Future<void> _pickFile() async {
     print('No file selected');
   }
 }
-
+void clear() async
+{
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('hotel_name', "");
+    await prefs.setString('legal_business_name', "");
+    await prefs.setString('year_established', "");
+    await prefs.setString('license_number', "");
+    await prefs.setString('primary_contact', "");
+    await prefs.setString('emergency_contact', "");
+    await prefs.setString('email', "");
+    await prefs.setString('address', "");
+    await prefs.setString('country_code', "");
+    await prefs.setString('numberofrooms', "");
+ await prefs.setString('typesofroom', "");
+  await prefs.setString('numberoffloors', "");
+  await prefs.setString('address', "");
+  await prefs.setString('parkingCapacity', "");
+  await prefs.setString('checkin_time', "");
+    await prefs.setString('checkout_time', "");
+    await prefs.setString('payment_method', "");
+    await prefs.setString('parking_capacity', "");
+    await prefs.setString('numberOfDepartments', "");
+}
   Future<void> uploadFile(String filePath, String fileName) async {
     try {
       log('Uploading file: $fileName at path: $filePath');
@@ -101,21 +123,33 @@ Future<void> _pickFile() async {
               backgroundColor: Colors.green,
             ),
           );
+          clear();
            Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => SetupComplete()),
-          );
+          );//response.statusCode == 400
       } else if (response.statusCode == 401) {
         print('Unauthorized: ${response.data}');
         log('Response data for 401 error: ${response.data}');
          ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("User Not Found or Repetitive data in file"),
+              content: Text("User Not Found"),
               backgroundColor: Colors.red,
             ),
           );
          
-      } else {
+      } 
+      else if (response.statusCode == 400) {
+        print('Unauthorized: ${response.data}');
+        log('Response data for 400 error: ${response.data}');
+         ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Users In file Already Exist or Fill all the information"),
+              backgroundColor: Colors.red,
+            ),
+          );
+         
+      }else {
         print('Upload failed with status code: ${response.statusCode}');
         log('Error data: ${response.data}');
       }
@@ -205,31 +239,31 @@ Future<void> _pickFile() async {
             
           ),
           Padding(
-            padding: EdgeInsets.only(top: 38),
-            child: Expanded(
-              
-              child: uploadedFiles.isEmpty
-                  ? Center(
-                      child: SvgPicture.asset(
-                        'assets/cuate.svg',
-                        width: 295.27,
-                        height: 277.8,
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: uploadedFiles.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(uploadedFiles[index]),
-                          trailing: IconButton(
-                            icon: SvgPicture.asset('assets/remove.svg'),
-                            onPressed: () => _deleteFile(index),
-                          ),
-                        );
-                      },
-                    ),
-            ),
+  padding: EdgeInsets.only(top: 38),
+  child: uploadedFiles.isEmpty
+      ? Center(
+          child: SvgPicture.asset(
+            'assets/cuate.svg',
+            width: 295.27,
+            height: 277.8,
           ),
+        )
+      : Expanded(
+          child: ListView.builder(
+            itemCount: uploadedFiles.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(uploadedFiles[index]),
+                trailing: IconButton(
+                  icon: SvgPicture.asset('assets/remove.svg'),
+                  onPressed: () => _deleteFile(index),
+                ),
+              );
+            },
+          ),
+        ),
+),
+
           const SizedBox(height: 34.2),
           Container(
             decoration: BoxDecoration(
@@ -265,12 +299,18 @@ Future<void> _pickFile() async {
                 if (uploadedFiles.isNotEmpty) {
                   String fileName = uploadedFiles.first;
                   await uploadFile(fileName, fileName);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SetupComplete()),
-                  );
+                  // Navigator.pushReplacement(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => const SetupComplete()),
+                  // );
                 } else {
                   print('No file selected for upload.');
+                  ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Upload file first"),
+              backgroundColor: Colors.red,
+            ),
+          );
                 }
               },
               child: Text(
