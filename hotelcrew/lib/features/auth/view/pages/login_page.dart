@@ -10,7 +10,6 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:developer';
 
-
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -21,14 +20,14 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   bool checkBoxValue = false;
   final emailController = TextEditingController(text: "");
-final passwordController = TextEditingController(text: "");
+  final passwordController = TextEditingController(text: "");
   final authViewModel = AuthViewModel();
   bool validEmail = true;
   bool _obscurePassword = true;
   bool _isLoading = false; // Track loading state
   bool _isInvalidCredentials = false; // Track invalid credentials state
   int login = 0;
-String p = "";
+  String p = "";
 
   @override
   void initState() {
@@ -36,7 +35,6 @@ String p = "";
     emailController.addListener(() {
       setState(() {
         validEmail = EmailValidator.validate(emailController.text);
-        // Reset invalid credentials when the email is changed
         _isInvalidCredentials = false;
       });
     });
@@ -51,239 +49,195 @@ String p = "";
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final padding = screenWidth * 0.05;
+
     return Padding(
       padding: const EdgeInsets.all(0),
       child: Scaffold(
         backgroundColor: Colors.white,
         body: Padding(
-          padding: const EdgeInsets.only(top: 20),
-          child: SingleChildScrollView(
-            child: Container(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 328,
-                    height: 63,
-                    margin: const EdgeInsets.only(top: 20),
-                    child: Text(
-                      'Welcome Back to HotelCrew!',
-                      style: GoogleFonts.montserrat(
-                        textStyle: const TextStyle(
-                          color: Color(0xFF121212),
-                          fontWeight: FontWeight.w700,
-                          fontSize: 24,
-                          height: 1.3,
+          padding: EdgeInsets.only(top: padding),
+          child: SafeArea(
+            top: true,
+            child: SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: padding),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: screenWidth * 0.9,
+                      child: Text(
+                        'Welcome Back to HotelCrew!',
+                        style: GoogleFonts.montserrat(
+                          textStyle: TextStyle(
+                            color: Color(0xFF121212),
+                            fontWeight: FontWeight.w700,
+                            fontSize: screenWidth * 0.06,
+                            height: 1.3,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 42,
-                    width: 328,
-                    child: Text(
-                      'Your personalized platform for managing hotel operations with ease.',
-                      style: GoogleFonts.montserrat(
-                        textStyle: const TextStyle(
-                          color: Color(0xFF4D5962),
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          height: 1.5,
+                    SizedBox(
+                      height: screenWidth * 0.1,
+                      width: screenWidth * 1.2,
+                      child: Text(
+                        'Your personalized platform for managing hotel operations with ease.',
+                        style: GoogleFonts.montserrat(
+                          textStyle: TextStyle(
+                            color: Color(0xFF4D5962),
+                            fontWeight: FontWeight.w600,
+                            fontSize: screenWidth * 0.035,
+                            height: 1.5,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 29.26),
-                  Container(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 52.73, right: 69.42),
+                    SizedBox(height: screenWidth * 0.07),
+                    Center(
                       child: SvgPicture.asset(
-                        'assets/login.svg', // Ensure the path is correct
-                        height: 205.85,
-                        width: 202.05,
+                        'assets/login.svg',
+                        height: screenWidth * 0.6,
+                        width: screenWidth * 0.6,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 30.69),
-                  Container(
-                    child: Form(
-                      autovalidateMode: AutovalidateMode.always,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 8, bottom: 22),
-                        child: TextFormField(
-                          controller: emailController,
-                          maxLength: 320,
-                          style: const TextStyle(
-                          fontSize: 20,
-                          color: Color(0xFF5B6C78),
+                    SizedBox(height: screenWidth * 0.08),
+                    Container(
+                      width: screenWidth * 0.9,
+                      child: Form(
+                        autovalidateMode: AutovalidateMode.always,
+                        child: Padding(
+                          padding: EdgeInsets.only(top: padding, bottom: padding),
+                          child: TextFormField(
+                            controller: emailController,
+                            maxLength: 320,
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.05,
+                              color: Color(0xFF5B6C78),
+                            ),
+                            validator: (value) => EmailValidator.validate(value ?? '') ? null : "Enter a valid email.",
+                            decoration: InputDecoration(
+                              labelText: 'Email',
+                              counterText: "",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              errorBorder: validEmail
+                                  ? OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.red, width: 1.0),
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    )
+                                  : null,
+                              suffixIcon: validEmail ? null : Icon(Icons.error, color: Color(0xFFC80D0D)),
+                            ),
+                          ),
                         ),
-                          validator: (value) {
-                            if (EmailValidator.validate(value ?? '')) {
-                              return null;
-                            } else {
-                              return "Enter a valid email.";
-                            }
+                      ),
+                    ),
+                    Container(
+                      width: screenWidth* 0.9,
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: padding),
+                        child: TextFormField(
+                          onChanged: (newValue) {
+                            setState(() {
+                              p = newValue;
+                            });
                           },
+                          controller: passwordController,
+                          validator: (value) => _isInvalidCredentials ? "Invalid Credentials" : null,
                           decoration: InputDecoration(
-                            labelText: 'Email',
-                            counterText: "",
+                            labelText: 'Password',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
                             ),
-                            errorBorder: validEmail
-                                ? OutlineInputBorder(
-                                    borderSide: const BorderSide(color: Colors.red, width: 1.0),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  )
-                                : null,
-                            suffixIcon: validEmail
-                                ? null
-                                : const Icon(
-                                    Icons.error,
-                                    color: Color(0xFFC80D0D),
-                                  ),
+                            suffixIcon: IconButton(
+                              icon: _obscurePassword
+                                  ? SvgPicture.asset('assets/nopassword.svg')
+                                  : SvgPicture.asset('assets/passwordvisible.svg'),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                            ),
                           ),
+                          obscureText: _obscurePassword,
+                          obscuringCharacter: '●',
+                          style: TextStyle(fontSize: screenWidth * 0.05, color: Color(0xFF5B6C78)),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Container(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 4, bottom: 22),
-                      child: TextFormField(
-                         onChanged: (newValue) {
-                                        setState(() {
-                                          p = newValue;
-                                        });
-                                      },
-                        controller: passwordController,
-                        validator: (value) {
-                          if (_isInvalidCredentials) {
-                            return "Invalid Credentials"; 
-                          }
-                          return null; // No error
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          suffixIcon: IconButton(
-                            icon: _obscurePassword
-                                ? SvgPicture.asset('assets/nopassword.svg')
-                                : SvgPicture.asset('assets/passwordvisible.svg'),
-                            onPressed: () {
-                              setState(() {
-                                _obscurePassword = !_obscurePassword;
-                              });
-                            },
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        InkWell(
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Resetpass())),
+                          child: Text(
+                            'Forgot Password?',
+                            style: GoogleFonts.poppins(
+                              textStyle: TextStyle(
+                                color: Color(0xFF4D5962),
+                                fontWeight: FontWeight.w400,
+                                fontSize: screenWidth * 0.035,
+                                height: 1.5,
+                              ),
+                            ),
                           ),
                         ),
-                        obscureText: _obscurePassword,
-                        obscuringCharacter: '●',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          color: Color(0xFF5B6C78),
-                        ),
-                      ),
+                        Row(
+  children: [
+    Container(
+      child: CheckboxTheme(
+        data: CheckboxThemeData(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+          side: const BorderSide(width: 0, color: Colors.transparent), // Removes outline
+        ),
+        child: Checkbox(
+          checkColor: Colors.white, // Color of the check mark
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+            side: const BorderSide(color: Colors.transparent),
+          ),
+          value: checkBoxValue,
+          splashRadius: 0,
+          fillColor: MaterialStateProperty.resolveWith<Color>((states) {
+            if (states.contains(MaterialState.selected)) {
+              return const Color(0xFF5662AC); // Color when the checkbox is checked
+            }
+            return const Color(0xFFC6D6DB); // Color when unchecked
+          }),
+          onChanged: (newValue) {
+            setState(() {
+              checkBoxValue = newValue ?? false;
+            });
+          },
+        ),
+      ),
+    ),
+    Text(
+      'Remember Me',
+      style: GoogleFonts.poppins(
+        textStyle: TextStyle(
+          color: Color(0xFF4D5962),
+          fontWeight: FontWeight.w400,
+          fontSize: screenWidth * 0.035,
+          height: 1.5,
+        ),
+      ),
+    ),
+  ],
+)
+
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => Resetpass(),
-  ),
-);
-
-                        },
-                        child: Text(
-                          'Forgot Password?',
-                          style: GoogleFonts.poppins(
-                            textStyle: const TextStyle(
-                              color: Color(0xFF4D5962),
-                              fontWeight: FontWeight.w400,
-                              fontSize: 14,
-                              height: 1.5,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 21,
-                        width: 128,
-                        child: Row(
-                          children: [
-                            Container(
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 7),
-                                child: SizedBox(
-                                  height: 18,
-                                  width: 18,
-                                  child: CheckboxTheme(
-                                    data: CheckboxThemeData(
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
-                                      side: const BorderSide(width: 0, color: Colors.transparent),  // Removes outline
-                                    ),
-                                    child: Checkbox(
-                                      checkColor: Colors.white, // Color of the check mark
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(4),
-                                        side: const BorderSide(color: Colors.transparent),
-                                      ),
-                                      value: checkBoxValue,
-                                      splashRadius: 0,
-                                      fillColor: MaterialStateProperty.resolveWith<Color>((states) {
-                                        if (states.contains(MaterialState.selected)) {
-                                          return const Color(0xFF5662AC); // Color when the checkbox is checked
-                                        }
-                                        return const Color(0xFFC6D6DB); // Color when unchecked
-                                      }),
-                                      onChanged: (newValue) {
-                                        setState(() {
-                                          checkBoxValue = newValue ?? false;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 21,
-                              width: 103,
-                              child: Text(
-                                'Remember Me',
-                                style: GoogleFonts.poppins(
-                                  textStyle: const TextStyle(
-                                    color: Color(0xFF4D5962),
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 13.6,
-                                    height: 1.5,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 36),
-                  SizedBox(
-                    height: 40,
-                    width: 328,
-                    child: ElevatedButton(
-                    
-
-onPressed: _isLoading || emailController.text.isEmpty || p.isEmpty
+                    SizedBox(height: screenWidth * 0.1),
+                    SizedBox(
+                      width: screenWidth,
+                      child: ElevatedButton(
+                        onPressed: _isLoading || emailController.text.isEmpty || p.isEmpty
     ? null // Disable button while loading
     : () async {
         setState(() {
@@ -427,70 +381,62 @@ onPressed: _isLoading || emailController.text.isEmpty || p.isEmpty
         }
       },
 
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF5662AC),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF5662AC),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         ),
+                        child: _isLoading
+                            ? SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(color: Color(0xFFFAFAFA)),
+                              )
+                            : Text(
+                                'Log In',
+                                style: TextStyle(fontSize: screenWidth * 0.04, fontWeight: FontWeight.w600, color: Colors.white),
+                              ),
                       ),
-                      child: _isLoading // Conditional loading indicator
-                          ? SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                color: Color(0xFFFAFAFA),
-                              ),
-                            )
-                          : const Text(
-                              'Log In',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
                     ),
-                  ),
-                  const SizedBox(height: 0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Not a member?",
-                        style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            color: Color(0xFF4D5962),
-                            fontWeight: FontWeight.w400,
-                            fontSize: 12,
-                            height: 1.5,
-                          ),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => Register(),
-  ),
-);
- // Adjust your route here
-                        },
-                        child: Text(
-                          "Sign Up",
-                          style: GoogleFonts.poppins(
-                            textStyle: const TextStyle(
-                              color: const Color(0xFF5662AC),
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                              height: 1.3,
+                    Container(
+                
+                      
+                      child: Row(
+                        
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Not a member?",
+                            style: GoogleFonts.poppins(
+                              textStyle: TextStyle(
+                                color: Color(0xFF4D5962),
+                                fontWeight: FontWeight.w400,
+                                fontSize: screenWidth * 0.03,
+                                height: 1.5,
+                              ),
                             ),
                           ),
-                        ),
+                          Container(
+                            height: screenWidth * 0.09,
+                            child: TextButton(
+                              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Register())),
+                              child: Text(
+                                "Sign Up",
+                                style: GoogleFonts.poppins(
+                                  textStyle: TextStyle(
+                                    color: Color(0xFF5662AC),
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: screenWidth * 0.035,
+                                    height: 1.3,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
