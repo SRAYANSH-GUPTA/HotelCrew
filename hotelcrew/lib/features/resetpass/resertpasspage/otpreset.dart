@@ -313,10 +313,10 @@ class _OtpresetState extends State<Otpreset> {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Row(
+                        Row(mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Padding(
-                              padding: EdgeInsets.only(left: screenWidth * 0.14),
+                              padding: EdgeInsets.only(left: 0),
                               child: Text(
                                 'Remember Password?',
                                 style: GoogleFonts.poppins(

@@ -253,7 +253,7 @@ class _LoginPageState extends State<LoginPage> {
           );
 
           // Only if login is successful (checking for valid response)
-          if (loginResponse.role != "error") {
+          if (loginResponse.role != "error" && loginResponse.userData.fullName.isNotEmpty) {
             print("########################");
             print("Login successful!");
             print("User Full Name: ${loginResponse.userData.fullName ?? "Not available"}");
@@ -315,7 +315,13 @@ class _LoginPageState extends State<LoginPage> {
               context,
               MaterialPageRoute(builder: (context) => const Hoteldetailspage1()),
             );
-          } else {
+          } 
+          else if(loginResponse == "Server Error"){
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(loginResponse),
+        ));
+      }
+          else {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: const Column(
                 children: [
@@ -329,6 +335,15 @@ class _LoginPageState extends State<LoginPage> {
         } catch (e) {
           print("###################");
           print("Login failed: $e");
+           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: const Column(
+                children: [
+                  Text('Login Unsuccessful'),
+                  Text(''),
+                ],
+              ),
+              duration: const Duration(seconds: 2),
+            ));
           emailController.clear();
           passwordController.clear();
 
@@ -340,6 +355,7 @@ class _LoginPageState extends State<LoginPage> {
           if (e is DioError) {
             // Handle DioError specifically
             String? errorMessage = e.message;
+            print("**********");
 
             if (errorMessage != null) {
               if (errorMessage.contains("Connection timed out")) {

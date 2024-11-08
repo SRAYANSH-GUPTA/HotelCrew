@@ -21,7 +21,7 @@ class AuthViewModel {
     ));
   }
 
-  Future<LoginResponse> loginUser(String email, String password) async {
+  Future<dynamic> loginUser(String email, String password) async {
     try {
       final response = await _dio.post(
         'https://hotelcrew-1.onrender.com/api/auth/login/',
@@ -29,12 +29,21 @@ class AuthViewModel {
           "email": email,
           "password": password,
         },
+        options: Options(
+        validateStatus: (status) => status! < 501, // Treats 500+ codes as errors
+      ),
       );
 
       if (response.statusCode == 200) {
         // Parsing the JSON response to LoginResponse model for success response
         return LoginResponse.fromJson(response.data);
-      } else {
+      }
+      else if(response.statusCode == 500)
+      {
+        print("Server Error");
+        return "Server Error";
+      }
+       else {
         // Handle unexpected status codes
         return LoginResponse(
           accessToken: "",

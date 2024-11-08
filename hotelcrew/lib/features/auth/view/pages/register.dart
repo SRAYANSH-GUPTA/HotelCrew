@@ -6,7 +6,7 @@ import 'otpview.dart';
 import '../../view/pages/login_page.dart';
 import '../../models/register.dart';
 import '../../auth_view_model/registerviewmodel.dart';
-
+import 'package:el_tooltip/el_tooltip.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -256,40 +256,43 @@ bool isPasswordValid(String password, String username, String email) {
                       children: [
                        Container(padding: EdgeInsets.only(top: 0),
   
-  child: Padding(
-    padding: EdgeInsets.only(top: 0,
-      right: screenWidth * 0.02,
-    ),
-    child: Container(
-      margin: EdgeInsets.only(top: 0), // Adjust top margin here
-      child: CheckboxTheme(
-        data: CheckboxThemeData(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(0),
+  child: Center(
+    child: Padding(
+      padding: EdgeInsets.only(top: 0,
+        // right: screenWidth * 0.02,
+        
+      ),
+      child: Container(
+        margin: EdgeInsets.only(top: 0), // Adjust top margin here
+        child: CheckboxTheme(
+          data: CheckboxThemeData(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(0),
+            ),
+            side: const BorderSide(
+              width: 0,
+              color: Colors.transparent,
+            ),
           ),
-          side: const BorderSide(
-            width: 0,
-            color: Colors.transparent,
+          child: Checkbox(
+            checkColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
+            value: checkBoxValue,
+            splashRadius: 0,
+            fillColor: MaterialStateProperty.resolveWith<Color>((states) {
+              if (states.contains(MaterialState.selected)) {
+                return const Color(0xFF5662AC);
+              }
+              return const Color(0xFFC6D6DB);
+            }),
+            onChanged: (newValue) {
+              setState(() {
+                checkBoxValue = newValue ?? false;
+              });
+            },
           ),
-        ),
-        child: Checkbox(
-          checkColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
-          ),
-          value: checkBoxValue,
-          splashRadius: 0,
-          fillColor: MaterialStateProperty.resolveWith<Color>((states) {
-            if (states.contains(MaterialState.selected)) {
-              return const Color(0xFF5662AC);
-            }
-            return const Color(0xFFC6D6DB);
-          }),
-          onChanged: (newValue) {
-            setState(() {
-              checkBoxValue = newValue ?? false;
-            });
-          },
         ),
       ),
     ),
@@ -378,7 +381,7 @@ bool isPasswordValid(String password, String username, String email) {
       final response = await dioClient.registerUser(registrationRequest);
       setState(() => _isLoading = false);
 
-      if (response != null) {
+      if (response != null && response is UserRegistrationResponse) {
         if (response.message == 'OTP sent successfully') {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(response.message),
@@ -395,21 +398,27 @@ bool isPasswordValid(String password, String username, String email) {
             ),
           );
         } 
-      } else {
+      } else if(response == "Server Error"){
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Error: User already exists or another issue'),
+          content: Text(response),
         ));
       }
+      else{
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(response ?? "Unexpected Error"),
+        ));
+      }
+      
     } on ApiError catch (e) {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("User Already Exist or Invalid Email"),
+        content: Text("Unexpected error"),
         duration: const Duration(seconds: 2),
       ));
     } catch (e) {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('An unexpected error occurred. Please try again.'),
+        content: Text('Server Error or User Already Exist'),
       ));
     }
   } else {

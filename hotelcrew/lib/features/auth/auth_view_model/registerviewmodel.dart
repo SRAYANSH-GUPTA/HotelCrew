@@ -47,20 +47,33 @@ class DioClient {
     ));
   }
 
-  Future<UserRegistrationResponse?> registerUser(UserRegistrationRequest user) async {
+  Future<dynamic> registerUser(UserRegistrationRequest user) async {
     try {
-      final response = await dio.post(
-        'https://hotelcrew-1.onrender.com/api/auth/registrationOTP/',
-        data: json.encode(user.toJson()),
-      );
-
+    final response = await dio.post(
+      'https://hotelcrew-1.onrender.com/api/auth/registrationOTP/',
+      data: json.encode(user.toJson()),
+      options: Options(
+        validateStatus: (status) => status! < 501, // Treats 500+ codes as errors
+      ),
+    );
+  
       if (response.statusCode == 200) {
         return UserRegistrationResponse.fromJson(response.data);
-      } else {
+      }
+      else if(response.statusCode == 500)
+      {
+        print("Server Error");
+        return "Server Error";
+      }
+       else {
         print(response.statusCode);
+        return "User Already Registered";
       }
     } on DioException catch (e) {
       // Handle Dio specific errors
+      print("############");
+      print(e.error);
+      return e;
       throw ApiError('An unexpected error occurred: ${e.message}');
     }
   }

@@ -16,8 +16,8 @@ class Staffdetails extends StatefulWidget {
 
 class _StaffdetailsState extends State<Staffdetails> {
   List<String> uploadedFiles = []; // List to store uploaded file names
- String? filePath = "";
- String fileName = "";
+
+bool uploadsuccess = false;
 Future<void> _pickFile() async {
   FilePickerResult? result = await FilePicker.platform.pickFiles(
     type: FileType.custom,
@@ -25,18 +25,17 @@ Future<void> _pickFile() async {
   );
 
   if (result != null && result.files.isNotEmpty) {
-    filePath = result.files.single.path;
-    fileName = result.files.single.name;
-
+     String? filePath = result.files.single.path;
+    String ?fileName = result.files.single.name;
     if (filePath != null) {
-      log('File path selected: $filePath');
-      log('File name selected: $fileName');
+      print('File path selected: $filePath');
+      print('File name selected: $fileName');
 
       setState(() {
-        uploadedFiles.add(fileName); // Store file name in the list
+        uploadedFiles.add(result.files.single.name); // Store file name in the list
       });
 
-      // await uploadFile(filePath, fileName);
+      await uploadFile(filePath, fileName);
     } else {
       print('Error: File path is null');
     }
@@ -44,6 +43,7 @@ Future<void> _pickFile() async {
     print('No file selected');
   }
 }
+
 void clear() async
 {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -76,14 +76,16 @@ void clear() async
         print('Error: File does not exist at path: $filePath');
         return;
       }
-
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+  final access = prefs.getString('access_token') ?? "";
       Dio dio = Dio();
       dio.options.headers = {
         'Content-Type': 'multipart/form-data',
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzMzNTEzNjI4LCJpYXQiOjE3MzA5MjE2MjgsImp0aSI6Ijk4YjNlOWIwNjAwYzQzZDNiMWMyOTVkOGFjYzAyMGVmIiwidXNlcl9pZCI6NX0.9u5z8h2ilJgUs1HWoyyFwf5Z5f77xSmmdetQFfiGHTo', // Replace with actual token
+        'Authorization': 'Bearer ' + access, // Replace with actual token
       };
+      print("here starts");
       dio.options.validateStatus = (status) => true; // Allows all status codes for debugging
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+      // SharedPreferences prefs = await SharedPreferences.getInstance();
       print("##########");
       print(prefs.getString('userid'));
       FormData formData = FormData.fromMap({
@@ -92,7 +94,7 @@ void clear() async
         'legal_business_name': prefs.getString('legal_business_name'),
         'year_established': prefs.getString('year_established'),
         'license_registration_numbers': prefs.getString('license_number'),
-        'complete_address': prefs.getString('address'),
+        'complete_address': "fbjhsebjh",
         'main_phone_number': prefs.getString('primary_contact'),
         'emergency_phone_number': prefs.getString('emergency_contact'),
         'email_address': prefs.getString('email'),
@@ -124,6 +126,9 @@ void clear() async
               backgroundColor: Colors.green,
             ),
           );
+          setState(() {
+            uploadsuccess = true;
+          });
           clear();
            Navigator.pushReplacement(
             context,
@@ -150,7 +155,19 @@ void clear() async
             ),
           );
          
-      }else {
+      }
+       else if (response.statusCode == 500) {
+        print('Unauthorized: ${response.data}');
+        log('Response data for 500 error: ${response.data}');
+         ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Server Error"),
+              backgroundColor: Colors.red,
+            ),
+          );
+         
+      }
+      else {
         print('Upload failed with status code: ${response.statusCode}');
         log('Error data: ${response.data}');
       }
@@ -246,24 +263,34 @@ void clear() async
             
           ),
           Padding(
-  padding: EdgeInsets.only(top: 38),
+  padding: EdgeInsets.only(top: 0),
   child: uploadedFiles.isEmpty
-      ? Center(
-          child: SvgPicture.asset(
-            'assets/cuate.svg',
-            width: screenWidth * 0.815,
-            height: screenWidth * 0.771,
+      ? Padding(
+         padding: EdgeInsets.only(top: 38),
+        child: Center(
+            child: SvgPicture.asset(
+              'assets/cuate.svg',
+              width: screenWidth * 0.815,
+              height: screenWidth * 0.771,
+            ),
           ),
-        )
-      : Expanded(
+      )
+      : Container(
+      width: screenWidth,
+            height: screenWidth * 0.777,
           child: ListView.builder(
-            itemCount: uploadedFiles.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(uploadedFiles[index]),
-                trailing: IconButton(
-                  icon: SvgPicture.asset('assets/remove.svg'),
-                  onPressed: () => _deleteFile(index),
+                    itemCount: uploadedFiles.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        leading: SvgPicture.asset(
+              'assets/tick.svg',
+              width: 20,
+              height: 20,
+            ),
+                        title: Text(uploadedFiles[index]),
+                        trailing: IconButton(
+                          icon: SvgPicture.asset('assets/remove.svg'),
+                          onPressed: () => _deleteFile(index), 
                 ),
               );
             },
@@ -304,12 +331,20 @@ void clear() async
             child: ElevatedButton(
               onPressed: () async {
                 if (uploadedFiles.isNotEmpty) {
-                  String fileName = uploadedFiles.first;
-                  await uploadFile(fileName, fileName);
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(builder: (context) => const SetupComplete()),
-                  // );
+                  if(uploadsuccess){
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SetupComplete()),
+                  );}
+                  else
+                  {
+                    ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Changes Not Done"),
+              backgroundColor: Colors.red,
+            ),
+          );
+                  }
                 } else {
                   print('No file selected for upload.');
                   ScaffoldMessenger.of(context).showSnackBar(

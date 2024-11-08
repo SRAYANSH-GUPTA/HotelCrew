@@ -91,16 +91,18 @@ class _createpwdState extends State<createpwd> {
   }
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView( // Allows scrolling when content is larger than the screen
         child: Container(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(screenWidth * 0.044),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 328,
+                width: screenWidth * 0.9,
                 height: 32,
                 margin: const EdgeInsets.only(top: 58),
                 child: Text(
@@ -117,7 +119,7 @@ class _createpwdState extends State<createpwd> {
               ),
               Container(
                 height: 42,
-                width: 328,
+                width: screenWidth * 0.9,
                 child: Text(
                   'Please set a new password for your HotelCrew account.',
                   style: GoogleFonts.montserrat(
@@ -133,7 +135,7 @@ class _createpwdState extends State<createpwd> {
               if(!isSvgVisible)
               SizedBox(height: 26),
               Padding(
-                padding: EdgeInsets.only(left:34,bottom: 36.42),
+                padding: EdgeInsets.only(left:screenWidth * 0.0944,bottom: 36.42),
                 child: SvgPicture.asset(
                   'assets/createpwd.svg', // Ensure the path is correct
                   height: svgheight,
@@ -189,7 +191,7 @@ class _createpwdState extends State<createpwd> {
               if(passwordFocusNode.hasFocus)
               PasswordStrengthIndicator(
                 password: password.text,
-  width: 150, // Change the width of the strength bar
+  width: screenWidth*0.4167, // Change the width of the strength bar
   thickness: 3, // Change the thickness of the strength bar
   backgroundColor: Color(0xFFC6D6DB), // Change the background color of the strength bar
   radius: 8, // Change the radius of the strength bar
@@ -263,7 +265,7 @@ class _createpwdState extends State<createpwd> {
               if(passwordFocusNode.hasFocus || confirmFocusNode.hasFocus)
               SizedBox(
                     height: 42,
-                    width: 328,
+                    width: screenWidth* 0.9,
                     child: Text(
                       'Use 8-25 characters with at least one uppercase letter, number, and special character.',
                       style: GoogleFonts.montserrat(
@@ -279,7 +281,7 @@ class _createpwdState extends State<createpwd> {
                   SizedBox(height: 20,), // Space between the text fields
               SizedBox(
                 height: 40,
-                width: 328,
+                width: screenWidth*0.9,
                 child: ElevatedButton(
                   onPressed: isLoading
     ? null

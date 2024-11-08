@@ -6,15 +6,20 @@ class ForgetPasswordViewModel {
 
   Future<dynamic> sendForgetPasswordRequest(String email) async {
     final requestModel = ForgetPasswordRequest(email: email);
-
-    try {
-      final response = await _dio.post(
-        'https://hotelcrew-1.onrender.com/api/auth/forget-password/',
-        options: Options(headers: {
+try {
+    final response = await _dio.post(
+      'https://hotelcrew-1.onrender.com/api/auth/forget-password/',
+      options: Options(
+        headers: {
           'Content-Type': 'application/json',
-        }),
-        data: requestModel.toJson(),
-      );
+        },
+        validateStatus: (status) {
+          // Customize this to allow 400 and 500 as valid responses, or use the default behavior
+          return status! < 600; // Return true for any status code less than 600 (i.e., treat all responses as valid)
+        },
+      ),
+      data: requestModel.toJson(),
+    );
 
       // Check for successful response or handle errors
       if (response.statusCode == 200 && response.data.containsKey('message')) {
@@ -44,7 +49,7 @@ class ForgetPasswordViewModel {
 
       // Handle unexpected error responses here
       return ForgetPasswordErrorResponse(
-        errors: ["Network error: Server Error"],
+        errors: ["Hello"],
       );
     }
   }
