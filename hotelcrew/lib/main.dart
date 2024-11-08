@@ -61,12 +61,12 @@ class _MyHomePageState extends State<MyHomePage> {
           );
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Hoteldetailspage1()),
+        MaterialPageRoute(builder: (context) => LoginPage()),
       );
     } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Hoteldetailspage1()),
+        MaterialPageRoute(builder: (context) => Onboarding()),
       );
     }
   }

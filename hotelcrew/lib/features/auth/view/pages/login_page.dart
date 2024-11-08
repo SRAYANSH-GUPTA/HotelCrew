@@ -50,6 +50,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight= MediaQuery.of(context).size.height;
     final padding = screenWidth * 0.05;
 
     return Padding(
@@ -81,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(
-                      height: screenWidth * 0.1,
+                      height: screenHeight * 0.07,
                       width: screenWidth * 1.2,
                       child: Text(
                         'Your personalized platform for managing hotel operations with ease.',
@@ -89,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
                           textStyle: TextStyle(
                             color: Color(0xFF4D5962),
                             fontWeight: FontWeight.w600,
-                            fontSize: screenWidth * 0.035,
+                            fontSize: screenWidth * 0.033,
                             height: 1.5,
                           ),
                         ),

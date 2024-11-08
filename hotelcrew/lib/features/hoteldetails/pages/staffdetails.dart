@@ -16,7 +16,8 @@ class Staffdetails extends StatefulWidget {
 
 class _StaffdetailsState extends State<Staffdetails> {
   List<String> uploadedFiles = []; // List to store uploaded file names
-
+ String? filePath = "";
+ String fileName = "";
 Future<void> _pickFile() async {
   FilePickerResult? result = await FilePicker.platform.pickFiles(
     type: FileType.custom,
@@ -24,8 +25,8 @@ Future<void> _pickFile() async {
   );
 
   if (result != null && result.files.isNotEmpty) {
-    String? filePath = result.files.single.path;
-    String fileName = result.files.single.name;
+    filePath = result.files.single.path;
+    fileName = result.files.single.name;
 
     if (filePath != null) {
       log('File path selected: $filePath');
@@ -35,7 +36,7 @@ Future<void> _pickFile() async {
         uploadedFiles.add(fileName); // Store file name in the list
       });
 
-      await uploadFile(filePath, fileName);
+      // await uploadFile(filePath, fileName);
     } else {
       print('Error: File path is null');
     }
@@ -166,49 +167,55 @@ void clear() async
 
   @override
   Widget build(BuildContext context) {
+     double screenWidth = MediaQuery.of(context).size.width;
+     double screenHeight= MediaQuery.of(context).size.height;
     return Scaffold(
       body: Column(
         children: [
           Container(
             margin: const EdgeInsets.only(top: 44),
             height: 158,
-            width: 360,
+            width: screenWidth,
           
               
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  InkWell(
+                  Container(
+                      width: screenWidth * 0.2,
+                      margin: EdgeInsets.only(left: screenWidth * 0.0444),
+                      child: InkWell(
                     onTap: () => Navigator.pop(context),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 14, left: 16),
-                          child: Container(
-                            height: 16,
-                            width: 8,
-                            child: SvgPicture.asset('assets/backarrow.svg'),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 14),
-                          child: Text(
-                            'Back',
-                            style: GoogleFonts.montserrat(
-                              color: const Color(0xFF4D5962),
-                              fontWeight: FontWeight.w400,
-                              fontSize: 16,
+                        
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(top: 14),
+                            child: Container(
+                              height: 16,
+                              // width: screenWidth * 0.23,
+                              child: SvgPicture.asset('assets/backarrow.svg'),
                             ),
                           ),
-                        ),
-                      ],
+                          SizedBox(width: screenWidth * 0.023),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 14),
+                            child: Text(
+                              'Back',
+                              style: GoogleFonts.montserrat(
+                                color: const Color(0xFF4D5962),
+                                fontWeight: FontWeight.w400,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
                   Container(
-                    margin: const EdgeInsets.only(left: 16),
+                    margin: EdgeInsets.only(left: screenWidth * 0.044),
                     child: Text(
                       'Upload Staff Details',
                       style: GoogleFonts.montserrat(
@@ -219,12 +226,12 @@ void clear() async
                   ),
                   const SizedBox(height: 11),
                   Container(
-                    margin: const EdgeInsets.only(left: 16),
+                    margin: EdgeInsets.only(left: screenWidth * 0.044),
                     child: Text(
                       'Upload an Excel file with staff names, emails, and departments for easy team management.',
                       style: GoogleFonts.montserrat(
                         color: const Color(0xFF4D5962),
-                        fontSize: 14,
+                        fontSize: 12,
                       ),
                     ),
                   ),
@@ -232,7 +239,7 @@ void clear() async
                   Container(
                     color: const Color(0xFFC6D6DB),
                     height: 1,
-                    width: 360,
+                    width: screenWidth,
                   ),
                 ],
               ),
@@ -244,8 +251,8 @@ void clear() async
       ? Center(
           child: SvgPicture.asset(
             'assets/cuate.svg',
-            width: 295.27,
-            height: 277.8,
+            width: screenWidth * 0.815,
+            height: screenWidth * 0.771,
           ),
         )
       : Expanded(
@@ -270,14 +277,14 @@ void clear() async
               color: const Color(0xFFD2E0F3),
               borderRadius: BorderRadius.circular(8),
             ),
-            width: 134,
+            width: screenWidth * 0.37,
             height: 40,
             child: TextButton(
               onPressed: _pickFile,
               child: Row(
-                children: [
+                children: [Container(width: screenWidth * 0.038,),
                   SvgPicture.asset('assets/add.svg'),
-                  const SizedBox(width: 7),
+                  SizedBox(width: screenWidth * 0.02),
                   Text(
                     "Add a file",
                     style: GoogleFonts.montserrat(
@@ -292,7 +299,7 @@ void clear() async
           ),
           const SizedBox(height: 86),
           Container(
-            width:331,
+            width:screenWidth * 0.9,
             height:40,
             child: ElevatedButton(
               onPressed: () async {
