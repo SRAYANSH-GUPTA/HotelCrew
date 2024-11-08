@@ -42,25 +42,29 @@ class _ResetpassState extends State<Resetpass> {
 
   @override
   Widget build(BuildContext context) {
+    // Get screen width and height
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Container(
-          padding: EdgeInsets.only(top:20,left: 16,right:16),
+          padding: EdgeInsets.only(top: 20, left: 16, right: 16),
           child: Column(
-            
             children: [
+              // Title with responsive font size
               Container(
-                width: 328,
+                width: screenWidth * 0.9,
                 height: 32,
                 margin: const EdgeInsets.only(top: 58),
                 child: Text(
                   'Reset Your Password',
                   style: GoogleFonts.montserrat(
-                    textStyle: const TextStyle(
-                      color: Color(0xFF121212),
+                    textStyle: TextStyle(
+                      color: const Color(0xFF121212),
                       fontWeight: FontWeight.w700,
-                      fontSize: 24,
+                      fontSize: screenWidth * 0.07, // Responsive font size
                       height: 1.3,
                     ),
                   ),
@@ -68,7 +72,7 @@ class _ResetpassState extends State<Resetpass> {
               ),
               Container(
                 height: 42,
-                width: 328,
+                width: screenWidth * 0.9,
                 child: Text(
                   'Enter your email address to receive a verification code.',
                   style: GoogleFonts.montserrat(
@@ -81,10 +85,9 @@ class _ResetpassState extends State<Resetpass> {
                   ),
                 ),
               ),
-             Container(
-  height: !emailFocusNode.hasFocus ? 85.72 : 0,
-),
-
+              Container(
+                height: !emailFocusNode.hasFocus ? 85.72 : 0,
+              ),
               Container(
                 child: SvgPicture.asset(
                   'assets/otpsentreset.svg',
@@ -94,11 +97,9 @@ class _ResetpassState extends State<Resetpass> {
                 ),
               ),
               Container(
-  height: !emailFocusNode.hasFocus ? 85.4 : 48,
-),
-
+                height: !emailFocusNode.hasFocus ? 85.4 : 48,
+              ),
               Container(
-               
                 child: Column(
                   children: [
                     Form(
@@ -113,67 +114,79 @@ class _ResetpassState extends State<Resetpass> {
                         decoration: InputDecoration(
                           counterText: "",
                           labelText: 'Email',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0),),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
                         ),
                       ),
                     ),
                     Container(
-  height: !emailFocusNode.hasFocus ? 48 : 137,
-),
-
+                      height: !emailFocusNode.hasFocus ? 48 : 137,
+                    ),
                     SizedBox(
                       height: 40,
-                      width: 328,
+                      width: screenWidth * 0.9,
                       child: ElevatedButton(
-                        onPressed: _isLoading ? null :() async {
-  if (EmailValidator.validate(resetpassemail.text)) {
-     setState(() {
-      _isLoading = true; // Start loading
-    });
-    final response = await viewModel.sendForgetPasswordRequest(resetpassemail.text);
-setState(() {
-      _isLoading = false; // Stop loading
-    });
-    if (response is ForgetPasswordSuccessResponse) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Password Reset Otp sent successfully.")),
-      );
-      Navigator.pushReplacement<void, void>(
-        context,
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => Otpreset(email: resetpassemail.text,),
-        ),
-      );
-    } else if (response is ForgetPasswordErrorResponse) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("User doesn't exist.")),
-      );
-    }
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Enter a valid email address.")),
-    );
-  }
-},
-
+                        onPressed: _isLoading
+                            ? null
+                            : () async {
+                                if (EmailValidator.validate(resetpassemail.text)) {
+                                  setState(() {
+                                    _isLoading = true; // Start loading
+                                  });
+                                  final response = await viewModel
+                                      .sendForgetPasswordRequest(
+                                          resetpassemail.text);
+                                  setState(() {
+                                    _isLoading = false; // Stop loading
+                                  });
+                                  if (response is ForgetPasswordSuccessResponse) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              "Password Reset Otp sent successfully.")),
+                                    );
+                                    Navigator.pushReplacement<void, void>(
+                                      context,
+                                      MaterialPageRoute<void>(
+                                        builder: (BuildContext context) =>
+                                            Otpreset(email: resetpassemail.text),
+                                      ),
+                                    );
+                                  } else if (response
+                                      is ForgetPasswordErrorResponse) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text("User doesn't exist.")),
+                                    );
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            "Enter a valid email address.")),
+                                  );
+                                }
+                              },
                         child: _isLoading
-    ? SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                color: Color(0xFFFAFAFA),
+                            ? SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  color: Color(0xFFFAFAFA),
+                                ),
+                              )
+                            : Text(
+                                'Send Verification Code',
+                                style: GoogleFonts.montserrat(
+                                  textStyle: const TextStyle(
+                                    color: Color(0xFFFAFAFA),
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    height: 1.5,
+                                  ),
+                                ),
                               ),
-                            ):Text(
-                          'Send Verification Code',
-                          style: GoogleFonts.montserrat(
-                            textStyle: const TextStyle(
-                              color: Color(0xFFFAFAFA),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              height: 1.5,
-                            ),
-                          ),
-                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFF47518C),
                           shape: RoundedRectangleBorder(
@@ -187,16 +200,14 @@ setState(() {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         InkWell(
-                          onTap: () {
-                      
-                          },
+                          onTap: () {},
                           child: Text(
                             'Remember Password?',
                             style: GoogleFonts.montserrat(
-                              textStyle: const TextStyle(
+                              textStyle: TextStyle(
                                 color: Color(0xFF4D5962),
                                 fontWeight: FontWeight.w400,
-                                fontSize: 12,
+                                fontSize: screenWidth * 0.03, // Responsive font size
                                 height: 1.5,
                               ),
                             ),
