@@ -26,16 +26,27 @@ class _RegisterState extends State<Register> {
   final emailController = TextEditingController();
   bool _isLoading = false;
   bool _isVisible = false;
-  
+  final FocusNode _focusNode = FocusNode();
+  bool _showTooltip = true;
+
 
   @override
   void initState() {
     super.initState();
+    _focusNode.addListener(() {
+      setState(() {
+        _showTooltip = _focusNode.hasFocus;
+        print("################");
+        print("Tooltip visibility: $_showTooltip");
+      });
+    });
     emailController.addListener(() {
       setState(() {
         validEmail = EmailValidator.validate(emailController.text);
+        print("email!!!!!!!!!!");
       });
     });
+    
   }
 void _showSnackbar(String message) {
   ScaffoldMessenger.of(context).showSnackBar(
@@ -70,6 +81,7 @@ bool isPasswordValid(String password, String username, String email) {
   void dispose() {
     emailController.dispose();
     password.dispose();
+    _focusNode.dispose();
     confirmpassword.dispose();
     username.dispose();
     super.dispose();
@@ -77,6 +89,18 @@ bool isPasswordValid(String password, String username, String email) {
 
   @override
   Widget build(BuildContext context) {
+    
+   const tooltipContent = Text(
+    'Hola Mundo!!!!!!!!!!!!!!!!!!!! This should show tooltip box',
+    style: TextStyle(color: Colors.black),
+    textAlign: TextAlign.center,
+  );
+
+  const tooltipIcon = Icon(
+    Icons.info,
+    color: Colors.white,
+  );
+
     double screenWidth = MediaQuery.of(context).size.width;
     double responsiveWidth = screenWidth * 0.9;
 
@@ -119,6 +143,8 @@ bool isPasswordValid(String password, String username, String email) {
                       ),
                     ),
                   ),
+                 
+
                   SizedBox(height: screenWidth * 0.07),
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: screenWidth * 0.02),
@@ -177,12 +203,19 @@ bool isPasswordValid(String password, String username, String email) {
                     ),
                   ),
                   SizedBox(height: screenWidth * 0.07),
+                
+                
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: screenWidth * 0.02),
                     child: SizedBox(
                       width: responsiveWidth,
-                      child: TextFormField(
+                      child:  ElTooltip(
+            position: ElTooltipPosition.bottomStart,
+            content: tooltipContent,
+            color: Color(0XFFEA4747),
+            child: TextFormField(
                         controller: password,
+                        focusNode: _focusNode,
                         maxLength: 25,
                         decoration: InputDecoration(
                           labelText: 'Password',
@@ -210,6 +243,9 @@ bool isPasswordValid(String password, String username, String email) {
                       ),
                     ),
                   ),
+                   if (_showTooltip)
+         
+          ),
                   SizedBox(height: screenWidth * 0.07),
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: screenWidth * 0.02),
