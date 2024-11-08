@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hotelcrew/features/auth/view/pages/login_page.dart';
+import 'package:hotelcrew/features/hoteldetails/pages/hoteldetailspage1.dart';
 import 'package:hotelcrew/features/resetpass/resertpasspage/otpreset.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -60,12 +61,12 @@ class _MyHomePageState extends State<MyHomePage> {
           );
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Otpreset(email: "sr.gupta621@gmail.com",)),
+        MaterialPageRoute(builder: (context) => Hoteldetailspage1()),
       );
     } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Otpreset(email: "sr.gupta621@gmail.com",)),
+        MaterialPageRoute(builder: (context) => Hoteldetailspage1()),
       );
     }
   }

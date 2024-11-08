@@ -104,15 +104,17 @@ class _PageOneState extends State<PageOne> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     return Padding(
-      padding: EdgeInsets.only(top: 24, left: 16, right: 16),
+      padding: EdgeInsets.only(top: 24, left: screenWidth * 0.045, right: screenWidth * 0.045),
       child: SingleChildScrollView(
         child: Column(
           children: [
             // Hotel Name TextFormField
             Container(
               height: 86,
-              width: 328,
+              width: screenWidth * 0.91,
               child: Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 22),
                 child: TextFormField(
@@ -162,7 +164,7 @@ class _PageOneState extends State<PageOne> {
             // Legal Business Name TextFormField
             Container(
               height: 86,
-              width: 328,
+              width: screenWidth * 0.9,
               child: Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 22),
                 child: TextFormField(
@@ -208,11 +210,11 @@ class _PageOneState extends State<PageOne> {
                 ),
               ),
             ),
-            SizedBox(height: 8),
+            SizedBox(height: screenWidth * 0.023),
             // Year Established TextFormField
             Container(
               height: 86,
-              width: 328,
+              width: screenWidth * 0.9,
               padding: const EdgeInsets.only(top: 8, bottom: 22),
               child: TextFormField(
                 controller: yearController,
@@ -257,7 +259,7 @@ class _PageOneState extends State<PageOne> {
             // License/Registration Number TextFormField
             Container(
               height: 86,
-              width: 328,
+              width: screenWidth * 0.9,
               padding: const EdgeInsets.only(top: 8, bottom: 22),
               child: TextFormField(
                 controller: licenseController,

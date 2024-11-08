@@ -85,18 +85,20 @@ class _PageTwoState extends State<PageTwo> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     return Padding(
-      padding: EdgeInsets.only(top: 24, left: 16, right: 16),
+      padding: EdgeInsets.only(top: 24, left: screenWidth * 0.045, right: screenWidth * 0.045),
       child: Container(
         height: 392,
-        width: 328,
+        width: screenWidth * 0.9,
         child: SingleChildScrollView(
           child: Column(
             children: [
               // Primary Contact Number
               Container(
                 height: 86,
-                width: 328,
+                width: screenWidth * 0.9,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8, bottom: 22),
                   child: TextFormField(
@@ -166,7 +168,7 @@ class _PageTwoState extends State<PageTwo> {
               // Emergency Contact Number
               Container(
                 height: 86,
-                width: 328,
+                width: screenWidth * 0.9,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8, bottom: 22),
                   child: TextFormField(
@@ -236,7 +238,7 @@ class _PageTwoState extends State<PageTwo> {
               // Email TextFormField
               Container(
                 height: 86,
-                width: 328,
+                width: screenWidth * 0.9,
                 padding: const EdgeInsets.only(top: 8),
                 child: Form(
                   autovalidateMode: AutovalidateMode.always,
@@ -259,7 +261,7 @@ class _PageTwoState extends State<PageTwo> {
               // Complete Address TextFormField
               Container(
                 height: 86,
-                width: 328,
+                width: screenWidth * 0.9,
                 padding: const EdgeInsets.only(top: 8, bottom: 22),
                 child: TextFormField(
                   controller: addressController,

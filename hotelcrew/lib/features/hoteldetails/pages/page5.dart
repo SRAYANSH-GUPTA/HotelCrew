@@ -89,18 +89,20 @@ void _loadSavedData() async {
 
   @override
   Widget build(BuildContext context) {
+     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     return Padding(
-      padding: EdgeInsets.only(top: 24, left: 16, right: 16),
+      padding: EdgeInsets.only(top: 24, left: screenWidth * 0.045, right: screenWidth * 0.045),
       child: Container(
         height: 392,
-        width: 328,
+        width: screenWidth * 0.9,
         child: SingleChildScrollView(
           child: Column(
             children: [
               // Primary Contact Number
               Container(
                 height: 86,
-                width: 328,
+                width: screenWidth * 0.9,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8, bottom: 22),
                   child: TextFormField(
@@ -179,7 +181,7 @@ void _loadSavedData() async {
               // Emergency Contact Number
               Container(
                 height: 86,
-                width: 328,
+                width: screenWidth * 0.9,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8, bottom: 22),
                   child: TextFormField(
@@ -258,7 +260,7 @@ void _loadSavedData() async {
               // Email TextFormField
               Container(
                 height: 86,
-                width: 328,
+                width: screenWidth * 0.9,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8, bottom: 22),
                   child: TextFormField(
@@ -340,7 +342,7 @@ void _loadSavedData() async {
                   // Dropdown for Availability
                   Container(
                     height: 86,
-                    width: 328,
+                    width: screenWidth * 0.9,
                     padding: const EdgeInsets.only(top: 8, bottom: 22),
                     child: DropdownButtonFormField<String>(
   value: _selectedAvailability,
@@ -383,7 +385,7 @@ void _loadSavedData() async {
                   if (_selectedAvailability == 'Available') // Only show if Available is selected
                     Container(
                       height: 86,
-                      width: 328,
+                      width: screenWidth * 0.9,
                       child: Padding(
                         padding: const EdgeInsets.only(top: 8, bottom: 22),
                         child: TextFormField(

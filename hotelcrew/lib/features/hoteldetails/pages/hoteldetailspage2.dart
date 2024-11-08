@@ -19,7 +19,7 @@ class _ProgressPageViewState extends State<ProgressPageView> {
   PageController _pageController = PageController();
   int _currentPage = 0;
   final int _totalPages = 6; // Total number of pages
-//final double appBarHeight = 141 + MediaQuery.of(context).padding.top;
+
   final List<Widget> _pages = [
     PageOne(),
     PageTwo(),
@@ -29,7 +29,6 @@ class _ProgressPageViewState extends State<ProgressPageView> {
     Document(),
   ];
 
-  // List of strings to display based on the page number
   final List<String> _hotelInfo = [
     'Basic Hotel Information',
     'Contact & Location',
@@ -37,7 +36,6 @@ class _ProgressPageViewState extends State<ProgressPageView> {
     'Operational Information',
     'Staff Management',
     'Documents Upload',
-
   ];
 
   @override
@@ -53,7 +51,6 @@ class _ProgressPageViewState extends State<ProgressPageView> {
         curve: Curves.easeIn,
       );
     } else {
-      // Handle finish action
       print("Finished");
     }
   }
@@ -65,140 +62,121 @@ class _ProgressPageViewState extends State<ProgressPageView> {
         curve: Curves.easeIn,
       );
     } else {
-      Navigator.pop(context); // Navigate back to the previous screen if on the first page
+      Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: PreferredSize(
-        
-  preferredSize: Size.fromHeight(158.0),
-  child: AppBar(
-    automaticallyImplyLeading: false,
-    flexibleSpace: Padding(
-      padding: const EdgeInsets.only(top: 44.0, bottom: 0),
-      child: Container(
-        width: double.infinity, // Occupy full width
-        height: 144,
-        child: Column(
-          
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(top: 10,left: 16,right: 0,bottom:16),
-                  child: Container(
-                    width: 288,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8), // Set the border radius
-                      color: Colors.grey[300], // Set the background color
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8), // Apply the same radius to the indicator
-                      child: LinearProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
-                        backgroundColor: Colors.transparent,
-                        value: (_currentPage + 1) / _totalPages,
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 25,
-                  height: 21,
-                  margin: const EdgeInsets.only(left: 10, right: 4,top: 0),
-                  child: Text(
-                    textAlign: TextAlign.left,
-                    '${_currentPage + 1}' + '/' + '${_totalPages}',
-                    style: GoogleFonts.montserrat(
-                      textStyle: const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        height: 1.3,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Container(
-          
-              margin: EdgeInsets.only(top: 20,left: 16),
-              height: 24,
-              width: 58,
-              child: Padding(
-                padding: EdgeInsets.only(left: 0),
-                child: InkWell(
-                        onTap: () {_goToPreviousPage();},
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 0, left: 0),
-                              child: Container(
-                                height: 16,
-                                width: 8,
-                                child: SvgPicture.asset('assets/backarrow.svg'),
-                              ),
+        preferredSize: Size.fromHeight(screenHeight * 0.2),
+        child: AppBar(
+          automaticallyImplyLeading: false,
+          flexibleSpace: Padding(
+            padding: EdgeInsets.only(top: screenHeight * 0.05),
+            child: Container(
+              width: double.infinity,
+              height: screenHeight * 0.18,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.05, vertical: screenHeight * 0.01),
+                        child: Container(
+                          width: screenWidth * 0.8,
+                          height: screenHeight * 0.01,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.grey[300],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: LinearProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+                              backgroundColor: Colors.transparent,
+                              value: (_currentPage + 1) / _totalPages,
                             ),
-                            const SizedBox(width: 8),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 0),
-                              child: Text(
-                                'Back',
-                                style: GoogleFonts.montserrat(
-                                  color: const Color(0xFF4D5962),
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 16,
-                                ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: screenWidth * 0.08,
+                        height: screenHeight * 0.03,
+                        child: Text(
+                          '${_currentPage + 1}' + '/' + '$_totalPages',
+                          style: GoogleFonts.montserrat(
+                            textStyle: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                              fontSize: screenHeight * 0.018,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: screenWidth * 0.05),
+                    child: InkWell(
+                      onTap: _goToPreviousPage,
+                      child: Container(
+                        width: screenWidth * 0.2,
+                        child: Row(
+                          children: [
+                            SvgPicture.asset(
+                              'assets/backarrow.svg',
+                              height: screenHeight * 0.02,
+                              width: screenWidth * 0.02,
+                            ),
+                            SizedBox(width: screenWidth * 0.02),
+                            Text(
+                              'Back',
+                              style: GoogleFonts.montserrat(
+                                color: const Color(0xFF4D5962),
+                                fontWeight: FontWeight.w400,
+                                fontSize: screenHeight * 0.02,
                               ),
                             ),
                           ],
                         ),
                       ),
-              ),
-            ),
-          
-            Padding(
-              padding: EdgeInsets.only(left: 16,right: 16,bottom: 10),
-              child: Container(
-                width: 328,
-                height: 32,
-                margin: const EdgeInsets.only(top: 24, bottom: 0),
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  _hotelInfo[_currentPage], // Your text goes here
-                  textAlign: TextAlign.left,
-                  style: GoogleFonts.montserrat(
-                    textStyle: const TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 24,
-                      height: 1.3,
                     ),
                   ),
-                ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                    child: Text(
+                      _hotelInfo[_currentPage],
+                      style: GoogleFonts.montserrat(
+                        textStyle: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w700,
+                          fontSize: screenHeight * 0.03,
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-           
-          ],
+          ),
         ),
       ),
-    ),
-  ),
-),
-
       body: Column(
-        children: [Container(
-          width: 360,
-          height: 1,
-          color: Color(0xFFC6D6DB),
-        ),
+        children: [
+          Container(
+            width: screenWidth,
+            height: screenHeight * 0.0015,
+            color: Color(0xFFC6D6DB),
+          ),
           Expanded(
             child: PageView.builder(
               controller: _pageController,
@@ -214,28 +192,24 @@ class _ProgressPageViewState extends State<ProgressPageView> {
             ),
           ),
           Container(
-            margin: EdgeInsets.only(bottom: 46),
-            height: 40,
-            width: 328,
+            margin: EdgeInsets.only(bottom: screenHeight * 0.06),
+            height: screenHeight * 0.06,
+            width: screenWidth * 0.9,
             child: ElevatedButton(
               onPressed: () {
-                if(_currentPage != _totalPages-1){_goToNextPage();}
-                else{
-      //             Navigator.push(
-      //   context,
-      //   MaterialPageRoute<void>(
-      //     builder: (BuildContext context) => SetupComplete(),
-      //   ),
-      // );
+                if (_currentPage != _totalPages - 1) {
+                  _goToNextPage();
+                } else {
+                  // Handle save action
                 }
               },
               child: Text(
                 _currentPage < _totalPages - 1 ? 'Next' : 'Save Information',
                 style: GoogleFonts.montserrat(
-                  textStyle: const TextStyle(
+                  textStyle: TextStyle(
                     color: Color(0xFFFAFAFA),
                     fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                    fontSize: screenHeight * 0.018,
                     height: 1.5,
                   ),
                 ),
