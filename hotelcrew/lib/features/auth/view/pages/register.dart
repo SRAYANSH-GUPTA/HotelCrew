@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:email_validator/email_validator.dart';
+import 'otpview.dart';
+import '../../view/pages/login_page.dart';
+import '../../models/register.dart';
+import '../../auth_view_model/registerviewmodel.dart';
+
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -21,6 +26,7 @@ class _RegisterState extends State<Register> {
   final emailController = TextEditingController();
   bool _isLoading = false;
   bool _isVisible = false;
+  
 
   @override
   void initState() {
@@ -31,6 +37,34 @@ class _RegisterState extends State<Register> {
       });
     });
   }
+void _showSnackbar(String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      duration: const Duration(seconds: 2),
+    ),
+  );
+}
+bool isPasswordValid(String password, String username, String email) {
+  // Check for at least 8 characters
+  if (password.length < 8) return false;
+  
+  // Check for at least one uppercase letter, one number, and one special character
+  if (!RegExp(r'[A-Z]').hasMatch(password)) return false;
+  if (!RegExp(r'[0-9]').hasMatch(password)) return false;
+  if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password)) return false;
+  
+  // Check if the password contains only digits (to prevent weak numeric passwords)
+  if (RegExp(r'^\d+$').hasMatch(password)) return false;
+  // Check if the password contains the username or email prefix
+  // The email prefix is taken up to the first '@'
+  
+  // List of common passwords to reject
+  const commonPasswords = [
+    'password', '12345678', 'qwerty', 'abc123', 'letmein', 'iloveyou'
+  ];
+  return !commonPasswords.contains(password.toLowerCase());
+}
 
   @override
   void dispose() {
@@ -281,8 +315,8 @@ class _RegisterState extends State<Register> {
                                 ' Terms and Conditions',
                                 style: GoogleFonts.montserrat(
                                   textStyle: TextStyle(
-                                    color: const Color(0xFF47518C),
-                                    fontWeight: FontWeight.w500,
+                                    color: const Color(0xFF5662AC),
+                                    fontWeight: FontWeight.w600,
                                     fontSize: screenWidth * 0.035,
                                   ),
                                 ),
@@ -310,9 +344,79 @@ class _RegisterState extends State<Register> {
                       width: responsiveWidth,
                       height: screenWidth * 0.12,
                       child: ElevatedButton(
-                        onPressed: () {
-                          // Registration logic
-                        },
+                        onPressed: () async {
+                          if (_isLoading) return;
+  if (!checkBoxValue) {
+    _showSnackbar('Accept Terms and Conditions');
+    return; // Exit if terms are not accepted
+  }
+  if (!password.text.isNotEmpty || !username.text.isNotEmpty || !emailController.text.isNotEmpty) {
+    _showSnackbar('Fill All the Fields First.');
+    return;
+  }
+  if (!isPasswordValid(password.text, username.text, emailController.text)) {
+    _showSnackbar('Password does not meet the requirements.');
+    setState(() {
+      _isVisible = true;
+    });
+    return;
+  }
+   // Prevent multiple taps
+  setState(() {
+    _isLoading = true; // Start loading
+    _isVisible = false; // Hide password requirements
+  });
+  if (password.text == confirmpassword.text) {
+    final registrationRequest = UserRegistrationRequest(
+      userName: username.text,
+      email: emailController.text,
+      password: password.text,
+      confirmPassword: confirmpassword.text,
+    );
+    final dioClient = DioClient();
+    try {
+      final response = await dioClient.registerUser(registrationRequest);
+      setState(() => _isLoading = false);
+
+      if (response != null) {
+        if (response.message == 'OTP sent successfully') {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(response.message),
+          ));
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Otpview(
+                email: emailController.text,
+                username: username.text,
+                password: password.text,
+                confirmpassword: confirmpassword.text,
+              ),
+            ),
+          );
+        } 
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Error: User already exists or another issue'),
+        ));
+      }
+    } on ApiError catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("User Already Exist or Invalid Email"),
+        duration: const Duration(seconds: 2),
+      ));
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('An unexpected error occurred. Please try again.'),
+      ));
+    }
+  } else {
+    setState(() => _isLoading = false);
+    _showSnackbar('Passwords do not match');
+  }
+},
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF47518C),
                           shape: RoundedRectangleBorder(
