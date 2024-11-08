@@ -157,7 +157,7 @@ class _ResetpassState extends State<Resetpass> {
                                       is ForgetPasswordErrorResponse) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                          content: Text("User doesn't exist.")),
+                                          content: Text(response.errors.join())),
                                     );
                                   }
                                 } else {

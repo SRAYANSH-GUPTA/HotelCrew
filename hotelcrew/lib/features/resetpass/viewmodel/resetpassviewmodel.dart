@@ -4,23 +4,6 @@ import '../models/resetpassemailmode.dart';
 class ForgetPasswordViewModel {
   final Dio _dio = Dio();
 
-  ForgetPasswordViewModel() {
-    _dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) {
-        print("Requesting: ${options.uri}");
-        return handler.next(options);
-      },
-      onResponse: (response, handler) {
-        print("Response: ${response.data}");
-        return handler.next(response);
-      },
-      onError: (DioError e, handler) {
-        print("Error: ${e.response?.data}");
-        return handler.next(e);
-      },
-    ));
-  }
-
   Future<dynamic> sendForgetPasswordRequest(String email) async {
     final requestModel = ForgetPasswordRequest(email: email);
 
@@ -33,25 +16,36 @@ class ForgetPasswordViewModel {
         data: requestModel.toJson(),
       );
 
+      // Check for successful response or handle errors
       if (response.statusCode == 200 && response.data.containsKey('message')) {
-      
         print('###########');
         print(ForgetPasswordSuccessResponse.fromJson(response.data));
         return ForgetPasswordSuccessResponse.fromJson(response.data);
-      } else if (response.data.containsKey('error')) {
-        
+      } else if (response.statusCode == 400) {
+        // Handle 400 or 500 errors gracefully here if needed
+        print("Handled 400 or 500 error: ${response.statusCode}");
+        return ForgetPasswordErrorResponse(errors: ["Error: User Does Not Exist"]);
+      }
+      else if (response.statusCode == 500) {
+        // Handle 400 or 500 errors gracefully here if needed
+        print("Handled 500 error: ${response.statusCode}");
+        return ForgetPasswordErrorResponse(errors: ["Error: Server Error"]);
+      }
+       else if (response.data.containsKey('error')) {
+        print("###############");
         return ForgetPasswordErrorResponse.fromJson(response.data);
       } else {
-      
-        return ForgetPasswordErrorResponse(errors: ["Unexpected response"]);
+        return ForgetPasswordErrorResponse(errors: ["User does not exist"]);
       }
     } on DioException catch (e) {
       print("Request error: ${e.response?.statusCode}");
       print(e.requestOptions);
-    print(e.message);      
+      print(e.message);
+
+      // Handle unexpected error responses here
       return ForgetPasswordErrorResponse(
-        errors: ["Network error: ${e.message}"],
+        errors: ["Network error: Server Error"],
       );
-    }//overlay
+    }
   }
 }
