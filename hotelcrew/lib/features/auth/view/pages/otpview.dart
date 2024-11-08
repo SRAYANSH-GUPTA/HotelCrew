@@ -76,7 +76,7 @@ class _OtpviewState extends State<Otpview> {
     double otpFieldSize = screenWidth * 0.127; // 20% of the screen width for each OTP field
 
     return GestureDetector(
-      onTap: () => _hideKeyboard(),
+      // onTap: () => _hideKeyboard(),
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
@@ -112,39 +112,49 @@ class _OtpviewState extends State<Otpview> {
                       ),
                     ),
                     SizedBox(height: screenHeight * 0.06),
-                    Focus(
-                      focusNode: emailFocusNode,
-                      child: Container(
-                        width: screenWidth * 0.9,
-                        child: OtpPinField(
-                          fieldHeight: otpFieldSize,
-                          fieldWidth: otpFieldSize,
-                          autoFocus: false,
-                          key: _otpPinFieldController,
-                          autoFillEnable: false,
-                          textInputAction: TextInputAction.done,
-                          onSubmit: (text) {
-                            enteredOtp = text;
-                            debugPrint('Entered pin is $enteredOtp');
-                          },
-                          onChange: (text) {
-                            enteredOtp = text;
-                            debugPrint('Enter on change pin is $enteredOtp');
-                          },
-                          otpPinFieldStyle: const OtpPinFieldStyle(
-                            activeFieldBackgroundColor: Color(0xFFF4F8F9),
-                            filledFieldBackgroundColor: Color(0xFFF4F8F9),
-                            fieldBorderWidth: 0,
-                            fieldPadding: 25.33,
-                            activeFieldBorderGradient:
-                                LinearGradient(colors: [Color(0xFF6F8393), Color(0xFF6F8393)]),
+                    InkWell(
+                      onTap: (){
+                        if(emailFocusNode.hasFocus)
+                        {
+                          setState(() {
+                        SystemChannels.textInput.invokeMethod('TextInput.show');
+                      });;
+                        }
+                      },
+                      child: Focus(
+                        focusNode: emailFocusNode,
+                        child: Container(
+                          width: screenWidth * 0.9,
+                          child: OtpPinField(
+                            fieldHeight: otpFieldSize,
+                            fieldWidth: otpFieldSize,
+                            autoFocus: false,
+                            key: _otpPinFieldController,
+                            autoFillEnable: false,
+                            textInputAction: TextInputAction.done,
+                            onSubmit: (text) {
+                              enteredOtp = text;
+                              debugPrint('Entered pin is $enteredOtp');
+                            },
+                            onChange: (text) {
+                              enteredOtp = text;
+                              debugPrint('Enter on change pin is $enteredOtp');
+                            },
+                            otpPinFieldStyle: const OtpPinFieldStyle(
+                              activeFieldBackgroundColor: Color(0xFFF4F8F9),
+                              filledFieldBackgroundColor: Color(0xFFF4F8F9),
+                              fieldBorderWidth: 0,
+                              fieldPadding: 25.33,
+                              activeFieldBorderGradient:
+                                  LinearGradient(colors: [Color(0xFF6F8393), Color(0xFF6F8393)]),
+                            ),
+                            maxLength: 4,
+                            showCursor: true,
+                            cursorColor: Colors.indigo,
+                            cursorWidth: 3,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            otpPinFieldDecoration: OtpPinFieldDecoration.defaultPinBoxDecoration,
                           ),
-                          maxLength: 4,
-                          showCursor: true,
-                          cursorColor: Colors.indigo,
-                          cursorWidth: 3,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          otpPinFieldDecoration: OtpPinFieldDecoration.defaultPinBoxDecoration,
                         ),
                       ),
                     ),
