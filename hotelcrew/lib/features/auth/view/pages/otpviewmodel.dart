@@ -15,7 +15,7 @@ class DioClient {
       onResponse: (response, handler) {
         return handler.next(response);
       },
-      onError: (DioError e, handler) {
+      onError: (DioException e, handler) {
         print('Error occurred: ${e.response?.data}');
         return handler.next(e);
       },
@@ -27,6 +27,9 @@ class DioClient {
     final response = await dio.post(
       'https://hotelcrew-1.onrender.com/api/auth/register/',
       data: json.encode(otpRequest.toJson()),
+       options: Options(
+        validateStatus: (status) => status! < 501, // Treats 500+ codes as errors
+      ),
     );
 
     if (response.statusCode == 201) {
@@ -36,14 +39,15 @@ class DioClient {
       final errorResponse = ErrorResponse.fromJson(response.data);
       throw Exception(errorResponse.error.join(', '));
     } else {
-      throw Exception('Unexpected error: ${response.statusCode}');
+      throw Exception('Unexpected error');
     }
-  } on DioError catch (e) {
+  } on DioException catch (e) {
     if (e.response != null) {
       final errorResponse = ErrorResponse.fromJson(e.response!.data);
+      print(errorResponse.error);
       throw Exception(errorResponse.error.join(', '));
     } else {
-      throw Exception('Network error: ${e.message}');
+      throw Exception('Network error:');
     }
   }
 }

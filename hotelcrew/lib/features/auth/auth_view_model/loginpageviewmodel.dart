@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart'; // Make sure to import this for showing SnackBars
 import '../auth_models/loginmodel.dart';
 
 class AuthViewModel {
@@ -14,99 +15,66 @@ class AuthViewModel {
         print("Response received: ${response.data}");
         return handler.next(response);
       },
-      onError: (DioError error, handler) {
+      onError: (DioException error, handler) {
         print("Error: ${error.message}");
         return handler.next(error);
       },
     ));
   }
 
-  Future<dynamic> loginUser(String email, String password) async {
-    try {
-      final response = await _dio.post(
-        'https://hotelcrew-1.onrender.com/api/auth/login/',
-        data: {
-          "email": email,
-          "password": password,
-        },
-        options: Options(
+  Future<dynamic> loginUser(BuildContext context, String email, String password) async {
+  try {
+    final response = await _dio.post(
+      'https://hotelcrew-1.onrender.com/api/auth/login/',
+      data: {
+        "email": email,
+        "password": password,
+      },
+      options: Options(
         validateStatus: (status) => status! < 501, // Treats 500+ codes as errors
       ),
-      );
+    );
 
-      if (response.statusCode == 200) {
-        // Parsing the JSON response to LoginResponse model for success response
-        return LoginResponse.fromJson(response.data);
-      }
-      else if(response.statusCode == 500)
-      {
-        print("Server Error");
-        return "Server Error";
-      }
-       else {
-        // Handle unexpected status codes
-        return LoginResponse(
-          accessToken: "",
-          refreshToken: "",
-          role: "",
-          userData: UserData(fullName: "", email: ""),
-          user: null, // Returning null for user if not available
-        );
-      }
-    } on DioError catch (e) {
-      
-      if (e.response != null && e.response?.data is Map<String, dynamic>) {
-  
-        final errorData = e.response?.data as Map<String, dynamic>;
-        return LoginResponse(
-          accessToken: "",
-          refreshToken: "",
-          role: "error",
-          userData: UserData(fullName: "", email: ""),
-          user: null,
-        );
-      } else if (e.type == DioErrorType.connectionTimeout) {
-        return LoginResponse(
-          accessToken: "",
-          refreshToken: "",
-          role: "error",
-          userData: UserData(fullName: "", email: ""),
-          user: null,
-        );
-      } else if (e.type == DioErrorType.receiveTimeout) {
-        return LoginResponse(
-          accessToken: "",
-          refreshToken: "",
-          role: "error",
-          userData: UserData(fullName: "", email: ""),
-          user: null,
-        );
-      } else if (e.type == DioErrorType.badResponse) {
-        return LoginResponse(
-          accessToken: "",
-          refreshToken: "",
-          role: "error",
-          userData: UserData(fullName: "", email: ""),
-          user: null,
-        );
-      } else {
-        return LoginResponse(
-          accessToken: "",
-          refreshToken: "",
-          role: "error",
-          userData: UserData(fullName: "", email: ""),
-          user: null,
-        );
-      }
-    } catch (e) {
-      // Handling any other exceptions
-      return LoginResponse(
-        accessToken: "",
-        refreshToken: "",
-        role: "error",
-        userData: UserData(fullName: "", email: ""),
-        user: null,
-      );
+    print("Response received: ${response.data}"); // Log the raw response data
+    print("Status code: ${response.statusCode}");
+
+  if (response.statusCode == 200) {
+  print("Login successful");
+  try {
+    return LoginResponse.fromJson(response.data);
+  } catch (e) {
+    print("Error parsing response: $e");
+    return "Error parsing response"; // Return a specific error message
+  }
+} else if (response.statusCode == 401) {
+  return "Invalid credentials";
+} else if (response.statusCode == 500) {
+  return "Server error";
+} else {
+  return "Unexpected error occurred";
+}
+
+  } on DioException catch (e) {
+    // Handling Dio exceptions
+    String errorMessage = "";
+    if (e.type == DioExceptionType.connectionTimeout) {
+      errorMessage = "Connection timeout, please try again"; // Timeout error message
+    } else if (e.type == DioExceptionType.receiveTimeout) {
+      errorMessage = "Receive timeout, please try again"; // Receive timeout message
+    } else if (e.type == DioExceptionType.badResponse) {
+      errorMessage = "Bad response from server"; // Bad response error message
+    } else {
+      errorMessage = "Unexpected error occurred"; // For other Dio errors
     }
+
+    print("Dio error: $errorMessage");
+    return errorMessage;
+  } catch (e) {
+    // Handling any other exceptions
+    String errorMessage = "An error occurred"; // General error message
+    print("General error: $errorMessage");
+    return errorMessage;
   }
 }
+}
+

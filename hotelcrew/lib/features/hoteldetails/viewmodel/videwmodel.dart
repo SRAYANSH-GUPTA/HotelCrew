@@ -123,7 +123,7 @@ class _StaffdetailsState extends State<Staffdetails> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(top: 14, left: 16),
-                        child: Container(
+                        child: SizedBox(
                           height: 16,
                           width: 8,
                           child: SvgPicture.asset(
@@ -136,7 +136,7 @@ class _StaffdetailsState extends State<Staffdetails> {
                       const SizedBox(width: 8),
                       Padding(
                         padding: const EdgeInsets.only(top: 14, left: 0),
-                        child: Container(
+                        child: SizedBox(
                           width: 50,
                           height: 24,
                           child: Text(
@@ -238,13 +238,13 @@ class _StaffdetailsState extends State<Staffdetails> {
               ),
               child: Row(
                 children: [
-                  Container(
+                  SizedBox(
                     height: 18,
                     width: 18,
                     child: SvgPicture.asset('assets/add.svg'),
                   ),
                   const SizedBox(width: 7),
-                  Container(
+                  SizedBox(
                     width: 69,
                     height: 20,
                     child: Text(
@@ -282,6 +282,12 @@ class _StaffdetailsState extends State<Staffdetails> {
                 ),
               );
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF47518C),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
             child: Text(
               'Submit',
               style: GoogleFonts.montserrat(
@@ -291,12 +297,6 @@ class _StaffdetailsState extends State<Staffdetails> {
                   fontSize: 14,
                   height: 1.5,
                 ),
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF47518C),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
               ),
             ),
           ),

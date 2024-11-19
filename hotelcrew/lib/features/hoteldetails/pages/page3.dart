@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/packages.dart';
 
 class PageOne extends StatefulWidget {
+  const PageOne({super.key});
+
   @override
   _PageOneState createState() => _PageOneState();
 }
@@ -50,7 +50,7 @@ class _PageOneState extends State<PageOne> {
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
-          title: Text('Select Year'),
+          title: const Text('Select Year'),
           children: years.map((year) {
             return SimpleDialogOption(
               onPressed: () {
@@ -112,27 +112,32 @@ class _PageOneState extends State<PageOne> {
         child: Column(
           children: [
             // Hotel Name TextFormField
-            Container(
+            SizedBox(
               height: 86,
               width: screenWidth * 0.91,
               child: Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 22),
-                child: TextFormField(
+                child: TextFormField( validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'This is a required field.'; // Error message
+    }
+    return null;
+  },
                   controller: nameController,
                   focusNode: nameFocusNode,
                   decoration: InputDecoration(
                     labelText: 'Hotel Name',
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(
-                        color: Colors.grey,
+                      borderSide: const BorderSide(
+                        color: Pallete.neutral700,
                         width: 1.0,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(
-                        color: Colors.blue,
+                      borderSide: const BorderSide(
+                        color: Pallete.primary700,
                         width: 2.0,
                       ),
                     ),
@@ -151,7 +156,7 @@ class _PageOneState extends State<PageOne> {
                   ),
                   style: GoogleFonts.montserrat(
                     textStyle: const TextStyle(
-                      color: Color(0xFF4D5962),
+                      color: Pallete.neutral950,
                       fontWeight: FontWeight.w400,
                       fontSize: 16,
                       height: 1.5,
@@ -160,29 +165,34 @@ class _PageOneState extends State<PageOne> {
                 ),
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             // Legal Business Name TextFormField
-            Container(
+            SizedBox(
               height: 86,
               width: screenWidth * 0.9,
               child: Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 22),
-                child: TextFormField(
+                child: TextFormField( validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'This is a required field.'; // Error message
+    }
+    return null;
+  },
                   controller: businessController,
                   focusNode: businessFocusNode,
                   decoration: InputDecoration(
                     labelText: 'Legal Business Name',
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(
-                        color: Colors.grey,
+                      borderSide: const BorderSide(
+                        color: Pallete.neutral700,
                         width: 1.0,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(
-                        color: Colors.blue,
+                      borderSide: const BorderSide(
+                        color: Pallete.primary700,
                         width: 2.0,
                       ),
                     ),
@@ -201,7 +211,7 @@ class _PageOneState extends State<PageOne> {
                   ),
                   style: GoogleFonts.montserrat(
                     textStyle: const TextStyle(
-                      color: Color(0xFF4D5962),
+                      color: Pallete.neutral950,
                       fontWeight: FontWeight.w400,
                       fontSize: 16,
                       height: 1.5,
@@ -216,7 +226,12 @@ class _PageOneState extends State<PageOne> {
               height: 86,
               width: screenWidth * 0.9,
               padding: const EdgeInsets.only(top: 8, bottom: 22),
-              child: TextFormField(
+              child: TextFormField( validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'This is a required field.'; // Error message
+    }
+    return null;
+  },
                 controller: yearController,
                 focusNode: yearFocusNode,
                 readOnly: true, // Make it readonly so users must use the year picker
@@ -224,15 +239,15 @@ class _PageOneState extends State<PageOne> {
                   labelText: 'Year Established',
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(
-                      color: Colors.grey,
+                    borderSide: const BorderSide(
+                      color: Pallete.neutral700,
                       width: 1.0,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(
-                      color: Colors.blue,
+                    borderSide: const BorderSide(
+                      color: Pallete.primary700,
                       width: 2.0,
                     ),
                   ),
@@ -247,7 +262,7 @@ class _PageOneState extends State<PageOne> {
                 ),
                 style: GoogleFonts.montserrat(
                   textStyle: const TextStyle(
-                    color: Color(0xFF4D5962),
+                    color: Pallete.neutral950,
                     fontWeight: FontWeight.w400,
                     fontSize: 16,
                     height: 1.5,
@@ -255,28 +270,33 @@ class _PageOneState extends State<PageOne> {
                 ),
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             // License/Registration Number TextFormField
             Container(
               height: 86,
               width: screenWidth * 0.9,
               padding: const EdgeInsets.only(top: 8, bottom: 22),
-              child: TextFormField(
+              child: TextFormField( validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'This is a required field.'; // Error message
+    }
+    return null;
+  },
                 controller: licenseController,
                 focusNode: licenseFocusNode,
                 decoration: InputDecoration(
                   labelText: 'License/Registration Number',
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(
-                      color: Colors.grey,
+                    borderSide: const BorderSide(
+                      color: Pallete.neutral700,
                       width: 1.0,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(
-                      color: Colors.blue,
+                    borderSide: const BorderSide(
+                      color: Pallete.primary700,
                       width: 2.0,
                     ),
                   ),
@@ -295,7 +315,7 @@ class _PageOneState extends State<PageOne> {
                 ),
                 style: GoogleFonts.montserrat(
                   textStyle: const TextStyle(
-                    color: Color(0xFF4D5962),
+                    color: Pallete.neutral950,
                     fontWeight: FontWeight.w400,
                     fontSize: 16,
                     height: 1.5,

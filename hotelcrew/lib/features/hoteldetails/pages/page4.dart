@@ -1,10 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../../../core/packages.dart';
 class PageTwo extends StatefulWidget {
+  const PageTwo({super.key});
+
   @override
   _PageTwoState createState() => _PageTwoState();
 }
@@ -89,14 +88,14 @@ class _PageTwoState extends State<PageTwo> {
     final screenHeight = MediaQuery.of(context).size.height;
     return Padding(
       padding: EdgeInsets.only(top: 24, left: screenWidth * 0.045, right: screenWidth * 0.045),
-      child: Container(
+      child: SizedBox(
         height: 392,
         width: screenWidth * 0.9,
         child: SingleChildScrollView(
           child: Column(
             children: [
               // Primary Contact Number
-              Container(
+              SizedBox(
                 height: 86,
                 width: screenWidth * 0.9,
                 child: Padding(
@@ -112,7 +111,7 @@ class _PageTwoState extends State<PageTwo> {
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
                             value: _selectedCountryCode,
-                            items: [
+                            items: const [
                               DropdownMenuItem(value: '+1', child: Text('+1')),
                               DropdownMenuItem(value: '+44', child: Text('+44')),
                               DropdownMenuItem(value: '+91', child: Text('+91')),
@@ -127,15 +126,15 @@ class _PageTwoState extends State<PageTwo> {
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(
-                          color: Colors.grey,
+                        borderSide: const BorderSide(
+                          color: Pallete.neutral700,
                           width: 1.0,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(
-                          color: Colors.blue,
+                        borderSide: const BorderSide(
+                          color: Pallete.primary700,
                           width: 2.0,
                         ),
                       ),
@@ -154,7 +153,7 @@ class _PageTwoState extends State<PageTwo> {
                     ),
                     style: GoogleFonts.montserrat(
                       textStyle: const TextStyle(
-                        color: Color(0xFF4D5962),
+                        color: Pallete.neutral950,
                         fontWeight: FontWeight.w400,
                         fontSize: 16,
                         height: 1.5,
@@ -163,10 +162,10 @@ class _PageTwoState extends State<PageTwo> {
                   ),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Emergency Contact Number
-              Container(
+              SizedBox(
                 height: 86,
                 width: screenWidth * 0.9,
                 child: Padding(
@@ -182,7 +181,7 @@ class _PageTwoState extends State<PageTwo> {
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
                             value: _selectedCountryCode,
-                            items: [
+                            items: const [
                               DropdownMenuItem(value: '+1', child: Text('+1')),
                               DropdownMenuItem(value: '+44', child: Text('+44')),
                               DropdownMenuItem(value: '+91', child: Text('+91')),
@@ -197,15 +196,15 @@ class _PageTwoState extends State<PageTwo> {
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(
-                          color: Colors.grey,
+                        borderSide: const BorderSide(
+                          color: Pallete.neutral700,
                           width: 1.0,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(
-                          color: Colors.blue,
+                        borderSide: const BorderSide(
+                          color: Pallete.primary700,
                           width: 2.0,
                         ),
                       ),
@@ -224,7 +223,7 @@ class _PageTwoState extends State<PageTwo> {
                     ),
                     style: GoogleFonts.montserrat(
                       textStyle: const TextStyle(
-                        color: Color(0xFF4D5962),
+                        color: Pallete.neutral950,
                         fontWeight: FontWeight.w400,
                         fontSize: 16,
                         height: 1.5,
@@ -233,7 +232,7 @@ class _PageTwoState extends State<PageTwo> {
                   ),
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
 
               // Email TextFormField
               Container(
@@ -256,7 +255,7 @@ class _PageTwoState extends State<PageTwo> {
                   ),
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
 
               // Complete Address TextFormField
               Container(
@@ -270,15 +269,15 @@ class _PageTwoState extends State<PageTwo> {
                     labelText: 'Complete Address',
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(
-                        color: Colors.grey,
+                      borderSide: const BorderSide(
+                        color: Pallete.neutral700,
                         width: 1.0,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(
-                        color: Colors.blue,
+                      borderSide: const BorderSide(
+                        color: Pallete.primary700,
                         width: 2.0,
                       ),
                     ),
@@ -297,7 +296,7 @@ class _PageTwoState extends State<PageTwo> {
                   ),
                   style: GoogleFonts.montserrat(
                     textStyle: const TextStyle(
-                      color: Color(0xFF4D5962),
+                      color: Pallete.neutral950,
                       fontWeight: FontWeight.w400,
                       fontSize: 16,
                       height: 1.5,

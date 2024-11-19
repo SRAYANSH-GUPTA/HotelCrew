@@ -5,12 +5,14 @@ import 'package:hotelcrew/features/auth/view/pages/login_page.dart';
 import 'package:hotelcrew/features/auth/view/pages/register.dart';
 
 class Onboarding extends StatefulWidget {
+  const Onboarding({super.key});
+
   @override
   _OnboardingState createState() => _OnboardingState();
 }
 
 class _OnboardingState extends State<Onboarding> {
-  PageController _pageController = PageController();
+  final PageController _pageController = PageController();
   int _currentPage = 0;
 
   final List<Map<String, String>> _onboardingData = [
@@ -41,12 +43,12 @@ class _OnboardingState extends State<Onboarding> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
-        padding: EdgeInsets.only(top: 0),
+        padding: const EdgeInsets.only(top: 0),
         child: Container(
           child: Stack(
             children: [
               Padding(
-                padding: EdgeInsets.only(top: 0),
+                padding: const EdgeInsets.only(top: 0),
                 child: PageView.builder(
                   controller: _pageController,
                   onPageChanged: (index) {
@@ -68,7 +70,7 @@ class _OnboardingState extends State<Onboarding> {
                         onPressed: () {
                           _pageController.jumpToPage(_onboardingData.length - 1);
                         },
-                        child: Text(
+                        child: const Text(
                           'Skip',
                           style: TextStyle(
                             color: Color(0xFF5662AC),
@@ -78,14 +80,14 @@ class _OnboardingState extends State<Onboarding> {
                           ),
                         ),
                       )
-                    : SizedBox.shrink(),
+                    : const SizedBox.shrink(),
               ),
               // Dot Indicators
               Positioned(
                 top: 634,
                 left: 0,
                 right: 0,
-                child: Container(
+                child: SizedBox(
                   width: 122,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -104,10 +106,16 @@ class _OnboardingState extends State<Onboarding> {
                     ? ElevatedButton(
                         onPressed: () {
                           _pageController.nextPage(
-                            duration: Duration(milliseconds: 300),
+                            duration: const Duration(milliseconds: 300),
                             curve: Curves.easeIn,
                           );
                         },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF47518C),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
                         child: Text(
                           _currentPage == 0 ? 'Getting Started' : 'Next',
                           style: GoogleFonts.montserrat(
@@ -119,12 +127,6 @@ class _OnboardingState extends State<Onboarding> {
                             ),
                           ),
                         ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF47518C),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
                       )
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -132,6 +134,12 @@ class _OnboardingState extends State<Onboarding> {
                           Expanded(
                             child: ElevatedButton(
                               onPressed: _handleSignUp,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF47518C),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
                               child: Text(
                                 'Sign Up',
                                 style: GoogleFonts.montserrat(
@@ -143,18 +151,18 @@ class _OnboardingState extends State<Onboarding> {
                                   ),
                                 ),
                               ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: _handleLogin,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF47518C),
+                                backgroundColor: const Color(0xFF47518C),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: _handleLogin,
                               child: Text(
                                 'Log In',
                                 style: GoogleFonts.montserrat(
@@ -164,12 +172,6 @@ class _OnboardingState extends State<Onboarding> {
                                     fontSize: 14,
                                     height: 1.5,
                                   ),
-                                ),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF47518C),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
                             ),
@@ -187,13 +189,13 @@ class _OnboardingState extends State<Onboarding> {
   Widget _buildOnboarding(int index) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Container(
+      child: SizedBox(
         height: 544,
         width: 328,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox(height: 98),
+            const SizedBox(height: 98),
             Text(
               _onboardingData[index]["title"]!,
               style: GoogleFonts.montserrat(
@@ -203,7 +205,7 @@ class _OnboardingState extends State<Onboarding> {
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               _onboardingData[index]["description"]!,
               style: GoogleFonts.montserrat(
@@ -213,7 +215,7 @@ class _OnboardingState extends State<Onboarding> {
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             SvgPicture.asset(
               'assets/onboarding${index + 1}.svg',
               height: 300.08,
@@ -227,12 +229,12 @@ class _OnboardingState extends State<Onboarding> {
 
   Widget _buildDot(int index) {
     return AnimatedContainer(
-      duration: Duration(milliseconds: 300),
-      margin: EdgeInsets.symmetric(horizontal: 4),
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
       height: 8,
       width: _currentPage == index ? 24 : 8, // Oval for active, circle for others
       decoration: BoxDecoration(
-        color: _currentPage == index ? Color(0xFF5662AC) : Colors.grey,
+        color: _currentPage == index ? const Color(0xFF5662AC) : Colors.grey,
         borderRadius: BorderRadius.circular(10),
       ),
     );
@@ -248,7 +250,7 @@ class _OnboardingState extends State<Onboarding> {
   void _handleLogin() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => LoginPage()),
+      MaterialPageRoute(builder: (context) => const LoginPage()),
     );
   }
 }

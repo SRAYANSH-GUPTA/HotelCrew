@@ -34,7 +34,7 @@ Future<void> _pickFile() async {
       setState(() {
         uploadedFiles.add(result.files.single.name); // Store file name in the list
       });
-
+      
       await uploadFile(filePath, fileName);
     } else {
       print('Error: File path is null');
@@ -81,7 +81,7 @@ void clear() async
       Dio dio = Dio();
       dio.options.headers = {
         'Content-Type': 'multipart/form-data',
-        'Authorization': 'Bearer ' + access, // Replace with actual token
+        'Authorization': 'Bearer $access', // Replace with actual token
       };
       print("here starts");
       dio.options.validateStatus = (status) => true; // Allows all status codes for debugging
@@ -102,8 +102,8 @@ void clear() async
         'number_of_floors': prefs.getString('numberoffloors'),
         'valet_parking_available': prefs.getString('availability'),
         'valet_parking_capacity': prefs.getString('parkingCapacity'),
-        'check_in_time': (prefs.getString('checkin_time') ?? "00:00") + ":00",
-        'check_out_time': (prefs.getString('checkout_time') ?? "00:00") + ":00",
+        'check_in_time': "${prefs.getString('checkin_time') ?? "00:00"}:00",
+        'check_out_time': "${prefs.getString('checkout_time') ?? "00:00"}:00",
 
         'payment_methods': prefs.getString('payment_method'),
         'room_price': '150.00',
@@ -121,7 +121,7 @@ void clear() async
       if (response.statusCode == 201) {
         print('Upload successful: ${response.data['message']}');
          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text("Hotel Registered Successfully"),
               backgroundColor: Colors.green,
             ),
@@ -132,13 +132,13 @@ void clear() async
           clear();
            Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => SetupComplete()),
+            MaterialPageRoute(builder: (context) => const SetupComplete()),
           );//response.statusCode == 400
       } else if (response.statusCode == 401) {
         print('Unauthorized: ${response.data}');
         log('Response data for 401 error: ${response.data}');
          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text("User Not Found or file data already exist"),
               backgroundColor: Colors.red,
             ),
@@ -149,7 +149,7 @@ void clear() async
         print('Unauthorized: ${response.data}');
         log('Response data for 400 error: ${response.data}');
          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text("Users In file Already Exist"),
               backgroundColor: Colors.red,
             ),
@@ -160,7 +160,7 @@ void clear() async
         print('Unauthorized: ${response.data}');
         log('Response data for 500 error: ${response.data}');
          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text("Server Error"),
               backgroundColor: Colors.red,
             ),
@@ -207,8 +207,8 @@ void clear() async
                         
                         children: [
                           Padding(
-                            padding: EdgeInsets.only(top: 14),
-                            child: Container(
+                            padding: const EdgeInsets.only(top: 14),
+                            child: SizedBox(
                               height: 16,
                               // width: screenWidth * 0.23,
                               child: SvgPicture.asset('assets/backarrow.svg'),
@@ -263,10 +263,10 @@ void clear() async
             
           ),
           Padding(
-  padding: EdgeInsets.only(top: 0),
+  padding: const EdgeInsets.only(top: 0),
   child: uploadedFiles.isEmpty
       ? Padding(
-         padding: EdgeInsets.only(top: 38),
+         padding: const EdgeInsets.only(top: 38),
         child: Center(
             child: SvgPicture.asset(
               'assets/cuate.svg',
@@ -275,7 +275,7 @@ void clear() async
             ),
           ),
       )
-      : Container(
+      : SizedBox(
       width: screenWidth,
             height: screenWidth * 0.777,
           child: ListView.builder(
@@ -325,7 +325,7 @@ void clear() async
             ),
           ),
           const SizedBox(height: 86),
-          Container(
+          SizedBox(
             width:screenWidth * 0.9,
             height:40,
             child: ElevatedButton(
@@ -339,7 +339,7 @@ void clear() async
                   else
                   {
                     ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text("Changes Not Done"),
               backgroundColor: Colors.red,
             ),
@@ -348,13 +348,19 @@ void clear() async
                 } else {
                   print('No file selected for upload.');
                   ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text("Upload file first"),
               backgroundColor: Colors.red,
             ),
           );
                 }
               },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF47518C),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
               child: Text(
                       'Submit',
                       style: GoogleFonts.montserrat(
@@ -364,12 +370,6 @@ void clear() async
                           fontSize: 14,
                           height: 1.5,
                         ),
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF47518C),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
             ),

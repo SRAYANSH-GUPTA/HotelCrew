@@ -3,7 +3,7 @@ class LoginResponse {
   final String refreshToken;
   final String role;
   final UserData userData;
-  final User? user; // User data added
+  final User? user; // Added user parameter
 
   LoginResponse({
     required this.accessToken,
@@ -16,38 +16,39 @@ class LoginResponse {
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     return LoginResponse(
       accessToken: json['access_token'],
-      refreshToken: json['refress_token'], // Note: typo in the JSON key, should be 'refresh_token'
+      refreshToken: json['refress_token'] ?? '', // Handle possible typo in the response
       role: json['role'],
       userData: UserData.fromJson(json['user_data']),
-      user: json['user'] != null ? User.fromJson(json['user']) : null, // Conditional user parsing
+      user: json['user'] != null ? User.fromJson(json['user']) : null, // Optional user field
     );
   }
 
-  // Method to convert an instance to JSON
   Map<String, dynamic> toJson() {
     return {
       'access_token': accessToken,
-      'refress_token': refreshToken, // Same typo issue
+      'refress_token': refreshToken,
       'role': role,
       'user_data': userData.toJson(),
-      'user': user?.toJson(), // Optional user field in JSON
+      'user': user?.toJson(),
     };
   }
 }
-
-class UserData {
+class User {
   final String fullName;
   final String email;
+  final String role;
 
-  UserData({
+  User({
     required this.fullName,
     required this.email,
+    required this.role,
   });
 
-  factory UserData.fromJson(Map<String, dynamic> json) {
-    return UserData(
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
       fullName: json['full_name'],
       email: json['email'],
+      role: json['role'],
     );
   }
 
@@ -55,34 +56,35 @@ class UserData {
     return {
       'full_name': fullName,
       'email': email,
+      'role': role,
     };
   }
 }
 
-class User {
-  final int id;
-  final String userName;
+class UserData {
+  final String fullName;
   final String email;
+  final String role;
 
-  User({
-    required this.id,
-    required this.userName,
+  UserData({
+    required this.fullName,
     required this.email,
+    required this.role,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'],
-      userName: json['user_name'],
+  factory UserData.fromJson(Map<String, dynamic> json) {
+    return UserData(
+      fullName: json['full_name'],
       email: json['email'],
+      role: json['role'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'user_name': userName,
+      'full_name': fullName,
       'email': email,
+      'role': role,
     };
   }
 }

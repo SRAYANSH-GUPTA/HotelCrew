@@ -60,6 +60,9 @@ class DioClient {
       if (response.statusCode == 200) {
         return UserRegistrationResponse.fromJson(response.data);
       }
+      if (response.statusCode == 400) {
+        return "User with this email already exists.";
+      }
       else if(response.statusCode == 500)
       {
         print("Server Error");
@@ -70,11 +73,20 @@ class DioClient {
         return "User Already Registered";
       }
     } on DioException catch (e) {
-      // Handle Dio specific errors
-      print("############");
-      print(e.error);
-      return e;
-      throw ApiError('An unexpected error occurred: ${e.message}');
+    // Handling Dio exceptions
+    String errorMessage = "";
+    if (e.type == DioExceptionType.connectionTimeout) {
+      errorMessage = "Connection timeout, please try again"; // Timeout error message
+    } else if (e.type == DioExceptionType.receiveTimeout) {
+      errorMessage = "Receive timeout, please try again"; // Receive timeout message
+    } else if (e.type == DioExceptionType.badResponse) {
+      errorMessage = "Bad response from server"; // Bad response error message
+    } else {
+      errorMessage = "Unexpected error occurred"; // For other Dio errors
     }
+
+    print("Dio error: $errorMessage");
+    return errorMessage;
+  } 
   }
 }

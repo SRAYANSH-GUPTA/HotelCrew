@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:email_validator/email_validator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/packages.dart';
 class PageThree extends StatefulWidget {
+  const PageThree({super.key});
+
   @override
   _PageThreeState createState() => _PageThreeState();
 }
@@ -22,7 +21,7 @@ class _PageThreeState extends State<PageThree> {
   final FocusNode parkingCapacityFocusNode = FocusNode(); // Added focus node for parking capacity
 
   String? _selectedAvailability; 
-  String _selectedCountryCode = '+1'; // Default selected code
+  final String _selectedCountryCode = '+1'; // Default selected code
 
   
   @override
@@ -93,14 +92,14 @@ void _loadSavedData() async {
     final screenHeight = MediaQuery.of(context).size.height;
     return Padding(
       padding: EdgeInsets.only(top: 24, left: screenWidth * 0.045, right: screenWidth * 0.045),
-      child: Container(
+      child: SizedBox(
         height: 392,
         width: screenWidth * 0.9,
         child: SingleChildScrollView(
           child: Column(
             children: [
               // Primary Contact Number
-              Container(
+              SizedBox(
                 height: 86,
                 width: screenWidth * 0.9,
                 child: Padding(
@@ -113,15 +112,15 @@ void _loadSavedData() async {
                       labelText: 'Total Number Of Rooms',
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(
-                          color: Colors.grey,
+                        borderSide: const BorderSide(
+                          color: Pallete.neutral700,
                           width: 1.0,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(
-                          color: Colors.blue,
+                        borderSide: const BorderSide(
+                          color: Pallete.primary700,
                           width: 2.0,
                         ),
                       ),
@@ -167,7 +166,7 @@ void _loadSavedData() async {
                     ),
                     style: GoogleFonts.montserrat(
                       textStyle: const TextStyle(
-                        color: Color(0xFF4D5962),
+                        color: Pallete.neutral950,
                         fontWeight: FontWeight.w400,
                         fontSize: 16,
                         height: 1.5,
@@ -176,10 +175,10 @@ void _loadSavedData() async {
                   ),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Emergency Contact Number
-              Container(
+              SizedBox(
                 height: 86,
                 width: screenWidth * 0.9,
                 child: Padding(
@@ -187,20 +186,21 @@ void _loadSavedData() async {
                   child: TextFormField(
                     controller: typesofroomController,
                     focusNode: enumberFocusNode,
+                    
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       labelText: 'Types Of Rooms Available',
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(
-                          color: Colors.grey,
+                        borderSide: const BorderSide(
+                          color: Pallete.neutral700,
                           width: 1.0,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(
-                          color: Colors.blue,
+                        borderSide: const BorderSide(
+                          color: Pallete.primary700,
                           width: 2.0,
                         ),
                       ),
@@ -246,7 +246,7 @@ void _loadSavedData() async {
                     ),
                     style: GoogleFonts.montserrat(
                       textStyle: const TextStyle(
-                        color: Color(0xFF4D5962),
+                        color: Pallete.neutral950,
                         fontWeight: FontWeight.w400,
                         fontSize: 16,
                         height: 1.5,
@@ -255,10 +255,10 @@ void _loadSavedData() async {
                   ),
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
 
               // Email TextFormField
-              Container(
+              SizedBox(
                 height: 86,
                 width: screenWidth * 0.9,
                 child: Padding(
@@ -271,15 +271,15 @@ void _loadSavedData() async {
                       labelText: 'Total Number Of Floors',
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(
-                          color: Colors.grey,
+                        borderSide: const BorderSide(
+                          color: Pallete.neutral700,
                           width: 1.0,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(
-                          color: Colors.blue,
+                        borderSide: const BorderSide(
+                          color: Pallete.primary700,
                           width: 2.0,
                         ),
                       ),
@@ -325,7 +325,7 @@ void _loadSavedData() async {
                     ),
                     style: GoogleFonts.montserrat(
                       textStyle: const TextStyle(
-                        color: Color(0xFF4D5962),
+                        color: Pallete.neutral950,
                         fontWeight: FontWeight.w400,
                         fontSize: 16,
                         height: 1.5,
@@ -334,7 +334,7 @@ void _loadSavedData() async {
                   ),
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
 
               // Complete Address TextFormField
               Column(
@@ -346,8 +346,9 @@ void _loadSavedData() async {
                     padding: const EdgeInsets.only(top: 8, bottom: 22),
                     child: DropdownButtonFormField<String>(
   value: _selectedAvailability,
-  hint: Text('Select Availability'),
-  items: [
+
+  hint: const Text('Valet Parking'),
+  items: const [
     DropdownMenuItem(value: 'Available', child: Text('Available')),
     DropdownMenuItem(value: 'Not Available', child: Text('Not Available')),
   ],
@@ -361,17 +362,18 @@ void _loadSavedData() async {
     });
   },
   decoration: InputDecoration(
+    labelText: "Valet Parking",
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8.0),
-      borderSide: BorderSide(
-        color: Colors.grey,
+      borderSide: const BorderSide(
+        color: Pallete.neutral700,
         width: 1.0,
       ),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8.0),
-      borderSide: BorderSide(
-        color: Colors.blue,
+      borderSide: const BorderSide(
+        color: Pallete.primary700,
         width: 2.0,
       ),
     ),
@@ -379,11 +381,11 @@ void _loadSavedData() async {
 ),
 
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
 
                   // Parking Capacity TextFormField
                   if (_selectedAvailability == 'Available') // Only show if Available is selected
-                    Container(
+                    SizedBox(
                       height: 86,
                       width: screenWidth * 0.9,
                       child: Padding(
@@ -396,15 +398,15 @@ void _loadSavedData() async {
                             labelText: 'Parking Capacity',
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
-                              borderSide: BorderSide(
-                                color: Colors.grey,
+                              borderSide: const BorderSide(
+                                color: Pallete.neutral700,
                                 width: 1.0,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
-                              borderSide: BorderSide(
-                                color: Colors.blue,
+                              borderSide: const BorderSide(
+                                color: Pallete.primary700,
                                 width: 2.0,
                               ),
                             ),
@@ -450,7 +452,7 @@ void _loadSavedData() async {
                           ),
                           style: GoogleFonts.montserrat(
                             textStyle: const TextStyle(
-                              color: Color(0xFF4D5962),
+                              color: Pallete.neutral950,
                               fontWeight: FontWeight.w400,
                               fontSize: 16,
                               height: 1.5,

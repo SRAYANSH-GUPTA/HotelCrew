@@ -1,8 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hotelcrew/features/hoteldetails/pages/staffdetails.dart';
-
+import '../../../core/packages.dart';
 class Document extends StatefulWidget {
   const Document({super.key});
 
@@ -18,7 +15,7 @@ class _DocumentState extends State<Document> {
 
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.only(top: 24, left: 16, right: 16), // Added right padding for symmetry
+        padding: const EdgeInsets.only(top: 24, left: 16, right: 16), // Added right padding for symmetry
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -28,20 +25,20 @@ class _DocumentState extends State<Document> {
                 description: 'Upload all business license documents for verification',
                 containerWidth: containerWidth,
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               buildDocumentContainer(
                 context,
                 title: 'Insurance Documents',
                 description: 'Upload all insurance documents for verification',
                 containerWidth: containerWidth,
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               InkWell(
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (BuildContext context) => Staffdetails(),
+                      builder: (BuildContext context) => const Staffdetails(),
                     ),
                   );
                 },
@@ -52,7 +49,7 @@ class _DocumentState extends State<Document> {
                   containerWidth: containerWidth,
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -68,7 +65,7 @@ class _DocumentState extends State<Document> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Color(0xFFECF1F3),
+        color: const Color(0xFFECF1F3),
         borderRadius: BorderRadius.circular(8),
       ),
       height: containerWidth * 0.29,
@@ -78,12 +75,12 @@ class _DocumentState extends State<Document> {
           Container(
             width: containerWidth * 0.8, // Adjusted width relative to parent container
             height: containerWidth * 0.37,
-            margin: EdgeInsets.only(left: 14),
+            margin: const EdgeInsets.only(left: 14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(height: 10,),
-                Container(
+                SizedBox(
                   height: 28,
                   child: Text(
                     title,
@@ -98,8 +95,8 @@ class _DocumentState extends State<Document> {
                     ),
                   ),
                 ),
-                SizedBox(height: 6),
-                Container(
+                const SizedBox(height: 6),
+                SizedBox(
                   height: containerWidth * 0.14,
                   child: Text(
                     description,
@@ -120,7 +117,7 @@ class _DocumentState extends State<Document> {
           Container(
             height: 24,
             width: 12,
-            margin: EdgeInsets.only(left: 16),
+            margin: const EdgeInsets.only(left: 16),
             child: SvgPicture.asset(
               'assets/document_arrow.svg',
               height: 16.97,

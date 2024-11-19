@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
-import 'package:hotelcrew/features/auth/view/pages/login_page.dart';
 import 'package:hotelcrew/features/createpwd/createpwdview/createpwdview.dart';
-import 'package:hotelcrew/features/hoteldetails/pages/hoteldetailspage1.dart';
 import 'package:otp_pin_field/otp_pin_field.dart';
 import 'package:otp_timer_button/otp_timer_button.dart';
-import '../models/otpresetmodel.dart';
 import '../viewmodel/otpresetviewmodel.dart';
 import '../models/resetpassemailmode.dart';
 import '../viewmodel/resetpassviewmodel.dart' as reset;
@@ -15,7 +12,7 @@ import '../viewmodel/resetpassviewmodel.dart' as reset;
 class Otpreset extends StatefulWidget {
   final String email; // Assuming you pass the email to this page
 
-  Otpreset({required this.email});
+  const Otpreset({super.key, required this.email});
 
   @override
   State<Otpreset> createState() => _OtpresetState();
@@ -154,7 +151,7 @@ class _OtpresetState extends State<Otpreset> {
                   if (svgHeight == 0 && otperror)
                     Padding(
                       padding: const EdgeInsets.only(left: 0),
-                      child: Container(
+                      child: SizedBox(
                         width: screenWidth * 0.9,
                         height: 39,
                         child: Center(
@@ -203,7 +200,7 @@ class _OtpresetState extends State<Otpreset> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Text("Didn’t receive the code?"),
-                            Container(
+                            SizedBox(
                               width: screenWidth* 0.3,
                               height: 40,
                               child: OtpTimerButton(
@@ -220,11 +217,11 @@ class _OtpresetState extends State<Otpreset> {
                                   });
                                   if (response is ForgetPasswordSuccessResponse) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text("Password Reset Otp sent successfully.")),
+                                      const SnackBar(content: Text("Password Reset Otp sent successfully.")),
                                     );
                                   } else if (response is ForgetPasswordErrorResponse) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text("User doesn't exist.")),
+                                      const SnackBar(content: Text("User doesn't exist.")),
                                     );
                                   }
                                 },
@@ -316,7 +313,7 @@ class _OtpresetState extends State<Otpreset> {
                         Row(mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Padding(
-                              padding: EdgeInsets.only(left: 0),
+                              padding: const EdgeInsets.only(left: 0),
                               child: Text(
                                 'Remember Password?',
                                 style: GoogleFonts.poppins(

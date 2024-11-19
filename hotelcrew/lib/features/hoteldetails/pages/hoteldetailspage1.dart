@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'hoteldetailspage2.dart';
 
+
 class Hoteldetailspage1 extends StatefulWidget {
   const Hoteldetailspage1({super.key});
 
@@ -41,7 +42,7 @@ class _Hoteldetailspage1State extends State<Hoteldetailspage1> {
             ),
           ),
           SizedBox(height: screenHeight * 0.015),
-          Container(
+          SizedBox(
             height: screenHeight * 0.066,
             width: screenWidth * 0.9,
             child: Text(
@@ -73,10 +74,16 @@ class _Hoteldetailspage1State extends State<Hoteldetailspage1> {
                 Navigator.pushReplacement<void, void>(
                   context,
                   MaterialPageRoute<void>(
-                    builder: (BuildContext context) => ProgressPageView(),
+                    builder: (BuildContext context) => const ProgressPageView(),
                   ),
                 );
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF47518C),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
               child: Text(
                 'Next',
                 style: GoogleFonts.montserrat(
@@ -86,12 +93,6 @@ class _Hoteldetailspage1State extends State<Hoteldetailspage1> {
                     fontSize: 14,
                     height: 1.5,
                   ),
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF47518C),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),

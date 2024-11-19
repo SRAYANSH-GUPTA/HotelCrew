@@ -19,7 +19,7 @@ class _SetupCompleteState extends State<SetupComplete> {
       body: Column(
         children: [
           Container(
-            margin: EdgeInsets.only(left: 16, right: 16, top: 100),
+            margin: const EdgeInsets.only(left: 16, right: 16, top: 100),
             height: 32,
             width: screenWidth * 0.9, // Make the width responsive
             child: Text(
@@ -35,8 +35,8 @@ class _SetupCompleteState extends State<SetupComplete> {
               ),
             ),
           ),
-          SizedBox(height: 16),
-          Container(
+          const SizedBox(height: 16),
+          SizedBox(
             height: 72,
             width: screenWidth * 0.9, // Make the width responsive
             child: Text(
@@ -52,13 +52,13 @@ class _SetupCompleteState extends State<SetupComplete> {
               ),
             ),
           ),
-          SizedBox(height: 58.2),
+          const SizedBox(height: 58.2),
           SvgPicture.asset(
             'assets/setupcomplete.svg', // Ensure the path is correct
             height: 241.56,
             width: screenWidth * 0.85, // Make the width responsive
           ),
-          SizedBox(height: 158.24),
+          const SizedBox(height: 158.24),
           SizedBox(
             height: 40,
             width: screenWidth * 0.9, // Make the width responsive
@@ -67,10 +67,16 @@ class _SetupCompleteState extends State<SetupComplete> {
                 Navigator.pushReplacement<void, void>(
                   context,
                   MaterialPageRoute<void>(
-                    builder: (BuildContext context) => ProgressPageView(),
+                    builder: (BuildContext context) => const ProgressPageView(),
                   ),
                 );
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF47518C),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
               child: Text(
                 'Go to Dashboard',
                 style: GoogleFonts.montserrat(
@@ -80,12 +86,6 @@ class _SetupCompleteState extends State<SetupComplete> {
                     fontSize: 14,
                     height: 1.5,
                   ),
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF47518C),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),

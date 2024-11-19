@@ -11,7 +11,7 @@ final password = TextEditingController(text: "");
 class createpwd extends StatefulWidget {
   final String email; // Assuming you pass the email to this page
 
-  createpwd({required this.email});
+  const createpwd({super.key, required this.email});
   @override
   _createpwdState createState() => _createpwdState();
 }
@@ -117,7 +117,7 @@ class _createpwdState extends State<createpwd> {
                   ),
                 ),
               ),
-              Container(
+              SizedBox(
                 height: 42,
                 width: screenWidth * 0.9,
                 child: Text(
@@ -133,7 +133,7 @@ class _createpwdState extends State<createpwd> {
                 ),
               ),
               if(!isSvgVisible)
-              SizedBox(height: 26),
+              const SizedBox(height: 26),
               Padding(
                 padding: EdgeInsets.only(left:screenWidth * 0.0944,bottom: 36.42),
                 child: SvgPicture.asset(
@@ -184,24 +184,24 @@ class _createpwdState extends State<createpwd> {
                   obscureText: _obscurePassword,
                   focusNode: passwordFocusNode,
                   obscuringCharacter: '●',
-                  style: TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
+                  style: const TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
                 ),
               ),
-              SizedBox(height: 22,),
+              const SizedBox(height: 22,),
               if(passwordFocusNode.hasFocus)
               PasswordStrengthIndicator(
                 password: password.text,
   width: screenWidth*0.4167, // Change the width of the strength bar
   thickness: 3, // Change the thickness of the strength bar
-  backgroundColor: Color(0xFFC6D6DB), // Change the background color of the strength bar
+  backgroundColor: const Color(0xFFC6D6DB), // Change the background color of the strength bar
   radius: 8, // Change the radius of the strength bar
-  colors: StrengthColors(
+  colors: const StrengthColors(
     // Customize the colors of the strength bar
     weak: Color(0xFFA0365A),
     medium: Color(0xFFEF7A07),
     strong: Color(0xFF6BBD6E),
   ),
-  duration: Duration(milliseconds: 300), // Set the animation duration
+  duration: const Duration(milliseconds: 300), // Set the animation duration
   curve: Curves.easeOut, // Set the animation curve
   callback: (double strength) {
     // Receive the strength value of the password
@@ -248,7 +248,7 @@ class _createpwdState extends State<createpwd> {
                           ),
                   errorBorder: notequal
                                 ? OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.red, width: 1.0),
+                                    borderSide: const BorderSide(color: Colors.red, width: 1.0),
                                     borderRadius: BorderRadius.circular(8.0),
                                   )
                                 : null,
@@ -259,7 +259,7 @@ class _createpwdState extends State<createpwd> {
                 ),
                 obscureText: _obscureconfirmPassword,
                 obscuringCharacter: '●',
-                style: TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
+                style: const TextStyle(fontSize: 20, color: Color(0xFF5B6C78)),
               ),
               const SizedBox(height: 20),
               if(passwordFocusNode.hasFocus || confirmFocusNode.hasFocus)
@@ -278,7 +278,7 @@ class _createpwdState extends State<createpwd> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 20,), // Space between the text fields
+                  const SizedBox(height: 20,), // Space between the text fields
               SizedBox(
                 height: 40,
                 width: screenWidth*0.9,
@@ -311,7 +311,7 @@ class _createpwdState extends State<createpwd> {
   );
         } else if (viewModel.errorMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text("Comply with the rules of password."),
               backgroundColor: Colors.red,
             ),
@@ -326,13 +326,19 @@ class _createpwdState extends State<createpwd> {
         else
         {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text("Comply with the rules of password."),
               backgroundColor: Colors.red,
             ),
           );
         }
       },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF47518C),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
 
                   child: Text(
                     'Save Password',
@@ -343,12 +349,6 @@ class _createpwdState extends State<createpwd> {
                         fontSize: 14,
                         height: 1.5,
                       ),
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF47518C),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                 ),

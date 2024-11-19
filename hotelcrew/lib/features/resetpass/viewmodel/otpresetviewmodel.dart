@@ -15,7 +15,7 @@ class DioClient {
       onResponse: (response, handler) {
         return handler.next(response);
       },
-      onError: (DioError e, handler) {
+      onError: (DioException e, handler) {
         print('Error occurred: ${e.response?.data}');
         return handler.next(e);
       },
@@ -43,7 +43,7 @@ class DioClient {
       } else {
         throw Exception('Unexpected error: ${response.statusCode}');
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (e.response != null) {
         final errorResponse = ErrorResponse.fromJson(e.response!.data);
         throw Exception(errorResponse.error.join(', '));

@@ -2,20 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'otpview.dart';
-import '../../view/pages/login_page.dart';
 import '../../models/register.dart';
 import '../../auth_view_model/registerviewmodel.dart';
 import 'package:el_tooltip/el_tooltip.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/passwordvalidation.dart';
+import '../../../../core/packages.dart';
+import '../../../../core/widgets.dart';
 
-class Register extends StatefulWidget {
+class Register extends ConsumerStatefulWidget {
   const Register({super.key});
 
   @override
-  _RegisterState createState() => _RegisterState();
+  ConsumerState<Register> createState() => _RegisterState();
 }
-
-class _RegisterState extends State<Register> {
+class _RegisterState extends ConsumerState<Register> {
   bool checkBoxValue = false;
   bool _obscurePassword = true;
   bool _obscureconfirmPassword = true;
@@ -27,27 +31,47 @@ class _RegisterState extends State<Register> {
   bool _isLoading = false;
   bool _isVisible = false;
   final FocusNode _focusNode = FocusNode();
-  bool _showTooltip = true;
+  final bool _showTooltip = true;
+bool _showValidationCard = false;
+  // bool hasUppercase = false;
+  // bool hasLowercase = false;
+  // bool hasDigits = false;
+  // bool hasSpecialCharacters = false;
+  // bool hasMinLength = false;
+
+  final RegExp upperCaseRegExp = RegExp(r'[A-Z]');
+  final RegExp lowerCaseRegExp = RegExp(r'[a-z]');
+  final RegExp digitRegExp = RegExp(r'\d');
+  final RegExp specialCharRegExp = RegExp(r'[!@#$%^&*(),.?":{}|<>]');
+  final int minLength = 8;
+
+  void _validatePassword() {
+  ref.read(passwordValidationProvider.notifier).validatePassword(password.text);
+
+  // Show validation card if password field is focused and has input
+  setState(() {
+    _showValidationCard = _focusNode.hasFocus && password.text.isNotEmpty;
+  });
+}
 
 
   @override
   void initState() {
     super.initState();
-    _focusNode.addListener(() {
+   _focusNode.addListener(() {
       setState(() {
-        _showTooltip = _focusNode.hasFocus;
-        print("################");
-        print("Tooltip visibility: $_showTooltip");
+        // Update the validation card visibility based on focus and input text
+        _showValidationCard = _focusNode.hasFocus && password.text.isNotEmpty;
       });
     });
+  password.addListener(_validatePassword);
     emailController.addListener(() {
       setState(() {
         validEmail = EmailValidator.validate(emailController.text);
-        print("email!!!!!!!!!!");
       });
     });
-    
   }
+  
 void _showSnackbar(String message) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
@@ -72,10 +96,21 @@ bool isPasswordValid(String password, String username, String email) {
   
   // List of common passwords to reject
   const commonPasswords = [
-    'password', '12345678', 'qwerty', 'abc123', 'letmein', 'iloveyou'
+    // 'password', '12345678', 'qwerty', 'abc123', 'letmein', 'iloveyou'
   ];
   return !commonPasswords.contains(password.toLowerCase());
 }
+// void _validatePassword() {
+//     final password1 = password.text;
+
+//     setState(() {
+//       hasUppercase = upperCaseRegExp.hasMatch(password1);
+//       hasLowercase = lowerCaseRegExp.hasMatch(password1);
+//       hasDigits = digitRegExp.hasMatch(password1);
+//       hasSpecialCharacters = specialCharRegExp.hasMatch(password1);
+//       hasMinLength = password1.length >= minLength;
+//     });
+//   }
 
   @override
   void dispose() {
@@ -89,413 +124,479 @@ bool isPasswordValid(String password, String username, String email) {
 
   @override
   Widget build(BuildContext context) {
-    
-   const tooltipContent = Text(
-    'Hola Mundo!!!!!!!!!!!!!!!!!!!! This should show tooltip box',
-    style: TextStyle(color: Colors.black),
-    textAlign: TextAlign.center,
-  );
-
-  const tooltipIcon = Icon(
-    Icons.info,
-    color: Colors.white,
-  );
-
-    double screenWidth = MediaQuery.of(context).size.width;
-    double responsiveWidth = screenWidth * 0.9;
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        top: true,
-        child: SingleChildScrollView(
-          child: Center(
-            child: Container(
-            margin: EdgeInsets.symmetric(vertical: screenWidth * 0.04,),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: responsiveWidth,
-                    margin: EdgeInsets.only(top: screenWidth * 0.05),
-                    child: Text(
-                      'Create Account',
-                      style: GoogleFonts.montserrat(
-                        textStyle: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w700,
-                          fontSize: screenWidth * 0.06,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: responsiveWidth,
-                    padding: EdgeInsets.only(top: screenWidth * 0.02),
-                    child: Text(
-                      'Join us to enhance your hotel operations.',
-                      style: GoogleFonts.montserrat(
-                        textStyle: TextStyle(
-                          color: const Color(0xFF4D5962),
-                          fontWeight: FontWeight.w600,
-                          fontSize: screenWidth * 0.04,
-                        ),
-                      ),
-                    ),
-                  ),
-                 
-
-                  SizedBox(height: screenWidth * 0.07),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: screenWidth * 0.02),
-                    child: SizedBox(
-                      width: responsiveWidth,
-                      child: TextFormField(
-                        controller: username,
-                        decoration: InputDecoration(
-                          labelText: 'User Name',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.05,
-                          color: const Color(0xFF5B6C78),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: screenWidth * 0.07),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: screenWidth * 0.02),
-                    child: SizedBox(
-                      width: responsiveWidth,
-                      child: TextFormField(
-                        controller: emailController,
-                        maxLength: 320,
-                        validator: (value) => EmailValidator.validate(value ?? '')
-                            ? null
-                            : "Enter a valid email.",
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.05,
-                          color: const Color(0xFF5B6C78),
-                        ),
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          counterText: "",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          errorBorder: validEmail
-                              ? null
-                              : OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.red, width: 2.0),
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                          suffixIcon: validEmail
-                              ? null
-                              : const Icon(
-                                  Icons.error,
-                                  color: Color(0xFFC80D0D),
-                                ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: screenWidth * 0.07),
-                
-                
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: screenWidth * 0.02),
-                    child: SizedBox(
-                      width: responsiveWidth,
-                      child:  ElTooltip(
-            position: ElTooltipPosition.bottomStart,
-            content: tooltipContent,
-            color: Color(0XFFEA4747),
-            child: TextFormField(
-                        controller: password,
-                        focusNode: _focusNode,
-                        maxLength: 25,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          counterText: "",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          suffixIcon: IconButton(
-                            icon: _obscurePassword
-                                ? SvgPicture.asset('assets/nopassword.svg')
-                                : SvgPicture.asset('assets/passwordvisible.svg'),
-                            onPressed: () {
-                              setState(() {
-                                _obscurePassword = !_obscurePassword;
-                              });
-                            },
-                          ),
-                        ),
-                        obscureText: _obscurePassword,
-                        obscuringCharacter: '●',
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.05,
-                          color: const Color(0xFF5B6C78),
-                        ),
-                      ),
-                    ),
-                  ),
-                   if (_showTooltip)
-         
-          ),
-                  SizedBox(height: screenWidth * 0.07),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: screenWidth * 0.02),
-                    child: SizedBox(
-                      width: responsiveWidth,
-                      child: TextFormField(
-                        controller: confirmpassword,
-                        maxLength: 25,
-                        validator: (value) {
-                          if (value != password.text) return "Passwords do not match.";
-                          return null;
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'Confirm Password',
-                          counterText: "",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          suffixIcon: IconButton(
-                            icon: _obscureconfirmPassword
-                                ? SvgPicture.asset('assets/nopassword.svg')
-                                : SvgPicture.asset('assets/passwordvisible.svg'),
-                            onPressed: () {
-                              setState(() {
-                                _obscureconfirmPassword = !_obscureconfirmPassword;
-                              });
-                            },
-                          ),
-                        ),
-                        obscureText: _obscureconfirmPassword,
-                        obscuringCharacter: '●',
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.05,
-                          color: const Color(0xFF5B6C78),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: screenWidth * 0.07),
-                  SizedBox(
-                    width: responsiveWidth,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                       Container(padding: EdgeInsets.only(top: 0),
-  
-  child: Center(
-    child: Padding(
-      padding: EdgeInsets.only(top: 0,
-        // right: screenWidth * 0.02,
-        
-      ),
-      child: Container(
-        margin: EdgeInsets.only(top: 0), // Adjust top margin here
-        child: CheckboxTheme(
-          data: CheckboxThemeData(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(0),
-            ),
-            side: const BorderSide(
-              width: 0,
-              color: Colors.transparent,
-            ),
-          ),
-          child: Checkbox(
-            checkColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
-            value: checkBoxValue,
-            splashRadius: 0,
-            fillColor: MaterialStateProperty.resolveWith<Color>((states) {
-              if (states.contains(MaterialState.selected)) {
-                return const Color(0xFF5662AC);
-              }
-              return const Color(0xFFC6D6DB);
-            }),
-            onChanged: (newValue) {
-              setState(() {
-                checkBoxValue = newValue ?? false;
-              });
-            },
-          ),
-        ),
-      ),
-    ),
-  ),
-),
-
-                        Flexible(
-                          child: Wrap(
-                            spacing: 4,
-                            children: [
-                              Text(
-                                'I agree to the',
-                                 style: GoogleFonts.montserrat(
-                    textStyle: const TextStyle(
-                      color: Color(0xFF121212),
-                      fontWeight: FontWeight.w400,
-                      fontSize: 14,
-                      height: 1.5,
-                    ),
-                  ),
-                ),
-                              Text(
-                                ' Terms and Conditions',
-                                style: GoogleFonts.montserrat(
-                                  textStyle: TextStyle(
-                                    color: const Color(0xFF5662AC),
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: screenWidth * 0.035,
-                                  ),
-                                ),
-                              ),
-                              const Text("and"),
-                InkWell(
-                  onTap: () => print("Privacy Policy"),
-                  child: const Text(
-                    "Privacy Policy",
-                    style: TextStyle(color: Color(0xFF5662AC),
-                     fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      height: 1.5,
-                  ),),),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: screenWidth * 0.17),
-                  Padding(
-                    padding: EdgeInsets.only(top: screenWidth * 0.04),
-                    child: SizedBox(
-                      width: responsiveWidth,
-                      height: screenWidth * 0.12,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          if (_isLoading) return;
-  if (!checkBoxValue) {
-    _showSnackbar('Accept Terms and Conditions');
-    return; // Exit if terms are not accepted
-  }
-  if (!password.text.isNotEmpty || !username.text.isNotEmpty || !emailController.text.isNotEmpty) {
-    _showSnackbar('Fill All the Fields First.');
-    return;
-  }
-  if (!isPasswordValid(password.text, username.text, emailController.text)) {
-    _showSnackbar('Password does not meet the requirements.');
-    setState(() {
-      _isVisible = true;
-    });
-    return;
-  }
-   // Prevent multiple taps
-  setState(() {
-    _isLoading = true; // Start loading
-    _isVisible = false; // Hide password requirements
-  });
-  if (password.text == confirmpassword.text) {
-    final registrationRequest = UserRegistrationRequest(
-      userName: username.text,
-      email: emailController.text,
-      password: password.text,
-      confirmPassword: confirmpassword.text,
-    );
-    final dioClient = DioClient();
-    try {
-      final response = await dioClient.registerUser(registrationRequest);
-      setState(() => _isLoading = false);
-
-      if (response != null && response is UserRegistrationResponse) {
-        if (response.message == 'OTP sent successfully') {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(response.message),
-          ));
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Otpview(
-                email: emailController.text,
-                username: username.text,
-                password: password.text,
-                confirmpassword: confirmpassword.text,
-              ),
-            ),
-          );
-        } 
-      } else if(response == "Server Error"){
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(response),
-        ));
-      }
-      else{
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(response ?? "Unexpected Error"),
-        ));
-      }
-      
-    } on ApiError catch (e) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Unexpected error"),
-        duration: const Duration(seconds: 2),
-      ));
-    } catch (e) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Server Error or User Already Exist'),
-      ));
-    }
-  } else {
-    setState(() => _isLoading = false);
-    _showSnackbar('Passwords do not match');
-  }
-},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF47518C),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: _isLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : Text(
-                                'Create Account',
-                                style: GoogleFonts.montserrat(
-                                  textStyle: TextStyle(
-                                    color: const Color(0xFFFAFAFA),
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: screenWidth * 0.04,
-                                  ),
-                                ),
-                              ),
-                      ),
-                    ),
-                  ),
-                  if (_isVisible)
-                    Padding(
-                      padding: EdgeInsets.only(top: screenWidth * 0.04),
-                      child: Column(
+    final validationState = ref.watch(passwordValidationProvider);
+   const tooltipContent = Column(mainAxisAlignment:MainAxisAlignment.start,
                         children: [
                           Text("Password must be at least 8 characters and include:"),
                           Text('• One Uppercase letter'),
                           Text('• One Number'),
                           Text('• One Special Character'),
                         ],
+                      );
+
+  // const tooltipIcon = Icon(
+  //   Icons.info,
+  //   color: Colors.white,
+  // );
+  final isVisible = context.loaderOverlay.visible;
+
+    double screenWidth = MediaQuery.of(context).size.width;
+    double responsiveWidth = screenWidth * 0.9;
+
+    return GlobalLoaderOverlay(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          top: true,
+          child: SingleChildScrollView(
+            child: Center(
+              child: Container(
+              margin: EdgeInsets.symmetric(vertical: screenWidth * 0.04,),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: responsiveWidth,
+                      margin: EdgeInsets.only(top: screenWidth * 0.05),
+                      child: Text(
+                        'Create Account',
+                        style: GoogleFonts.montserrat(
+                          textStyle: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w700,
+                            fontSize: screenWidth * 0.06,
+                          ),
+                        ),
                       ),
                     ),
-                ],
+                    Container(
+                      width: responsiveWidth,
+                      padding: EdgeInsets.only(top: screenWidth * 0.02),
+                      child: Text(
+                        'Join us to enhance your hotel operations.',
+                        style: GoogleFonts.montserrat(
+                          textStyle: TextStyle(
+                            color: const Color(0xFF4D5962),
+                            fontWeight: FontWeight.w600,
+                            fontSize: screenWidth * 0.04,
+                          ),
+                        ),
+                      ),
+                    ),
+                   
+      
+                    SizedBox(height: screenWidth * 0.07),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: screenWidth * 0.02),
+                      child: SizedBox(
+                        width: responsiveWidth,
+                        child: TextFormField(
+                          controller: username,
+                          decoration: InputDecoration(
+                            labelText: 'User Name',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: const BorderSide(
+                    color: Pallete.primary700,
+                    width: 2.0,
+                  ),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: const BorderSide(
+                    color: Colors.red,
+                    width: 2.0,
+                  ),),
+                          ),
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.05,
+                            color: const Color(0xFF5B6C78),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: screenWidth * 0.07),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: screenWidth * 0.02),
+                      child: SizedBox(
+                        width: responsiveWidth,
+                        child: TextFormField(
+                          controller: emailController,
+                          maxLength: 320,
+                          validator: (value) => EmailValidator.validate(value ?? '')
+                              ? null
+                              : "Enter a valid email.",
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.05,
+                            color: const Color(0xFF5B6C78),
+                          ),
+                          decoration: InputDecoration(
+                            labelText: 'Email',
+                            counterText: "",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: const BorderSide(
+                    color: Pallete.primary700,
+                    width: 2.0,
+                  ),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: const BorderSide(
+                    color: Colors.red,
+                    width: 2.0,
+                  ),
+                ),
+                            suffixIcon: validEmail
+                                ? null
+                                : const Icon(
+                                    Icons.error,
+                                    color: Color(0xFFC80D0D),
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: screenWidth * 0.07),
+                  
+                  
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: screenWidth * 0.02),
+                      child: SizedBox(
+                        width: responsiveWidth,
+                        child:  ElTooltip(
+              position: ElTooltipPosition.bottomStart,
+              content: tooltipContent,
+              color: const Color(0XFFEA4747),
+              child: TextFormField(
+                          controller: password,
+                          focusNode: _focusNode,
+                          maxLength: 25,
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            counterText: "",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            suffixIcon: IconButton(
+                              icon: _obscurePassword
+                                  ? SvgPicture.asset('assets/nopassword.svg')
+                                  : SvgPicture.asset('assets/passwordvisible.svg'),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: const BorderSide(
+                    color: Pallete.primary700,
+                    width: 2.0,
+                  ),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: const BorderSide(
+                    color: Colors.red,
+                    width: 2.0,
+                  ),),
+                          ),
+                          onChanged: (value) {
+                            // <-- Add this line to validate the password as user types
+        },
+                          obscureText: _obscurePassword,
+                          obscuringCharacter: '●',
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.05,
+                            color: const Color(0xFF5B6C78),
+                          ),
+                        ),
+                      ),
+                    ),
+            
+           
+            ),
+             if (_showValidationCard)
+              PasswordValidationCard(validationState: validationState),
+              // const SizedBox(height: 20),
+              // if (_focusNode.hasFocus)
+              //   _buildPasswordValidationCard(),
+                    SizedBox(height: screenWidth * 0.07),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: screenWidth * 0.02),
+                      child: SizedBox(
+                        width: responsiveWidth,
+                        child: TextFormField(
+                          controller: confirmpassword,
+                          maxLength: 25,
+                          validator: (value) {
+                            if (value != password.text) return "Passwords do not match.";
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'Confirm Password',
+                            counterText: "",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            suffixIcon: IconButton(
+                              icon: _obscureconfirmPassword
+                                  ? SvgPicture.asset('assets/nopassword.svg')
+                                  : SvgPicture.asset('assets/passwordvisible.svg'),
+                              onPressed: () {
+                                setState(() {
+                                  _obscureconfirmPassword = !_obscureconfirmPassword;
+                                });
+                              },
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: const BorderSide(
+                    color: Pallete.primary700,
+                    width: 2.0,
+                  ),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: const BorderSide(
+                    color: Colors.red,
+                    width: 2.0,
+                  ),),
+                          ),
+                          obscureText: _obscureconfirmPassword,
+                          obscuringCharacter: '●',
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.05,
+                            color: const Color(0xFF5B6C78),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: screenWidth * 0.07),
+                  SizedBox(
+        width: responsiveWidth,
+        child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Checkbox Container
+        Container(
+      
+          height:18,
+          width:18,
+          padding: const EdgeInsets.only(top: 8),
+          margin: EdgeInsets.zero,
+          child: CheckboxTheme(
+            data: CheckboxThemeData(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+              side: const BorderSide(
+                width: 1,
+                color: Colors.transparent,
+              ),
+            ),
+            child: Checkbox(
+              checkColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+              value: checkBoxValue,
+              splashRadius: 0,
+              fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return const Color(0xFF5662AC);
+                }
+                return const Color(0xFFC6D6DB);
+              }),
+              onChanged: (newValue) {
+                setState(() {
+                  checkBoxValue = newValue ?? false;
+                });
+              },
+            ),
+          ),
+        ),
+      SizedBox(width: screenWidth* 0.022,),
+        // Text with RichText Widget
+        Flexible(
+          child: RichText(
+            textAlign: TextAlign.start,
+            text: TextSpan(
+              style: GoogleFonts.montserrat(
+                textStyle: const TextStyle(
+                  color: Color(0xFF121212),
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                  height: 1.5,
+                ),
+              ),
+              children: [
+                const TextSpan(text: 'I agree to the '),
+                TextSpan(
+                  text: 'Terms and Conditions',
+                  style: GoogleFonts.montserrat(
+                    textStyle: const TextStyle(
+                      color: Color(0xFF5662AC),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                const TextSpan(text: ' and '),
+                TextSpan(
+                  text: 'Privacy Policy',
+                  style: const TextStyle(
+                    color: Color(0xFF5662AC),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    
+                  ),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      print("Privacy Policy tapped");
+                    },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+        ),
+      ),
+      
+                    SizedBox(height: screenWidth * 0.17),
+                    Padding(
+                      padding: EdgeInsets.only(top: screenWidth * 0.04),
+                      child: SizedBox(
+                        width: responsiveWidth,
+                        height: screenWidth * 0.12,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                             hideKeyboard(context); 
+                            if (_isLoading || isVisible) return;
+        if (!checkBoxValue) {
+      _showSnackbar('Accept Terms and Conditions');
+      return; // Exit if terms are not accepted
+        }
+        if (!password.text.isNotEmpty || !username.text.isNotEmpty || !emailController.text.isNotEmpty) {
+      _showSnackbar('Fill All the Fields First.');
+      return;
+        }
+        if (!isPasswordValid(password.text, username.text, emailController.text)) {
+      _showSnackbar('Password does not meet the requirements.');
+      setState(() {
+        _isVisible = true;
+        
+      });
+      return;
+        }
+         // Prevent multiple taps
+        setState(() {
+      _isLoading = true; 
+      context.loaderOverlay.show();// Start loading
+      _isVisible = false; // Hide password requirements
+        });
+        if (password.text == confirmpassword.text) {
+      final registrationRequest = UserRegistrationRequest(
+        userName: username.text,
+        email: emailController.text,
+        password: password.text,
+        confirmPassword: confirmpassword.text,
+      );
+      final dioClient = DioClient();
+      try {
+        final response = await dioClient.registerUser(registrationRequest);
+        setState(() => _isLoading = false);
+      
+        if (response != null && response is UserRegistrationResponse) {
+          if (response.message == 'OTP sent successfully') {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(response.message),
+            ));
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Otpview(
+                  email: emailController.text,
+                  username: username.text,
+                  password: password.text,
+                  confirmpassword: confirmpassword.text,
+                ),
+              ),
+            );
+          } 
+        } else if(response == "Server Error"){
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(response),
+          ));
+        }
+        else{
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(response ?? "Unexpected Error"),
+          ));
+        }
+        
+      } on ApiError {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Unexpected error"),
+          duration: Duration(seconds: 2),
+        ));
+      } catch (e) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Server Error or User Already Exist'),
+        ));
+      }
+        } else {
+      setState(() {_isLoading = false;
+      context.loaderOverlay.hide();});
+      _showSnackbar('Passwords do not match');
+        }
+        context.loaderOverlay.hide();
+      },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF47518C),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: false
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : Text(
+                                  'Create Account',
+                                  style: GoogleFonts.montserrat(
+                                    textStyle: TextStyle(
+                                      color: const Color(0xFFFAFAFA),
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: screenWidth * 0.04,
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                    // if (_isVisible)
+                    //   Padding(
+                    //     padding: EdgeInsets.only(top: screenWidth * 0.04),
+                    //     child: const Column(
+                    //       children: [
+                    //         Text("Password must be at least 8 characters and include:"),
+                    //         Text('• One Uppercase letter'),
+                    //         Text('• One Number'),
+                    //         Text('• One Special Character'),
+                    //       ],
+                    //     ),
+                    //   ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -504,3 +605,58 @@ bool isPasswordValid(String password, String username, String email) {
     );
   }
 }
+
+
+//   Widget _buildPasswordValidationCard() {
+//     return Container(
+//       margin: const EdgeInsets.only(top: 10),
+//       padding: const EdgeInsets.all(16),
+//       decoration: BoxDecoration(
+//         color: Color(0xFFFEEAEA), // Light pink background
+//         borderRadius: BorderRadius.circular(8),
+//       ),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(
+//             'Password must be at least 8 characters long and include:',
+//             style: GoogleFonts.montserrat(
+//               fontSize: 14,
+//               fontWeight: FontWeight.w500,
+//               color: Colors.black87,
+//             ),
+//           ),
+//           const SizedBox(height: 10),
+//           _buildValidationRow(hasUppercase, 'One uppercase letter'),
+//           _buildValidationRow(hasLowercase, 'One lowercase letter'),
+//           _buildValidationRow(hasDigits, 'One number'),
+//           _buildValidationRow(hasSpecialCharacters, 'One special character (&@%\$ etc.)'),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildValidationRow(bool isValid, String text) {
+//     return Padding(
+//       padding: const EdgeInsets.symmetric(vertical: 4),
+//       child: Row(
+//         children: [
+//           Icon(
+//             isValid ? Icons.check_circle : Icons.cancel,
+//             color: isValid ? Colors.green : Colors.red,
+//             size: 20,
+//           ),
+//           const SizedBox(width: 10),
+//           Text(
+//             text,
+//             style: GoogleFonts.montserrat(
+//               fontSize: 14,
+//               color: isValid ? Colors.green : Colors.red,
+//               fontWeight: FontWeight.w500,
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

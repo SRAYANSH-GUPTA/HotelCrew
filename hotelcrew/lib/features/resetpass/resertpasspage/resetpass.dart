@@ -50,7 +50,7 @@ class _ResetpassState extends State<Resetpass> {
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Container(
-          padding: EdgeInsets.only(top: 20, left: 16, right: 16),
+          padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
           child: Column(
             children: [
               // Title with responsive font size
@@ -70,7 +70,7 @@ class _ResetpassState extends State<Resetpass> {
                   ),
                 ),
               ),
-              Container(
+              SizedBox(
                 height: 42,
                 width: screenWidth * 0.9,
                 child: Text(
@@ -142,7 +142,7 @@ class _ResetpassState extends State<Resetpass> {
                                   });
                                   if (response is ForgetPasswordSuccessResponse) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
+                                      const SnackBar(
                                           content: Text(
                                               "Password Reset Otp sent successfully.")),
                                     );
@@ -162,14 +162,20 @@ class _ResetpassState extends State<Resetpass> {
                                   }
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
+                                    const SnackBar(
                                         content: Text(
                                             "Enter a valid email address.")),
                                   );
                                 }
                               },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF47518C),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
                         child: _isLoading
-                            ? SizedBox(
+                            ? const SizedBox(
                                 height: 20,
                                 width: 20,
                                 child: CircularProgressIndicator(
@@ -187,12 +193,6 @@ class _ResetpassState extends State<Resetpass> {
                                   ),
                                 ),
                               ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF47518C),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -205,7 +205,7 @@ class _ResetpassState extends State<Resetpass> {
                             'Remember Password?',
                             style: GoogleFonts.montserrat(
                               textStyle: TextStyle(
-                                color: Color(0xFF4D5962),
+                                color: const Color(0xFF4D5962),
                                 fontWeight: FontWeight.w400,
                                 fontSize: screenWidth * 0.03, // Responsive font size
                                 height: 1.5,
@@ -214,7 +214,7 @@ class _ResetpassState extends State<Resetpass> {
                           ),
                         ),
                         const SizedBox(width: 4),
-                        Container(
+                        SizedBox(
                           width: 61,
                           height: 28,
                           child: TextButton(
@@ -222,13 +222,13 @@ class _ResetpassState extends State<Resetpass> {
                               Navigator.pop(context);
                             },
                             style: TextButton.styleFrom(
-                              padding: EdgeInsets.all(0),
+                              padding: const EdgeInsets.all(0),
                               backgroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child: Container(
+                            child: SizedBox(
                               height: 20,
                               width: 45,
                               child: Text(

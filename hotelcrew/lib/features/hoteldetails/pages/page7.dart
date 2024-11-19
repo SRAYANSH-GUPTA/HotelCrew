@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../../../core/packages.dart';
 class PageFive extends StatefulWidget {
+  const PageFive({super.key});
+
   @override
   _PageFiveState createState() => _PageFiveState();
 }
@@ -65,7 +64,7 @@ class _PageFiveState extends State<PageFive> {
     final offset = renderBox.localToGlobal(Offset.zero);
 
     // Adjust this value to change the height from the top
-    final dropdownHeightOffset = 370.0; // Set to your desired height offset
+    const dropdownHeightOffset = 370.0; // Set to your desired height offset
 
     _dropdownOverlay = OverlayEntry(
       builder: (context) => Positioned(
@@ -74,7 +73,7 @@ class _PageFiveState extends State<PageFive> {
         child: Material(
           elevation: 4,
           child: Container(
-            margin: EdgeInsets.only(left: 16),
+            margin: const EdgeInsets.only(left: 16),
             width: 328, // Set your desired width here
             color: Colors.white,
             child: Column(
@@ -83,7 +82,7 @@ class _PageFiveState extends State<PageFive> {
                 return ListTile(
                   title: Text(item),
                   trailing: IconButton(
-                    icon: Icon(Icons.delete, color: Color(0xFF47518C)), // Always show the delete icon
+                    icon: const Icon(Icons.delete, color: Color(0xFF47518C)), // Always show the delete icon
                     onPressed: () {
                       _deleteItem(item); // Delete item from list when pressed
                     },
@@ -133,13 +132,13 @@ class _PageFiveState extends State<PageFive> {
     final screenHeight = MediaQuery.of(context).size.height;
     return Padding(
       padding: EdgeInsets.only(top: 24, left: screenWidth * 0.045, right: screenWidth * 0.045),
-      child: Container(
+      child: SizedBox(
         height: 392,
         width: screenWidth * 0.9,
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Container(
+              SizedBox(
                 height: 86,
                 width: screenWidth * 0.9,
                 child: Padding(
@@ -152,11 +151,11 @@ class _PageFiveState extends State<PageFive> {
                       labelText: 'Number Of Departments',
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                        borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                        borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
                       ),
                       suffixIcon: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -198,7 +197,7 @@ class _PageFiveState extends State<PageFive> {
                     ),
                     style: GoogleFonts.montserrat(
                       textStyle: const TextStyle(
-                        color: Color(0xFF4D5962),
+                        color: Pallete.neutral950,
                         fontWeight: FontWeight.w400,
                         fontSize: 16,
                         height: 1.5,
@@ -207,47 +206,47 @@ class _PageFiveState extends State<PageFive> {
                   ),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // TextField with Dropdown Toggle
-              GestureDetector(
-                onTap: () {
-                  // Show the dropdown when the TextField is tapped
-                  _toggleDropdown();
-                },
-                child: Container(
-                  height: 86,
-                  width: screenWidth * 0.9,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 8, bottom: 22),
-                    child: TextField(
-                      controller: _controller,
-                      decoration: InputDecoration(
-                        labelText: 'Department Names',
-                        border: OutlineInputBorder(),
-                        suffixIcon: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                               icon: SvgPicture.asset(
-                              'assets/plus.svg',
-                              height: 24,
-                              width: 24,
-                            ),
-                              onPressed: _addItem,
-                              color: Colors.black,
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.arrow_drop_down),
-                              onPressed: _toggleDropdown,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              // GestureDetector(
+              //   onTap: () {
+              //     // Show the dropdown when the TextField is tapped
+              //     _toggleDropdown();
+              //   },
+              //   child: SizedBox(
+              //     height: 86,
+              //     width: screenWidth * 0.9,
+              //     child: Padding(
+              //       padding: const EdgeInsets.only(top: 8, bottom: 22),
+              //       child: TextField(
+              //         controller: _controller,
+              //         decoration: InputDecoration(
+              //           labelText: 'Department Names',
+              //           border: const OutlineInputBorder(),
+              //           suffixIcon: Row(
+              //             mainAxisSize: MainAxisSize.min,
+              //             children: [
+              //               IconButton(
+              //                  icon: SvgPicture.asset(
+              //                 'assets/plus.svg',
+              //                 height: 24,
+              //                 width: 24,
+              //               ),
+              //                 onPressed: _addItem,
+              //                 color: Colors.black,
+              //               ),
+              //               IconButton(
+              //                 icon: const Icon(Icons.arrow_drop_down),
+              //                 onPressed: _toggleDropdown,
+              //               ),
+              //             ],
+              //           ),
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),
