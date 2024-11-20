@@ -4,14 +4,25 @@ import 'model/createtaskmodel.dart';
 import '../../core/widgets.dart';
 
 
-class CreateTaskPage extends StatefulWidget {
-  const CreateTaskPage({super.key});
+class EditTaskPage extends StatefulWidget {
+  final String taskTitle;
+  final String department;
+  final String description;
+  final int id;
+
+  const EditTaskPage({
+    super.key,
+    required this.taskTitle,
+    required this.department,
+    required this.description,
+    required this.id,
+  });
 
   @override
-  State<CreateTaskPage> createState() => _CreateTaskPageState();
+  State<EditTaskPage> createState() => _EditTaskPageState();
 }
 
-class _CreateTaskPageState extends State<CreateTaskPage> {
+class _EditTaskPageState extends State<EditTaskPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController titleController = TextEditingController();
   final TextEditingController departmentController = TextEditingController();
@@ -20,6 +31,17 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
 
   final List<String> departments = ['Housekeeping', 'Receptionist', 'Kitchen', 'Security'];
   final TaskViewModel taskViewModel = TaskViewModel();
+
+  
+@override
+void initState() {
+  super.initState();
+  titleController.text = widget.taskTitle;
+  departmentController.text = widget.department;
+  descriptionController.text = widget.description;
+}
+
+
 
   void _showDepartmentSheet() {
   showModalBottomSheet(
@@ -127,9 +149,9 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
         appBar: AppBar(
           titleSpacing: 0,
           leading: InkWell(
-            onTap:(){ Navigator.pop(context);},
+            onTap: () {Navigator.pop(context);},
             child: const Icon(Icons.arrow_back_ios_outlined,color: Pallete.neutral900,)),
-          title: Text("Create Task",
+          title: Text("Edit Task",
            style: GoogleFonts.montserrat(
               textStyle: const TextStyle(
                 fontSize: 16,
@@ -193,7 +215,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                         context: context,
                         screenHeight: screenHeight,
                         screenWidth: screenWidth,
-                        buttonText: "Assign Task",
+                        buttonText: "Update Task",
                         onPressed: _submitTask,
                         
                       ),

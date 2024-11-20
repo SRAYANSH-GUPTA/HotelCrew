@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:hotelcrew/core/packages.dart';
+import 'package:hotelcrew/features/dashboard/announcementpage.dart';
+import 'attendancepage.dart';
+import 'announcementpage.dart';
 
 class DashHomePage extends StatefulWidget {
   const DashHomePage({super.key});
@@ -12,7 +15,7 @@ class DashHomePage extends StatefulWidget {
 class _DashHomePageState extends State<DashHomePage> {
   // Sample Data (Hardcoded)
   final List<VoidCallback> onPressedList= [
-              () => print('Attendance Pressed'),
+              () =>  print('Attendance Pressed'),
               () => print('Leave Requests Pressed'),
               () => print('Analytics Pressed'),
               () => print('Pay Roll Pressed'),
@@ -56,7 +59,9 @@ Widget build(BuildContext context) {
           Padding(
             padding: EdgeInsets.only(right: 16, top: screenHeight * 0.0125),
             child: InkWell(
-              onTap: () {},
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => AnnouncementPage()));
+              },
               splashColor: Colors.transparent, // Removes the splash effect
               highlightColor: Colors.transparent,
               child: SvgPicture.asset(
@@ -81,7 +86,7 @@ Widget build(BuildContext context) {
                 SizedBox(
                   height: 77,
                   width: screenWidth * 0.428,
-                  child: _buildhomeButton('Attendance', onPressedList[0]),
+                  child: _buildhomeButton('Attendance', () => Navigator.push(context, MaterialPageRoute(builder: (context) => AttendancePage()))),
                 ),
                 SizedBox(width: 0.055 * screenWidth),
                 SizedBox(
@@ -524,7 +529,7 @@ Widget _buildPendingLeaveRequests() {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: Pallete.primary200,
+        backgroundColor: Pallete.primary800,
         elevation: 0,
         // padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
         shape: RoundedRectangleBorder(
@@ -537,7 +542,7 @@ Widget _buildPendingLeaveRequests() {
           textAlign: TextAlign.center,
           style: GoogleFonts.montserrat(
                               textStyle: const TextStyle(
-                                color: Pallete.neutral950,
+                                color: Pallete.neutral00,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
                                 height: 1.5,

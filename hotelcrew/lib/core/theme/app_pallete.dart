@@ -4,6 +4,7 @@ class Pallete {
   static const primarycolor = Color(0xFF47518C);
   static const whitecolor = Color(0xFFFFFFFF);
   static const neutral = Color(0xFF768FA1);
+  static const neutral400 = Color(0xFFAEC4CB);
   static const neutral950 = Color(0xFF2D3439);
   static const neutral500 = Color(0xFF98B0BC);
   static const pagecolor = Color(0xFFFAFAFA);
@@ -25,9 +26,16 @@ class Pallete {
   static const warning400 = Color(0xFFFFB84D);
   static const error400 = Color(0xFFFF6464);
   static const accent100 = Color(0xFFF8EBF1);
+  static const accent200 = Color(0xFFF3D7E5);
+  static const accent800 = Color(0xFFF852F4C);
   static const blue950 = Color(0xFF1D2C4E);
   static const error700 = Color(0xFFC80D0D);
   static const error100 = Color(0xFFFFDFDF);
   static const warning200 = Color(0xFFFFE4A8);
   static const success200 = Color(0xFFC8EAC9);
+  static const success700 = Color(0xFF2D6830);
+  static const error800 = Color(0xFFA50F0F);
+  static const success100 = Color(0xFFE3F5E3);
+  static const success800 = Color(0xFF275429);
+  
 }

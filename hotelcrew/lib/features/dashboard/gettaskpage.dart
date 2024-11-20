@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hotelcrew/core/packages.dart';
+import 'package:hotelcrew/features/dashboard/createtask.dart';
 import 'model/gettaskmodel.dart';
 import 'viewmodel/gettaskviewmodel.dart';
+import 'edittaskpage.dart';
+import 'createtask.dart';
 
 class TaskManagementPage extends StatefulWidget {
   const TaskManagementPage({Key? key}) : super(key: key);
@@ -33,6 +36,18 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
   // Mock function to navigate to update task page
   void _navigateToUpdateTask(Task task) {
     print("Navigating to update page for task: ${task.title}");
+    Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => EditTaskPage(
+      id: task.id, // Replace with actual task ID
+      taskTitle: task.title, // Replace with actual task title
+      department: task.department, // Replace with actual department
+      description: task.description, // Replace with actual description
+    ),
+  ),
+);
+
   }
 
   @override
@@ -75,7 +90,8 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
           height: 40,  // Height in pixels
           child: ElevatedButton.icon(
             onPressed: () {   
-              // Define the button action here
+              Navigator.push(context, MaterialPageRoute(builder: (context) => CreateTaskPage()));
+                        
             },
             icon: const Icon(Icons.add, size: 18, color: Colors.white),
             label: Text(
@@ -264,7 +280,7 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
                             padding: const EdgeInsets.symmetric(horizontal: 4),
                             
                             child: Text(
-                              'Maintenance',
+                              task.department ?? "no department",
                               style: GoogleFonts.montserrat(
                                 textStyle: const TextStyle(
                                   fontSize: 12,

@@ -3,12 +3,15 @@ import 'dart:math' hide log;
 
 import 'package:badges/badges.dart';
 import 'package:hotelcrew/features/dashboard/home.dart';
+import 'package:hotelcrew/features/dashboard/profile.dart';
 import 'app_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 import 'package:navbar_router/navbar_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/packages.dart';
+import 'gettaskpage.dart';
+import 'shift.dart';
 
 // void main() {
 //   runApp(ProviderScope(
@@ -38,18 +41,21 @@ class Dashboard extends StatelessWidget {
                 ProfileEdit.route: (context) => const ProfileEdit(),
               },
               themeMode:
-                  appSetting.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+                  appSetting.isDarkMode ? ThemeMode.light : ThemeMode.light,
               darkTheme: ThemeData.dark(
                 useMaterial3: true,
               ).copyWith(
                   colorScheme: ColorScheme.fromSeed(
-                      seedColor: appSetting.themeSeed,
+                      seedColor: Colors.black,
                       brightness: Brightness.dark)),
               theme: ThemeData(
                   useMaterial3: true,
-                  primaryColorDark: appSetting.themeSeed,
+                  // bottomNavigationBarTheme: ThemeData.light,
+                  indicatorColor: Colors.black,
+                  primaryColorDark: Colors.black,
+                  focusColor: Colors.black,
                   colorScheme:
-                      ColorScheme.fromSeed(seedColor: appSetting.themeSeed)),
+                      ColorScheme.fromSeed(seedColor: Colors.black)),
               home: const HomePage());
         });
     // home: const NavbarSample(title: 'BottomNavbar Demo'));
@@ -85,7 +91,7 @@ class AppSetting extends ChangeNotifier {
   AppSetting({this.isDarkMode = false});
 
   void changeThemeSeed(Color color) {
-    themeSeed = color;
+    themeSeed = Colors.black;
     notifyListeners();
   }
 
@@ -102,21 +108,20 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  final Map<int, Map<String, Widget>> _routes = const {
+  final Map<int, Map<String, Widget>> _routes = {
     0: {
      '/': DashHomePage(),
     },
     1: {
-      '/': ProductList(),
-      ProductDetail.route: ProductDetail(),
-      ProductComments.route: ProductComments(),
+      '/': TaskManagementPage(),
+      
     },
     2: {
-      '/': UserProfile(),
-      ProfileEdit.route: ProfileEdit(),
+      '/': ShiftSchedulePage(),
+      // ProfileEdit.route: ProfileEdit(),
     },
     3: {
-      '/': DashHomePage(),
+      '/': ProfilePage(),
     },
   };
 
@@ -137,9 +142,9 @@ class _HomePageState extends ConsumerState<HomePage> {
   void initState() {
     super.initState();
     // simulateTabChange(times: 1, delayInMs: 2000);
-    NavbarNotifier.addIndexChangeListener((x) {
-      log('NavbarNotifier.indexChangeListener: $x');
-    });
+    // NavbarNotifier.addIndexChangeListener((x) {
+    //   log('NavbarNotifier.indexChangeListener: $x');
+    // });
   }
 
   @override
@@ -180,76 +185,77 @@ class _HomePageState extends ConsumerState<HomePage> {
         )),
     ];
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      floatingActionButton: AnimatedBuilder(
-          animation: NavbarNotifier(),
-          builder: (context, child) {
-            if (!appRef.showFAB || appRef.index < 2) {
-              return Padding(
-                padding: EdgeInsets.only(bottom: kNavbarHeight + 32.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const SizedBox(
-                      width: 60,
-                    ),
-                    FloatingActionButton.extended(
-                      heroTag: 'RandomIndex',
-                      onPressed: () {
-                        int index = Random().nextInt(100);
-                        NavbarNotifier.index = index % 4;
-                      },
-                      label: const Text("Random Index"),
-                    ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    FloatingActionButton.extended(
-                      heroTag: 'showSnackBar',
-                      onPressed: () {
-                        final state = Scaffold.of(context);
-                        NavbarNotifier.showSnackBar(
-                          context,
-                          "This is shown on top of the Floating Action Button",
-                          bottom:
-                              state.hasFloatingActionButton ? 0 : kNavbarHeight,
-                        );
-                      },
-                      label: const Text("Show SnackBar"),
-                    ),
-                    FloatingActionButton(
-                      heroTag: 'navbar',
-                      child: Icon(NavbarNotifier.isNavbarHidden
-                          ? Icons.toggle_off
-                          : Icons.toggle_on),
-                      onPressed: () {
-                        // Programmatically toggle the Navbar visibility
-                        if (NavbarNotifier.isNavbarHidden) {
-                          NavbarNotifier.hideBottomNavBar = false;
-                        } else {
-                          NavbarNotifier.hideBottomNavBar = true;
-                        }
-                        setState(() {});
-                      },
-                    ),
-                    FloatingActionButton(
-                      heroTag: 'darkmode',
-                      child: Icon(appSetting.isDarkMode
-                          ? Icons.wb_sunny
-                          : Icons.nightlight_round),
-                      onPressed: () {
-                        appSetting.toggleTheme();
-                        setState(() {});
-                      },
-                    ),
-                  ],
-                ),
-              );
-            }
-            return const SizedBox.shrink();
-          }),
+      // resizeToAvoidBottomInset: false,
+      // floatingActionButton: AnimatedBuilder(
+      //     animation: NavbarNotifier(),
+      //     builder: (context, child) {
+            // if (!appRef.showFAB || appRef.index < 2) {
+              // return Padding(
+              //   padding: EdgeInsets.only(bottom: kNavbarHeight + 32.0),
+              //   child: Row(
+              //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //     children: [
+              //       const SizedBox(
+              //         width: 60,
+              //       ),
+              //       FloatingActionButton.extended(
+              //         heroTag: 'RandomIndex',
+              //         onPressed: () {
+              //           int index = Random().nextInt(100);
+              //           NavbarNotifier.index = index % 4;
+              //         },
+              //         label: const Text("Random Index"),
+              //       ),
+              //       const SizedBox(
+              //         width: 20,
+              //       ),
+              //       // FloatingActionButton.extended(
+              //       //   heroTag: 'showSnackBar',
+              //       //   onPressed: () {
+              //       //     final state = Scaffold.of(context);
+              //       //     NavbarNotifier.showSnackBar(
+              //       //       context,
+              //       //       "This is shown on top of the Floating Action Button",
+              //       //       bottom:
+              //       //           state.hasFloatingActionButton ? 0 : kNavbarHeight,
+              //       //     );
+              //       //   },
+              //       //   label: const Text("Show SnackBar"),
+              //       // ),
+              //       // FloatingActionButton(
+              //       //   heroTag: 'navbar',
+              //       //   child: Icon(NavbarNotifier.isNavbarHidden
+              //       //       ? Icons.toggle_off
+              //       //       : Icons.toggle_on),
+              //       //   onPressed: () {
+              //       //     // Programmatically toggle the Navbar visibility
+              //       //     if (NavbarNotifier.isNavbarHidden) {
+              //       //       NavbarNotifier.hideBottomNavBar = false;
+              //       //     } else {
+              //       //       NavbarNotifier.hideBottomNavBar = true;
+              //       //     }
+              //       //     setState(() {});
+              //       //   },
+              //       // ),
+              //       // FloatingActionButton(
+              //       //   heroTag: 'darkmode',
+              //       //   child: Icon(appSetting.isDarkMode
+              //       //       ? Icons.wb_sunny
+              //       //       : Icons.nightlight_round),
+              //       //   onPressed: () {
+              //       //     appSetting.toggleTheme();
+              //       //     setState(() {});
+              //       //   },
+              //       // ),
+              //     ],
+              //   ),
+          //     );
+          //   }
+          //   return const SizedBox.shrink();
+          // }),
       body: Builder(builder: (context) {
         return NavbarRouter(
+          hideBadgeOnPageChanged: false,
           errorBuilder: (context) {
             return const Center(child: Text('Error 404'));
           },
@@ -279,20 +285,23 @@ class _HomePageState extends ConsumerState<HomePage> {
           type: NavbarType.material3,
           destinationAnimationCurve: Curves.fastOutSlowIn,
           destinationAnimationDuration: 200,
+          //  indicatorColor: Colors.black,
           decoration: FloatingNavbarDecoration(
+            borderRadius:BorderRadius.circular(100),
             height: 80,
             // minExtendedWidth: 226,
             // minWidth: 92,
-            borderRadius: BorderRadius.circular(20),
+           
+            // borderRadius: BorderRadius.circular(20),
             isExtended: size.width > 800 ? true : false,
             // labelTextStyle: const TextStyle(
-            //     color: Color.fromARGB(255, 176, 207, 233), fontSize: 14),
-            // elevation: 3.0,
+            // elevation: 3.0,    color: Color.fromARGB(255, 176, 207, 233), fontSize: 14),
+            
             // indicatorShape: const RoundedRectangleBorder(
             //   borderRadius: BorderRadius.all(Radius.circular(20)),
             // ),
             backgroundColor:
-                Theme.of(context).colorScheme.surfaceContainerHighest,
+                Pallete.neutral100,
             // indicatorColor: const Color.fromARGB(255, 176, 207, 233),
             // // iconTheme: const IconThemeData(color: Colors.indigo),
             // /// labelTextStyle: const TextStyle(color: Colors.white, fontSize: 14),

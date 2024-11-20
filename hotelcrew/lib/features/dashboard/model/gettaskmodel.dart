@@ -5,6 +5,7 @@ class Task {
   final String status;
   final String description;
   final String deadline;
+  final String department;
 
   Task({
     required this.id,
@@ -13,6 +14,7 @@ class Task {
     required this.status,
     required this.description,
     required this.deadline,
+    required this.department,
   });
 
   // Factory method to parse from JSON
@@ -24,6 +26,7 @@ class Task {
       status: json['status'],
       description: json['description'] ?? 'No description available',
       deadline: json['deadline'],
+      department: json['department'] ?? 'No department available',
     );
   }
 }

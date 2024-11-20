@@ -57,9 +57,15 @@ class _AnnouncementPageState extends State<AnnouncementPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Pallete.neutral00,
       
       appBar: AppBar(
-        leading: const Icon(Icons.arrow_back_ios_outlined,color: Pallete.neutral900,),
+        // foregroundColor: Pallete.pagecolor,
+        leading: InkWell(
+          onTap: (){
+            Navigator.pop(context);
+          },
+          child: const Icon(Icons.arrow_back_ios_outlined,color: Pallete.neutral900,)),
         titleSpacing: 0,
         title: Text(
           'Announcement',
@@ -71,7 +77,7 @@ class _AnnouncementPageState extends State<AnnouncementPage> {
             ),
           ),
         ),
-        backgroundColor: Colors.transparent,
+        backgroundColor: Pallete.pagecolor,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
@@ -160,13 +166,15 @@ class AnnouncementCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
+      color: Pallete.primary50,
+      elevation: 0,
       shape: const RoundedRectangleBorder(
+        side: BorderSide(color: Pallete.primary200, width: 1),
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(12),
-          topRight: Radius.circular(12),
-          bottomLeft: Radius.circular(4),
-          bottomRight: Radius.circular(4),
+          topLeft: Radius.circular(8),
+          topRight: Radius.circular(8),
+          bottomLeft: Radius.circular(8),
+          bottomRight: Radius.circular(8),
         ),
       ),
       margin: const EdgeInsets.only(bottom: 16),
@@ -175,79 +183,100 @@ class AnnouncementCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            
+            Text(
+              announcement.title,
+              style: GoogleFonts.montserrat(
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  height: 1.5
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                   decoration: BoxDecoration(
                     color: announcement.priority == 'Urgent'
-                        ? Colors.redAccent.withOpacity(0.2)
-                        : Colors.greenAccent.withOpacity(0.2),
+                        ? Pallete.accent200
+                        : Pallete.success100,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     announcement.priority,
                     style: GoogleFonts.montserrat(
                       textStyle: TextStyle(
-                        color: announcement.priority == 'Urgent' ? Colors.red : Colors.green,
-                        fontWeight: FontWeight.w600,
+                        color: announcement.priority == 'Urgent' ? Pallete.accent800 : Pallete.success800,
+                        fontWeight: FontWeight.w500,
                         fontSize: 12,
+                        height: 1.3,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 16),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.blueAccent.withOpacity(0.2),
+                    color: Pallete.primary200,
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: Text(
-                    announcement.department,
-                    style: GoogleFonts.montserrat(
-                      textStyle: const TextStyle(
-                        color: Colors.blueAccent,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
+                  child: Row(
+                    children: [SvgPicture.asset('assets/anndept.svg', height: 12, width: 12),
+                    SizedBox(width:4),
+
+                      Text(
+                      announcement.department,
+                      style: GoogleFonts.montserrat(
+                        textStyle: const TextStyle(
+                          color: Pallete.neutral800,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
+                    ],
+                    
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
             Text(
-              announcement.title,
-              style: GoogleFonts.montserrat(
-                textStyle: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
               announcement.description,
               style: GoogleFonts.montserrat(
                 textStyle: const TextStyle(
                   fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: Pallete.neutral900,
                   height: 1.5,
                 ),
               ),
             ),
             const SizedBox(height: 12),
-            Row(
+            Row(crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.person, size: 16, color: Colors.grey),
+                    SvgPicture.asset('assets/annuser.svg', height: 28, width: 28),
                     const SizedBox(width: 4),
+                      Column(crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [Text(
+                        'Username',
+                        style: const TextStyle(fontSize: 12, color: Pallete.neutral800,
+                        fontWeight: FontWeight.w700,
+                        height: 1.5),
+                                            ),
+                      
                     Text(
                       announcement.role,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
+                      style: const TextStyle(fontSize: 12, color: Pallete.neutral800,
+                      fontWeight: FontWeight.w400),
+                    ),]),
                   ],
                 ),
                 Text(

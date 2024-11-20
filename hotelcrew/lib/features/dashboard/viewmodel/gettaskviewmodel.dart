@@ -18,6 +18,7 @@ class TaskService {
         "assigned_to": 5,
         "description": "Prepare the agenda for the upcoming meeting with the board of directors.",
         "status": "Pending",
+        "department": "Maintainance",
         "deadline": "2024-11-30"
       },
       {
@@ -26,12 +27,14 @@ class TaskService {
         "assigned_to": 3,
         "description": "Clean and sanitize Room 101 before the arrival of the VIP guest.",
         "status": "In Progress",
-        "deadline": "2024-11-25"
+        "deadline": "2024-11-25",
+        "department": "Maintainance"
       },
       {
         "id": 3,
         "title": "Inventory check",
         "assigned_to": 4,
+        "department": "Maintainance",
         "description": "Conduct an inventory check of all items in the storage room.",
         "status": "Completed",
         "deadline": "2024-11-20"
@@ -40,6 +43,7 @@ class TaskService {
         "id": 4,
         "title": "Update guest records",
         "assigned_to": 2,
+        "department": "Maintainance",
         "description": "Update the guest records with the latest information.",
         "status": "Pending",
         "deadline": "2024-12-01"

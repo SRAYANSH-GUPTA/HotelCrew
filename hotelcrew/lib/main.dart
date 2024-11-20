@@ -7,7 +7,7 @@ import 'package:hotelcrew/features/hoteldetails/pages/hoteldetailspage1.dart';
 import 'package:hotelcrew/features/onboarding/page/onboarding_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'features/dashboard/createtask.dart';
+import 'features/dashboard/attendancepage.dart';
 import 'features/dashboard/gettaskpage.dart';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -183,7 +183,7 @@ void logFcmToken() async {
   void _navigateToDashboard() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => TaskManagementPage()),
+      MaterialPageRoute(builder: (context) => Dashboard()),
     );
   }
 
