@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../../core/packages.dart';
 
 class AttendancePage extends StatefulWidget {
-  const AttendancePage({Key? key}) : super(key: key);
+  const AttendancePage({super.key});
 
   @override
   _AttendancePageState createState() => _AttendancePageState();
@@ -44,7 +43,7 @@ class _AttendancePageState extends State<AttendancePage> {
   @override
   void initState() {
     super.initState();
-    // fetchAttendanceData();
+    fetchAttendanceData();
   }
 
   Future<void> fetchAttendanceData({String? department}) async {
@@ -55,11 +54,11 @@ class _AttendancePageState extends State<AttendancePage> {
 
     try {
       final response = await _dio.get(
-        apiUrl,
+        'https://hotelcrew-1.onrender.com/api/attendance/list/',
         options: Options(
           validateStatus: (status) => status! < 501,
           headers: {
-            'Authorization': 'Bearer <YOUR_ACCESS_TOKEN>',
+            'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0ODY3ODE3LCJpYXQiOjE3MzIyNzU4MTcsImp0aSI6IjE2ZDFkMTcyMjllYzRjZTRiYzY1YjdjYjAxOTA2YWVjIiwidXNlcl9pZCI6Nzd9.hG5bs9qacu7zlfm8foRDfyHS4TgQWyPjlQG40nwQaN8',
           },
         ),
         queryParameters: department != null ? {'department': department} : null,
@@ -112,14 +111,14 @@ class _AttendancePageState extends State<AttendancePage> {
             // Department Filter Dropdown
             Padding(
               padding: const EdgeInsets.only(left: 19),
-              child: Container(
+              child: SizedBox(
                 height: 30,
                 width: screenWidth * 0.39,
                 child: Card(
                   color: Pallete.pagecolor,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    side: BorderSide(color: Pallete.neutral400, width: 1),
+                    side: const BorderSide(color: Pallete.neutral400, width: 1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Padding(
@@ -142,7 +141,7 @@ class _AttendancePageState extends State<AttendancePage> {
                               setState(() {
                                 selectedDepartment = newValue!;
                               });
-                              // fetchAttendanceData(department: newValue != 'All Staff' ? newValue : null);
+                              fetchAttendanceData(department: newValue != 'All Staff' ? newValue : null);
                             },
                             items: <String>[
                               'All Staff',

@@ -1,15 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:hotelcrew/core/packages.dart';
 import 'package:hotelcrew/features/dashboard/createtask.dart';
 import 'model/gettaskmodel.dart';
 import 'viewmodel/gettaskviewmodel.dart';
 import 'edittaskpage.dart';
-import 'createtask.dart';
 
 class TaskManagementPage extends StatefulWidget {
-  const TaskManagementPage({Key? key}) : super(key: key);
+  const TaskManagementPage({super.key});
 
   @override
   State<TaskManagementPage> createState() => _TaskManagementPageState();
@@ -40,9 +36,9 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
   context,
   MaterialPageRoute(
     builder: (context) => EditTaskPage(
-      id: task.id, // Replace with actual task ID
+      id: task.id.toString(), // Replace with actual task ID
       taskTitle: task.title, // Replace with actual task title
-      department: task.department, // Replace with actual department
+      department: task.department ?? "", // Replace with actual department
       description: task.description, // Replace with actual description
     ),
   ),
@@ -85,12 +81,12 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start,
           children:[
             Container(
-              margin: EdgeInsets.only(left: 16,top: 32),
+              margin: const EdgeInsets.only(left: 16,top: 32),
           width: screenWidth * 0.5445, // Width in pixels
           height: 40,  // Height in pixels
           child: ElevatedButton.icon(
             onPressed: () {   
-              Navigator.push(context, MaterialPageRoute(builder: (context) => CreateTaskPage()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateTaskPage()));
                         
             },
             icon: const Icon(Icons.add, size: 18, color: Colors.white),
@@ -114,9 +110,9 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
               elevation: 2, // Button elevation for shadow
             ),
           ),),
-            SizedBox(height: 32,),
+            const SizedBox(height: 32,),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 "Monitor Active Tasks",
                 style: GoogleFonts.montserrat(
@@ -129,7 +125,7 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
                 ),
               ),
             ),
-            SizedBox(height: 32,),
+            const SizedBox(height: 32,),
             Padding(
               
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -139,13 +135,14 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
+                    
+                    return Center(child: Text('Error: ${snapshot.error}!!!!!!!'));
                   } else if (snapshot.hasData) {
                     List<Task> tasks = snapshot.data!;
                     
                     return ListView.builder(
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: tasks.length,
                       itemBuilder: (context, index) {
                         return _buildTaskCard(tasks[index]);
@@ -183,7 +180,7 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
       elevation: 0,
       color: Pallete.primary50,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8),
-      side: BorderSide(color: Pallete.primary100, width: 1),
+      side: const BorderSide(color: Pallete.primary100, width: 1),
     ),
       child: Padding(
         padding: const EdgeInsets.only(left: 12.0,right: 12,bottom: 8),
@@ -222,7 +219,7 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
                   color: Pallete.neutral00,
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4),
-                  side: BorderSide(color: Pallete.neutral200, width: 1),),
+                  side: const BorderSide(color: Pallete.neutral200, width: 1),),
                   onSelected: (value) {
                     if (value == 'Edit') {
                       _navigateToUpdateTask(task);
@@ -301,7 +298,7 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
                             child: Text(
                               task.status,
                               style: GoogleFonts.montserrat(
-                                textStyle: TextStyle(
+                                textStyle: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                   color: Pallete.neutral800,
@@ -311,7 +308,7 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
                           ),
                         ],
                       ),
-                      SizedBox(height:10),
+                      const SizedBox(height:10),
                       RichText(
   text: TextSpan(
     text: 'Deadline: ', // First part with its own style
@@ -324,7 +321,7 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
     ),
     children: [
       TextSpan(
-        text: '${task.deadline}', // Second part with different style
+        text: task.deadline, // Second part with different style
         style: GoogleFonts.montserrat(
           textStyle: const TextStyle(
             fontSize: 12,
@@ -354,7 +351,7 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
           ),
         ),
       ),
-      SizedBox(height: 16),
+      const SizedBox(height: 16),
             RichText(
   text: TextSpan(
     text: 'Assigned by: ', // First part with its own style
@@ -380,7 +377,7 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
   ),
 ),
 
-SizedBox(height: 8),
+const SizedBox(height: 8),
 
            
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,

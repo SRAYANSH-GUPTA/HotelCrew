@@ -1,9 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:hotelcrew/core/packages.dart';
 import 'package:hotelcrew/features/dashboard/announcementpage.dart';
-import 'attendancepage.dart';
-import 'announcementpage.dart';
+import 'package:hotelcrew/features/dashboard/database.dart';
+import 'leave.dart';
+import 'payroll.dart';
+import 'attendancemanager.dart';
+
+
 
 class DashHomePage extends StatefulWidget {
   const DashHomePage({super.key});
@@ -20,17 +22,25 @@ class _DashHomePageState extends State<DashHomePage> {
               () => print('Analytics Pressed'),
               () => print('Pay Roll Pressed'),
             ];
+
+ final leaveRequests = [
+      {'name': 'Mr. MK Joshi', 'detail': 'Sick Leave'},
+      {'name': 'Ms. Sara Smith', 'detail': 'Annual Leave'},
+      {'name': 'John Doe', 'detail': 'Casual Leave'},
+    ];
+
   List<int> weeklyStaffperformance = [7, 8, 6, 5, 7, 10, 8];
   Map<String, double> staffAttendancePieData = {
     "Present": 70,
-    "Absent": 30,
+    "Absent": 20,
+    "Leave": 10,
   };
   Map<String, double> roomStatusData = {
     "Occupied": 50,
     "Unoccupied": 30,
     "Maintenance": 20,
   };
-  Map<String, double> StaffStatus = {
+  Map<String, double> staffStatusData = {
     "Busy": 80,
     "Vacant": 20,
     
@@ -60,7 +70,7 @@ Widget build(BuildContext context) {
             padding: EdgeInsets.only(right: 16, top: screenHeight * 0.0125),
             child: InkWell(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => AnnouncementPage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const AnnouncementPage()));
               },
               splashColor: Colors.transparent, // Removes the splash effect
               highlightColor: Colors.transparent,
@@ -86,13 +96,42 @@ Widget build(BuildContext context) {
                 SizedBox(
                   height: 77,
                   width: screenWidth * 0.428,
-                  child: _buildhomeButton('Attendance', () => Navigator.push(context, MaterialPageRoute(builder: (context) => AttendancePage()))),
+                  child: HomeButtonWidget(
+  title: 'Attendance',
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ManagerAttendancePage(),
+      ),
+    );
+  },
+  icon: 'assets/attendancedash.svg', // Path to your icon asset
+  screenWidth: MediaQuery.of(context).size.width, // Get screen width dynamically
+  color: Pallete.primary800, // Use the defined color from your palette
+),
+
                 ),
                 SizedBox(width: 0.055 * screenWidth),
                 SizedBox(
                   height: 77,
                   width: screenWidth * 0.428,
-                  child: _buildhomeButton('Leave Requests', onPressedList[1]),
+                  child: HomeButtonWidget(
+  title: 'Database', // Title for the button
+  onPressed: () 
+  {
+     Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const DatabasePage(),
+      ),
+    );
+  }, // The callback from the onPressedList at index 1
+  icon: 'assets/databasedash.svg', // Path to the SVG icon for the Database
+  screenWidth: MediaQuery.of(context).size.width, // Get screen width dynamically
+  color: Pallete.primary800, // Background color from your Pallete
+),
+
                 ),
               ],
             ),
@@ -104,13 +143,29 @@ Widget build(BuildContext context) {
                 SizedBox(
                   height: 77,
                   width: screenWidth * 0.428,
-                  child: _buildhomeButton('Analytics', onPressedList[2]),
+                  child: HomeButtonWidget(
+  title: 'Analytics', // Title for the button
+  onPressed: onPressedList[2], // The callback from the onPressedList at index 2
+  icon: 'assets/analyticsdash.svg', // Path to the SVG icon for Analytics
+  screenWidth: MediaQuery.of(context).size.width, // Get screen width dynamically
+  color: Pallete.primary800, // Background color from your Pallete
+),
+
                 ),
                 SizedBox(width: 0.055 * screenWidth),
                 SizedBox(
                   height: 77,
                   width: screenWidth * 0.428,
-                  child: _buildhomeButton('Pay Roll', onPressedList[3]),
+                  child: HomeButtonWidget(
+  title: 'Pay Roll', // Title for the button
+  onPressed: () => Navigator.push(
+    context, 
+    MaterialPageRoute(builder: (context) => const StaffPaymentPage())
+  ), // Navigation to StaffPaymentPage when the button is pressed
+  icon: 'assets/payrolldash.svg', // Path to the SVG icon for Pay Roll
+  screenWidth: MediaQuery.of(context).size.width, // Get screen width dynamically
+  color: Pallete.primary800, // Background color from your Pallete
+),
                 ),
               ],
             ),
@@ -150,57 +205,96 @@ Widget build(BuildContext context) {
             ),
             const SizedBox(height: 24),
             SizedBox(
-              height: 200,
+              height: 228,
               width: screenWidth,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
                     Container(
-                      height: 228,
+                      // height: 228,
                       width: screenWidth * 0.483,
                       decoration: BoxDecoration(
-                        color: Pallete.primary50,
+                        color: Pallete.pagecolor,
                         borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Pallete.primary200, width: 1),
                       ),
                       child: PieChartWidget(
-                        title: "Staff Attendance",
-                        data: staffAttendancePieData,
-                      ),
+              title: 'Staff Attendance',
+              data: staffAttendancePieData,
+              colors: const {
+                "Present": Pallete.success500,
+                "Absent": Pallete.error500,
+                "Leave": Pallete.warning300,
+              },
+            ),
+
                     ),
                     const SizedBox(width: 16),
                     Container(
-                      height: 228,
+                      // height: 228,
                       width: screenWidth * 0.483,
                       decoration: BoxDecoration(
-                        color: Pallete.primary50,
+                        color: Pallete.pagecolor,
                         borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Pallete.primary200, width: 1),
                       ),
-                      child: PieChartWidget(
-                        title: "Room Status",
-                        data: roomStatusData,
-                      ),
+                      child:  PieChartWidget(
+              title: 'Room Status',
+              data: roomStatusData,
+              colors: const {
+                "Occupied": Pallete.success500,
+                "Unoccupied": Pallete.error500,
+                "Maintenance": Pallete.warning300,
+              },
+            ),
                     ),
                       const SizedBox(width: 16),
                     Container(
-                      height: 228,
+                      // height: 228,
                       width: screenWidth * 0.483,
                       decoration: BoxDecoration(
-                        color: Pallete.primary50,
+                         color: Pallete.pagecolor,
                         borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Pallete.primary200, width: 1),
                       ),
-                      child: PieChartWidget(
-                        title: "Staff Status",
-                        data: StaffStatus,
-                      ),
+                      child:  PieChartWidget(
+              title: 'Staff Status',
+              data: staffStatusData,
+              colors: const {
+                "Busy": Pallete.success500,
+                "Vacant": Pallete.error500,
+              },
+            ),
                     ),
                   ],
                 ),
               ),
             ),
+            const SizedBox(height: 56),
+
+             GeneralListDisplay<Map<String, String>>(
+        items: leaveRequests,
+        title: 'Pending Requests',
+        onViewAll: () {
+          // Navigate to the full list view
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const LeaveAttendancePage()));
+          print('View All clicked');
+        },
+        getTitle: (item) => item['name'] ?? 'Unknown',
+        getSubtitle: (item) => item['detail'] ?? 'No details',
+        onApprove: (item) {
+          // Handle approve logic
+          print('Approved: ${item['name']}');
+        },
+        onReject: (item) {
+          // Handle reject logic
+          print('Rejected: ${item['name']}');
+        },
+      ),
             const SizedBox(height:56),
             Text(
-              "Financial Overview",
+              "Weekly Financial Overview",
               style: GoogleFonts.montserrat(
                             textStyle: const TextStyle(
                               color: Color(0xFF000000),
@@ -230,268 +324,12 @@ Widget build(BuildContext context) {
 }}
 
 
-class BarChartWidget extends StatelessWidget {
-  final List<int> data;
-
-  const BarChartWidget(this.data, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 200, // Explicit height constraint
-      child: BarChart(
-        BarChartData(
-          // Border settings for the chart
-          borderData: FlBorderData(
-            border: const Border(
-              top: BorderSide.none,
-              right: BorderSide.none,
-              bottom: BorderSide(
-                width: 1,
-                color: Pallete.primary500,
-                style: BorderStyle.solid,
-              ),
-              left: BorderSide.none,
-            ),
-          ),
-          backgroundColor: Pallete.primary50,
-          
-          // Grid line settings
-          gridData: FlGridData(
-            show: true,
-            getDrawingHorizontalLine: (value) {
-              // Dashed horizontal lines
-              return const FlLine(
-                color: Pallete.primary500,
-                strokeWidth: 0.5,
-                dashArray: [5, 5], // Creates a dashed effect
-              );
-            },
-            checkToShowHorizontalLine: (value) => true,
-            getDrawingVerticalLine: (value) {
-              // Dashed vertical lines
-              return const FlLine(
-                color: Pallete.primary500,
-                strokeWidth: 0.5,
-                dashArray: [5, 5], // Creates a dashed effect
-              );
-            },
-            checkToShowVerticalLine: (value) => true,
-            drawHorizontalLine: true,
-            drawVerticalLine: true,
-          ),
-
-          // Align bars with some spacing
-          alignment: BarChartAlignment.spaceAround,
-          barGroups: data
-              .asMap()
-              .entries
-              .map(
-                (entry) => BarChartGroupData(
-                  barsSpace: 24.0,
-                  x: entry.key,
-                  barRods: [
-                    BarChartRodData(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
-                      ),
-                      toY: entry.value.toDouble(),
-                      color: Pallete.primary500,
-                      width: 16,
-                    ),
-                  ],
-                ),
-              )
-              .toList(),
-              
-          // Axis titles settings
-          titlesData: FlTitlesData(
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                interval: 2,
-                getTitlesWidget: (value, meta) {
-                  return Text(
-                    '${value.toInt()}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 12,
-                    ),
-                  );
-                },
-              ),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, _) {
-                  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                  if (value.toInt() >= 0 && value.toInt() < days.length) {
-                    return Text(
-                      days[value.toInt()],
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 12,
-                      ),
-                    );
-                  }
-                  return const Text('');
-                },
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+// 
 
 
 
 
-class PieChartWidget extends StatelessWidget {
-  final String title;
-  final Map<String, double> data;
 
-  const PieChartWidget({required this.title, required this.data, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [const SizedBox(height: 8,),
-        Text(
-          title,
-           style: GoogleFonts.montserrat(
-                            textStyle: const TextStyle(
-                              color: Pallete.neutral900,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                              height: 1.5,
-                            ),
-                          ),
-        ),
-        SizedBox(
-    
-          height: 150,
-          width: 200,
-          child: PieChart(
-            PieChartData(
-              sectionsSpace: 0,
-              centerSpaceRadius: 0,
-              sections: data.entries
-                  .map((entry) => PieChartSectionData(
-                    showTitle: false,
-                    radius: 54,
-                        value: entry.value,
-                        title: '${entry.key}\n(${entry.value.toInt()}%)',
-                        color: entry.key == 'Present'
-                            ? Colors.green
-                            : entry.key == 'Occupied'
-                                ? Colors.blue
-                                : Colors.red,
-                      ))
-                  .toList(),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class LineChartWidget extends StatelessWidget {
-  final List<double> data;
-
-  const LineChartWidget(this.data, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return LineChart(
-      
-      LineChartData(
-        
-        lineBarsData: [
-          LineChartBarData(
-            
-            color:Pallete.primary600,
-            spots: data
-                .asMap()
-                .entries
-                .map((entry) => FlSpot(entry.key.toDouble(), entry.value))
-                .toList(),
-            isCurved: true,
-           dotData: const FlDotData(
-                  show: false, // Set this to false to remove dots
-                ),
-            belowBarData: BarAreaData(
-             
-              show: true,
-              color: const Color(0xff5662ac4d),
-            ),
-          ),
-        ],
-        titlesData: FlTitlesData(
-          topTitles: const AxisTitles(
-        sideTitles: SideTitles(showTitles: false), // Hide top x-axis labels
-      ),
-      rightTitles: const AxisTitles(
-        sideTitles: SideTitles(showTitles: false), // Hide right y-axis labels
-      ),
-           bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, _) {
-                  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                  return Text(
-  days[value.toInt()],
-  style: GoogleFonts.inter(
-    textStyle: const TextStyle(
-      color: Pallete.neutral900,
-      fontWeight: FontWeight.w400,
-      fontSize: 12,
-      height: 1.5,
-    ),
-  ),
-);
-
-                },
-              ),
-            ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              interval: 25.0,
-              showTitles: true,
-              getTitlesWidget: (value, _) => Text(
-                value.toInt().toString(),
-                style: const TextStyle(fontSize: 10),
-              ),
-            ),
-          ),
-        ),
-        gridData: const FlGridData(verticalInterval: 25),
-         borderData: FlBorderData(
-            border: const Border(
-              
-              top: BorderSide.none,
-              right: BorderSide.none,
-              bottom: BorderSide(width: 1,color: Pallete.primary500,
-              style: BorderStyle.solid,),
-              
-              
-            ),
-            
-          ),
-      ),
-    );
-  }
-}
 Widget _buildPendingLeaveRequests() {
   return Padding(
     padding: const EdgeInsets.all(16.0),
@@ -525,31 +363,3 @@ Widget _buildPendingLeaveRequests() {
    
   );
 }
- Widget _buildhomeButton(String title, VoidCallback onPressed) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Pallete.primary800,
-        elevation: 0,
-        // padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-      child: Center(
-        child: Text(
-          title,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.montserrat(
-                              textStyle: const TextStyle(
-                                color: Pallete.neutral00,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                height: 1.5,
-                              ),
-                            ),
-        ),
-      ),
-    );
-  }
-

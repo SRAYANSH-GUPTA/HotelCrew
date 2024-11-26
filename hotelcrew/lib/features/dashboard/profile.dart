@@ -1,10 +1,12 @@
 import '../../core/packages.dart';
-
-class ProfilePage extends StatelessWidget {
+import '../../providers/notification.dart';
+import 'editprofile.dart';
+class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isNotificationEnabled = ref.watch(notificationProvider);
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(backgroundColor: Pallete.pagecolor,
@@ -45,11 +47,35 @@ class ProfilePage extends StatelessWidget {
             child: Column(mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Profile Image
-                const CircleAvatar(
-                  radius: 40,
-        
-                   foregroundImage: AssetImage("assets/image.png"),
+                 Stack(
+              alignment: Alignment.bottomRight,
+              children: [
+                CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Colors.grey[300],
+                  backgroundImage: AssetImage('assets/profile_placeholder.png'),
                 ),
+                Positioned(
+                  bottom: 4,
+                  right: 4,
+                  child: CircleAvatar(
+                    radius: 16,
+                    backgroundColor: Colors.white,
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: SvgPicture.asset(
+                        'assets/profilepencil.svg', // Replace with your SVG path
+                        width: 16,
+                        height: 16,
+                      ),
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfilePage()));
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
                 SizedBox(width: screenWidth* 0.15),
                 // Name and Role
                 const Column(
@@ -113,12 +139,16 @@ class ProfilePage extends StatelessWidget {
                     child: Transform.scale(
                       scale: 0.7,
                       child: Switch(
-                        value: true,
-                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, 
-                        activeTrackColor: Pallete.neutral500,
-                        activeColor: Pallete.whitecolor,
-                        onChanged: (value) {},
-                      ),
+                          value: isNotificationEnabled,
+                           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, 
+                          activeTrackColor: Pallete.neutral500,
+                          activeColor: Pallete.whitecolor,
+                          onChanged: (value) {
+                               ref.read(notificationProvider.notifier).toggleNotification();
+                                print(isNotificationEnabled);
+
+                          },
+                        ),
                     ),
                   ),
                 ),

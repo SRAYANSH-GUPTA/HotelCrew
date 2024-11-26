@@ -1,26 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:hotelcrew/features/hoteldetails/pages/setupcomplete.dart';
-import 'package:hotelcrew/features/hoteldetails/pages/staffdetails.dart';
 import 'page3.dart';
 import 'page4.dart';
 import 'page5.dart';
 import 'page6.dart';
 import 'page7.dart';
-import 'page8.dart';
 import 'staffdetailsupdated.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'setupcomplete.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:hotelcrew/features/hoteldetails/pages/setupcomplete.dart';
 import 'dart:developer';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ProgressPageView extends StatefulWidget {
   const ProgressPageView({super.key});

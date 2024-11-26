@@ -1,5 +1,4 @@
 import 'package:email_validator/email_validator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/packages.dart';
 class PageTwo extends StatefulWidget {
   const PageTwo({super.key});

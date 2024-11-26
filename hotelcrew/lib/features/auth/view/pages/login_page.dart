@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:hotelcrew/core/packages.dart';
 import 'package:hotelcrew/features/auth/auth_models/loginmodel.dart';
@@ -9,7 +6,6 @@ import 'package:hotelcrew/features/hoteldetails/pages/hoteldetailspage1.dart';
 import '../../auth_view_model/loginpageviewmodel.dart';
 import '../../../resetpass/resertpasspage/resetpass.dart';
 import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:developer';
 
 class LoginPage extends StatefulWidget {
@@ -436,7 +432,7 @@ class _LoginPageState extends State<LoginPage> {
                             SizedBox(
                               height: screenWidth * 0.09,
                               child: TextButton(
-                                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Register())),
+                                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const Register())),
                                 child: Text(
                                   "Sign Up",
                                   style: GoogleFonts.poppins(

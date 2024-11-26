@@ -35,7 +35,7 @@ class TaskViewModel {
       } else {
         throw Exception('Failed to create task');
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (e.response != null) {
         print('Error Response: ${e.response?.data}');
         throw Exception(e.response?.data['message'] ?? 'Failed to create task');

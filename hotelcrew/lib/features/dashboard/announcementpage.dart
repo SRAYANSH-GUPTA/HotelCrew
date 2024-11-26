@@ -1,10 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:hotelcrew/core/packages.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../../core/packages.dart';
-
+import 'createannouncementpage.dart';
 class AnnouncementPage extends StatefulWidget {
   const AnnouncementPage({super.key});
 
@@ -60,7 +55,7 @@ class _AnnouncementPageState extends State<AnnouncementPage> {
       backgroundColor: Pallete.neutral00,
       
       appBar: AppBar(
-        // foregroundColor: Pallete.pagecolor,
+        foregroundColor: Pallete.pagecolor,
         leading: InkWell(
           onTap: (){
             Navigator.pop(context);
@@ -115,15 +110,11 @@ class _AnnouncementPageState extends State<AnnouncementPage> {
       floatingActionButton: FloatingActionButton(
       shape: const CircleBorder(),
         onPressed: () {
-          // Action for the FAB (e.g., open a new page to add an announcement)
+          Navigator.push(context, MaterialPageRoute(builder: (context) => CreateAnnouncementPage()));
         },
         backgroundColor: Pallete.primary700,
-        child: InkWell(
-          onTap: () {
-            // Handle tap
-          },
-          child: const Icon(Icons.add, color: Colors.white),
-        ),
+        child: Icon(Icons.add, color: Colors.white),
+        
       ),
     );
   }
@@ -226,7 +217,7 @@ class AnnouncementCard extends StatelessWidget {
                   ),
                   child: Row(
                     children: [SvgPicture.asset('assets/anndept.svg', height: 12, width: 12),
-                    SizedBox(width:4),
+                    const SizedBox(width:4),
 
                       Text(
                       announcement.department,
@@ -265,9 +256,9 @@ class AnnouncementCard extends StatelessWidget {
                     SvgPicture.asset('assets/annuser.svg', height: 28, width: 28),
                     const SizedBox(width: 4),
                       Column(crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [Text(
+                        children: [const Text(
                         'Username',
-                        style: const TextStyle(fontSize: 12, color: Pallete.neutral800,
+                        style: TextStyle(fontSize: 12, color: Pallete.neutral800,
                         fontWeight: FontWeight.w700,
                         height: 1.5),
                                             ),

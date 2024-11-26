@@ -1,7 +1,6 @@
 import "../../core/packages.dart";
 import 'viewmodel/createtaskviewmodel.dart';
 import 'model/createtaskmodel.dart';
-import '../../core/widgets.dart';
 
 
 class CreateTaskPage extends StatefulWidget {
@@ -58,7 +57,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
           itemCount: departments.length,
           itemBuilder: (context, index) => ListTile(
             title: Text(departments[index], style: GoogleFonts.montserrat(
-            textStyle: TextStyle(
+            textStyle: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: Pallete.neutral950,
@@ -145,13 +144,13 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
               child: Form(
                 key: _formKey,
                 child: ListView(
-                  children: [SizedBox(height:40),
+                  children: [const SizedBox(height:40),
                     _buildTextFormField(
                       controller: titleController,
                       label: 'Task Title',
                       isRequired: true,
                     ),
-                    SizedBox(height:38),
+                    const SizedBox(height:38),
                     
                     GestureDetector(
                       onTap: _showDepartmentSheet,
@@ -164,14 +163,14 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                       ),
                     )
                     ,
-                    SizedBox(height:38),
+                    const SizedBox(height:38),
                     _buildTextFormField(
                       controller: deadlineController,
                       label: 'Deadline (optional)',
                       isRequired: false,
                     ),
                     //descriptionController
-                    SizedBox(height:38),
+                    const SizedBox(height:38),
                     _buildTextFormField(
                       controller: descriptionController,
                       label: 'Description',

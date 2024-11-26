@@ -1,17 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 import 'otpview.dart';
 import '../../models/register.dart';
 import '../../auth_view_model/registerviewmodel.dart';
 import 'package:el_tooltip/el_tooltip.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/passwordvalidation.dart';
 import '../../../../core/packages.dart';
-import '../../../../core/widgets.dart';
 
 class Register extends ConsumerStatefulWidget {
   const Register({super.key});

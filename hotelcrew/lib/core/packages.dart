@@ -5,3 +5,5 @@ export  'package:flutter/material.dart';
 export 'theme/icons.dart';
 export '../core/theme/app_pallete.dart';
 export 'package:loader_overlay/loader_overlay.dart';
+export '../core/widgets.dart';
+export 'package:shared_preferences/shared_preferences.dart';

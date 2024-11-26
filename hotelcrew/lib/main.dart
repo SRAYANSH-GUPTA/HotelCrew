@@ -1,24 +1,16 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:hotelcrew/features/dashboard/createannouncementpage.dart';
-import 'package:hotelcrew/features/dashboard/dashborad.dart';
-import 'package:hotelcrew/features/hoteldetails/pages/hoteldetailspage1.dart';
-import 'package:hotelcrew/features/onboarding/page/onboarding_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'features/dashboard/attendancepage.dart';
-import 'features/dashboard/gettaskpage.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:firebase_core/firebase_core.dart';
-
-
-
+import 'features/dashboard/home.dart';
+import 'features/staff/staffdash.dart';
+import 'features/dashboard/dashborad.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'features/staff/staffdash.dart';
 void main() async{
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -83,6 +75,20 @@ void logFcmToken() async {
     } else {
       print("Failed to get FCM Token.");
     }
+     FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  try {
+    // Fetch data from the "messages" collection
+    QuerySnapshot snapshot = await firestore.collection('messages').get();
+
+    // Iterate through the documents and print the message fields
+    for (var doc in snapshot.docs) {
+      String message = doc['message'];  // Assuming you have a 'message' field in your Firestore documents
+      print('Message: $message');
+    }
+  } catch (e) {
+    print('Error fetching messages: $e');
+  }
   }
 
   @override
@@ -90,6 +96,8 @@ void logFcmToken() async {
     super.initState();
     initialization();
     logFcmToken();
+      // Call this function to fetch and print messages
+
   }
 
   void initialization() async {
@@ -118,7 +126,7 @@ void logFcmToken() async {
       });
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const Onboarding()),
+        MaterialPageRoute(builder: (context) =>const DashboardPage()),
       );
     }
   }
@@ -126,6 +134,7 @@ void logFcmToken() async {
   int _getExpirationTimeFromToken(String token) {
     try {
       // Decode JWT token and extract the exp field
+      //TODO: Implement a more robust way to decode JWT tokens
       List<String> parts = token.split('.');
       if (parts.length == 3) {
         String payload = parts[1];
@@ -181,10 +190,10 @@ void logFcmToken() async {
   }
 
   void _navigateToDashboard() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => Dashboard()),
-    );
+     Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) =>const DashboardPage()),
+      );
   }
 
   @override
@@ -197,7 +206,7 @@ void logFcmToken() async {
         ),
       );
     }
-
+ 
     if (_isTokenExpired) {
       return Scaffold(
         appBar: AppBar(title: Text(widget.title)),

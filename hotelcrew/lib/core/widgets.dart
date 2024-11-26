@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:hotelcrew/core/packages.dart';
 import 'package:intl/intl.dart';
 import "passwordvalidation.dart";
+import 'package:fl_chart/fl_chart.dart';
+import "theme/app_pallete.dart";
 // buildMainButton(
 //   context: context,
 //   screenHeight: screenHeight,
@@ -389,12 +388,11 @@ class CheckInTimeField extends StatefulWidget {
   });
 
   @override
-  _CheckInTimeFieldState createState() => _CheckInTimeFieldState();
+  CheckInTimeFieldState createState() => CheckInTimeFieldState();
 }
 
-class _CheckInTimeFieldState extends State<CheckInTimeField> {
+class CheckInTimeFieldState extends State<CheckInTimeField> {
   String? _errorText;
-
   @override
   void initState() {
     super.initState();
@@ -406,7 +404,11 @@ class _CheckInTimeFieldState extends State<CheckInTimeField> {
     widget.controller.removeListener(_validateInput);
     super.dispose();
   }
-
+void setError(String? error) {
+    setState(() {
+      _errorText = error;
+    });
+  }
   void _validateInput() {
     setState(() {
       _errorText = widget.controller.text.isEmpty ? 'This field is required' : null;
@@ -437,11 +439,9 @@ class _CheckInTimeFieldState extends State<CheckInTimeField> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 86,
+      // height: 86,
       width: widget.width,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 8, bottom: 22),
-        child: TextFormField(
+      child: TextFormField(
           controller: widget.controller,
           focusNode: widget.focusNode,
           keyboardType: TextInputType.number,
@@ -458,6 +458,20 @@ class _CheckInTimeFieldState extends State<CheckInTimeField> {
               borderRadius: BorderRadius.circular(8.0),
               borderSide: const BorderSide(
                 color: Colors.blue,
+                width: 2.0,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: const BorderSide(
+                color: Colors.red,
+                width: 2.0,
+              ),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: const BorderSide(
+                color: Colors.red,
                 width: 2.0,
               ),
             ),
@@ -482,12 +496,10 @@ class _CheckInTimeFieldState extends State<CheckInTimeField> {
             ),
           ),
         ),
-      ),
+      
     );
   }
 }
-
-
 
 // overlay
 
@@ -798,3 +810,815 @@ class PasswordValidationCard extends StatelessWidget {
 }
 //email
 
+
+
+
+
+// GeneralListDisplay<Map<String, String>>(
+//         items: leaveRequests,
+//         title: 'Pending Requests',
+//         onViewAll: () {
+//           // Navigate to the full list view
+//           print('View All clicked');
+//         },
+
+class GeneralListDisplay<T> extends StatelessWidget {
+  final List<T> items; // List of items to display
+  final String title; // Section title
+  final VoidCallback onViewAll; // Callback for "View All" button
+  final String Function(T) getTitle; // Function to extract title from an item
+  final String Function(T) getSubtitle; // Function to extract subtitle from an item
+  final Function(T)? onApprove; // Optional callback for approve button
+  final Function(T)? onReject; // Optional callback for reject button
+
+  const GeneralListDisplay({
+    required this.items,
+    required this.title,
+    required this.onViewAll,
+    required this.getTitle,
+    required this.getSubtitle,
+    this.onApprove,
+    this.onReject,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header with title and "View All"
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.montserrat(
+                  textStyle:const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Pallete.neutral1000,
+                ),),
+              ),
+              GestureDetector(
+                onTap: onViewAll,
+                child: Row(
+                  children: [Text(
+                    'View All',
+                     style: GoogleFonts.montserrat(
+                    textStyle:const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Pallete.neutral900,
+                  ),),
+                  ),
+                  const SizedBox(width: 4,),
+                  SvgPicture.asset('assets/dasharrow.svg', height: 12, width: 6),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 24),
+        // Display the top 2 items
+        ...items.take(2).map(
+          (item) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 4.0),
+            child: Container(
+              padding: const EdgeInsets.all(12.0),
+              decoration: BoxDecoration(
+                color: Pallete.pagecolor,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Pallete.primary200,width: 1.0),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Item details
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        getTitle(item),
+                        style: GoogleFonts.montserrat(
+                          textStyle: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Pallete.neutral1000,
+                          height: 1.5,
+                        ),),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        getSubtitle(item),
+                        style: GoogleFonts.montserrat(
+                          textStyle: const TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 12,
+                          color: Pallete.neutral900,
+                        ),),
+                      ),
+                    ],
+                  ),
+                  // Approve and Reject buttons (optional)
+                  Row(
+                    children: [
+                      if (onApprove != null)
+                        GestureDetector(
+                          onTap: () => onApprove!(item),
+                          child: SvgPicture.asset(
+                            'assets/tickdash.svg', // Path to the tick SVG
+                            height: 32,
+                            width: 32,
+                          ),
+                        ),
+                      if (onApprove != null && onReject != null) const SizedBox(width: 16),
+                      if (onReject != null)
+                        GestureDetector(
+                          onTap: () => onReject!(item),
+                          child: SvgPicture.asset(
+                            'assets/crossdash.svg', // Path to the cross SVG
+                            height: 32,
+                            width: 32,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// Graphs
+class LineChartWidget extends StatelessWidget {
+  final List<double> data;
+
+  const LineChartWidget(this.data, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return LineChart(
+      LineChartData(
+        lineBarsData: [
+          LineChartBarData(
+            color: Pallete.primary800,
+            barWidth: 1,
+            spots: data
+                .asMap()
+                .entries
+                .map((entry) => FlSpot(entry.key.toDouble(), entry.value))
+                .toList(),
+            isCurved: true,
+            dotData: const FlDotData(
+              show: false, // Remove dots
+            ),
+            belowBarData: BarAreaData(
+              show: true,
+              gradient: const LinearGradient(
+                colors: [Colors.transparent, Pallete.primary600],
+                stops: [0.1, 1],  // Adjust stop values for the gradient transition
+                begin: Alignment.bottomCenter,  // Gradient starts from the bottom
+                end: Alignment.topCenter,  // Gradient ends at the top
+                transform: GradientRotation(0),  // No rotation for vertical gradient
+              ),
+            ),
+          ),
+        ],
+        titlesData: FlTitlesData(
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false), // Hide top x-axis labels
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false), // Hide right y-axis labels
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, _) {
+                const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                return Text(
+                  days[value.toInt()],
+                  style: GoogleFonts.inter(
+                    textStyle: const TextStyle(
+                      color: Pallete.neutral900,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 12,
+                      height: 1.5,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              interval: 25.0,
+              showTitles: true,
+              getTitlesWidget: (value, _) => Text(
+                value.toInt().toString(),
+                style: const TextStyle(fontSize: 10),
+              ),
+            ),
+          ),
+        ),
+        gridData: const FlGridData(verticalInterval: 25),
+        borderData: FlBorderData(
+          border: const Border(
+            top: BorderSide.none,
+            right: BorderSide.none,
+            bottom: BorderSide(
+              width: 1,
+              color: Pallete.primary500,
+              style: BorderStyle.solid,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PieChartWidget extends StatelessWidget {
+  final String title; // Title of the chart
+  final Map<String, double> data; // Data categories with their values
+  final Map<String, Color> colors; // Colors corresponding to each category
+
+  const PieChartWidget({
+    required this.title,
+    required this.data,
+    required this.colors,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: 8),
+        // Chart Title
+        Text(
+          title,
+          style: GoogleFonts.montserrat(
+            textStyle: const TextStyle(
+              color: Pallete.neutral900,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              height: 1.5,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        // Pie Chart
+        SizedBox(
+          height: 108,
+          width: 108,
+          child: PieChart(
+            PieChartData(
+              sectionsSpace: 0, // Add spacing between sections
+              centerSpaceRadius: 0,
+              sections: data.entries
+                  .map((entry) => PieChartSectionData(
+                        showTitle: false,
+                        radius: 50,
+                        value: entry.value,
+                        color: colors[entry.key] ?? Colors.grey,
+                      ))
+                  .toList(),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Dynamic Legend
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: data.entries.map((entry) {
+            return Padding(
+              padding: const EdgeInsets.only(left: 16),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 4,
+                    backgroundColor: colors[entry.key] ?? Colors.grey,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '${entry.key}: ${entry.value.toStringAsFixed(1)}%',
+                      style: GoogleFonts.montserrat(
+                        textStyle: const TextStyle(
+                          color: Pallete.neutral950,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 12,
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 9),
+      ],
+    );
+  }
+}
+
+class BarChartWidget extends StatelessWidget {
+  final List<int> data; // Data for the bar chart
+
+  const BarChartWidget(this.data, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 200, // Explicit height constraint
+      child: BarChart(
+        BarChartData(
+          // Border settings for the chart
+          borderData: FlBorderData(
+            border: const Border(
+              top: BorderSide.none,
+              right: BorderSide.none,
+              bottom: BorderSide(
+                width: 1,
+                color: Pallete.primary500,
+                style: BorderStyle.solid,
+              ),
+              left: BorderSide.none,
+            ),
+          ),
+          backgroundColor: Pallete.primary50,
+          
+          // Grid line settings
+          gridData: FlGridData(
+            show: true,
+            getDrawingHorizontalLine: (value) {
+              // Dashed horizontal lines
+              return const FlLine(
+                color: Pallete.primary500,
+                strokeWidth: 0.5,
+                dashArray: [5, 5], // Creates a dashed effect
+              );
+            },
+            checkToShowHorizontalLine: (value) => true,
+            getDrawingVerticalLine: (value) {
+              // Dashed vertical lines
+              return const FlLine(
+                color: Pallete.primary500,
+                strokeWidth: 0.5,
+                dashArray: [5, 5], // Creates a dashed effect
+              );
+            },
+            checkToShowVerticalLine: (value) => true,
+            drawHorizontalLine: true,
+            drawVerticalLine: true,
+          ),
+
+          // Align bars with some spacing
+          alignment: BarChartAlignment.spaceAround,
+          barGroups: data
+              .asMap()
+              .entries
+              .map(
+                (entry) => BarChartGroupData(
+                  barsSpace: 24.0,
+                  x: entry.key,
+                  barRods: [
+                    BarChartRodData(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12),
+                      ),
+                      toY: entry.value.toDouble(),
+                      color: Pallete.primary500,
+                      width: 16,
+                    ),
+                  ],
+                ),
+              )
+              .toList(),
+              
+          // Axis titles settings
+          titlesData: FlTitlesData(
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: 2,
+                getTitlesWidget: (value, meta) {
+                  return Text(
+                    '${value.toInt()}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 12,
+                    ),
+                  );
+                },
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, _) {
+                  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                  if (value.toInt() >= 0 && value.toInt() < days.length) {
+                    return Text(
+                      days[value.toInt()],
+                      style: GoogleFonts.montserrat(
+                        textStyle: const TextStyle(
+                          color: Pallete.neutral900,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 12,
+                          height: 1.5,
+                        ),
+                      ),
+                    );
+                  }
+                  return const Text('');
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+//Home Button
+class HomeButtonWidget extends StatelessWidget {
+  final String title; // The title to display on the button
+  final VoidCallback onPressed; // The callback to trigger on button press
+  final String icon; // The path to the SVG icon
+  final double screenWidth; // The screen width (if needed for layout)
+  final Color color; // The background color of the button
+
+  const HomeButtonWidget({
+    required this.title,
+    required this.onPressed,
+    required this.icon,
+    required this.screenWidth,
+    required this.color,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      child: Center(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(icon, height: 24, width: 24),
+            const SizedBox(width: 1.5),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.montserrat(
+                textStyle: const TextStyle(
+                  color: Pallete.neutral00,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  height: 1.5,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+//manager and receptionist button
+class QuickActionButton extends StatelessWidget {
+  final String title;
+  final String iconPath;
+  final VoidCallback onPressed;
+
+  const QuickActionButton({super.key, 
+    required this.title,
+    required this.iconPath,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.blue.shade50, // Background color of the button
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8), // Rounded corners
+        ),
+        elevation: 0, // No shadow
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), // Padding inside the button
+      ),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center,
+        // mainAxisSize: MainAxisSize.min, // Let the button size fit the content
+        children: [
+          SvgPicture.asset(
+            iconPath, 
+            width: 24, // Adjust size of the icon
+            height: 24, // Adjust size of the icon
+          ),
+          const SizedBox(width: 12), // Space between icon and text
+          Text(
+            title,
+            style: GoogleFonts.montserrat(
+              textStyle: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF252941), // Text color
+              ),
+            ),
+           
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+//Attendance card
+class AttendanceCard extends StatelessWidget {
+  final String date;
+  final String status;
+
+  const AttendanceCard({
+    super.key,
+    required this.date,
+    required this.status,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Color getStatusColor(String status) {
+      switch (status) {
+        case 'P': // Present
+          return Pallete.success600;
+        case 'A': // Absent
+          return Pallete.error700;
+        case 'L': // Leave
+          return Pallete.warning600;
+        default: // Default color for unexpected status
+          return Colors.grey;
+      }
+    }
+
+    return Card(
+      elevation: 0,
+    
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      color: Pallete.neutral100, // Light background for the card
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Date Text
+            Text(
+              date,
+              style: GoogleFonts.montserrat(textStyle: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                color: Pallete.neutral1000,
+              ),
+            ),),
+            // Status Text
+           Text(
+              status,
+              style: GoogleFonts.montserrat(textStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: getStatusColor(status),
+                height: 1.5,
+              ),
+            ),),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+class OverviewCard extends StatelessWidget {
+  final String title;
+  final String count;
+  final Color color;
+
+  const OverviewCard({
+    super.key,
+    required this.title,
+    required this.count,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.28,
+      padding: const EdgeInsets.symmetric(horizontal:0,vertical: 16),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Text(
+            count,
+            style: GoogleFonts.montserrat(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: GoogleFonts.montserrat(
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+class LeaveRequestCard extends StatelessWidget {
+  final Map<String, dynamic> request;
+
+  const LeaveRequestCard({
+    required this.request,
+    super.key,
+  });
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case "Pending":
+        return Pallete.warning700;
+      case "Approved":
+        return Pallete.success600;
+      case "Rejected":
+        return Pallete.error700;
+      default:
+        return Pallete.neutral700;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Pallete.pagecolor,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Pallete.neutral300, width: 1),
+      ),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Leave Type
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Leave Type: ",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Pallete.neutral950,
+                          height: 1.5,
+                        ),
+                      ),
+                      TextSpan(
+                        text: request["type"],
+                        style: GoogleFonts.montserrat(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Pallete.neutral950,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                // Duration
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Duration: ",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Pallete.neutral950,
+                          height: 1.5,
+                        ),
+                      ),
+                      TextSpan(
+                        text: request["duration"],
+                        style: GoogleFonts.montserrat(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Pallete.neutral950,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                // Dates
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Dates: ",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Pallete.neutral950,
+                          height: 1.5,
+                        ),
+                      ),
+                      TextSpan(
+                        text: request["dates"],
+                        style: GoogleFonts.montserrat(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Pallete.neutral950,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+            // Status
+            Container(
+              height: 36,
+              width: 94,
+              decoration: BoxDecoration(
+                color: _getStatusColor(request["status"]).withOpacity(0.1),
+                border: Border.all(color: _getStatusColor(request["status"])),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Text(
+                  request["status"],
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: _getStatusColor(request["status"]),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

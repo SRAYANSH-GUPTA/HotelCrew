@@ -243,7 +243,7 @@ class _OnboardingState extends State<Onboarding> {
   void _handleSignUp() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Register()),
+      MaterialPageRoute(builder: (context) => const Register()),
     );
   }
 

@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
 import 'package:hotelcrew/core/packages.dart';
 import 'package:hotelcrew/features/auth/view/pages/login_page.dart';
@@ -9,7 +6,6 @@ import 'package:otp_timer_button/otp_timer_button.dart';
 import 'otpviewmodel.dart';
 import '../../models/register.dart';
 import '../../auth_view_model/registerviewmodel.dart' as reg;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:developer';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 

@@ -6,7 +6,6 @@ import 'package:hotelcrew/features/hoteldetails/pages/page5.dart';
 import 'package:hotelcrew/features/hoteldetails/pages/page6.dart';
 
 import '../../core/packages.dart';
-import 'package:flutter/material.dart';
 
 class HotelDetailsEdit extends StatefulWidget {
   const HotelDetailsEdit({super.key});

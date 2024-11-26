@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/packages.dart';
 
 class PageOne extends StatefulWidget {

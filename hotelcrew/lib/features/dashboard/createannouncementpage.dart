@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../../core/widgets.dart';
 import '../../core/packages.dart';
 import '../dashboard/viewmodel/createannouncementviewmodel.dart';
 
@@ -290,7 +287,11 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
       
       appBar: AppBar(
         titleSpacing: 0,
-        leading: const Icon(Icons.arrow_back_ios_outlined,color: Pallete.neutral900,),
+        leading: InkWell(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: const Icon(Icons.arrow_back_ios_outlined,color: Pallete.neutral900,)),
         title: Text("Create Announcement",
          style: GoogleFonts.montserrat(
             textStyle: const TextStyle(
@@ -464,8 +465,10 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                     },
                   ),
                   const SizedBox(height: 20,),
+                  
                   if (!isKeyboardVisible(context)) 
     SizedBox(height: screenHeight * 0.178),
+    
     if (!isKeyboardVisible(context)) 
               buildMainButton(
                       context: context,
