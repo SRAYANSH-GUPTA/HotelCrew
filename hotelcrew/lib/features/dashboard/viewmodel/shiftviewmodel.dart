@@ -1,10 +1,9 @@
-import 'dart:convert';
 import 'package:dio/dio.dart'; 
 import '../model/shiftmodel.dart';// Assuming you are using Dio for API requests
 
 class StaffScheduleService {
   final Dio _dio = Dio();
-  final String apiUrl = 'http://13.200.191.108:8000/api/edit/schedule_list/'; // Your API endpoint
+  final String apiUrl = 'https://hotelcrew-1.onrender.com/api/edit/schedule_list/'; // Your API endpoint
 
   // Fetch staff schedules from the API and transform the data
   Future<List<Map<String, String>>> fetchAndTransformStaffSchedules() async {
@@ -15,7 +14,7 @@ class StaffScheduleService {
           validateStatus: (status) => status! < 501,
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0NTk5ODM1LCJpYXQiOjE3MzIwMDc4MzUsImp0aSI6ImYxYzFkODE1NTU3NTQzYjhiNWRlMzYzOTNmOTAxYThmIiwidXNlcl9pZCI6NjR9.dxiN8N9Cf7EWpg33MgjluaCfemeRxMytdD613bDhzWc',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA2MTA1LCJpYXQiOjE3MzI2MTQxMDUsImp0aSI6IjFmYWI0NTI4MTQzNDRhNTU5MGY3Y2YzYzFlMzc4YmFmIiwidXNlcl9pZCI6OTB9.JjlVfhXpewcsFv6V1JN8Q5L2C7WHMVOUwgKKp7ZtFDc',
           },
         ),
       );
@@ -23,6 +22,7 @@ class StaffScheduleService {
       if (response.statusCode == 200) {
         // Check if the response is successful
         List<dynamic> scheduleList = response.data['schedule_list'];
+        print(scheduleList);
         print("hello");
         // Convert the raw data into the required format
         List<StaffSchedule> staffSchedules = scheduleList

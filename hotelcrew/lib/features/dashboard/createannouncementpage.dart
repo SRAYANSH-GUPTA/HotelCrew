@@ -177,7 +177,8 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                               _selectedDepartments = value!
                                   ? ["Housekeeping", "Receptionist", "Kitchen", "Security"]
                                   : [];
-                              _departmentsController.text = _selectedDepartments.join(", ");
+                                 
+                              _departmentsController.text = "All";
                               _isDepartmentsError = _selectedDepartments.isEmpty;
                             });
                           },
@@ -245,15 +246,24 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
       barrierDismissible: false,
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
-
+    print("************");
+    print(_selectedDepartments);
+   if (_selectedDepartments.length == 4 &&
+    _selectedDepartments[0] == "Housekeeping" &&
+    _selectedDepartments[1] == "Receptionist" &&
+    _selectedDepartments[2] == "Kitchen" &&
+    _selectedDepartments[3] == "Security") {
+  _selectedDepartments = ["All"];
+}
+    print(_selectedDepartments);
     final result = await announcementViewModel.createAnnouncement(
       title: _titleController.text,
       message: _messageController.text,
-      priorityLevel: _priorityLevel!,
+      priorityLevel: _priorityLevel ?? "Normal",
       departments: _selectedDepartments,
     );
 
-    Navigator.pop(context); // Close loading dialog
+    // Close loading dialog
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -261,6 +271,9 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
         backgroundColor: result['status'] ? Colors.green : Colors.red,
       ),
     );
+    
+   
+    
 
     if (result['status']) {
       _formKey.currentState?.reset();
@@ -271,7 +284,10 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
         _selectedDepartments.clear();
       });
     }
+     Navigator.pop(context);
+    
   }
+  
 }
 
 
@@ -475,7 +491,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                       screenHeight: screenHeight,
                       screenWidth: screenWidth,
                       buttonText: "Post Announcement",
-                      onPressed: _postAnnouncement,
+                      onPressed:  _postAnnouncement,
                     ),
                   
               

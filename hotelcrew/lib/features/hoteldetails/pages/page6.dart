@@ -11,7 +11,9 @@ class PageFour extends StatefulWidget {
 class _PageFourState extends State<PageFour> {
   final TextEditingController checkintimeController = TextEditingController();
   final TextEditingController checkouttimeController = TextEditingController();
- 
+ List<Map<String, dynamic>> roomData = [];
+
+
   final TextEditingController parkingCapacityController = TextEditingController();
     final TextEditingController priceController = TextEditingController();
  final TextEditingController paymentController = TextEditingController();
@@ -25,6 +27,10 @@ class _PageFourState extends State<PageFour> {
   final Map<String, TextEditingController> priceControllers = {}; // Added focus node for parking capacity
 final bool _showClock = false; 
   String? _selectedAvailability; 
+
+
+
+  
   
  void _showPaymentDialog() {
     showDialog(
@@ -58,50 +64,76 @@ final bool _showClock = false;
     );
   }
 
+ Future<void> _showRoomDetailsDialog() async {
+    String roomType = '';
+    int count = 0;
+    double price = 0.0;
 
- void _showRoomDialog() {
-    showDialog(
+    // Show dialog box for input
+    await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Select Room Types and Prices'),
+          title: Text('Enter Room Details'),
           content: SingleChildScrollView(
             child: Column(
-              children: roomTypes.map((roomType) {
-                return Row(
-                  children: [
-                    Expanded(
-                      child: Text(roomType), // Room Type
-                    ),
-                    const SizedBox(width: 8), // Space between text and text field
-                    SizedBox(
-                      width: 80, // Fixed width for price text field
-                      child: TextField(
-                        controller: priceControllers[roomType],
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          hintText: 'Price',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              }).toList(),
+              children: <Widget>[
+                // Room type input
+                TextField(
+                  decoration: InputDecoration(labelText: 'Room Type'),
+                  onChanged: (value) {
+                    roomType = value;
+                  },
+                ),
+                SizedBox(height: 10),
+                // Room count input
+                TextField(
+                  decoration: InputDecoration(labelText: 'Count'),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    count = int.tryParse(value) ?? 0;
+                  },
+                ),
+                SizedBox(height: 10),
+                // Room price input
+                TextField(
+                  decoration: InputDecoration(labelText: 'Price'),
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  onChanged: (value) {
+                    price = double.tryParse(value) ?? 0.0;
+                  },
+                ),
+              ],
             ),
           ),
-          actions: [
+          actions: <Widget>[
+            // Cancel button
             TextButton(
-              child: const Text('OK'),
+              child: Text('Cancel'),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                // You can do further actions with the prices here if needed
+                Navigator.of(context).pop();
               },
             ),
+            // Save button
             TextButton(
-              child: const Text('Cancel'),
+              child: Text('Save'),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                // If valid data is provided, add the room to the list
+                if (roomType.isNotEmpty && count > 0 && price > 0) {
+                  setState(() {
+                    roomData.add({
+                      "room_type": roomType,
+                      "count": count,
+                      "price": price.toStringAsFixed(2),
+                    });
+                  });
+                  Navigator.of(context).pop(); // Close the dialog
+                } else {
+                  // Optionally, show a message if the data is invalid
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Please enter valid data')),
+                  );
+                }
               },
             ),
           ],
@@ -109,6 +141,63 @@ final bool _showClock = false;
       },
     );
   }
+
+
+
+
+
+
+
+//  void _showRoomDialog() {
+//     showDialog(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return AlertDialog(
+//           title: const Text('Select Room Types and Prices'),
+//           content: SingleChildScrollView(
+//             child: Column(
+//               children: roomTypes.map((roomType) {
+//                 return Row(
+//                   children: [
+//                     Expanded(
+//                       child: Text(roomType), // Room Type
+//                     ),
+//                     const SizedBox(width: 8), // Space between text and text field
+//                     SizedBox(
+//                       width: 80, // Fixed width for price text field
+//                       child: TextField(
+//                         controller: priceControllers[roomType],
+//                         keyboardType: TextInputType.number,
+//                         decoration: const InputDecoration(
+//                           hintText: 'Price',
+//                           border: OutlineInputBorder(),
+//                         ),
+//                       ),
+//                     ),
+//                   ],
+//                 );
+//               }).toList(),
+//             ),
+//           ),
+//           actions: [
+//             TextButton(
+//               child: const Text('OK'),
+//               onPressed: () {
+//                 Navigator.of(context).pop(); // Close the dialog
+//                 // You can do further actions with the prices here if needed
+//               },
+//             ),
+//             TextButton(
+//               child: const Text('Cancel'),
+//               onPressed: () {
+//                 Navigator.of(context).pop(); // Close the dialog
+//               },
+//             ),
+//           ],
+//         );
+//       },
+//     );
+//   }
 
    @override
   void initState() {
@@ -386,6 +475,8 @@ void _loadData() async {
                   ),
                 ),
               ),
+
+              
                   
                 ],
               ),

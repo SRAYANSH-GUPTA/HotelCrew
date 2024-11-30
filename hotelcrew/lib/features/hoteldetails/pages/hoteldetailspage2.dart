@@ -42,9 +42,9 @@ class _ProgressPageViewState extends State<ProgressPageView> {
     'Staff Management',
     'Upload Staff Details',
   ];
-  void clear() async
-{
-  SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  void clear() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('hotel_name', "");
     await prefs.setString('legal_business_name', "");
     await prefs.setString('year_established', "");
@@ -55,147 +55,146 @@ class _ProgressPageViewState extends State<ProgressPageView> {
     await prefs.setString('address', "");
     await prefs.setString('country_code', "");
     await prefs.setString('numberofrooms', "");
- await prefs.setString('typesofroom', "");
-  await prefs.setString('numberoffloors', "");
-  await prefs.setString('address', "");
-  await prefs.setString('parkingCapacity', "");
-  await prefs.setString('checkin_time', "");
+    await prefs.setString('typesofroom', "");
+    await prefs.setString('numberoffloors', "");
+    await prefs.setString('address', "");
+    await prefs.setString('parkingCapacity', "");
+    await prefs.setString('checkin_time', "");
     await prefs.setString('checkout_time', "");
     await prefs.setString('payment_method', "");
     await prefs.setString('parking_capacity', "");
     await prefs.setString('numberOfDepartments', "");
-}
-Future<void> uploadFile(String filePath, String fileName) async {
-  try {
-    log('Uploading file: $fileName at path: $filePath');
-
-    final file = File(filePath);
-    if (!file.existsSync()) {
-      print('Error: File does not exist at path: $filePath');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("File does not exist at the specified path."),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final accessToken = prefs.getString('access_token') ?? "";
-
-    Dio dio = Dio();
-    dio.options.headers = {
-      'Content-Type': 'multipart/form-data',
-      'Authorization': 'Bearer $accessToken',
-    };
-    dio.options.validateStatus = (status) => true; // Allows all responses for debugging
-
-    FormData formData = FormData.fromMap({
-      'user': prefs.getString('userid'),
-      'hotel_name': prefs.getString('hotel_name'),
-      'legal_business_name': prefs.getString('legal_business_name'),
-      'year_established': prefs.getString('year_established'),
-      'license_registration_numbers': prefs.getString('license_number'),
-      'complete_address': prefs.getString('address'),
-      'main_phone_number': prefs.getString('primary_contact'),
-      'emergency_phone_number': prefs.getString('emergency_contact'),
-      'email_address': prefs.getString('email'),
-      'total_number_of_rooms': prefs.getString('numberofrooms'),
-      'number_of_floors': prefs.getString('numberoffloors'),
-      'valet_parking_available': prefs.getString('availability'),
-      'valet_parking_capacity': prefs.getString('parkingCapacity'),
-      'check_in_time': "${prefs.getString('checkin_time') ?? "00:00"}:00",
-      'check_out_time': "${prefs.getString('checkout_time') ?? "00:00"}:00",
-      'payment_methods': prefs.getString('payment_method'),
-      'room_price': prefs.getString('price') ?? '',
-      'number_of_departments': prefs.getString('numberOfDepartments'),
-      'department_names': 'Reception, Housekeeping, Maintenance, Kitchen, Security',
-      'staff_excel_sheet': await MultipartFile.fromFile(filePath, filename: fileName),
-    });
-
-    Response response = await dio.post(
-      'https://hotelcrew-1.onrender.com/api/hoteldetails/register/',
-      data: formData,
-    );
-
-    // Handle responses based on status code
-    if (response.statusCode == 201) {
-      print('Upload successful: ${response.data['message']}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Hotel Registered Successfully"),
-          backgroundColor: Colors.green,
-        ),
-      );
-    clear();
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const SetupComplete()),
-      );
-    } else if (response.statusCode == 401) {
-      print('Unauthorized: ${response.data}');
-      log('Response data for 401 error: ${response.data}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(response.data['message'] ?? "Unauthorized. Check your credentials."),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } else if (response.statusCode == 400) {
-      print('Bad Request: ${response.data}');
-      log('Response data for 400 error: ${response.data}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(response.data['message'] ?? "All Fields are necessary"),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } else if (response.statusCode == 500) {
-      print('Server Error: ${response.data}');
-      log('Response data for 500 error: ${response.data}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Server Error. Please try again later."),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } else {
-      print('Unexpected Error: ${response.statusCode}');
-      log('Error data: ${response.data}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(response.data['message'] ?? "Unexpected error occurred."),
-          backgroundColor: Colors.orange,
-        ),
-      );
-    }
-  } on DioException catch (e) {
-    log('Dio Exception: $e');
-    String errorMessage = "An error occurred";
-    if (e.type == DioExceptionType.connectionTimeout) {
-      errorMessage = "Connection timeout. Please check your network and try again.";
-    } else if (e.type == DioExceptionType.receiveTimeout) {
-      errorMessage = "Server response timeout. Please try again later.";
-    } else if (e.type == DioExceptionType.badResponse) {
-      errorMessage = e.response?.data['message'] ?? "Invalid response from server.";
-    }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(errorMessage),
-        backgroundColor: Colors.red,
-      ),
-    );
-  } catch (e) {
-    log('Unexpected Error: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("An unexpected error occurred. Please try again."),
-        backgroundColor: Colors.red,
-      ),
-    );
   }
-}
+
+  Future<void> uploadData({String? filePath, String? fileName}) async {
+    try {
+      log('Uploading data');
+      print("daya");
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final accessToken = prefs.getString('access_token') ?? "";
+
+      Dio dio = Dio();
+      dio.options.headers = {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': 'Bearer $accessToken',
+      };
+      dio.options.validateStatus = (status) => true; // Allows all responses for debugging
+
+      Map<String, dynamic> formDataMap = {
+        'user': prefs.getString('userid'),
+        'hotel_name': prefs.getString('hotel_name'),
+        'legal_business_name': prefs.getString('legal_business_name'),
+        'year_established': prefs.getString('year_established'),
+        'license_registration_numbers': prefs.getString('license_number'),
+        'complete_address': "ghaziabad",
+        'main_phone_number': prefs.getString('primary_contact'),
+        'emergency_phone_number': prefs.getString('emergency_contact'),
+        'email_address': prefs.getString('email'),
+        'total_number_of_rooms': prefs.getString('numberofrooms'),
+        'number_of_floors': prefs.getString('numberoffloors'),
+        'valet_parking_available': prefs.getString('availability'),
+        'valet_parking_capacity': prefs.getString('parkingCapacity'),
+        'check_in_time': "${prefs.getString('checkin_time') ?? "00:00"}:00",
+        'check_out_time': "${prefs.getString('checkout_time') ?? "00:00"}:00",
+        'payment_methods': prefs.getString('payment_method'),
+        'room_price': prefs.getString('price') ?? '',
+        'number_of_departments': 2,
+        'department_names': 'Reception, Housekeeping, Maintenance, Kitchen, Security',
+      };
+
+      if (filePath != null && fileName != null && filePath.isNotEmpty && fileName.isNotEmpty) {
+        formDataMap['staff_excel_sheet'] = await MultipartFile.fromFile(filePath, filename: fileName);
+      }
+
+      FormData formData = FormData.fromMap(formDataMap);
+
+      Response response = await dio.post(
+        'https://hotelcrew-1.onrender.com/api/hoteldetails/register/',
+        data: formData,
+      );
+      print('Response: ${response.data}');
+      // Handle responses based on status code
+      if (response.statusCode == 201) {
+        print('Upload successful: ${response.data['message']}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Hotel Registered Successfully"),
+            backgroundColor: Colors.green,
+          ),
+        );
+        clear();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const SetupComplete()),
+        );
+      } else if (response.statusCode == 401) {
+        print('Unauthorized: ${response.data}');
+        log('Response data for 401 error: ${response.data}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response.data['name'] ?? "Unauthorized. Check your credentials."),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else if (response.statusCode == 400) {
+        print('Bad Request: ${response.data}');
+        String r = response.data.toString();
+        log('Response data for 400 error: ${response.data}');
+        print(response.data['status']);
+        print('Error data: ${response.data}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Fill all the fields correctly"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else if (response.statusCode == 500) {
+        print('Server Error: ${response.data}');
+        log('Response data for 500 error: ${response.data}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Server Error. Please try again later."),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else {
+        print('Unexpected Error: ${response.statusCode}');
+        log('Error data: ${response.data}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response.data['message'] ?? "Unexpected error occurred."),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } on DioException catch (e) {
+      log('Dio Exception: $e');
+      String errorMessage = "An error occurred";
+      if (e.type == DioExceptionType.connectionTimeout) {
+        errorMessage = "Connection timeout. Please check your network and try again.";
+      } else if (e.type == DioExceptionType.receiveTimeout) {
+        errorMessage = "Server response timeout. Please try again later.";
+      } else if (e.type == DioExceptionType.badResponse) {
+        errorMessage = e.response?.data['message'] ?? "Invalid response from server.";
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } catch (e) {
+      log('Unexpected Error: $e');
+      print('Unexpected Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("An unexpected error occurred."),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -228,7 +227,7 @@ Future<void> uploadFile(String filePath, String fileName) async {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-   bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+    bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(screenHeight * 0.2),
@@ -352,57 +351,45 @@ Future<void> uploadFile(String filePath, String fileName) async {
             ),
           ),
           Visibility(
-       visible: !isKeyboardVisible,
-      child: Container(
-          margin: EdgeInsets.only(bottom: screenHeight * 0.06),
-          height: screenHeight * 0.06,
-          width: screenWidth * 0.9,
-          child: ElevatedButton(
-            onPressed: () async{
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              if (_currentPage != _totalPages - 1) {
-                _goToNextPage();
-              } else {
-                if (prefs.getString('fileupload') == "1") {
-              
-                    await uploadFile(prefs.getString('filepath')??"", prefs.getString('filename')??"");
+            visible: !isKeyboardVisible,
+            child: Container(
+              margin: EdgeInsets.only(bottom: screenHeight * 0.06),
+              height: screenHeight * 0.06,
+              width: screenWidth * 0.9,
+              child: ElevatedButton(
+                onPressed: () async {
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  if (_currentPage != _totalPages - 1) {
+                    _goToNextPage();
                   } else {
-                    print('No file selected for upload.');
-                    ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Upload file first"),
-                backgroundColor: Colors.red,
-              ),
-            );
+                    await uploadData(
+                      filePath: prefs.getString('filepath'),
+                      fileName: prefs.getString('filename'),
+                    );
                   }
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF47518C),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: Text(
-              _currentPage < _totalPages - 1 ? 'Next' : 'Save Information',
-              style: GoogleFonts.montserrat(
-                textStyle: TextStyle(
-                  color: const Color(0xFFFAFAFA),
-                  fontWeight: FontWeight.w600,
-                  fontSize: screenHeight * 0.018,
-                  height: 1.5,
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF47518C),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  _currentPage < _totalPages - 1 ? 'Next' : 'Save Information',
+                  style: GoogleFonts.montserrat(
+                    textStyle: TextStyle(
+                      color: const Color(0xFFFAFAFA),
+                      fontWeight: FontWeight.w600,
+                      fontSize: screenHeight * 0.018,
+                      height: 1.5,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
-    )
-    // Empty widget if _currentPage >= _totalPages - 1
-
+          )
         ],
       ),
     );
   }
 }
-
-

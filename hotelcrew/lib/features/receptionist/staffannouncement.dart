@@ -48,6 +48,21 @@ class _StaffAnnouncementPageState extends State<StaffAnnouncementPage> {
   //     throw Exception('Failed to load announcements');
   //   }
   // }
+String access_token = "";
+
+
+ Future<void> getToken() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString('access_token');
+  if (token == null || token.isEmpty) {
+    print('Token is null or empty');
+  } else {
+    setState(() {
+      access_token = token;
+    });
+    print('Token retrieved: $access_token');
+  }
+}
 
   @override
   Widget build(BuildContext context) {

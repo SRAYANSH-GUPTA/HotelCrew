@@ -11,8 +11,10 @@ class StaffSchedule {
 
   // Factory constructor to create a StaffSchedule from the API response
   factory StaffSchedule.fromApiResponse(Map<String, dynamic> shiftData) {
-    String staffName = shiftData['staff_name'] ?? 'Unknown';
+    
+    String staffName = shiftData['user_name'] ?? 'Unknown';
     String shiftTime = shiftData['start_time'] ?? '00:00';
+    print(staffName);
 
     // Define shift type based on the start time (before 18:00 is Day, else Night)
     String shiftType = (int.parse(shiftTime.split(':')[0]) < 18) ? 'Day' : 'Night';

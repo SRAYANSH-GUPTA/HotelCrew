@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'hoteldetailspage2.dart';
+import "../../dashboard/dashborad.dart";
 
 class SetupComplete extends StatefulWidget {
   const SetupComplete({super.key});
@@ -67,7 +68,7 @@ class _SetupCompleteState extends State<SetupComplete> {
                 Navigator.pushReplacement<void, void>(
                   context,
                   MaterialPageRoute<void>(
-                    builder: (BuildContext context) => const ProgressPageView(),
+                    builder: (BuildContext context) => const DashboardPage(),
                   ),
                 );
               },

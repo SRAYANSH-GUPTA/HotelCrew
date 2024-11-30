@@ -1,10 +1,13 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:hotelcrew/core/packages.dart';
 import 'package:hotelcrew/features/dashboard/announcementpage.dart';
 import 'staffannouncement.dart';
 import 'assignroom.dart';
 import 'receptionistdatabase.dart';
+import 'package:intl/intl.dart';
 import '../dashboard/gettaskpage.dart';
 import 'receptionistprofile.dart';
 import 'staffattendancepage.dart';
@@ -23,6 +26,60 @@ class ReceptionistDashHomePage extends StatefulWidget {
 class _ReceptionistDashHomePageState extends State<ReceptionistDashHomePage> {
   // Sample Data (Hardcoded)
   
+List<String> dates = [];
+  List<int> dailyCheckIns = [];
+  List<int> dailyCheckOuts = [];
+  bool isLoading = true;
+
+String access_token = "";
+Future<void> fetchCheckInOutData() async {
+  await getToken(); // Wait for the token to be retrieved
+  if (access_token == null || access_token.isEmpty) {
+    print('Access token is null or empty');
+    return;
+  }
+    const apiUrl = 'https://hotelcrew-1.onrender.com/api/hoteldetails/room-stats/'; // Replace with your API endpoint
+    try {
+      final response = await http.get(Uri.parse(apiUrl),
+       headers: {
+        'Authorization': 'Bearer $access_token',
+        'Content-Type': 'application/json',
+      },
+      );
+      print(response.body);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        setState(() {
+          // Process and format dates to "dd/MM".
+          dates = (data['dates'] as List)
+              .map((date) => _formatDate(date))
+              .toList();
+          dailyCheckIns = List<int>.from(data['daily_checkins']);
+          dailyCheckOuts = List<int>.from(data['daily_checkouts']);
+          isLoading = false;
+          print(dailyCheckIns);
+          print(dailyCheckOuts);
+        });
+      } else {
+        
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      print('Error: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  String _formatDate(String date) {
+    final parsedDate = DateTime.parse(date);
+    return DateFormat('dd/MM').format(parsedDate); // Format date as "dd/MM".
+  }
+
+
 
  final leaveRequests = [
       {'name': 'Mr. MK Joshi', 'detail': 'Sick Leave'},
@@ -46,7 +103,27 @@ class _ReceptionistDashHomePageState extends State<ReceptionistDashHomePage> {
     "Vacant": 20,
     
   };
-  List<double> financialData = [40, 50, 30, 60, 80, 70, 90];
+
+ @override
+  void initState() {
+    super.initState();
+    fetchCheckInOutData();
+  }
+
+ Future<void> getToken() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString('access_token');
+  if (token == null || token.isEmpty) {
+    print('Token is null or empty');
+  } else {
+    setState(() {
+      access_token = token;
+    });
+    print('Token retrieved: $access_token');
+  }
+}
+
+
 
  @override
 Widget build(BuildContext context) {
@@ -123,7 +200,7 @@ Widget build(BuildContext context) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AssignRoomPage(),
+                      builder: (context) => const AssignRoomPage(),
                     ),
                   );  
                 },
@@ -146,7 +223,7 @@ Widget build(BuildContext context) {
                 // ],
               ),
               child: QuickActionButton(
-                title: 'Edit Database',
+                title: 'Manage Guests',
                 iconPath: 'assets/mandatabase.svg', // Your icon path
                 onPressed: () {
                   // Handle button press
@@ -183,7 +260,16 @@ Widget build(BuildContext context) {
               height: 210,
               child: Padding(
                 padding: const EdgeInsets.all(8),
-                child: BarChartWidget(weeklyStaffperformance),
+                child: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: CheckInOutChart(
+                dates: dates,
+                dailyCheckIns: dailyCheckIns,
+                dailyCheckOuts: dailyCheckOuts,
+              ),
+            ),
               ),
             ),
             const SizedBox(height: 56),
@@ -287,30 +373,9 @@ Widget build(BuildContext context) {
           print('Rejected: ${item['name']}');
         },
       ),
-            const SizedBox(height:56),
-            Text(
-              "Weekly Financial Overview",
-              style: GoogleFonts.montserrat(
-                            textStyle: const TextStyle(
-                              color: Color(0xFF000000),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                              height: 1.5,
-                            ),
-                          ),
-            ),
-            const SizedBox(height: 10),
-            const SizedBox(height: 20),
+           
             // Financial Overview Chart
-            Container(
-              color: Pallete.primary50,
-              height: 283,
-              width: screenWidth * 0.9,
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                child: LineChartWidget(financialData)),
-            ),
-            const SizedBox(height: 60),
+            
           ],
         ),
       ),
@@ -357,4 +422,115 @@ Widget _buildPendingLeaveRequests() {
     ),
    
   );
+}
+
+
+
+
+class CheckInOutChart extends StatelessWidget {
+  final List<String> dates; // List of dates from the API (formatted as "YYYY-MM-DD").
+  final List<int> dailyCheckIns; // Check-in counts for each date.
+  final List<int> dailyCheckOuts; // Check-out counts for each date.
+
+  const CheckInOutChart({
+    super.key,
+    required this.dates,
+    required this.dailyCheckIns,
+    required this.dailyCheckOuts,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          height: 300,
+          child: BarChart(
+            BarChartData(
+              alignment: BarChartAlignment.spaceAround,
+              maxY: 10, // Adjust based on your maximum check-in/check-out counts.
+              barTouchData: BarTouchData(enabled: false),
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 40,
+                    getTitlesWidget: (value, _) {
+                      return Text(
+                        value.toInt().toString(),
+                        style: const TextStyle(fontSize: 12),
+                      );
+                    },
+                  ),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, _) {
+                      final index = value.toInt();
+                      if (index < dates.length) {
+                        final date = dates[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            date, // Date will already be in "dd/MM" format.
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        );
+                      }
+                      return const SizedBox();
+                    },
+                    reservedSize: 30,
+                  ),
+                ),
+              ),
+              gridData: const FlGridData(show: true, drawHorizontalLine: true, drawVerticalLine: false),
+              borderData: FlBorderData(
+                show: true,
+                border: const Border(
+                  bottom: BorderSide(color: Colors.black26, width: 1),
+                  left: BorderSide(color: Colors.black26, width: 1),
+                ),
+              ),
+              barGroups: _generateBarGroups(),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildLegend(Colors.green, 'Check in'),
+            const SizedBox(width: 16),
+            _buildLegend(Colors.red, 'Check out'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLegend(Color color, String text) {
+    return Row(
+      children: [
+        Container(width: 12, height: 12, color: color),
+        const SizedBox(width: 4),
+        Text(text, style: const TextStyle(fontSize: 12)),
+      ],
+    );
+  }
+
+  List<BarChartGroupData> _generateBarGroups() {
+    return List.generate(dates.length, (index) {
+      final checkIn = dailyCheckIns[index];
+      final checkOut = dailyCheckOuts[index];
+
+      return BarChartGroupData(
+        x: index,
+        barRods: [
+          BarChartRodData(toY: checkIn.toDouble(), color: Colors.green, width: 12),
+          BarChartRodData(toY: checkOut.toDouble(), color: Colors.red, width: 12),
+        ],
+      );
+    });
+  }
 }

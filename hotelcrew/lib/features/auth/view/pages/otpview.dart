@@ -8,6 +8,7 @@ import '../../models/register.dart';
 import '../../auth_view_model/registerviewmodel.dart' as reg;
 import 'dart:developer';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import "../../../hoteldetails/pages/hoteldetailspage1.dart";
 
 class Otpview extends StatefulWidget {
   final String email;
@@ -334,7 +335,8 @@ class _OtpviewState extends State<Otpview> {
               prefs.setString('refresh_token', viewModel.refreshToken ?? "");
               prefs.setString('userid', viewModel.userId.toString());
               print(prefs.getString('access_token') ?? "Not Available");
-      
+
+              
               print("#############");
               print(prefs.getString('userid'));
               print("User id");
@@ -365,10 +367,10 @@ class _OtpviewState extends State<Otpview> {
               ),
             );
       
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginPage()),
-            );
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Hoteldetailspage1()),
+              );
           } else if (viewModel.errorMessage != null) {
             setState(() {
               otperror = true;

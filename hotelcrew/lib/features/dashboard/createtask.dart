@@ -94,8 +94,10 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Task Created Successfully')),
         );
+        
         _clearForm();
         context.loaderOverlay.hide();
+        Navigator.pop(context);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e')),

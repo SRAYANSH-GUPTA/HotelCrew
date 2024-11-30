@@ -1,5 +1,4 @@
 import 'dart:async';
-import '../model/stafflistmodel.dart';
 class CustomerDatabaseViewModel {
   // Simulate a network call and customer data
   Future<List<Map<String, String>>> fetchCustomerData() async {

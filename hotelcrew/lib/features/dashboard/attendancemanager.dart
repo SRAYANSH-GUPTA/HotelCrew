@@ -1,8 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../core/packages.dart';
 
- // Ensure you have the `Pallete` defined in your project
-
 class ManagerAttendancePage extends StatefulWidget {
   const ManagerAttendancePage({super.key});
 
@@ -50,34 +48,82 @@ class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
     },
   ];
 
-  // Toggle attendance status for a specific staff
+  @override
+  void initState() {
+    super.initState();
+    fetchAttendanceData();
+  }
+
+  bool _isLoading = false;
+
+  Future<void> fetchAttendanceData({String? department}) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await _dio.get(
+        'https://hotelcrew-1.onrender.com/api/attendance/list/',
+        options: Options(
+          validateStatus: (status) => status! < 501,
+          headers: {
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
+          },
+        ),
+        queryParameters: department != null ? {'department': department} : null,
+      );
+      print(response.data);
+      if (response.statusCode == 200) {
+        setState(() {
+          attendanceList = response.data;
+          _isLoading = false;
+        });
+        print(response.data);
+      } else {
+        throw Exception('Failed to fetch attendance');
+      }
+    } catch (e) {
+      print(e);
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   Future<void> toggleAttendance(String userId) async {
     final userIndex =
-        attendanceList.indexWhere((staff) => staff['user_id'].toString() == userId);
+        attendanceList.indexWhere((staff) => staff['id'].toString() == userId);
 
     if (userIndex != -1) {
-      final currentStatus = attendanceList[userIndex]['attendance'];
+      final currentStatus = attendanceList[userIndex]['current_attendance'];
       final newStatus = currentStatus == 'Present' ? 'Absent' : 'Present';
 
       // Temporarily update the UI
       setState(() {
-        attendanceList[userIndex]['attendance'] = newStatus;
+        attendanceList[userIndex]['current_attendance'] = newStatus;
       });
-      return;
+      String id = userId.toString();
       try {
         // API request
-        await _dio.post(
-          '$attendanceApiUrl/toggle',
-          data: {
-            'user_id': userId,
-            'status': newStatus,
-          },
-          options: Options(headers: {'Authorization': 'Bearer <YOUR_ACCESS_TOKEN>'}),
+        print("^"*20);
+        print(userId);
+        final response = await _dio.post(
+          'https://hotelcrew-1.onrender.com/api/attendance/change/$id/',
+          options: Options(headers: {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs'}),
         );
+        print(response.statusCode);
+        print(response.data);
+        if (response.statusCode != 200) {
+          // Revert UI on error
+          setState(() {
+            attendanceList[userIndex]['current_attendance'] = currentStatus;
+          });
+          throw Exception('Failed to toggle attendance');
+        }
       } catch (e) {
         // Revert UI on error
         setState(() {
-          attendanceList[userIndex]['attendance'] = currentStatus;
+          attendanceList[userIndex]['current_attendance'] = currentStatus;
         });
         print('Error toggling attendance: $e');
       }
@@ -86,41 +132,39 @@ class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
     }
   }
 
-  // Mark all filtered staff as Present or Absent
   Future<void> markAll(String status) async {
-  setState(() {
+  try {
     for (var staff in attendanceList) {
-      if (_matchesFilter(staff)) {
-        print('Marking ${staff['user_name']} as $status');
-        staff['attendance'] = status; // Update attendance locally
+      // Check if staff matches filter and needs updating
+      if (_matchesFilter(staff) && staff['current_attendance'] != status) {
+        // Update attendance locally
+        setState(() {
+          staff['current_attendance'] = status;
+        });
+
+        // Make API request to update attendance
+        await _dio.post(
+          'https://hotelcrew-1.onrender.com/api/attendance/change/${staff['id'].toString()}/',
+          options: Options(
+            validateStatus: (status) => status! < 501,
+            headers: {
+              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
+            },
+          ),
+         // Include data if required
+        );
       }
     }
-  });
-  print('MarkAll function invoked with status: $status');
-
-  return;
-  try {
-    await _dio.post(
-      '$attendanceApiUrl/mark-all',
-      data: {
-        'status': status,
-        'staffIds': attendanceList
-            .where(_matchesFilter)
-            .map((staff) => staff['user_id'])
-            .toList(),
-      },
-      options: Options(headers: {'Authorization': 'Bearer <YOUR_ACCESS_TOKEN>'}),
-    );
+    print('All matching attendance updated to $status');
   } catch (e) {
     print('Error marking all as $status: $e');
   }
 }
 
-  // Filter logic for department and attendance status
+
   bool _matchesFilter(dynamic staff) {
     final matchesDepartment =
         staff['department'] == selectedDepartment || selectedDepartment == 'All Staff';
-   
     return matchesDepartment;
   }
 
@@ -153,12 +197,10 @@ class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Filter Row
             Padding(
-              padding:const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  // Department Filter Dropdown
                   _buildFilterDropdown(
                     screenWidth: screenWidth,
                     value: selectedDepartment,
@@ -176,45 +218,43 @@ class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
                       });
                     },
                   ),
-              
                   const Spacer(),
-              
-                  // Attendance Status Dropdown
                   Row(
-                    children:[ Text(
-                      'Mark All:',
-                      style: GoogleFonts.montserrat(
-                        textStyle: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Pallete.neutral900,
-                          height: 1.5,
+                    children: [
+                      Text(
+                        'Mark All:',
+                        style: GoogleFonts.montserrat(
+                          textStyle: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Pallete.neutral900,
+                            height: 1.5,
+                          ),
                         ),
                       ),
-                      
-                    ),const SizedBox(width: 5),
-                     _buildFilterDropdown(
-                                    screenWidth: screenWidth,
-                                    value: selectedAttendanceStatus,
-                                    items: <String>[
-                    'None',
-                    'Present',
-                    'Absent',
-                                    ],
-                                    onChanged: (newValue) async {
-                    if (newValue != null) {
-                      setState(() {
-                        selectedAttendanceStatus = newValue;
-                      });
-                      if (newValue == 'Present' || newValue == 'Absent') {
-                        await markAll(newValue); 
-                        print('called');// Mark all filtered staff as "Present" or "Absent"
-                      }
-                    }
-                                    },
-                                  ),],
+                      const SizedBox(width: 5),
+                      _buildFilterDropdown(
+                        screenWidth: screenWidth,
+                        value: selectedAttendanceStatus,
+                        items: <String>[
+                          'None',
+                          'Present',
+                          'Absent',
+                        ],
+                        onChanged: (newValue) async {
+                          if (newValue != null) {
+                            setState(() {
+                              selectedAttendanceStatus = newValue;
+                            });
+                            if (newValue == 'Present' || newValue == 'Absent') {
+                              await markAll(newValue);
+                              print('called');
+                            }
+                          }
+                        },
+                      ),
+                    ],
                   ),
-              
                 ],
               ),
             ),
@@ -248,77 +288,78 @@ class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
                 const SizedBox(width: 16),
               ],
             ),
-            // Attendance List
             Expanded(
-              child: ListView.builder(
-                itemCount: attendanceList.length,
-                itemBuilder: (context, index) {
-                  final staff = attendanceList[index];
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      itemCount: attendanceList.length,
+                      itemBuilder: (context, index) {
+                        final staff = attendanceList[index];
 
-                  if (!_matchesFilter(staff)) {
-                    return const SizedBox.shrink();
-                  }
+                        if (!_matchesFilter(staff)) {
+                          return const SizedBox.shrink();
+                        }
 
-                  return ListTile(
-                    leading: const CircleAvatar(
-                      child: Icon(Icons.person),
-                    ),
-                    title: Text(
-                      staff['user_name'] ?? 'No Name',
-                      style: GoogleFonts.montserrat(
-                        textStyle: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Pallete.neutral900,
-                        ),
-                      ),
-                    ),
-                    subtitle: Text(
-                      staff['department'] ?? '',
-                      style: GoogleFonts.montserrat(
-                        textStyle: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: Pallete.neutral900,
-                        ),
-                      ),
-                    ),
-                    trailing: GestureDetector(
-                      onTap: () {
-                        toggleAttendance(staff['user_id']);
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundImage:  NetworkImage(staff['user_profile']),
+                          ),
+                          title: Text(
+                            staff['user_name'] ?? 'No Name',
+                            style: GoogleFonts.montserrat(
+                              textStyle: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Pallete.neutral900,
+                              ),
+                            ),
+                          ),
+                          subtitle: Text(
+                            staff['department'] ?? '',
+                            style: GoogleFonts.montserrat(
+                              textStyle: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: Pallete.neutral900,
+                              ),
+                            ),
+                          ),
+                          trailing: GestureDetector(
+                            onTap: () {
+                              print(staff['id'].toString());
+                              toggleAttendance(staff['id'].toString());
+                            },
+                            child: Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: staff['current_attendance'] == 'Present'
+                                    ? const Color.fromARGB(255, 179, 255, 181)
+                                    : Pallete.pagecolor,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Pallete.success100,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'P',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    height: 1.5,
+                                    fontWeight: FontWeight.w400,
+                                    color: staff['current_attendance'] == 'Present'
+                                        ? Pallete.success700
+                                        : Pallete.neutral900,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
                       },
-                      child: Container(
-  width: 32,  // Set width and height to make it circular
-  height: 32,
-  decoration: BoxDecoration(
-    color: staff['attendance'] == 'Present'
-        ? Pallete.success500
-        : Pallete.pagecolor, // Background color
-    shape: BoxShape.circle,
-    border: Border.all(
-      color: Pallete.success100,  // Border color for "Absent"
-      width: 1, // Adjust border width
-    ),
-  ),
-  child: Center(
-    child: Text(
-      'P', // Display the letter "P"
-      style: TextStyle(
-        fontSize: 14,
-        height: 1.5, // Adjust font size as needed
-        fontWeight: FontWeight.w400,
-        color: staff['attendance'] == 'Present'
-            ? Pallete.success700 // Text color for "Present"
-            : Pallete.neutral900,  // Text color for "Absent"
-      ),
-    ),
-  ),
-),
-
                     ),
-                  );
-                },
-              ),
             ),
           ],
         ),

@@ -20,16 +20,16 @@ class TaskViewModel {
       }
 
       final response = await _dio.post(
-        '$baseUrl/tasks',
+        baseUrl,
         data: task.toJson(),
         options: Options(
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA2MTA1LCJpYXQiOjE3MzI2MTQxMDUsImp0aSI6IjFmYWI0NTI4MTQzNDRhNTU5MGY3Y2YzYzFlMzc4YmFmIiwidXNlcl9pZCI6OTB9.JjlVfhXpewcsFv6V1JN8Q5L2C7WHMVOUwgKKp7ZtFDc',
           },
         ),
       );
-
+      print(response.statusCode);
       if (response.statusCode == 201) {
         print('Task Created Successfully: ${response.data}');
       } else {

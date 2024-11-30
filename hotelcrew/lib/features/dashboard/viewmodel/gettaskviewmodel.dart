@@ -4,54 +4,54 @@ import '../model/gettaskmodel.dart';
 
 class TaskService {
   final Dio _dio = Dio();
-  final String apiUrl = 'https://yourapi.com/api/tasks';
+  final String apiUrl = 'https://hotelcrew-1.onrender.com/api/taskassignment/tasks/all/';
 
-  // Simulated API response
-  Future<List<Task>> fetchTasks() async {
-    await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
+  // Fetch tasks with pagination
+  Future<List<Task>> fetchTasks({int page = 1, int pageSize = 10}) async {
+    try {
+      // Simulate network delay
+      // await Future.delayed(const Duration(seconds: 2));
 
-    // Mock data based on your API documentation
-    List<Map<String, dynamic>> mockData = [
-      {
-        "id": 1,
-        "title": "Prepare meeting agenda",
-        "assigned_to": 5,
-        "description": "Prepare the agenda for the upcoming meeting with the board of directors.",
-        "status": "Pending",
-        "department": "Maintainance",
-        "deadline": "2024-11-30"
-      },
-      {
-        "id": 2,
-        "title": "Clean Room 101",
-        "assigned_to": 3,
-        "description": "Clean and sanitize Room 101 before the arrival of the VIP guest.",
-        "status": "In Progress",
-        "deadline": "2024-11-25",
-        "department": "Maintainance"
-      },
-      {
-        "id": 3,
-        "title": "Inventory check",
-        "assigned_to": 4,
-        "department": "Maintainance",
-        "description": "Conduct an inventory check of all items in the storage room.",
-        "status": "Completed",
-        "deadline": "2024-11-20"
-      },
-      {
-        "id": 4,
-        "title": "Update guest records",
-        "assigned_to": 2,
-        "department": "Maintainance",
-        "description": "Update the guest records with the latest information.",
-        "status": "Pending",
-        "deadline": "2024-12-01"
-      },
-    ];
+      // API Request with query parameters for pagination
+      final response = await _dio.get(
+        apiUrl,
+        options: Options(
+          validateStatus: (status) => status! < 501, 
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA2MTA1LCJpYXQiOjE3MzI2MTQxMDUsImp0aSI6IjFmYWI0NTI4MTQzNDRhNTU5MGY3Y2YzYzFlMzc4YmFmIiwidXNlcl9pZCI6OTB9.JjlVfhXpewcsFv6V1JN8Q5L2C7WHMVOUwgKKp7ZtFDc', // Replace with actual token
+          },
+        ),
+        queryParameters: {
+          'page': page,
+          'page_size': pageSize,
+        },
+      );
 
-    // Simulate converting response to Task objects
-    
-    return mockData.map((task) => Task.fromJson(task)).toList();
+      print("Response Status: ${response.statusCode}");
+
+      if (response.statusCode == 200) {
+        // If the request is successful, extract data
+        final data = response.data;
+
+        // Ensure the response contains results
+        if (data['results'] != null) {
+          // Convert the 'results' to a list of Task objects
+          final taskList = (data['results'] as List)
+              .map((task) => Task.fromJson(task as Map<String, dynamic>))
+              .toList();
+
+          return taskList;
+        } else {
+          throw Exception('No tasks found in the response');
+        }
+      } else {
+        throw Exception('Failed to load tasks: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Handle any errors (network or data parsing)
+      print('Error fetching tasks: $e');
+      rethrow;
+    }
   }
 }

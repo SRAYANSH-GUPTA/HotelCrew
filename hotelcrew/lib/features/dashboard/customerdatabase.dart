@@ -1,5 +1,6 @@
 import '../../core/packages.dart';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 // List<Map<String, String>> customerData = [
 //     {"name": "John Doe", "email": "abcd123@gmail.com", "department": "Housekeeping", "salary": "15000"},
 //     {"name": "Aakash", "email": "abcd123@gmail.com", "department": "Receptionist", "salary": "18000"},
@@ -52,16 +53,73 @@ List<Map<String, String>> customerData = [
   },
 ];
 //TODO: Fix thw filter option
-String selectedStatus = '';
-  //Future<void> fetchStaffData() async {
-  // Make API call here and update `customerData` with response data
-  // For example:
-  // final response = await Dio().get('API_ENDPOINT');
-  // setState(() {
-  //   customerData = response.data;
-  //   filteredList = List.from(customerData);
-  // });
-//}
+final String apiUrl = 'https://hotelcrew-1.onrender.com/api/hoteldetails/all-customers/'; // Replace with your actual API URL
+
+  // Function to fetch data via HTTPS
+
+Future<void> fetchData() async {
+  try {
+    // Make the GET request to the API
+    final response = await http.get(
+      Uri.parse(apiUrl),
+      headers: {
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs', // Optional: Add authorization if needed
+      },
+    );
+
+    // Check if the response is successful (HTTP 200)
+    if (response.statusCode == 200) {
+      // Parse the response body into JSON
+      var data = json.decode(response.body);
+
+      // Convert the data into the desired format
+      List<Map<String, String>> formattedData = convertCustomerData(data);
+      // SetState(() {
+      //   customerData = formattedData;
+      // });
+      // Now you can use the formatted data
+      setState(() {
+          customerData = formattedData;
+          filteredList = List.from(customerData);
+        });
+      print('Formatted customer data: $formattedData');
+    } else {
+      // Handle unsuccessful response
+      print('Failed to load data. Status code: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Handle error if something goes wrong
+    print('Error fetching data: $e');
+  }
+}
+
+// Function to convert the API response data into the desired format
+List<Map<String, String>> convertCustomerData(List<dynamic> customerList) {
+  // Create a list to hold the formatted data
+  List<Map<String, String>> formattedCustomerData = [];
+
+  // Loop through each customer in the parsed data and format the data
+  for (var customer in customerList) {
+    formattedCustomerData.add({
+      'name': customer['name'],
+      'customerId': customer['id'].toString(), // Ensure the ID is a string
+      'email': customer['email'],
+      'contact': customer['phone_number'],
+      'room': customer['room_no'].toString(),
+      'checkIn': formatDateTime(customer['check_in_time']),
+      'checkOut': formatDateTime(customer['check_out_time']),
+      'status': customer['status'],
+    });
+  }
+
+  return formattedCustomerData;
+}
+
+// Helper function to format DateTime into a readable string (e.g., 'dd-MM-yyyy')
+String formatDateTime(String dateTimeStr) {
+  DateTime dateTime = DateTime.parse(dateTimeStr);
+  return '${dateTime.day.toString().padLeft(2, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.year}';
+}
 
 
   // Filtered list for updates
@@ -71,7 +129,8 @@ List<String> selectedStatuses = [];
 @override
 void initState() {
   super.initState();
-  filteredList = List.from(customerData); // Initially showing all customers
+  fetchData();
+   // Initially showing all customers
 }
 
 void applyFilters() {

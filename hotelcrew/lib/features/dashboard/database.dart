@@ -1,10 +1,8 @@
-import 'package:flutter/material.dart';
 import '../../core/packages.dart';
 import 'customerdatabase.dart';
 import 'staffdatabase.dart';
-import "../../core/packages.dart";
 class DatabasePage extends StatelessWidget {
-  const DatabasePage({Key? key}) : super(key: key);
+  const DatabasePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -59,16 +57,16 @@ class DatabasePage extends StatelessWidget {
                         children: [
                           Text(
                             "Staff Details",
-                            style: GoogleFonts.montserrat(textStyle:TextStyle(
+                            style: GoogleFonts.montserrat(textStyle:const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: Pallete.neutral1000,
                             ),),
                           ),
-                          SizedBox(height: 7),
+                          const SizedBox(height: 7),
                           Text(
                             "View, add, or edit staff information.",
-                             style: GoogleFonts.montserrat(textStyle:TextStyle(
+                             style: GoogleFonts.montserrat(textStyle:const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: Pallete.neutral900,
@@ -89,7 +87,7 @@ class DatabasePage extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CustomerDatabasePage()),
+                  MaterialPageRoute(builder: (context) => const CustomerDatabasePage()),
                 );
               },
               child: Container(
@@ -113,16 +111,16 @@ class DatabasePage extends StatelessWidget {
                         children: [
                           Text(
                             "Customer Details",
-                             style: GoogleFonts.montserrat(textStyle:TextStyle(
+                             style: GoogleFonts.montserrat(textStyle:const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: Pallete.neutral1000,
                             ),
                           ),),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             "Access and update guest records.",
-                          style: GoogleFonts.montserrat(textStyle:TextStyle(
+                          style: GoogleFonts.montserrat(textStyle:const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: Pallete.neutral900),

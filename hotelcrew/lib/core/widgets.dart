@@ -2,7 +2,6 @@ import 'package:hotelcrew/core/packages.dart';
 import 'package:intl/intl.dart';
 import "passwordvalidation.dart";
 import 'package:fl_chart/fl_chart.dart';
-import "theme/app_pallete.dart";
 // buildMainButton(
 //   context: context,
 //   screenHeight: screenHeight,
@@ -971,7 +970,7 @@ class LineChartWidget extends StatelessWidget {
         lineBarsData: [
           LineChartBarData(
             color: Pallete.primary800,
-            barWidth: 1,
+            barWidth: 2,
             spots: data
                 .asMap()
                 .entries
@@ -990,6 +989,16 @@ class LineChartWidget extends StatelessWidget {
                 end: Alignment.topCenter,  // Gradient ends at the top
                 transform: GradientRotation(0),  // No rotation for vertical gradient
               ),
+            ),
+            gradient: const LinearGradient(
+              colors: [Pallete.primary400, Pallete.primary800],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            shadow: Shadow(
+              color: Pallete.primary800.withOpacity(0.5),
+              offset: const Offset(0, 4),
+              blurRadius: 8,
             ),
           ),
         ],
@@ -1030,12 +1039,36 @@ class LineChartWidget extends StatelessWidget {
             ),
           ),
         ),
-        gridData: const FlGridData(verticalInterval: 25),
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: true,
+          drawHorizontalLine: true,
+          verticalInterval: 1,
+          horizontalInterval: 25,
+          getDrawingHorizontalLine: (value) {
+            return FlLine(
+              color: Pallete.neutral200,
+              strokeWidth: 1,
+            );
+          },
+          getDrawingVerticalLine: (value) {
+            return FlLine(
+              color: Pallete.neutral200,
+              strokeWidth: 1,
+            );
+          },
+        ),
         borderData: FlBorderData(
+          show: true,
           border: const Border(
             top: BorderSide.none,
             right: BorderSide.none,
             bottom: BorderSide(
+              width: 1,
+              color: Pallete.primary500,
+              style: BorderStyle.solid,
+            ),
+            left: BorderSide(
               width: 1,
               color: Pallete.primary500,
               style: BorderStyle.solid,
@@ -1168,7 +1201,7 @@ class BarChartWidget extends StatelessWidget {
               return const FlLine(
                 color: Pallete.primary500,
                 strokeWidth: 0.5,
-                dashArray: [5, 5], // Creates a dashed effect
+                dashArray: [2, 2], // Creates a dashed effect
               );
             },
             checkToShowHorizontalLine: (value) => true,
@@ -1177,7 +1210,7 @@ class BarChartWidget extends StatelessWidget {
               return const FlLine(
                 color: Pallete.primary500,
                 strokeWidth: 0.5,
-                dashArray: [5, 5], // Creates a dashed effect
+                dashArray: [2,2], // Creates a dashed effect
               );
             },
             checkToShowVerticalLine: (value) => true,
@@ -1618,6 +1651,76 @@ class LeaveRequestCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+
+
+class GlobalNotification {
+  static final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
+  static GlobalKey<NavigatorState> get navigatorKey => _navigatorKey;
+
+  static void showSuccessMessage(String message) {
+    final overlay = _navigatorKey.currentState!.overlay!;
+    final overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 50,
+        left: 20,
+        right: 20,
+        child: Material(
+          color: Colors.transparent,
+          child: _SuccessNotification(message: message),
+        ),
+      ),
+    );
+
+    // Insert the overlay entry and remove it after a delay
+    overlay.insert(overlayEntry);
+    Future.delayed(Duration(seconds: 3), () {
+      overlayEntry.remove();
+    });
+  }
+}
+
+class _SuccessNotification extends StatelessWidget {
+  final String message;
+
+  const _SuccessNotification({Key? key, required this.message}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.green[100],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.green, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 5,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check_circle, color: Colors.green, size: 24),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(
+                color: Colors.green[800],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

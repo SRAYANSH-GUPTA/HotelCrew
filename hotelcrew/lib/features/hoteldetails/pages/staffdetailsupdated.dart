@@ -138,6 +138,7 @@ Future<void> uploadFile(String filePath, String fileName) async {
       'https://hotelcrew-1.onrender.com/api/hoteldetails/register/',
       data: formData,
     );
+    print("response: ${response.data}");
 
     // Handle responses based on status code
     if (response.statusCode == 201) {

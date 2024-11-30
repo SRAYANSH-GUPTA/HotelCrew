@@ -1,9 +1,12 @@
 import '../../core/packages.dart';
+import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
+import "dart:convert";
 
 // List<Map<String, String>> staffList = [
-//     {"name": "John Doe", "email": "abcd123@gmail.com", "department": "Housekeeping", "salary": "15000"},
-//     {"name": "Aakash", "email": "abcd123@gmail.com", "department": "Receptionist", "salary": "18000"},
-//     {"name": "Amit", "email": "abcd123@gmail.com", "department": "Kitchen", "salary": "15000"},
+//     {"name": "John Doe", "email": "abcd123@gmail.com", "department": "Housekeeping", "Shift": "15000"},
+//     {"name": "Aakash", "email": "abcd123@gmail.com", "department": "Receptionist", "Shift": "18000"},
+//     {"name": "Amit", "email": "abcd123@gmail.com", "department": "Kitchen", "Shift": "15000"},
 //   ];
 
 
@@ -26,145 +29,184 @@ final buttonStyle = ElevatedButton.styleFrom(
   padding: const EdgeInsets.symmetric(vertical: 14),
 );
 
+
+
+
+
+class _StaffDatabasePageState extends State<StaffDatabasePage> {
+  final screenHeight = const MediaQueryData().size.height;
+  final screenWidth = const MediaQueryData().size.width;
+  // Initial dummy list
+  void onDelete() {
+    fetchAttendanceData();  // Refresh the list after deletion
+  }
+
 void showAddStaffBottomSheet(BuildContext context) {
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final departmentController = TextEditingController();
+  final shiftController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
   showModalBottomSheet(
     context: context,
-    shape: const RoundedRectangleBorder(
+    shape: const RoundedRectangleBorder( 
       borderRadius: BorderRadius.vertical(top: Radius.circular(8)), // Bottom sheet radius
     ),
     isScrollControlled: true,
     builder: (context) {
-      return SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: 16.0,
-              right: 16.0,
-              top: 16.0,
-              bottom: MediaQuery.of(context).viewInsets.bottom + 16.0,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title and Close Button Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Add Staff",
-                      style: GoogleFonts.montserrat(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Pallete.neutral950,
+      return GlobalLoaderOverlay(
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: 16.0,
+                right: 16.0,
+                top: 16.0,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 16.0,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title and Close Button Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Add Staff",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Pallete.neutral950,
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Pallete.neutral950),
-                      onPressed: () => Navigator.pop(context), // Close bottom sheet
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 38), // Spacing between title row and first text field
-                // Styled TextFields
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: "Name",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 38),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: "Email",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 38),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: "Department",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 38),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: "Salary",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 38),
-                // Styled Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Add your logic here
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Pallete.primary800, // Button color
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // Button radius
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Pallete.neutral950),
+                        onPressed: () => Navigator.pop(context), // Close bottom sheet
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 14.0), // Padding
-                    ),
-                    child: Text(
-                      "Add Staff",
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Pallete.neutral00, // Button text color
+                    ],
+                  ),
+                  const SizedBox(height: 38), // Spacing between title row and first text field
+                  // Styled TextFields
+                  TextFormField(
+                     controller: nameController, // Add controller
+          validator: (value) => value?.isEmpty ?? true ? 'This is required': null,
+                    decoration: InputDecoration(
+                      
+                      labelText: "Name",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 38),
+                  TextFormField(
+                    controller: emailController, // Add controller
+          validator: (value) => value?.isEmpty ?? true ? 'This is required' : null,
+                    decoration: InputDecoration(
+                      labelText: "Email",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 38),
+                  TextFormField(
+                    controller: departmentController, // Add controller
+          validator: (value) => value?.isEmpty ?? true ? 'This is required' : null,
+                    decoration: InputDecoration(
+                      labelText: "Department",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 38),
+                  TextFormField(
+                    controller: shiftController, // Add controller
+          validator: (value) => value?.isEmpty ?? true ? 'This is required' : null,
+                    decoration: InputDecoration(
+                      labelText: "Shift",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 38),
+                  // Styled Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        print("pressed");
+                        if (true) {
+                          print("done");
+                            addStaff(
+                              context,
+                              name: nameController.text,
+                              email: emailController.text,
+                              department: departmentController.text,
+                              shift: shiftController.text,
+                            );
+                          }
+                        },
+                      
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Pallete.primary800, // Button color
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0), // Button radius
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14.0), // Padding
+                      ),
+                      child: Text(
+                        "Add Staff",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Pallete.neutral00, // Button text color
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -173,52 +215,119 @@ void showAddStaffBottomSheet(BuildContext context) {
   );
 }
 
-
-class _StaffDatabasePageState extends State<StaffDatabasePage> {
-  final screenHeight = const MediaQueryData().size.height;
-  final screenWidth = const MediaQueryData().size.width;
-  // Initial dummy list
-List<Map<String, String>> staffList = [
-  {
-    'id': "1",
-    'Staff': 'Aakash',
-    'Department': 'Housekeeping',
-    'Email': 'aakash@testmail.com',
-    'Salary': "3200",
-    "account": "1234567890",
-    'Status': 'Paid',
-    'TransactionId': 'XFD8KLMO23'
-  },
-  {
-    'id': "2",
-    'Staff': 'Amit',
-    'Department': 'Maintenance',
-    'Email': 'amit@fakemail.com',
-    "account": "1234567890",
-    'Salary': "4500",
-    'Status': 'Not Paid',
-    'TransactionId': "None"
-  },
-  {
-    'id': "3",
-    'Staff': 'Tushar',
-    'Department': 'Housekeeping',
-    'Email': 'tushar@example.com',
-    "account": "1234567890",
-    'Salary': "2900",
-    'Status': 'Transaction Error',
-    'TransactionId': "None"
-  },
-  {
-    'id': "4",
-    'Staff': 'Krish',
-    'Department': 'Security',
-    'Email': 'krish@testmail.com',
-    "account": "1234567890",
-    'Salary': "3100",
-    'Status': 'Paid',
-    'TransactionId': 'GHD76KLM29'
+Future<void> getToken() async {
+  
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString('access_token');
+  if (token == null || token.isEmpty) {
+    print('Token is null or empty');
+  } else {
+    setState(() {
+      access_token = token;
+    });
+    print('Token retrieved: $access_token');
   }
+}
+String access_token = "";
+
+
+  Future<void> addStaff(BuildContext context, {
+    
+  required String name,
+  required String email,
+  required String department,
+  required String shift,
+}) async {
+  const String url = 'https://hotelcrew-1.onrender.com/api/edit/create/';
+  
+  final Map<String, String> headers = {
+    'Authorization': 'Bearer $access_token',
+    'Content-Type': 'application/json',
+  };
+
+  final Map<String, dynamic> body = {
+    'user_name': name,
+    'email': email,
+    'department': department,
+    'shift': shift,
+    'role': 'Staff'
+  };
+  print(body);
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: headers,
+      body: jsonEncode(body),
+    );
+    print(response.body);
+
+    if (response.statusCode == 201) {
+      print("hello");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Staff added successfully')),
+      );
+      Navigator.pop(context);
+      // Refresh staff list
+      fetchAttendanceData();
+    } 
+    else if(response.statusCode == 400)
+    {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Email Already Exists')),
+      );
+    }
+    else {
+      throw Exception('Failed to add staff');
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: ${e.toString()}')),
+    );
+  }
+}
+List<Map<String, String>> staffList = [
+  // {
+  //   'id': "1",
+  //   'Staff': 'Aakash',
+  //   'Department': 'Housekeeping',
+  //   'Email': 'aakash@testmail.com',
+  //   'Shift': "Day",
+  //   "account": "1234567890",
+  //   'Status': 'Paid',
+  //   'TransactionId': 'XFD8KLMO23'
+  // },
+  // {
+  //   'id': "2",
+  //   'Staff': 'Amit',
+  //   'Department': 'Maintenance',
+  //   'Email': 'amit@fakemail.com',
+  //   "account": "1234567890",
+  //   'Shift': "Night",
+  //   'Status': 'Not Paid',
+  //   'TransactionId': "None"
+  // },
+  // {
+  //   'id': "3",
+  //   'Staff': 'Tushar',
+  //   'Department': 'Housekeeping',
+  //   'Email': 'tushar@example.com',
+  //   "account": "1234567890",
+  //   'Shift': "Night",
+  //   'Status': 'Transaction Error',
+  //   'TransactionId': "None"
+  // },
+  // {
+  //   'id': "4",
+  //   'Staff': 'Krish',
+  //   'Department': 'Security',
+  //   'Email': 'krish@testmail.com',
+  //   "account": "1234567890",
+  //   'Shift': "Day",
+  //   'Status': 'Paid',
+  //   'TransactionId': 'GHD76KLM29'
+  // }
   // Add more staff here as needed
 ];
 
@@ -233,7 +342,7 @@ List<Map<String, String>> staffList = [
   // });
 //}
 
-
+final Dio _dio = Dio();
   // Filtered list for updates
   List<Map<String, String>> filteredList = [];
 
@@ -245,10 +354,63 @@ List<Map<String, String>> staffList = [
   void initState() {
     super.initState();
     // Initially, the filtered list is the same as the full staff list
+    fetchAttendanceData();
     filteredList = List.from(staffList);
     //fetchStaffData();
   }
+  bool isLoading = false;
+Future<void> fetchAttendanceData({String? department}) async {
+  setState(() {
+    isLoading = true;
+  });
 
+  try {
+    final response = await _dio.get(
+      'https://hotelcrew-1.onrender.com/api/attendance/list/',
+      options: Options(
+        validateStatus: (status) => status! < 501,
+        headers: {
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
+        },
+      ),
+      queryParameters: department != null ? {'department': department} : null,
+    );
+
+    if (response.statusCode == 200) {
+      List<Map<String, String>> convertedStaffList = [];
+      
+      // Safely convert dynamic values to strings
+      for (var item in (response.data as List)) {
+        convertedStaffList.add({
+          'id': (item['id'] ?? '').toString(),
+          'Staff': (item['user_name'] ?? '').toString(),
+          'Department': (item['department'] ?? '').toString(),
+          'Email': (item['email'] ?? '').toString(),
+          'Shift': (item['shift'] ?? '').toString(),
+          'account': (item['account_number'] ?? '').toString(),
+          'Status': (item['payment_status'] ?? 'Not Paid').toString(),
+          'TransactionId': (item['transaction_id'] ?? 'None').toString(),
+          'User_profile': (item['user_profile'] ?? 'None').toString()
+        });
+      }
+
+      setState(() {
+        staffList = convertedStaffList;
+        filteredList = List.from(staffList);
+        isLoading = false;
+      });
+
+      print('Staff list updated: ${staffList.length} records');
+    } else {
+      throw Exception('Failed to fetch attendance');
+    }
+  } catch (e) {
+    print('Error fetching attendance data: $e');
+    setState(() {
+      isLoading = false;
+    });
+  }
+}
   void applyFilters() {
   setState(() {
     filteredList = staffList.where((staff) {
@@ -394,191 +556,196 @@ void showFilterModal(BuildContext context) {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    return Scaffold(
-      backgroundColor: Pallete.pagecolor,
-      appBar: AppBar(
-          titleSpacing: 0,
-          leading: InkWell(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: const Icon(Icons.arrow_back_ios_outlined, color: Pallete.neutral900)),
-          title: Text(
-            "Database",
-            style: GoogleFonts.montserrat(
-              textStyle: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Pallete.neutral950,
-              ),
-            ),
-          ),
-          actions: [
-            IconButton(
-              onPressed: () {
-                showAddStaffBottomSheet(context);
+    return GlobalLoaderOverlay(
+      child: Scaffold(
+        backgroundColor: Pallete.pagecolor,
+        appBar: AppBar(
+            titleSpacing: 0,
+            leading: InkWell(
+              onTap: () {
+                Navigator.pop(context);
               },
-              icon: const Icon(Icons.add, color: Pallete.neutral900),
-            ),
-          ],
-        ),
-//showFilterModal
-
-
-      body: 
-        Padding(
-          padding: const EdgeInsets.only(left: 16.0,right: 16.0,top: 32.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            
-            children: [
-              // Search bar (optional, can be removed)
-              Row(children: [
-                InkWell(
-                  onTap: () { 
-                    showFilterModal(context);},
-                  child: SvgPicture.asset("assets/filter.svg", height: 24, width: 24)),
-          
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: SizedBox(
-                      // height: 36,
-                      width: screenWidth * 0.822,
-                      child: TextField(
-                        style: GoogleFonts.montserrat(
-                            textStyle: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
-                              color: Pallete.neutral900,
-                            ),
-                          )
-          ,autofocus: false,
-          decoration: InputDecoration(
-            isCollapsed: true, // Ensures compact height
-            filled: true,
-            fillColor: Pallete.neutral100, // Background color (same for focus and unfocus)
-            prefixIcon: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0), // Adjust spacing
-        child: SvgPicture.asset(
-          'assets/search.svg', // Path to your SVG file
-          height: 20.0,
-          width: 20.0,
-        ),
-            ),
-            prefixIconConstraints: const BoxConstraints(
-        minHeight: 36,
-        minWidth: 36, // Ensure icon is properly sized
-            ),
-            hintText: 'Search staff...',
-            labelStyle: const TextStyle(
-        
-        color: Pallete.neutral400), // Optional label text color
-            hintStyle: const TextStyle(
-        color: Pallete.neutral400),
-        // border: InputBorder.none, // Optional hint text color
-            border: OutlineInputBorder(
-        borderSide: const BorderSide(color: Pallete.neutral200, width: 1), // Border style
-        borderRadius: BorderRadius.circular(8), // Optional: for rounded corners
-            ),
-            enabledBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Pallete.neutral200, width: 1), // Border when not focused
-        borderRadius: BorderRadius.circular(8),
-            ),
-            focusedBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Pallete.neutral200, width: 1), // Border when focused
-        borderRadius: BorderRadius.circular(8),
-            ),// Removes the outline border
-            // enabledBorder: InputBorder(borderSide: BorderSide(color: Pallete.neutral200,width: 1)), // Removes enabled border
-            // focusedBorder: InputBorder(borderSide: BorderSide(color: Pallete.neutral200,width: 1)), // Removes focused border
-          ),
-          textAlign: TextAlign.start,
-          textAlignVertical: TextAlignVertical.center,
-          onChanged: (value) {
-            setState(() {
-        filteredList = staffList
-            .where((staff) => staff['Staff']!
-                .toLowerCase()
-                .contains(value.toLowerCase()))
-            .toList();
-            });
-          },
-        ),
-                    ),
-                  ),
+              child: const Icon(Icons.arrow_back_ios_outlined, color: Pallete.neutral900)),
+            title: Text(
+              "Database",
+              style: GoogleFonts.montserrat(
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Pallete.neutral950,
                 ),
-          
-              ],
-                
-              ),
-              const SizedBox(height: 35),
-              // Table header
-             
-              
-              Expanded(
-          child: filteredList.isEmpty
-        ? const Center(
-            child: Text(
-              'No results found',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey,
               ),
             ),
-          )
-        : Column(mainAxisSize: MainAxisSize.min,
-            children: [
-              // Table headers with vertical lines
-             
-          
-              // Table header with vertical lines
-             
-             Expanded(
-            
-          child: ListView.builder(
-            itemCount: filteredList.length,
-            // physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-        final staff = filteredList[index];
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: double.infinity,
-        
-        
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: const Border(
-                  left: BorderSide(color: Pallete.primary300,width: 4)
-                )
-              ), // Ensures full-width occupation
-              child: StaffPaymentCard(
-                staffName: staff['Staff'] ?? "",
-                email: staff['Email'] ?? "",
-                salary: staff['Salary'] ?? "",
-                department: staff['Department'] ?? "",
-                screenWidth: screenWidth,
-                
+            actions: [
+              IconButton(
+                onPressed: () {
+                  showAddStaffBottomSheet(context);
+                },
+                icon: const Icon(Icons.add, color: Pallete.neutral900),
               ),
-            ),
-            const SizedBox(height: 12),
-          ],
-        );
-            },
-          ),
-        ),
-        
-        
             ],
           ),
+      //showFilterModal
+      
+      
+        body: 
+          Padding(
+            padding: const EdgeInsets.only(left: 16.0,right: 16.0,top: 32.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              
+              children: [
+                // Search bar (optional, can be removed)
+                Row(children: [
+                  InkWell(
+                    onTap: () { 
+                      showFilterModal(context);},
+                    child: SvgPicture.asset("assets/filter.svg", height: 24, width: 24)),
             
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: SizedBox(
+                        // height: 36,
+                        width: screenWidth * 0.822,
+                        child: TextField(
+                          style: GoogleFonts.montserrat(
+                              textStyle: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                color: Pallete.neutral900,
+                              ),
+                            )
+            ,autofocus: false,
+            decoration: InputDecoration(
+              isCollapsed: true, // Ensures compact height
+              filled: true,
+              fillColor: Pallete.neutral100, // Background color (same for focus and unfocus)
+              prefixIcon: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0), // Adjust spacing
+          child: SvgPicture.asset(
+            'assets/search.svg', // Path to your SVG file
+            height: 20.0,
+            width: 20.0,
+          ),
+              ),
+              prefixIconConstraints: const BoxConstraints(
+          minHeight: 36,
+          minWidth: 36, // Ensure icon is properly sized
+              ),
+              hintText: 'Search staff...',
+              labelStyle: const TextStyle(
           
+          color: Pallete.neutral400), // Optional label text color
+              hintStyle: const TextStyle(
+          color: Pallete.neutral400),
+          // border: InputBorder.none, // Optional hint text color
+              border: OutlineInputBorder(
+          borderSide: const BorderSide(color: Pallete.neutral200, width: 1), // Border style
+          borderRadius: BorderRadius.circular(8), // Optional: for rounded corners
+              ),
+              enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Pallete.neutral200, width: 1), // Border when not focused
+          borderRadius: BorderRadius.circular(8),
+              ),
+              focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Pallete.neutral200, width: 1), // Border when focused
+          borderRadius: BorderRadius.circular(8),
+              ),// Removes the outline border
+              // enabledBorder: InputBorder(borderSide: BorderSide(color: Pallete.neutral200,width: 1)), // Removes enabled border
+              // focusedBorder: InputBorder(borderSide: BorderSide(color: Pallete.neutral200,width: 1)), // Removes focused border
+            ),
+            textAlign: TextAlign.start,
+            textAlignVertical: TextAlignVertical.center,
+            onChanged: (value) {
+              setState(() {
+          filteredList = staffList
+              .where((staff) => staff['Staff']!
+                  .toLowerCase()
+                  .contains(value.toLowerCase()))
+              .toList();
+              });
+            },
+          ),
+                      ),
+                    ),
+                  ),
+            
+                ],
+                  
+                ),
+                const SizedBox(height: 35),
+                // Table header
+               
+                
+                Expanded(
+            child: filteredList.isEmpty
+          ? const Center(
+              child: Text(
+                'No results found',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey,
+                ),
+              ),
+            )
+          : Column(mainAxisSize: MainAxisSize.min,
+              children: [
+                // Table headers with vertical lines
+               
+            
+                // Table header with vertical lines
+               
+               Expanded(
+              
+            child: ListView.builder(
+              itemCount: filteredList.length,
+              // physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+          final staff = filteredList[index];
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: double.infinity,
+          
+          
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: const Border(
+                    left: BorderSide(color: Pallete.primary300,width: 4)
+                  )
+                ), // Ensures full-width occupation
+                child: StaffPaymentCard(
+                  staffName: staff['Staff'] ?? "",
+                  email: staff['Email'] ?? "",
+                  Shift: staff['Shift'] ?? "",
+                  department: staff['Department'] ?? "",
+                  user_profile: staff['User_profile'] ?? "",
+                  screenWidth: screenWidth,
+                  id: staff['id'] ?? "",
+                  onDelete: () => fetchAttendanceData(),
+                  
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+          );
+              },
+            ),
+          ),
+          
+          
+              ],
+            ),
+              
+            
+          ),
+              ],),),
         ),
-            ],),),
-      );
+    );
   }
 }
 
@@ -588,18 +755,79 @@ void showFilterModal(BuildContext context) {
 class StaffPaymentCard extends StatelessWidget {
   final String staffName;
   final String email;
-  final String salary;
+  final String Shift;
   final String department;
   final double screenWidth;
+  final String user_profile;
+   final String id;
+    final VoidCallback onDelete;
 
   StaffPaymentCard({
     super.key,
     required this.staffName,
     required this.email,
-    required this.salary,
+    required this.Shift,
     required this.department,
     required this.screenWidth,
+    required this.user_profile,
+    required this.id,
+    required this.onDelete,
   });
+Future<void> updateStaff(BuildContext context, {
+  required String userId,
+  required String name,
+  required String email,
+  required String department,
+  required String shift,
+}) async {
+  final String url = 'https://hotelcrew-1.onrender.com/api/edit/update/$userId/';
+  
+  final Map<String, String> headers = {
+    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
+    'Content-Type': 'application/json',
+  };
+
+  final Map<String, dynamic> body = {
+    'user_name': name,
+    'email': email,
+    'department': department,
+    'shift': shift,
+    'role': 'Staff',
+    'salary': '0',  // Default value
+    'upi_id': ''    // Default value
+  };
+
+  try {
+    final response = await http.put(
+      Uri.parse(url),
+      headers: headers,
+      body: jsonEncode(body),
+    );
+
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Staff updated successfully')),
+      );
+      Navigator.pop(context);
+      onDelete(); // Refresh list using the callback
+    } else {
+      final errorData = jsonDecode(response.body);
+      throw Exception(errorData['message'] ?? 'Failed to update staff');
+    }
+  } catch (e) {
+    print('Error updating staff: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: ${e.toString()}')),
+    );
+  }
+}
+
+
+
+
 final inputDecoration = InputDecoration(
   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
@@ -616,7 +844,13 @@ final buttonStyle = ElevatedButton.styleFrom(
 
 // Edit Staff Bottom Sheet
 void showEditStaffBottomSheet(BuildContext context,
-    {required String name, required String email, required String department, required String salary}) {
+    {required String name, required String email, required String department, required String Shift}) {
+   final nameController = TextEditingController(text: name);
+  final emailController = TextEditingController(text: email);
+  final departmentController = TextEditingController(text: department);
+  final shiftController = TextEditingController(text: Shift);
+  final formKey = GlobalKey<FormState>();
+
   showModalBottomSheet(
     context: context,
     shape: const RoundedRectangleBorder(
@@ -632,132 +866,152 @@ void showEditStaffBottomSheet(BuildContext context,
             top: 16.0,
             bottom: MediaQuery.of(context).viewInsets.bottom + 16.0,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Title and Close Button Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Edit Staff",
-                    style: GoogleFonts.montserrat(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Pallete.neutral950,
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title and Close Button Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Edit Staff",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Pallete.neutral950,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Pallete.neutral950),
+                      onPressed: () => Navigator.pop(context), // Close bottom sheet
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 38), // Spacing between title row and first text field
+                // Styled TextFields
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: "Name",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Pallete.neutral950),
-                    onPressed: () => Navigator.pop(context), // Close bottom sheet
-                  ),
-                ],
-              ),
-              const SizedBox(height: 38), // Spacing between title row and first text field
-              // Styled TextFields
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: "Name",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
-                  ),
+                  controller: nameController,
+                  validator: (value) => value?.isEmpty ?? true ? 'Name is required' : null,
                 ),
-                controller: TextEditingController(text: name),
-              ),
-              const SizedBox(height: 38),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: "Email",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
-                  ),
-                ),
-                controller: TextEditingController(text: email),
-              ),
-              const SizedBox(height: 38),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: "Department",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
-                  ),
-                ),
-                controller: TextEditingController(text: department),
-              ),
-              const SizedBox(height: 38),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: "Salary",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
-                  ),
-                ),
-                controller: TextEditingController(text: salary),
-              ),
-              const SizedBox(height: 38),
-              // Styled Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Add your logic here
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Pallete.primary800, // Button color
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0), // Button radius
+                const SizedBox(height: 38),
+                TextFormField(
+                  controller: emailController,
+                  validator: (value) => value?.isEmpty ?? true ? 'Email is required' : null,
+                  decoration: InputDecoration(
+                    labelText: "Email",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 14.0), // Padding
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
+                    ),
                   ),
-                  child: Text(
-                    "Update Staff Details",
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Pallete.neutral00, // Button text color
+            
+                ),
+                const SizedBox(height: 38),
+                TextFormField(
+                  controller: departmentController,
+                  validator: (value) => value?.isEmpty ?? true ? 'Department is required' : null,
+                  decoration: InputDecoration(
+                    labelText: "Department",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
+                    ),
+                  ),
+                  
+                ),
+                const SizedBox(height: 38),
+                TextFormField(
+                  controller: shiftController,
+                  validator: (value) => value?.isEmpty ?? true ? 'Shift is required' : null,
+                  decoration: InputDecoration(
+                    labelText: "Shift",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
+                    ),
+                  ),
+                  
+                ),
+                const SizedBox(height: 38),
+                // Styled Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (formKey.currentState?.validate() ?? false) {
+                        updateStaff(
+                          context,
+                          userId: id,
+                          name: nameController.text,
+                          email: emailController.text,
+                          department: departmentController.text,
+                          shift: shiftController.text,
+                        );
+                      }
+                    },
+            
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Pallete.primary800, // Button color
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0), // Button radius
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14.0), // Padding
+                    ),
+                    child: Text(
+                      "Update Staff Details",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Pallete.neutral00, // Button text color
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
@@ -765,10 +1019,44 @@ void showEditStaffBottomSheet(BuildContext context,
   );
 }
 
-  void _deleteProfile(String email) {
-    // Simulate deletion logic here
-    print("Staff with email $email has been deleted.");
+ Future<void> deleteItem(int id) async {
+    final String url = 'https://hotelcrew-1.onrender.com/api/edit/delete/$id/';
+    print(id);
+    final Map<String, String> headers = {
+      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 204) {
+        print('Staff member deleted successfully.');
+      } else {
+        print('Failed to delete staff member. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('Error occurred while deleting staff member: $e');
+    }
   }
+
+  // Update _deleteProfile method
+  void _deleteProfile(String email) async {
+    try {
+      int userId = int.parse(id); // Convert string id to int
+      await deleteItem(userId);
+    onDelete();
+    } catch (e) {
+      print('Error in _deleteProfile: $e');
+    }
+  }
+
+  // Rest of the class remains the same
+
 
   void _navigateToUpdateProfile(String email) {
     // Navigation logic for editing details
@@ -870,35 +1158,40 @@ void showEditStaffBottomSheet(BuildContext context,
   );
 }
 
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: Pallete.primary50,
-      margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-      shape: RoundedRectangleBorder(
-        side: const BorderSide(color: Pallete.primary300, width: 1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const CircleAvatar(
-              backgroundColor: Colors.blue,
-              radius: 30,
-            ),
-            SizedBox(width: screenWidth * 0.059),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    RichText(
+@override
+Widget build(BuildContext context) {
+  return Card(
+    color: Pallete.primary50,
+    margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+    shape: RoundedRectangleBorder(
+      side: const BorderSide(color: Pallete.primary300, width: 1),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    elevation: 2,
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            backgroundImage: NetworkImage(user_profile),
+            radius: 30,
+          ),
+          SizedBox(width: screenWidth * 0.059),
+          Expanded(
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: screenWidth * 0.5,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: RichText(
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
                       text: TextSpan(
                         children: [
                           TextSpan(
@@ -921,87 +1214,102 @@ void showEditStaffBottomSheet(BuildContext context,
                         ],
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'Email: ',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Pallete.neutral950,
-                          height: 1.5,
-                        ),
-                      ),
-                      TextSpan(
-                        text: email,
-                        style: GoogleFonts.montserrat(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Pallete.neutral950,
-                        ),
-                      ),
-                    ],
                   ),
-                ),
-                const SizedBox(height: 4),
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'Department: ',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Pallete.neutral950,
-                          height: 1.5,
-                        ),
+                  const SizedBox(height: 4),
+                  SizedBox(
+                    width: double.infinity,
+                    child: RichText(
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Email: ',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Pallete.neutral950,
+                              height: 1.5,
+                            ),
+                          ),
+                          TextSpan(
+                            text: email,
+                            style: GoogleFonts.montserrat(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Pallete.neutral950,
+                            ),
+                          ),
+                        ],
                       ),
-                      TextSpan(
-                        text: department,
-                        style: GoogleFonts.montserrat(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Pallete.neutral950,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'Salary: ',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Pallete.neutral950,
-                          height: 1.5,
-                        ),
+                  const SizedBox(height: 4),
+                  SizedBox(
+                    width: double.infinity,
+                    child: RichText(
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Department: ',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Pallete.neutral950,
+                              height: 1.5,
+                            ),
+                          ),
+                          TextSpan(
+                            text: department,
+                            style: GoogleFonts.montserrat(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Pallete.neutral950,
+                            ),
+                          ),
+                        ],
                       ),
-                      TextSpan(
-                        text: 'Rs. $salary',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Pallete.neutral950,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  SizedBox(
+                    width: double.infinity,
+                    child: RichText(
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Shift: ',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Pallete.neutral950,
+                              height: 1.5,
+                            ),
+                          ),
+                          TextSpan(
+                            text: Shift,
+                            style: GoogleFonts.montserrat(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Pallete.neutral950,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const Spacer(),
-            SizedBox(
-              height:24,
-              width:24,
-              child: PopupMenuButton<String>(
+          ),
+          SizedBox(
+            height: 24,
+            width: 24,
+            child: PopupMenuButton<String>(
                 color: Pallete.neutral00,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
@@ -1015,7 +1323,7 @@ void showEditStaffBottomSheet(BuildContext context,
   name: staffName,
   email: email,
   department: department,
-  salary: salary,
+  Shift: Shift,
 );
 
                   } else if (value == 'Delete') {

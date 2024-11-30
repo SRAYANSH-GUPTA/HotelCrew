@@ -1,7 +1,8 @@
 import "../../core/packages.dart";
 import 'staffmanageleave.dart';
 import 'attendancesummary.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class StaffAttendancePage extends StatefulWidget {
   const StaffAttendancePage({super.key});
@@ -11,23 +12,130 @@ class StaffAttendancePage extends StatefulWidget {
 }
 
 class _StaffAttendancePageState extends State<StaffAttendancePage> {
-  // Add more sample data for testing filters
-   final List<Map<String, String>> attendanceData = [
-    {"date": "21/11/2024", "status": "P"},
-    {"date": "20/11/2024", "status": "A"},
-    {"date": "19/11/2024", "status": "P"},
-    {"date": "18/11/2024", "status": "L"},
-  ];
+  List<Map<String, dynamic>> attendanceData = [];
   String selectedFilter = "All";
+  int currentPage = 1;
+  bool isLoading = false;
+  bool hasMoreData = true;
 
-  // Add this method to filter requests
- 
+  int daysPresent = 0;
+  int totalLeaveDays = 0;
+  int totalDaysUpToToday = 0;
+
+  final String attendanceApiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/month-check/';
+  final String monthlyAttendanceApiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/month/';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAttendanceData();
+    fetchMonthlyAttendanceData();
+  }
+  String access_token = "";
+   Future<void> getToken() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString('access_token');
+  if (token == null || token.isEmpty) {
+    print('Token is null or empty');
+  } else {
+    setState(() {
+      access_token = token;
+    });
+    print('Token retrieved: $access_token');
+  }
+}
+
+
+  Future<void> fetchAttendanceData() async {
+    await getToken(); // Wait for the token to be retrieved
+  if (access_token == null || access_token.isEmpty) {
+    print('Access token is null or empty');
+    return;
+  }
+    
+    if (isLoading || !hasMoreData) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse('$attendanceApiUrl?page=$currentPage'),
+        headers: {
+          'Authorization': 'Bearer $access_token',
+        },
+      );
+      print(response.statusCode);
+      print(response.body);
+      print("%" * 50);
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        List<Map<String, dynamic>> newAttendanceData = convertAttendanceData(data['results']);
+        setState(() {
+          attendanceData.addAll(newAttendanceData);
+          currentPage++;
+          hasMoreData = data['next'] != null;
+        });
+      } else {
+        print('Failed to load data. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> fetchMonthlyAttendanceData() async {
+    try {
+      final response = await http.get(
+        Uri.parse(monthlyAttendanceApiUrl),
+        headers: {
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
+        },
+      );
+      print("%" * 50);
+      print(response.body);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        setState(() {
+          daysPresent = data['days_present'];
+          totalLeaveDays = data['leaves'];
+          totalDaysUpToToday = data['total_days_up_to_today'];
+        });
+      } else {
+        print('Failed to load monthly attendance data. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching monthly attendance data: $e');
+    }
+  }
+
+  List<Map<String, dynamic>> convertAttendanceData(List<dynamic> attendanceList) {
+    List<Map<String, dynamic>> formattedAttendanceData = [];
+    for (var attendance in attendanceList) {
+      formattedAttendanceData.add({
+        'date': formatDateTime(attendance['date']),
+        'status': attendance['attendance'] ? 'Present' : 'Absent',
+      });
+    }
+    return formattedAttendanceData;
+  }
+
+  String formatDateTime(String dateTimeStr) {
+    DateTime dateTime = DateTime.parse(dateTimeStr);
+    return '${dateTime.day.toString().padLeft(2, '0')}/${dateTime.month.toString().padLeft(2, '0')}/${dateTime.year}';
+  }
 
   @override
   Widget build(BuildContext context) {
-
     final screenWidth = MediaQuery.of(context).size.width;
-    
+    int daysAbsent = totalDaysUpToToday - daysPresent - totalLeaveDays;
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -49,28 +157,25 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
           )
         ],
         backgroundColor: Pallete.pagecolor,
-        
-       
-        ),
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-               Text(
+              Text(
                 " Your Shift Schedule",
                 style: GoogleFonts.montserrat(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              
-              const SizedBox(height: 24,),
+              const SizedBox(height: 24),
               Container(
                 width: screenWidth * 0.9,
                 height: 136,
-                padding: const EdgeInsets.symmetric(horizontal: 7,vertical: 11),
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 11),
                 decoration: BoxDecoration(
                   color: Pallete.pagecolor,
                   border: Border.all(
@@ -79,44 +184,43 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Padding(
-                      padding: EdgeInsets.only(left:screenWidth*0.05),
-                      
-                      child: Column(mainAxisAlignment: MainAxisAlignment.center,
+                      padding: EdgeInsets.only(left: screenWidth * 0.05),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                           Text(
-                                    "Day Shift",
-                                    style: GoogleFonts.montserrat(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.5,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                   Text(
-                                    "9:00 AM - 4:00 PM",
-                                    style: GoogleFonts.montserrat(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                      
+                          Text(
+                            "Day Shift",
+                            style: GoogleFonts.montserrat(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              height: 1.5,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "9:00 AM - 4:00 PM",
+                            style: GoogleFonts.montserrat(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ],
                       ),
-                    )
-                    ,SvgPicture.asset("assets/staffattednance.svg",
-                  height: 112,
-                  width:screenWidth* 0.32,
-                  )
-        
+                    ),
+                    SvgPicture.asset(
+                      "assets/staffattednance.svg",
+                      height: 112,
+                      width: screenWidth * 0.32,
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 49,),
-              
+              const SizedBox(height: 49),
               Text(
                 "Your Attendance",
                 style: GoogleFonts.montserrat(
@@ -128,93 +232,92 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildOverviewCard("Present", "45", Pallete.success200),
-                  _buildOverviewCard("Absent", "5", Pallete.error200),
-                  _buildOverviewCard("Leave", "3", Pallete.warning200),
+                  _buildOverviewCard("Present", daysPresent.toString(), Pallete.success200),
+                  _buildOverviewCard("Absent", daysAbsent.toString(), Pallete.error200),
+                  _buildOverviewCard("Leave", totalLeaveDays.toString(), Pallete.warning200),
                 ],
               ),
               const SizedBox(height: 24),
               Row(
-                children: [SizedBox(
-                  width: screenWidth * 0.4389,
-                  child: ElevatedButton(
-                    onPressed: () {
+                children: [
+                  SizedBox(
+                    width: screenWidth * 0.4389,
+                    child: ElevatedButton(
+                      onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const AttendanceSummaryPage()));
-                
-                
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Pallete.primary800,
-                      padding: const EdgeInsets.symmetric(horizontal: 0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Pallete.primary800,
+                        padding: const EdgeInsets.symmetric(horizontal: 0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        "View Summary",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          height: 1.5,
+                          color: Pallete.neutral00,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                    child: Text("View Summary",
-                    
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      height:1.5,
-                      color: Pallete.neutral00,
-                      fontWeight: FontWeight.w600,
-                    ),),
                   ),
-                ),
-                const Spacer(),
-                SizedBox(
-                  width: screenWidth * 0.4389,
-                  child: ElevatedButton(
-                    onPressed: () {
+                  const Spacer(),
+                  SizedBox(
+                    width: screenWidth * 0.4389,
+                    child: ElevatedButton(
+                      onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const StaffManageLeavePage()));
-                
-                
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Pallete.neutral00,
-                      padding: const EdgeInsets.symmetric(horizontal: 0),
-                      side: const BorderSide(color: Pallete.primary800, width: 1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Pallete.neutral00,
+                        padding: const EdgeInsets.symmetric(horizontal: 0),
+                        side: const BorderSide(color: Pallete.primary800, width: 1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        "Manage Leave",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          height: 1.5,
+                          color: Pallete.primary800,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                    child: Text("Manage Leave",
-                    
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      height:1.5,
-                      color: Pallete.primary800,
-                      fontWeight: FontWeight.w600,
-                    ),),
                   ),
-                ),
-                ]
+                ],
               ),
               const SizedBox(height: 24),
               Text(
                 "Attendance History",
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
-                  height:1.5,
+                  height: 1.5,
                   color: Pallete.neutral1000,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 16),
-              
-              const SizedBox(height: 16),
-              Container(
-                child:  ListView.builder(
-          itemCount: attendanceData.length,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) {
-            final item = attendanceData[index];
-            return AttendanceCard(
-              date: item['date']!,
-              status: item['status']!,
-            );
-          },
-        ),
+              ListView.builder(
+                itemCount: attendanceData.length + (hasMoreData ? 1 : 0),
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  if (index == attendanceData.length) {
+                    fetchAttendanceData();
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final item = attendanceData[index];
+                  return AttendanceCard(
+                    date: item['date']!,
+                    status: item['status']!,
+                  );
+                },
               ),
             ],
           ),
@@ -251,10 +354,43 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
       ),
     );
   }
+}
 
-  // Update the filter chip selection
- 
+class AttendanceCard extends StatelessWidget {
+  final String date;
+  final String status;
 
+  const AttendanceCard({
+    super.key,
+    required this.date,
+    required this.status,
+  });
 
-
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        title: Text(
+          date,
+          style: GoogleFonts.montserrat(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        trailing: Text(
+          status,
+          style: GoogleFonts.montserrat(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: status == 'Present'
+                ? Pallete.success500
+                : status == 'Absent'
+                    ? Pallete.error500
+                    : Pallete.warning400,
+          ),
+        ),
+      ),
+    );
+  }
 }

@@ -1,61 +1,99 @@
+// Task Model
 class Task {
-  final int id;
   final String title;
-  final String? department; // Nullable
+  final int id;
   final String description;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deadline;
+  final String department;
   final String status;
-  final String deadline;
-  final int assignedTo; // Assuming 'assigned_to' is always an integer
-  final DateTime lastUpdated;
+  final String? completedAt;
+  final String assignedBy;
+  final String assignedTo;
 
   Task({
-    required this.id,
     required this.title,
-    this.department,
+    required this.id,
     required this.description,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deadline,
+    required this.department,
     required this.status,
-    required this.deadline,
+    this.completedAt,
+    required this.assignedBy,
     required this.assignedTo,
-    required this.lastUpdated,
   });
 
-  // Factory method to create a Task object from JSON data
+  // Factory constructor to create a Task from JSON
   factory Task.fromJson(Map<String, dynamic> json) {
-    // Log all fields to see the exact types and values
-    print('Task JSON: ${json.toString()}');
-    print('ID: ${json['id']}, Title: ${json['title']}');
-    print('Assigned to: ${json['assigned_to']}');
-    print('Department: ${json['department']}');
-    print('Last Updated: ${json['last_updated']}');
-    
-    // Parse fields with null-safety and default values
     return Task(
-      id: json['id'] as int, // Assume this is always an int
-      title: json['title'] as String,
-      // Safely handle nullable 'department' field (might be null)
-      department: json['department'] as String?,
-      description: json['description'] as String,
-      status: json['status'] as String,
-      deadline: json['deadline'] as String,
-      // Ensure 'assigned_to' is a valid integer, use default if null
-      assignedTo: json['assigned_to'] != null ? json['assigned_to'] as int : 0,
-      lastUpdated: json['last_updated'] != null
-          ? DateTime.parse(json['last_updated'] as String)
-          : DateTime.now(), // Default to now if null
+      id: json['id'],
+      title: json['title'],
+      description: json['description'],
+      createdAt: DateTime.parse(json['created_at']),
+      updatedAt: DateTime.parse(json['updated_at']),
+      deadline: json['deadline'] != null ? DateTime.parse(json['deadline']) : null,
+      department: json['department'],
+      status: json['status'],
+      completedAt: json['completed_at'],
+      assignedBy: json['assigned_by'],
+      assignedTo: json['assigned_to'],
     );
   }
 
-  // Convert a Task object to JSON data
+  // Method to convert Task to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'title': title,
-      'department': department,
       'description': description,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+      'deadline': deadline?.toIso8601String(),
+      'department': department,
       'status': status,
-      'deadline': deadline,
+      'completed_at': completedAt,
+      'assigned_by': assignedBy,
       'assigned_to': assignedTo,
-      'last_updated': lastUpdated.toIso8601String(),
+    };
+  }
+}
+
+// Response Model
+class TaskResponse {
+  final int count;
+  final String? next;
+  final String? previous;
+  final List<Task> results;
+
+  TaskResponse({
+    required this.count,
+    this.next,
+    this.previous,
+    required this.results,
+  });
+
+  // Factory constructor to create a TaskResponse from JSON
+  factory TaskResponse.fromJson(Map<String, dynamic> json) {
+    return TaskResponse(
+      count: json['count'],
+      next: json['next'],
+      previous: json['previous'],
+      results: (json['results'] as List)
+          .map((taskJson) => Task.fromJson(taskJson as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  // Method to convert TaskResponse to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'count': count,
+      'next': next,
+      'previous': previous,
+      'results': results.map((task) => task.toJson()).toList(),
     };
   }
 }

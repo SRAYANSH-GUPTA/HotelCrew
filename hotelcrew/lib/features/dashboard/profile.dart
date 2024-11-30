@@ -1,6 +1,8 @@
 import '../../core/packages.dart';
 import '../../providers/notification.dart';
 import 'editprofile.dart';
+import '../dashboard/announcementpage.dart';
+import '../auth/view/pages/login_page.dart';
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 
@@ -9,6 +11,8 @@ class ProfilePage extends ConsumerWidget {
     final isNotificationEnabled = ref.watch(notificationProvider);
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    
+    
     return Scaffold(backgroundColor: Pallete.pagecolor,
       appBar: AppBar(foregroundColor: Pallete.pagecolor,
         title: Text('Profile',
@@ -23,9 +27,9 @@ class ProfilePage extends ConsumerWidget {
         ),
         actions: [
           Padding(
-            padding: EdgeInsets.only(right: 16,top: screenHeight*0.0125),
+            padding: EdgeInsets.only(right: 16),
             child: InkWell(onTap: (){
-            
+              Navigator.push(context, MaterialPageRoute(builder: (context) => AnnouncementPage()));
             },
             splashColor: Colors.transparent, // Removes the splash effect
   highlightColor: Colors.transparent, 
@@ -53,7 +57,7 @@ class ProfilePage extends ConsumerWidget {
                 CircleAvatar(
                   radius: 50,
                   backgroundColor: Colors.grey[300],
-                  backgroundImage: AssetImage('assets/profile_placeholder.png'),
+                  backgroundImage: const AssetImage('assets/profile_placeholder.png'),
                 ),
                 Positioned(
                   bottom: 4,
@@ -178,7 +182,17 @@ class ProfilePage extends ConsumerWidget {
                   width: 36,),
                   title: 'Log Out',
                  
-                  onTap: () {},
+                  onTap: () 
+                    async{
+                     SharedPreferences prefs = await SharedPreferences.getInstance();
+                prefs.remove("access_token");
+                prefs.remove("refresh_token");
+                prefs.remove("email");
+                prefs.remove("Role");
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+                   
+                  },
+                  
                 ),
               ],
             ),

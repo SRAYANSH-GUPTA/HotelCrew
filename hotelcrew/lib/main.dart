@@ -1,47 +1,46 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:hotelcrew/features/onboarding/page/onboarding_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'features/dashboard/home.dart';
-import 'features/staff/staffdash.dart';
 import 'features/dashboard/dashborad.dart';
+import 'package:provider/provider.dart' as provider;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'features/dashboard/viewmodel/getannouncement.dart';
+import 'features/manager/managernav.dart';
 import 'features/staff/staffdash.dart';
-void main() async{
+import 'features/receptionist/receptiondash.dart';
+import "features/auth/view/pages/login_page.dart";
+import 'core/packages.dart';
+
+void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-   await Firebase.initializeApp();
-   print("Firebase initialized successfully!");
+  
+  await Firebase.initializeApp();
+  print("Firebase initialized successfully!");
+  
   runApp(
-    const ProviderScope( // Wrap your app with ProviderScope
-      child: MyApp(),
+    ProviderScope(
+      child: provider.ChangeNotifierProvider(
+        create: (_) => AnnouncementViewModel(),
+        child: const MyApp(),
+      ),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-void logFcmToken() async {
-    // Get the FCM token
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    String? token = await messaging.getToken();
-
-    if (token != null) {
-      print("FCM Token: $token");
-    } else {
-      print("Failed to get FCM Token.");
-    }
-  }
-
-
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: GlobalNotification.navigatorKey,
       title: 'Loading access tokens and refresh tokens',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -65,60 +64,74 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isTokenExpired = false;
   String _accessToken = "";
 
-void logFcmToken() async {
-    // Get the FCM token
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    String? token = await messaging.getToken();
-
-    if (token != null) {
-      print("FCM Token: $token");
-    } else {
-      print("Failed to get FCM Token.");
-    }
-     FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-  try {
-    // Fetch data from the "messages" collection
-    QuerySnapshot snapshot = await firestore.collection('messages').get();
-
-    // Iterate through the documents and print the message fields
-    for (var doc in snapshot.docs) {
-      String message = doc['message'];  // Assuming you have a 'message' field in your Firestore documents
-      print('Message: $message');
-    }
-  } catch (e) {
-    print('Error fetching messages: $e');
-  }
-  }
-
   @override
   void initState() {
     super.initState();
     initialization();
     logFcmToken();
-      // Call this function to fetch and print messages
+  }
 
+  void logFcmToken() async {
+    // Get the FCM token
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    String? token = await messaging.getToken() ?? "";
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('fcm', token);
+    
+    if (token != null) {
+      print("FCM Token: $token");
+    } else {
+      print("Failed to get FCM Token.");
+    }
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+    try {
+      // Fetch data from the "messages" collection
+      QuerySnapshot snapshot = await firestore.collection('messages').get();
+
+      // Iterate through the documents and print the message fields
+      for (var doc in snapshot.docs) {
+        String message = doc['message'];  // Assuming you have a 'message' field in your Firestore documents
+        print('Message: $message');
+      }
+    } catch (e) {
+      print('Error fetching messages: $e');
+    }
   }
 
   void initialization() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool hasToken = prefs.containsKey('access_token');
-    String refreshToken = prefs.getString('refresh_token') ?? "Not Available";
+    String role = prefs.getString('Role') ?? "";
+    // String role = "Staff";
+    // prefs.setString("Role", "Staff");
+    String? refreshToken = prefs.getString('refresh_token');
+    print("^^^^^^^^^^^^");
+
+    if (refreshToken == null || refreshToken.isEmpty) {
+      // No refresh token, navigate to onboarding
+      FlutterNativeSplash.remove();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Onboarding()),
+      );
+      return;
+    }
+
     FlutterNativeSplash.remove();
     if (hasToken) {
       String accessToken = prefs.getString('access_token') ?? "";
       int expirationTime = _getExpirationTimeFromToken(accessToken);
-      print("token!!!!!!!!!!!!!!!");
 
       // Check if the token is expired
       if (_checkIfTokenExpired(expirationTime)) {
-        await _refreshAccessToken(refreshToken);
+        await _refreshAccessToken(refreshToken, role, context);
       } else {
         setState(() {
           _isLoading = false;
           _accessToken = accessToken;
         });
-        _navigateToDashboard();
+        _navigateToDashboard(role);
       }
     } else {
       setState(() {
@@ -126,7 +139,7 @@ void logFcmToken() async {
       });
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) =>const DashboardPage()),
+        MaterialPageRoute(builder: (context) => Onboarding()),
       );
     }
   }
@@ -134,7 +147,6 @@ void logFcmToken() async {
   int _getExpirationTimeFromToken(String token) {
     try {
       // Decode JWT token and extract the exp field
-      //TODO: Implement a more robust way to decode JWT tokens
       List<String> parts = token.split('.');
       if (parts.length == 3) {
         String payload = parts[1];
@@ -155,7 +167,7 @@ void logFcmToken() async {
     return currentTime >= exp;
   }
 
-  Future<void> _refreshAccessToken(String refreshToken) async {
+  Future<void> _refreshAccessToken(String refreshToken, String role, BuildContext context) async {
     final url = Uri.parse('https://hotelcrew-1.onrender.com/api/auth/token/refresh/');
     final response = await http.post(url, body: {
       'refresh': refreshToken,
@@ -174,26 +186,41 @@ void logFcmToken() async {
         _accessToken = newAccessToken;
       });
 
-      _navigateToDashboard();
+      _navigateToDashboard(role);
     } else {
       setState(() {
         _isLoading = false;
         _isTokenExpired = true;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Failed to refresh token: ${response.body}"),
-          backgroundColor: Colors.red,
-        ),
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Onboarding()),
       );
     }
   }
 
-  void _navigateToDashboard() {
-     Navigator.pushReplacement(
+  void _navigateToDashboard(String role) async {
+    if (role == "Admin" || role == "Manager") {
+      Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) =>const DashboardPage()),
+        MaterialPageRoute(builder: (context) => const DashboardPage()),
       );
+    } else if (role == "Receptionist") {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const ReceptionDashboardPage()),
+      );
+    } else if (role == "Staff") {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const StaffDashboardPage()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    }
   }
 
   @override
@@ -206,7 +233,7 @@ void logFcmToken() async {
         ),
       );
     }
- 
+
     if (_isTokenExpired) {
       return Scaffold(
         appBar: AppBar(title: Text(widget.title)),
@@ -217,9 +244,9 @@ void logFcmToken() async {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(),
       body: const Center(
-        child: Text('Welcome to the Dashboard!'),
+        child: Text(''),
       ),
     );
   }

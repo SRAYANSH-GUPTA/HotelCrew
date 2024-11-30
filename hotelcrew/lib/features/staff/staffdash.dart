@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import '../../core/packages.dart';
 import 'staffhome.dart';
 import 'stafftaskpage.dart';
@@ -72,18 +71,14 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ),// Same size as unselected
             unselectedFontSize: 12, // Keep consistent
             enableFeedback: false, // Removes haptic feedback
-            items: [
-              BottomNavigationBarItem(
+            items: [              BottomNavigationBarItem(
                 icon: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                   decoration: BoxDecoration(
                     color: _selectedIndex == 0 ? Pallete.primary300: Colors.transparent,
-                    borderRadius: BorderRadius.all(Radius.elliptical(100, 60)), // Oval shape
+                    borderRadius: const BorderRadius.all(Radius.elliptical(100, 90)), // Oval shape
                   ),
-                  child: SvgPicture.asset(
-                    _selectedIndex == 0 
-                        ? 'assets/homenav_selected.svg'
-                        : 'assets/homenav.svg',
+                  child: SvgPicture.asset('assets/homenav.svg',
                     color: _selectedIndex == 0 ? Pallete.primary800 : Pallete.neutral600,
                   ),
                 ),
@@ -91,10 +86,10 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               ),
               BottomNavigationBarItem(
                 icon: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                   decoration: BoxDecoration(
                     color: _selectedIndex == 1 ? Pallete.primary300 : Colors.transparent,
-                    borderRadius: BorderRadius.all(Radius.elliptical(100, 60)),
+                    borderRadius: const BorderRadius.all(Radius.elliptical(100, 90)),
                   ),
                   child: SvgPicture.asset(
                     'assets/tasknav.svg',
@@ -105,24 +100,24 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               ),
               BottomNavigationBarItem(
                 icon: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                   decoration: BoxDecoration(
                     color: _selectedIndex == 2 ? Pallete.primary300 : Colors.transparent,
-                    borderRadius: BorderRadius.all(Radius.elliptical(100, 60)),
+                    borderRadius: const BorderRadius.all(Radius.elliptical(100, 90)),
                   ),
                   child: SvgPicture.asset(
                     'assets/schedulenav.svg',
                     color: _selectedIndex == 2 ? Pallete.primary800 : Pallete.neutral600,
                   ),
                 ),
-                label: 'Shifts',
+                label: 'Schedule',
               ),
               BottomNavigationBarItem(
                 icon: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                   decoration: BoxDecoration(
                     color: _selectedIndex == 3 ? Pallete.primary300 : Colors.transparent,
-                    borderRadius: BorderRadius.all(Radius.elliptical(100, 60)),
+                    borderRadius: const BorderRadius.all(Radius.elliptical(100, 90)),
                   ),
                   child: SvgPicture.asset(
                     _selectedIndex == 3 

@@ -12,39 +12,52 @@ class _AttendancePageState extends State<AttendancePage> {
   final Dio _dio = Dio();
   final String apiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/list/';
 
-  List<dynamic> attendanceList = [{
-    'user_name': 'John Doe',
-    'department': 'Housekeeping',
-    'attendance': 'Present', // or 'Absent'
-  },
-  {
-    'user_name': 'Jane Smith',
-    'department': 'Receptionist',
-    'attendance': 'Absent',
-  },
-  {
-    'user_name': 'David Johnson',
-    'department': 'Security',
-    'attendance': 'Present',
-  },
-  {
-    'user_name': 'Emily Davis',
-    'department': 'Maintenance',
-    'attendance': 'Absent',
-  },
-  {
-    'user_name': 'Michael Brown',
-    'department': 'Manager',
-    'attendance': 'Present',
-  },];
+  List<dynamic> attendanceList = [
+  //   {
+  //   'user_name': 'John Doe',
+  //   'department': 'Housekeeping',
+  //   'attendance': 'Present', // or 'Absent'
+  // },
+  // {
+  //   'user_name': 'Jane Smith',
+  //   'department': 'Receptionist',
+  //   'attendance': 'Absent',
+  // },
+  // {
+  //   'user_name': 'David Johnson',
+  //   'department': 'Security',
+  //   'attendance': 'Present',
+  // },
+  // {
+  //   'user_name': 'Emily Davis',
+  //   'department': 'Maintenance',
+  //   'attendance': 'Absent',
+  // },
+  // {
+  //   'user_name': 'Michael Brown',
+  //   'department': 'Manager',
+  //   'attendance': 'Present',
+  // },
+  ];
   String selectedDepartment = 'All Staff';
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    getrole();
     fetchAttendanceData();
   }
+ String Roles = '';
+void getrole() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String Role = prefs.getString('Role') ?? '';
+    print(Role);
+    setState(() {
+      Roles = Role;
+    });
+  }
+
 
   Future<void> fetchAttendanceData({String? department}) async {
     
@@ -58,7 +71,7 @@ class _AttendancePageState extends State<AttendancePage> {
         options: Options(
           validateStatus: (status) => status! < 501,
           headers: {
-            'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0ODY3ODE3LCJpYXQiOjE3MzIyNzU4MTcsImp0aSI6IjE2ZDFkMTcyMjllYzRjZTRiYzY1YjdjYjAxOTA2YWVjIiwidXNlcl9pZCI6Nzd9.hG5bs9qacu7zlfm8foRDfyHS4TgQWyPjlQG40nwQaN8',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
           },
         ),
         queryParameters: department != null ? {'department': department} : null,
@@ -69,6 +82,7 @@ class _AttendancePageState extends State<AttendancePage> {
           attendanceList = response.data;
           isLoading = false;
         });
+        print(response.data);
       } else {
         throw Exception('Failed to fetch attendance');
       }
@@ -207,9 +221,9 @@ class _AttendancePageState extends State<AttendancePage> {
             // Attendance List
             Expanded(
               child: 
-              // isLoading
-              //     ? const Center(child: CircularProgressIndicator())
-              //     : 
+              isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : 
               ListView.builder(
                       itemCount: attendanceList.length,
                       itemBuilder: (context, index) {
@@ -218,8 +232,9 @@ class _AttendancePageState extends State<AttendancePage> {
                           return const SizedBox.shrink();
                         }
                         return ListTile(
-                          leading: const CircleAvatar(
-                            child: Icon(Icons.person),
+                          leading: CircleAvatar(
+                            
+                            backgroundImage:  NetworkImage(item['user_profile']),
                           ),
                           title: Text(
                             item['user_name'] ?? 'No Name',
@@ -243,14 +258,14 @@ class _AttendancePageState extends State<AttendancePage> {
                           ),
                           trailing: Container(
                             decoration: BoxDecoration(
-                              color: item['attendance'] == 'Present'
+                              color: item['current_attendance'] == 'Present'
                                   ? Pallete.success100
                                   : Pallete.error100,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                             child: Text(
-                              item['attendance'] == 'Present' ? 'Present' : 'Absent',
+                              item['current_attendance'] == 'Present' ? 'Present' : 'Absent',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,

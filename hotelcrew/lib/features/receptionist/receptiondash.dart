@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import '../../core/packages.dart';
 import 'recepitonhome.dart';
 import 'staffattendancepage.dart';
@@ -74,10 +73,10 @@ class _ReceptionDashboardPageState extends State<ReceptionDashboardPage> {
             items: [
               BottomNavigationBarItem(
                 icon: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: _selectedIndex == 0 ? Pallete.primary300: Colors.transparent,
-                    borderRadius: BorderRadius.all(Radius.elliptical(100, 60)), // Oval shape
+                    borderRadius: const BorderRadius.all(Radius.elliptical(100, 60)), // Oval shape
                   ),
                   child: SvgPicture.asset(
                     _selectedIndex == 0 
@@ -90,10 +89,10 @@ class _ReceptionDashboardPageState extends State<ReceptionDashboardPage> {
               ),
               BottomNavigationBarItem(
                 icon: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: _selectedIndex == 1 ? Pallete.primary300 : Colors.transparent,
-                    borderRadius: BorderRadius.all(Radius.elliptical(100, 60)),
+                    borderRadius: const BorderRadius.all(Radius.elliptical(100, 60)),
                   ),
                   child: SvgPicture.asset(
                     'assets/tasknav.svg',
@@ -104,10 +103,10 @@ class _ReceptionDashboardPageState extends State<ReceptionDashboardPage> {
               ),
               BottomNavigationBarItem(
                 icon: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: _selectedIndex == 2 ? Pallete.primary300 : Colors.transparent,
-                    borderRadius: BorderRadius.all(Radius.elliptical(100, 60)),
+                    borderRadius: const BorderRadius.all(Radius.elliptical(100, 60)),
                   ),
                   child: SvgPicture.asset(
                     'assets/schedulenav.svg',
@@ -118,10 +117,10 @@ class _ReceptionDashboardPageState extends State<ReceptionDashboardPage> {
               ),
               BottomNavigationBarItem(
                 icon: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: _selectedIndex == 3 ? Pallete.primary300 : Colors.transparent,
-                    borderRadius: BorderRadius.all(Radius.elliptical(100, 60)),
+                    borderRadius: const BorderRadius.all(Radius.elliptical(100, 60)),
                   ),
                   child: SvgPicture.asset(
                     _selectedIndex == 3 

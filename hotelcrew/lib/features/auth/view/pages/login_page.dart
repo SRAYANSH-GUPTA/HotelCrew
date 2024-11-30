@@ -7,7 +7,11 @@ import '../../auth_view_model/loginpageviewmodel.dart';
 import '../../../resetpass/resertpasspage/resetpass.dart';
 import 'package:dio/dio.dart';
 import 'dart:developer';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import "../../../dashboard/dashborad.dart";
+import "../../../staff/staffdash.dart";
+import "../../../receptionist/receptiondash.dart";
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -44,6 +48,38 @@ class _LoginPageState extends State<LoginPage> {
     passwordController.dispose();
     super.dispose();
   }
+
+final String apiUrl = 'https://hotelcrew-1.onrender.com/api/auth/register-device-token/';
+
+  /// Registers the device token by sending it to the server.
+  /// Requires the `fcmToken` and `authToken` (for authentication).
+  Future<void> registerDeviceToken(String fcmToken, String authToken) async {
+    final url = Uri.parse(apiUrl);
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $authToken',
+        },
+        body: jsonEncode({'fcm_token': fcmToken}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print(data['message']); // Message from the server
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to register device token');
+      }
+    } catch (e) {
+      print('Error registering device token: $e');
+      rethrow;
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -189,45 +225,45 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           Row(
         children: [
-      Container(
-        child: CheckboxTheme(
-          data: CheckboxThemeData(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
-            side: const BorderSide(width: 0, color: Colors.transparent), // Removes outline
-          ),
-          child: Checkbox(
-            checkColor: Colors.white, // Color of the check mark
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-              side: const BorderSide(color: Colors.transparent),
-            ),
-            value: checkBoxValue,
-            splashRadius: 0,
-            fillColor: WidgetStateProperty.resolveWith<Color>((states) {
-              if (states.contains(WidgetState.selected)) {
-                return const Color(0xFF5662AC); // Color when the checkbox is checked
-              }
-              return const Color(0xFFC6D6DB); // Color when unchecked
-            }),
-            onChanged: (newValue) {
-              setState(() {
-                checkBoxValue = newValue ?? false;
-              });
-            },
-          ),
-        ),
-      ),
-      Text(
-        'Remember Me',
-        style: GoogleFonts.poppins(
-          textStyle: TextStyle(
-            color: const Color(0xFF4D5962),
-            fontWeight: FontWeight.w400,
-            fontSize: screenWidth * 0.035,
-            height: 1.5,
-          ),
-        ),
-      ),
+      // Container(
+      //   child: CheckboxTheme(
+      //     data: CheckboxThemeData(
+      //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+      //       side: const BorderSide(width: 0, color: Colors.transparent), // Removes outline
+      //     ),
+      //     child: Checkbox(
+      //       checkColor: Colors.white, // Color of the check mark
+      //       shape: RoundedRectangleBorder(
+      //         borderRadius: BorderRadius.circular(4),
+      //         side: const BorderSide(color: Colors.transparent),
+      //       ),
+      //       value: checkBoxValue,
+      //       splashRadius: 0,
+      //       fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+      //         if (states.contains(WidgetState.selected)) {
+      //           return const Color(0xFF5662AC); // Color when the checkbox is checked
+      //         }
+      //         return const Color(0xFFC6D6DB); // Color when unchecked
+      //       }),
+      //       onChanged: (newValue) {
+      //         setState(() {
+      //           checkBoxValue = newValue ?? false;
+      //         });
+      //       },
+      //     ),
+      //   ),
+      // ),
+      // Text(
+      //   'Remember Me',
+      //   style: GoogleFonts.poppins(
+      //     textStyle: TextStyle(
+      //       color: const Color(0xFF4D5962),
+      //       fontWeight: FontWeight.w400,
+      //       fontSize: screenWidth * 0.035,
+      //       height: 1.5,
+      //     ),
+      //   ),
+      // ),
         ],
       )
       
@@ -258,7 +294,7 @@ class _LoginPageState extends State<LoginPage> {
               print("User Full Name: ${loginResponse.userData.fullName ?? "Not available"}");
               print("AccessToken: ${loginResponse.accessToken ?? "Not available"}");
               print("RefreshToken: ${loginResponse.refreshToken ?? "Not available"}");
-              if(checkBoxValue) {
+              if(true) {
                 print("hello done");
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 prefs.remove("access_token");
@@ -269,50 +305,91 @@ class _LoginPageState extends State<LoginPage> {
                 prefs.setString('refresh_token', loginResponse.refreshToken);
                 prefs.setString('email', emailController.text);
                 prefs.setString('password', passwordController.text);
-                 prefs.setString('role', loginResponse.role);
+                 prefs.setString('Role', loginResponse.role);
+
+                 print(prefs.getString('Role'));
+                 String role = prefs.getString('Role') ?? "";
+                 print(role);
                 print(prefs.getString('access_token') ?? "Not Available");
                 log(prefs.getString('access_token') ?? "Not Available");
                 log(prefs.getString('password') ?? "Not Available");
                 log(prefs.getString('email') ?? "Not Available");
+                print(prefs.getString('email') ?? "Not Available");
                 log(prefs.getString('refresh_token') ?? "Not Available");
-      
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Login Successful'),
-                      Text('Tokens Saved Successfully'),
-                    ],
-                  ),
-                  duration: const Duration(seconds: 3),
-                  action: SnackBarAction(
-                    label: 'ACTION',
-                    onPressed: () {},
-                  ),
-                ));
+                String fcm = prefs.getString('fcm') ?? "";
+                print("%%%%%%%%%%%%%%");
+                print(prefs.getString('email') ?? "Not Available");
+                String access = prefs.getString('access_token') ?? "";
+                if(fcm.isNotEmpty && access.isNotEmpty) {
+                  registerDeviceToken(fcm, access);
+                }
+                print(role);
+                if (role == "Admin" || role == "Manager") {
+      Navigator.pushAndRemoveUntil(
+  context,
+  MaterialPageRoute(builder: (context) => const DashboardPage()),
+  (Route<dynamic> route) => false,
+);
+
+    } else if (role == "Receptionist") {
+     Navigator.pushAndRemoveUntil(
+  context,
+  MaterialPageRoute(builder: (context) => const ReceptionDashboardPage()),
+  (Route<dynamic> route) => false,
+);
+
+    } else if (role == "Staff") {
+     Navigator.pushAndRemoveUntil(
+  context,
+  MaterialPageRoute(builder: (context) => const StaffDashboardPage()),
+  (Route<dynamic> route) => false,
+);
+
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    }
+  
+                
+                // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                //   content: const Column(
+                //     crossAxisAlignment: CrossAxisAlignment.start,
+                //     children: [
+                //       Text('Login Successful'),
+                //       Text('Tokens Saved Successfully'),
+                //     ],
+                //   ),
+                //   duration: const Duration(seconds: 3),
+                //   action: SnackBarAction(
+                //     label: 'ACTION',
+                //     onPressed: () {},
+                //   ),
+                // ));
               }
       
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Login Successful'),
-                    Text('User Full Name: ${loginResponse.userData.fullName ?? "Not available"}'),
-                    Text('Role: ${loginResponse.role}'),
-                    Text('Access Token: ${loginResponse.accessToken}'),
-                  ],
-                ),
-                duration: const Duration(seconds: 3),
-                action: SnackBarAction(
-                  label: 'ACTION',
-                  onPressed: () {},
-                ),
-              ));
+              // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              //   content: Column(
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //       const Text('Login Successful'),
+              //       Text('User Full Name: ${loginResponse.userData.fullName ?? "Not available"}'),
+              //       Text('Role: ${loginResponse.role}'),
+              //       Text('Access Token: ${loginResponse.accessToken}'),
+              //     ],
+              //   ),
+              //   duration: const Duration(seconds: 3),
+              //   action: SnackBarAction(
+              //     label: 'ACTION',
+              //     onPressed: () {},
+              //   ),
+              // ));
       
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const Hoteldetailspage1()),
-              );
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => const Hoteldetailspage1()),
+              // );
             } else if (loginResponse == "Server Error") {
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text(loginResponse),

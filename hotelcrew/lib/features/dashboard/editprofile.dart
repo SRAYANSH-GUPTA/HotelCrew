@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../core/packages.dart';
 
 class EditProfilePage extends StatelessWidget {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+
+  EditProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +47,7 @@ class EditProfilePage extends StatelessWidget {
                         radius: 50,
                         backgroundColor: Colors.grey[300],
                         backgroundImage:
-                            AssetImage('assets/profile_placeholder.png'),
+                            const AssetImage('assets/profile_placeholder.png'),
                       ),
                       Positioned(
                         bottom: 4,

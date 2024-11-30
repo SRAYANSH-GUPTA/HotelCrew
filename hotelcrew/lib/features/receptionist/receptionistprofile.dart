@@ -1,3 +1,5 @@
+import 'package:hotelcrew/features/auth/view/pages/login_page.dart';
+
 import '../../core/packages.dart';
 import '../../providers/notification.dart';
 
@@ -30,13 +32,8 @@ class StaffProfilePage extends ConsumerWidget {
                               fontSize: 16,
                               height: 1.3,
                             ),
-                          ),
-        ),
-        leading: InkWell(
-          onTap: (){
-            Navigator.pop(context);
-          },
-          child: const Icon(Icons.arrow_back_ios_outlined,color: Pallete.neutral900,)),
+                          ),),
+       
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 16,top: screenHeight*0.0125),
@@ -155,7 +152,9 @@ class StaffProfilePage extends ConsumerWidget {
                   trailing: SvgPicture.asset("assets/profileback.svg",
       height: 16,
       width: 22,),
-                  onTap: () {},
+                  onTap: () {
+                     
+                  },
                 ),
                 buildMenuItem(
                  img: SvgPicture.asset('assets/profilelogout.svg',
@@ -163,7 +162,15 @@ class StaffProfilePage extends ConsumerWidget {
                   width: 36,),
                   title: 'Log Out',
                  
-                  onTap: () {},
+                  onTap: () async{
+                     SharedPreferences prefs = await SharedPreferences.getInstance();
+                prefs.remove("access_token");
+                prefs.remove("refresh_token");
+                prefs.remove("email");
+                prefs.remove("Role");
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+                   
+                  },
                 ),
               ],
             ),
