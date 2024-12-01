@@ -49,7 +49,7 @@ String access_token = "";
 
 Future<dynamic> fetchWeeklyPerformance() async {
    await getToken(); // Wait for the token to be retrieved
-  if (access_token == null || access_token.isEmpty) {
+  if (access_token.isEmpty) {
     print('Access token is null or empty');
     return;
   }
@@ -87,7 +87,7 @@ Future<dynamic> fetchWeeklyPerformance() async {
  List<Map<String, dynamic>> leaveRequests = [];
  Future<void> fetchLeaveRequests() async {
    await getToken(); // Wait for the token to be retrieved
-  if (access_token == null || access_token.isEmpty) {
+  if (access_token.isEmpty) {
     print('Access token is null or empty');
     return;
   }
@@ -121,7 +121,7 @@ Future<dynamic> fetchWeeklyPerformance() async {
 
    Future<void> fetchTaskData() async {
     await getToken(); // Wait for the token to be retrieved
-  if (access_token == null || access_token.isEmpty) {
+  if (access_token.isEmpty) {
     print('Access token is null or empty');
     return;
   }
@@ -170,7 +170,7 @@ Future<dynamic> fetchWeeklyPerformance() async {
 
 Future<void> fetchMonthlyAttendanceData() async {
   await getToken(); // Wait for the token to be retrieved
-  if (access_token == null || access_token.isEmpty) {
+  if (access_token.isEmpty) {
     print('Access token is null or empty');
     return;
   }
@@ -367,7 +367,7 @@ Future<void> fetchMonthlyAttendanceData() async {
                   "Absent": absent,
                   "Leave": leave,
                 },
-                colors: {
+                colors: const {
                   "Present": Colors.green,
                   "Absent": Colors.red,
                   "Leave": Colors.orange,
@@ -567,14 +567,14 @@ class LineChartWidget extends StatelessWidget {
             horizontalInterval: 20,
             verticalInterval: 1,
             getDrawingHorizontalLine: (value) {
-              return FlLine(
+              return const FlLine(
                 color: Colors.grey,
                 strokeWidth: 0.5,
                 // dashArray: [4, 4], // Dash pattern for horizontal lines
               );
             },
              getDrawingVerticalLine: (value) {
-              return FlLine(
+              return const FlLine(
                 color: Colors.grey,
                 strokeWidth: 0.5,
                 // dashArray: [4, 4], // Dash pattern for vertical lines

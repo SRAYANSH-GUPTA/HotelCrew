@@ -143,7 +143,7 @@ class _ProgressPageViewState extends State<ProgressPageView> {
         print(response.data['status']);
         print('Error data: ${response.data}');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text("Fill all the fields correctly"),
             backgroundColor: Colors.red,
           ),

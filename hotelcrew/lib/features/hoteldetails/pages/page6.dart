@@ -74,31 +74,31 @@ final bool _showClock = false;
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Enter Room Details'),
+          title: const Text('Enter Room Details'),
           content: SingleChildScrollView(
             child: Column(
               children: <Widget>[
                 // Room type input
                 TextField(
-                  decoration: InputDecoration(labelText: 'Room Type'),
+                  decoration: const InputDecoration(labelText: 'Room Type'),
                   onChanged: (value) {
                     roomType = value;
                   },
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 // Room count input
                 TextField(
-                  decoration: InputDecoration(labelText: 'Count'),
+                  decoration: const InputDecoration(labelText: 'Count'),
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     count = int.tryParse(value) ?? 0;
                   },
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 // Room price input
                 TextField(
-                  decoration: InputDecoration(labelText: 'Price'),
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  decoration: const InputDecoration(labelText: 'Price'),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   onChanged: (value) {
                     price = double.tryParse(value) ?? 0.0;
                   },
@@ -109,14 +109,14 @@ final bool _showClock = false;
           actions: <Widget>[
             // Cancel button
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             // Save button
             TextButton(
-              child: Text('Save'),
+              child: const Text('Save'),
               onPressed: () {
                 // If valid data is provided, add the room to the list
                 if (roomType.isNotEmpty && count > 0 && price > 0) {
@@ -131,7 +131,7 @@ final bool _showClock = false;
                 } else {
                   // Optionally, show a message if the data is invalid
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Please enter valid data')),
+                    const SnackBar(content: Text('Please enter valid data')),
                   );
                 }
               },

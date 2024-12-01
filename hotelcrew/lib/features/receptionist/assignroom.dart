@@ -195,7 +195,7 @@ String access_token = "";
     await getToken();
   if (_formKey.currentState!.validate()) {
     await getToken(); // Wait for the token to be retrieved
-  if (access_token == null || access_token.isEmpty) {
+  if (access_token.isEmpty) {
     print('Access token is null or empty');
     return;
   }

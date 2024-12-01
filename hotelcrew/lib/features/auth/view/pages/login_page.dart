@@ -2,16 +2,21 @@ import 'package:email_validator/email_validator.dart';
 import 'package:hotelcrew/core/packages.dart';
 import 'package:hotelcrew/features/auth/auth_models/loginmodel.dart';
 import 'package:hotelcrew/features/auth/view/pages/register.dart';
-import 'package:hotelcrew/features/hoteldetails/pages/hoteldetailspage1.dart';
+import 'package:flutter/services.dart'; // Add this import
+
 import '../../auth_view_model/loginpageviewmodel.dart';
 import '../../../resetpass/resertpasspage/resetpass.dart';
 import 'package:dio/dio.dart';
-import 'dart:developer';
-import 'dart:convert';
+
 import 'package:http/http.dart' as http;
+import 'dart:convert';
+import "dart:developer";
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import "../../../dashboard/dashborad.dart";
 import "../../../staff/staffdash.dart";
 import "../../../receptionist/receptiondash.dart";
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -31,12 +36,15 @@ class _LoginPageState extends State<LoginPage> {
   int login = 0;
   String p = "";
 
+  final RegExp emailRegex = RegExp(
+    r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$");
+
   @override
   void initState() {
     super.initState();
     emailController.addListener(() {
       setState(() {
-        validEmail = EmailValidator.validate(emailController.text);
+        validEmail = emailRegex.hasMatch(emailController.text);
         _isInvalidCredentials = false;
       });
     });
@@ -49,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-final String apiUrl = 'https://hotelcrew-1.onrender.com/api/auth/register-device-token/';
+  final String apiUrl = 'https://hotelcrew-1.onrender.com/api/auth/register-device-token/';
 
   /// Registers the device token by sending it to the server.
   /// Requires the `fcmToken` and `authToken` (for authentication).
@@ -79,12 +87,19 @@ final String apiUrl = 'https://hotelcrew-1.onrender.com/api/auth/register-device
     }
   }
 
-
+  void _showSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight= MediaQuery.of(context).size.height;
+    final screenHeight = MediaQuery.of(context).size.height;
     final padding = screenWidth * 0.05;
 
     return GlobalLoaderOverlay(
@@ -153,7 +168,7 @@ final String apiUrl = 'https://hotelcrew-1.onrender.com/api/auth/register-device
                                 fontSize: screenWidth * 0.05,
                                 color: const Color(0xFF5B6C78),
                               ),
-                              validator: (value) => EmailValidator.validate(value ?? '') ? null : "Enter a valid email.",
+                              validator: (value) => emailRegex.hasMatch(value ?? '') ? null : "Enter a valid email.",
                               decoration: InputDecoration(
                                 labelText: 'Email',
                                 counterText: "",
@@ -168,12 +183,15 @@ final String apiUrl = 'https://hotelcrew-1.onrender.com/api/auth/register-device
                                     : null,
                                 suffixIcon: validEmail ? null : const Icon(Icons.error, color: Color(0xFFC80D0D)),
                               ),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@._-]')),
+                              ],
                             ),
                           ),
                         ),
                       ),
                       SizedBox(
-                        width: screenWidth* 0.9,
+                        width: screenWidth * 0.9,
                         child: Padding(
                           padding: EdgeInsets.only(bottom: padding),
                           child: TextFormField(
@@ -183,6 +201,7 @@ final String apiUrl = 'https://hotelcrew-1.onrender.com/api/auth/register-device
                               });
                             },
                             controller: passwordController,
+                            maxLength: 50,
                             validator: (value) => _isInvalidCredentials ? "Invalid Credentials" : null,
                             decoration: InputDecoration(
                               labelText: 'Password',
@@ -203,6 +222,10 @@ final String apiUrl = 'https://hotelcrew-1.onrender.com/api/auth/register-device
                             obscureText: _obscurePassword,
                             obscuringCharacter: '●',
                             style: TextStyle(fontSize: screenWidth * 0.05, color: const Color(0xFF5B6C78)),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                              //  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@._-]')), // Deny spaces
+                            ],
                           ),
                         ),
                       ),
@@ -223,255 +246,141 @@ final String apiUrl = 'https://hotelcrew-1.onrender.com/api/auth/register-device
                               ),
                             ),
                           ),
-                          Row(
-        children: [
-      // Container(
-      //   child: CheckboxTheme(
-      //     data: CheckboxThemeData(
-      //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
-      //       side: const BorderSide(width: 0, color: Colors.transparent), // Removes outline
-      //     ),
-      //     child: Checkbox(
-      //       checkColor: Colors.white, // Color of the check mark
-      //       shape: RoundedRectangleBorder(
-      //         borderRadius: BorderRadius.circular(4),
-      //         side: const BorderSide(color: Colors.transparent),
-      //       ),
-      //       value: checkBoxValue,
-      //       splashRadius: 0,
-      //       fillColor: WidgetStateProperty.resolveWith<Color>((states) {
-      //         if (states.contains(WidgetState.selected)) {
-      //           return const Color(0xFF5662AC); // Color when the checkbox is checked
-      //         }
-      //         return const Color(0xFFC6D6DB); // Color when unchecked
-      //       }),
-      //       onChanged: (newValue) {
-      //         setState(() {
-      //           checkBoxValue = newValue ?? false;
-      //         });
-      //       },
-      //     ),
-      //   ),
-      // ),
-      // Text(
-      //   'Remember Me',
-      //   style: GoogleFonts.poppins(
-      //     textStyle: TextStyle(
-      //       color: const Color(0xFF4D5962),
-      //       fontWeight: FontWeight.w400,
-      //       fontSize: screenWidth * 0.035,
-      //       height: 1.5,
-      //     ),
-      //   ),
-      // ),
-        ],
-      )
-      
+                          const Row(
+                            children: [],
+                          )
                         ],
                       ),
                       SizedBox(height: screenWidth * 0.1),
                       SizedBox(
                         width: screenWidth,
                         child: ElevatedButton(
-                          onPressed: context.loaderOverlay.visible || emailController.text.isEmpty || p.isEmpty
-      ? null // Disable button while loading
-      : () async {
-          setState(() {
-            context.loaderOverlay.show(); // Start loading
-            _isInvalidCredentials = false; // Reset invalid credentials flag
-          });
-      
-          try {
-            final loginResponse = await authViewModel.loginUser(context,
-              emailController.text,
-              passwordController.text,
-            );
-            print(loginResponse);
-            // Only if login is successful (checking for valid response)
-            if (loginResponse is LoginResponse) {
-              print("########################");
-              print("Login successful!");
-              print("User Full Name: ${loginResponse.userData.fullName ?? "Not available"}");
-              print("AccessToken: ${loginResponse.accessToken ?? "Not available"}");
-              print("RefreshToken: ${loginResponse.refreshToken ?? "Not available"}");
-              if(true) {
-                print("hello done");
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.remove("access_token");
-                prefs.remove("refresh_token");
-                prefs.remove("email");
-                // prefs.remove("password");
-                prefs.setString('access_token', loginResponse.accessToken);
-                prefs.setString('refresh_token', loginResponse.refreshToken);
-                prefs.setString('email', emailController.text);
-                prefs.setString('password', passwordController.text);
-                 prefs.setString('Role', loginResponse.role);
+                          onPressed: context.loaderOverlay.visible || emailController.text.isEmpty || p.isEmpty || !validEmail
+                              ? null // Disable button while loading or if email is invalid
+                              : () async {
+                                  setState(() {
+                                    context.loaderOverlay.show(); // Start loading
+                                    _isInvalidCredentials = false; // Reset invalid credentials flag
+                                  });
 
-                 print(prefs.getString('Role'));
-                 String role = prefs.getString('Role') ?? "";
-                 print(role);
-                print(prefs.getString('access_token') ?? "Not Available");
-                log(prefs.getString('access_token') ?? "Not Available");
-                log(prefs.getString('password') ?? "Not Available");
-                log(prefs.getString('email') ?? "Not Available");
-                print(prefs.getString('email') ?? "Not Available");
-                log(prefs.getString('refresh_token') ?? "Not Available");
-                String fcm = prefs.getString('fcm') ?? "";
-                print("%%%%%%%%%%%%%%");
-                print(prefs.getString('email') ?? "Not Available");
-                String access = prefs.getString('access_token') ?? "";
-                if(fcm.isNotEmpty && access.isNotEmpty) {
-                  registerDeviceToken(fcm, access);
-                }
-                print(role);
-                if (role == "Admin" || role == "Manager") {
-      Navigator.pushAndRemoveUntil(
-  context,
-  MaterialPageRoute(builder: (context) => const DashboardPage()),
-  (Route<dynamic> route) => false,
-);
+                                  try {
+                                    final loginResponse = await authViewModel.loginUser(
+                                      context,
+                                      emailController.text,
+                                      passwordController.text,
+                                    );
+                                    print(loginResponse);
+                                    // Only if login is successful (checking for valid response)
+                                    if (loginResponse is LoginResponse) {
+                                      print("########################");
+                                      print("Login successful!");
+                                      print("User Full Name: ${loginResponse.userData.fullName ?? "Not available"}");
+                                      print("AccessToken: ${loginResponse.accessToken ?? "Not available"}");
+                                      print("RefreshToken: ${loginResponse.refreshToken ?? "Not available"}");
+                                      if (true) {
+                                        print("hello done");
+                                        SharedPreferences prefs = await SharedPreferences.getInstance();
+                                        prefs.remove("access_token");
+                                        prefs.remove("refresh_token");
+                                        prefs.remove("email");
+                                        // prefs.remove("password");
+                                        prefs.setString('access_token', loginResponse.accessToken);
+                                        prefs.setString('refresh_token', loginResponse.refreshToken);
+                                        prefs.setString('email', emailController.text);
+                                        prefs.setString('password', passwordController.text);
+                                        prefs.setString('Role', loginResponse.role);
 
-    } else if (role == "Receptionist") {
-     Navigator.pushAndRemoveUntil(
-  context,
-  MaterialPageRoute(builder: (context) => const ReceptionDashboardPage()),
-  (Route<dynamic> route) => false,
-);
+                                        print(prefs.getString('Role'));
+                                        String role = prefs.getString('Role') ?? "";
+                                        print(role);
+                                        print(prefs.getString('access_token') ?? "Not Available");
+                                        log(prefs.getString('access_token') ?? "Not Available");
+                                        log(prefs.getString('password') ?? "Not Available");
+                                        log(prefs.getString('email') ?? "Not Available");
+                                        print(prefs.getString('email') ?? "Not Available");
+                                        log(prefs.getString('refresh_token') ?? "Not Available");
+                                        String fcm = prefs.getString('fcm') ?? "";
+                                        print("%%%%%%%%%%%%%%");
+                                        print(prefs.getString('email') ?? "Not Available");
+                                        String access = prefs.getString('access_token') ?? "";
+                                        if (fcm.isNotEmpty && access.isNotEmpty) {
+                                          registerDeviceToken(fcm, access);
+                                        }
+                                        print(role);
+                                        if (role == "Admin" || role == "Manager") {
+                                          Navigator.pushAndRemoveUntil(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => const DashboardPage()),
+                                            (Route<dynamic> route) => false,
+                                          );
+                                        } else if (role == "Receptionist") {
+                                          Navigator.pushAndRemoveUntil(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => const ReceptionDashboardPage()),
+                                            (Route<dynamic> route) => false,
+                                          );
+                                        } else if (role == "Staff") {
+                                          Navigator.pushAndRemoveUntil(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => const StaffDashboardPage()),
+                                            (Route<dynamic> route) => false,
+                                          );
+                                        } else {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => const LoginPage()),
+                                          );
+                                        }
+                                      }
+                                    } else if (loginResponse == "Server Error") {
+                                      _showSnackbar("Server error, please try again later.");
+                                    } else if (loginResponse == "Invalid credentials") {
+                                      _showSnackbar("Invalid credentials, please try again.");
+                                    } else {
+                                      _showSnackbar("Connection Error");
+                                    }
+                                  } catch (e) {
+                                    print("###################");
+                                    print("Login failed: $e");
+                                    _showSnackbar("An error occurred, please try again later.");
+                                    emailController.clear();
+                                    passwordController.clear();
 
-    } else if (role == "Staff") {
-     Navigator.pushAndRemoveUntil(
-  context,
-  MaterialPageRoute(builder: (context) => const StaffDashboardPage()),
-  (Route<dynamic> route) => false,
-);
+                                    setState(() {
+                                      _isInvalidCredentials = true; // Show invalid credentials message
+                                    });
 
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
-    }
-  
-                
-                // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                //   content: const Column(
-                //     crossAxisAlignment: CrossAxisAlignment.start,
-                //     children: [
-                //       Text('Login Successful'),
-                //       Text('Tokens Saved Successfully'),
-                //     ],
-                //   ),
-                //   duration: const Duration(seconds: 3),
-                //   action: SnackBarAction(
-                //     label: 'ACTION',
-                //     onPressed: () {},
-                //   ),
-                // ));
-              }
-      
-              // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              //   content: Column(
-              //     crossAxisAlignment: CrossAxisAlignment.start,
-              //     children: [
-              //       const Text('Login Successful'),
-              //       Text('User Full Name: ${loginResponse.userData.fullName ?? "Not available"}'),
-              //       Text('Role: ${loginResponse.role}'),
-              //       Text('Access Token: ${loginResponse.accessToken}'),
-              //     ],
-              //   ),
-              //   duration: const Duration(seconds: 3),
-              //   action: SnackBarAction(
-              //     label: 'ACTION',
-              //     onPressed: () {},
-              //   ),
-              // ));
-      
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => const Hoteldetailspage1()),
-              // );
-            } else if (loginResponse == "Server Error") {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(loginResponse),
-              ));
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Column(
-                  children: [
-                    Text('Login Unsuccessful'),
-                    Text('Invalid credentials, please try again.'),
-                  ],
-                ),
-                duration: Duration(seconds: 2),
-              ));
-            }
-          } catch (e) {
-            print("###################");
-            print("Login failed: $e");
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Column(
-                children: [
-                  Text('Login Unsuccessful'),
-                  Text('An error occurred, please try again later.'),
-                ],
-              ),
-              duration: Duration(seconds: 2),
-            ));
-            emailController.clear();
-            passwordController.clear();
-      
-            setState(() {
-              _isInvalidCredentials = true; // Show invalid credentials message
-            });
-      
-            // Check if the error is a DioError
-            if (e is DioException) {
-              // Handle DioError specifically
-              String? errorMessage = e.message;
-              print("**********");
-      
-              if (errorMessage != null) {
-                if (errorMessage.contains("Connection timed out")) {
-                  // Connection timeout
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('Connection timed out. Please check your internet connection.'),
-                    duration: Duration(seconds: 2),
-                  ));
-                } else if (errorMessage.contains("TimeoutException")) {
-                  // Receive timeout
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('Server response timed out. Please try again.'),
-                    duration: Duration(seconds: 2),
-                  ));
-                } else if (errorMessage.contains("No Internet")) {
-                  // Network error
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('No internet connection or unknown error. Please check your connection.'),
-                    duration: Duration(seconds: 2),
-                  ));
-                } else {
-                  // Handle other Dio errors here
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('An unexpected error occurred. Please try again.'),
-                    duration: Duration(seconds: 2),
-                  ));
-                }
-              }
-            } else {
-              // Handle other types of exceptions
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text('Failed to log in: An error occurred.'),
-                duration: Duration(seconds: 2),
-              ));
-            }
-          } finally {
-            setState(() {
-             context.loaderOverlay.hide(); // Stop loading
-            });
-          }
-        },
-      
-      
+                                    // Check if the error is a DioError
+                                    if (e is DioException) {
+                                      // Handle DioError specifically
+                                      String? errorMessage = e.message;
+                                      print("**********");
+
+                                      if (errorMessage != null) {
+                                        if (errorMessage.contains("Connection timed out")) {
+                                          // Connection timeout
+                                          _showSnackbar("Connection timed out. Please check your internet connection.");
+                                        } else if (errorMessage.contains("TimeoutException")) {
+                                          // Receive timeout
+                                          _showSnackbar("Server response timed out. Please try again.");
+                                        } else if (errorMessage.contains("No Internet")) {
+                                          // Network error
+                                          _showSnackbar("No internet connection or unknown error. Please check your connection.");
+                                        } else {
+                                          // Handle other Dio errors here
+                                          _showSnackbar("An unexpected error occurred. Please try again.");
+                                        }
+                                      }
+                                    } else {
+                                      // Handle other types of exceptions
+                                      _showSnackbar("Failed to log in: An error occurred.");
+                                    }
+                                  } finally {
+                                    setState(() {
+                                      context.loaderOverlay.hide(); // Stop loading
+                                    });
+                                  }
+                                },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF5662AC),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -489,10 +398,7 @@ final String apiUrl = 'https://hotelcrew-1.onrender.com/api/auth/register-device
                         ),
                       ),
                       Container(
-                  
-                        
                         child: Row(
-                          
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(

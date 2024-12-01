@@ -48,7 +48,7 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
 
   Future<void> fetchAttendanceData() async {
     await getToken(); // Wait for the token to be retrieved
-  if (access_token == null || access_token.isEmpty) {
+  if (access_token.isEmpty) {
     print('Access token is null or empty');
     return;
   }

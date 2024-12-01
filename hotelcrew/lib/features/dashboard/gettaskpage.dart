@@ -114,7 +114,7 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
         ),
         actions: [
           Padding(
-            padding: EdgeInsets.only(right: 16, top: 10),
+            padding: const EdgeInsets.only(right: 16, top: 10),
             child: InkWell(
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const AnnouncementPage()));

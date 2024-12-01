@@ -27,9 +27,9 @@ class ProfilePage extends ConsumerWidget {
         ),
         actions: [
           Padding(
-            padding: EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.only(right: 16),
             child: InkWell(onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => AnnouncementPage()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const AnnouncementPage()));
             },
             splashColor: Colors.transparent, // Removes the splash effect
   highlightColor: Colors.transparent, 

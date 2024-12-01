@@ -1046,13 +1046,13 @@ class LineChartWidget extends StatelessWidget {
           verticalInterval: 1,
           horizontalInterval: 25,
           getDrawingHorizontalLine: (value) {
-            return FlLine(
+            return const FlLine(
               color: Pallete.neutral200,
               strokeWidth: 1,
             );
           },
           getDrawingVerticalLine: (value) {
-            return FlLine(
+            return const FlLine(
               color: Pallete.neutral200,
               strokeWidth: 1,
             );
@@ -1679,7 +1679,7 @@ class GlobalNotification {
 
     // Insert the overlay entry and remove it after a delay
     overlay.insert(overlayEntry);
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 3), () {
       overlayEntry.remove();
     });
   }
@@ -1688,17 +1688,17 @@ class GlobalNotification {
 class _SuccessNotification extends StatelessWidget {
   final String message;
 
-  const _SuccessNotification({Key? key, required this.message}) : super(key: key);
+  const _SuccessNotification({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.green[100],
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.green, width: 1.5),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black26,
             blurRadius: 5,
@@ -1709,8 +1709,8 @@ class _SuccessNotification extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.check_circle, color: Colors.green, size: 24),
-          SizedBox(width: 8),
+          const Icon(Icons.check_circle, color: Colors.green, size: 24),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               message,

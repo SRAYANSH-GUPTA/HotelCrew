@@ -16,8 +16,10 @@ import 'features/staff/staffdash.dart';
 import 'features/receptionist/receptiondash.dart';
 import "features/auth/view/pages/login_page.dart";
 import 'core/packages.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
+  await dotenv.load();
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   
@@ -40,6 +42,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       navigatorKey: GlobalNotification.navigatorKey,
       title: 'Loading access tokens and refresh tokens',
       theme: ThemeData(
@@ -78,12 +81,8 @@ class _MyHomePageState extends State<MyHomePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('fcm', token);
     
-    if (token != null) {
-      print("FCM Token: $token");
-    } else {
-      print("Failed to get FCM Token.");
-    }
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    print("FCM Token: $token");
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
 
     try {
       // Fetch data from the "messages" collection
@@ -113,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
       FlutterNativeSplash.remove();
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Onboarding()),
+        MaterialPageRoute(builder: (context) => const Onboarding()),
       );
       return;
     }
@@ -139,7 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
       });
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Onboarding()),
+        MaterialPageRoute(builder: (context) => const Onboarding()),
       );
     }
   }
@@ -194,7 +193,7 @@ class _MyHomePageState extends State<MyHomePage> {
       });
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Onboarding()),
+        MaterialPageRoute(builder: (context) => const Onboarding()),
       );
     }
   }

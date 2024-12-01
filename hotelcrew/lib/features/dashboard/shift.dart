@@ -233,7 +233,7 @@ class _ShiftSchedulePageState extends State<ShiftSchedulePage> {
     
                     minimumSize: const Size(double.infinity, 48),
                   ),
-                  child: Text('Show Results',style: TextStyle(
+                  child: const Text('Show Results',style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Pallete.neutral00,

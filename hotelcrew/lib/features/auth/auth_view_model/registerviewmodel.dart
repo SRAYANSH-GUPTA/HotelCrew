@@ -6,13 +6,26 @@ import '../models/register.dart';
 class DioClient {
   final Dio dio;
 
-  DioClient() : dio = Dio() {
+  DioClient()
+      : dio = Dio(
+          BaseOptions(
+            baseUrl: 'https://hotelcrew-1.onrender.com/api/auth/registrationOTP/',
+            connectTimeout: const Duration(seconds: 10), // 10 seconds to establish connection
+            receiveTimeout: const Duration(seconds: 15), // 15 seconds to receive data
+            headers: {
+              'Content-Type': 'application/json', // Default headers
+            },
+          ),
+        ) {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
-        options.headers['Content-Type'] = 'application/json';
+        // Log request data for debugging
+        print("Request: ${options.method} ${options.uri}");
         return handler.next(options);
       },
       onResponse: (response, handler) {
+        // Log response data for debugging
+        print("Response: ${response.statusCode} ${response.data}");
         return handler.next(response);
       },
       onError: (DioException e, handler) {
@@ -26,7 +39,8 @@ class DioClient {
             errorMessage = 'Server is taking too long to respond.';
             break;
           case DioExceptionType.badResponse:
-            errorMessage = 'Received invalid status code: ${e.response?.statusCode}';
+            errorMessage =
+                'Received invalid status code: ${e.response?.statusCode}';
             break;
           case DioExceptionType.cancel:
             errorMessage = 'Request to API was cancelled.';
@@ -37,9 +51,10 @@ class DioClient {
             break;
         }
 
-        // Reject the error with the error message
+        // Log the error and reject with the customized message
+        print("Dio error: $errorMessage");
         return handler.reject(DioException(
-          requestOptions: e.requestOptions, // Pass the requestOptions here
+          requestOptions: e.requestOptions,
           type: e.type,
           error: errorMessage,
         ));
@@ -48,45 +63,42 @@ class DioClient {
   }
 
   Future<dynamic> registerUser(UserRegistrationRequest user) async {
+    print("Trying to register user...");
     try {
-    final response = await dio.post(
-      'https://hotelcrew-1.onrender.com/api/auth/registrationOTP/',
-      data: json.encode(user.toJson()),
-      options: Options(
-        validateStatus: (status) => status! < 501, // Treats 500+ codes as errors
-      ),
-    );
-  
+      final response = await dio.post(
+        '',
+        data: json.encode(user.toJson()),
+        options: Options(
+          validateStatus: (status) => status! < 501, // Treats 500+ codes as errors
+        ),
+      );
+
       if (response.statusCode == 200) {
         return UserRegistrationResponse.fromJson(response.data);
-      }
-      if (response.statusCode == 400) {
+      } else if (response.statusCode == 400) {
         return "User with this email already exists.";
-      }
-      else if(response.statusCode == 500)
-      {
+      } else if (response.statusCode == 500) {
         print("Server Error");
         return "Server Error";
-      }
-       else {
-        print(response.statusCode);
-        return "User Already Registered";
+      } else {
+        print("Unexpected status code: ${response.statusCode}");
+        return "Unexpected error";
       }
     } on DioException catch (e) {
-    // Handling Dio exceptions
-    String errorMessage = "";
-    if (e.type == DioExceptionType.connectionTimeout) {
-      errorMessage = "Connection timeout, please try again"; // Timeout error message
-    } else if (e.type == DioExceptionType.receiveTimeout) {
-      errorMessage = "Receive timeout, please try again"; // Receive timeout message
-    } else if (e.type == DioExceptionType.badResponse) {
-      errorMessage = "Bad response from server"; // Bad response error message
-    } else {
-      errorMessage = "Unexpected error occurred"; // For other Dio errors
-    }
+      // Handle Dio exceptions using your error handling logic
+      String errorMessage = "";
+      if (e.type == DioExceptionType.connectionTimeout) {
+        errorMessage = "Connection timeout, please try again";
+      } else if (e.type == DioExceptionType.receiveTimeout) {
+        errorMessage = "Receive timeout, please try again";
+      } else if (e.type == DioExceptionType.badResponse) {
+        errorMessage = "Bad response from server";
+      } else {
+        errorMessage = "Unexpected error occurred";
+      }
 
-    print("Dio error: $errorMessage");
-    return errorMessage;
-  } 
+      print("Dio error: $errorMessage");
+      return errorMessage;
+    }
   }
 }

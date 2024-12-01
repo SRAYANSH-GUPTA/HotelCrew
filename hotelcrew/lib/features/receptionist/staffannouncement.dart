@@ -1,3 +1,8 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart';
 import 'package:hotelcrew/core/packages.dart';
 
 class StaffAnnouncementPage extends StatefulWidget {
@@ -8,74 +13,101 @@ class StaffAnnouncementPage extends StatefulWidget {
 }
 
 class _StaffAnnouncementPageState extends State<StaffAnnouncementPage> {
-  final List<Announcement> announcements = [
-    Announcement(
-      title: "Monthly Staff Meeting Scheduled",
-      description:
-          "The next all-staff meeting is on March 15th at 2 PM in the main conference room. Prepare departmental updates and arrive on time. Attendance is mandatory for all department heads.",
-      priority: "Urgent",
-      department: "All Departments",
-      role: "Admin",
-      date: "1 March, 2024",
-    ),
-    Announcement(
-      title: "Maintenance Alert: Pool Area",
-      description:
-          "The pool area will be closed from March 5-7 for repairs. Housekeeping, please coordinate guest notifications accordingly. Thank you for your cooperation.",
-      priority: "Normal",
-      department: "Housekeeping",
-      role: "Manager",
-      date: "5 March, 2024",
-    ),
-    Announcement(
-      title: "Employee Wellness Program Launch",
-      description:
-          "We’re excited to announce the launch of our new wellness program for all employees. Join us for an informational session on February 20 at 3 PM in the lounge.",
-      priority: "Normal",
-      department: "All Departments",
-      role: "Admin",
-      date: "10 March, 2024",
-    ),
-  ];
+  List<Announcement> announcements = [];
+  bool isLoading = false;
+  bool hasMore = true;
+  int page = 1;
+  String access_token = "";
 
-  // Future<List<Announcement>> fetchAnnouncements() async {
-  //   final response = await http.get(Uri.parse('https://api.example.com/announcements'));
-
-  //   if (response.statusCode == 200) {
-  //     List<dynamic> data = jsonDecode(response.body);
-  //     return data.map((json) => Announcement.fromJson(json)).toList();
-  //   } else {
-  //     throw Exception('Failed to load announcements');
-  //   }
-  // }
-String access_token = "";
-
-
- Future<void> getToken() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('access_token');
-  if (token == null || token.isEmpty) {
-    print('Token is null or empty');
-  } else {
-    setState(() {
-      access_token = token;
-    });
-    print('Token retrieved: $access_token');
+  @override
+  void initState() {
+    super.initState();
+    fetchAnnouncements();
   }
-}
+
+  Future<void> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    if (token == null || token.isEmpty) {
+      print('Token is null or empty');
+    } else {
+      setState(() {
+        access_token = token;
+      });
+      print('Token retrieved: $access_token');
+    }
+  }
+
+  Future<void> fetchAnnouncements() async {
+    await getToken();
+    if (isLoading || !hasMore) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await Dio().get(
+        'https://api.example.com/announcements?page=$page',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $access_token',
+          },
+        ),
+      );
+      print(response.data);
+      print(response.statusCode);
+      print("%"*100);
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = response.data['results'];
+        setState(() {
+          announcements.addAll(data.map((json) => Announcement.fromJson(json)).toList());
+          hasMore = response.data['next'] != null;
+          page++;
+        });
+      } else {
+        showErrorSnackbar('Failed to load announcements');
+      }
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout) {
+        showErrorSnackbar('Connection timeout, please try again');
+      } else if (e.type == DioExceptionType.receiveTimeout) {
+        showErrorSnackbar('Receive timeout, please try again');
+      } else if (e.type == DioExceptionType.badResponse) {
+        showErrorSnackbar('Bad response from server');
+      } else {
+        showErrorSnackbar('Unexpected error occurred');
+      }
+    } catch (e) {
+      showErrorSnackbar('An unexpected error occurred');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void showErrorSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Pallete.neutral00,
-      
       appBar: AppBar(
-        // foregroundColor: Pallete.pagecolor,
         leading: InkWell(
-          onTap: (){
+          onTap: () {
             Navigator.pop(context);
           },
-          child: const Icon(Icons.arrow_back_ios_outlined,color: Pallete.neutral900,)),
+          child: const Icon(Icons.arrow_back_ios_outlined, color: Pallete.neutral900),
+        ),
         titleSpacing: 0,
         title: Text(
           'Announcement',
@@ -91,38 +123,29 @@ String access_token = "";
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body:  ListView.builder(
-          
-              padding: const EdgeInsets.all(16.0),
-              itemCount: announcements.length,
-              itemBuilder: (context, index) {
-                final announcement = announcements[index];
-                return AnnouncementCard(announcement: announcement);
-              },
-            ),
-      // FutureBuilder<List<Announcement>>(
-      //   future: fetchAnnouncements(),
-      //   builder: (context, snapshot) {
-      //     if (snapshot.connectionState == ConnectionState.waiting) {
-      //       return const Center(child: CircularProgressIndicator());
-      //     } else if (snapshot.hasError) {
-      //       return Center(child: Text('Error: ${snapshot.error}'));
-      //     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-      //       return const Center(child: Text('No announcements available'));
-      //     } else {
-      //       final announcements = snapshot.data!;
-      //       return ListView.builder(
-      //         padding: const EdgeInsets.all(16.0),
-      //         itemCount: announcements.length,
-      //         itemBuilder: (context, index) {
-      //           final announcement = announcements[index];
-      //           return AnnouncementCard(announcement: announcement);
-      //         },
-      //       );
-      //     }
-      //   },
-      // ),
-      
+      body: isLoading && announcements.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : announcements.isEmpty
+              ? const Center(child: Text('No tasks to show'))
+              : NotificationListener<ScrollNotification>(
+                  onNotification: (ScrollNotification scrollInfo) {
+                    if (!isLoading && hasMore && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+                      fetchAnnouncements();
+                    }
+                    return false;
+                  },
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: announcements.length + (hasMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == announcements.length) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      final announcement = announcements[index];
+                      return AnnouncementCard(announcement: announcement);
+                    },
+                  ),
+                ),
     );
   }
 }
@@ -181,14 +204,13 @@ class AnnouncementCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            
             Text(
               announcement.title,
               style: GoogleFonts.montserrat(
                 textStyle: const TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
-                  height: 1.5
+                  height: 1.5,
                 ),
               ),
             ),
@@ -198,9 +220,7 @@ class AnnouncementCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                   decoration: BoxDecoration(
-                    color: announcement.priority == 'Urgent'
-                        ? Pallete.accent200
-                        : Pallete.success100,
+                    color: announcement.priority == 'Urgent' ? Pallete.accent200 : Pallete.success100,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -223,21 +243,20 @@ class AnnouncementCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Row(
-                    children: [SvgPicture.asset('assets/anndept.svg', height: 12, width: 12),
-                    const SizedBox(width:4),
-
+                    children: [
+                      SvgPicture.asset('assets/anndept.svg', height: 12, width: 12),
+                      const SizedBox(width: 4),
                       Text(
-                      announcement.department,
-                      style: GoogleFonts.montserrat(
-                        textStyle: const TextStyle(
-                          color: Pallete.neutral800,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12,
+                        announcement.department,
+                        style: GoogleFonts.montserrat(
+                          textStyle: const TextStyle(
+                            color: Pallete.neutral800,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
-                    ),
                     ],
-                    
                   ),
                 ),
               ],
@@ -255,33 +274,41 @@ class AnnouncementCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            Row(crossAxisAlignment: CrossAxisAlignment.end,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
                     SvgPicture.asset('assets/annuser.svg', height: 28, width: 28),
                     const SizedBox(width: 4),
-                      Column(crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [Text(
-                        'Username',
-                        style: GoogleFonts.montserrat(
-                textStyle: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: Pallete.neutral800,
-                  height: 1.5,
-                ),),),
-                      
-                    Text(
-                      announcement.role,
-                       style: GoogleFonts.montserrat(
-                textStyle: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                  color: Pallete.neutral800,
-                  height: 1.5,
-                ),),),]),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Username',
+                          style: GoogleFonts.montserrat(
+                            textStyle: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: Pallete.neutral800,
+                              height: 1.5,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          announcement.role,
+                          style: GoogleFonts.montserrat(
+                            textStyle: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              color: Pallete.neutral800,
+                              height: 1.5,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
                 Text(

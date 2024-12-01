@@ -7,4 +7,5 @@ export '../core/theme/app_pallete.dart';
 export 'package:loader_overlay/loader_overlay.dart';
 export '../core/widgets.dart';
 export 'package:shared_preferences/shared_preferences.dart';
+export "package:flutter_dotenv/flutter_dotenv.dart";
 

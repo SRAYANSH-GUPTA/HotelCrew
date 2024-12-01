@@ -1,7 +1,8 @@
 import '../../core/packages.dart';
-import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import "dart:convert";
+import 'package:loader_overlay/loader_overlay.dart';
+import 'dart:async';
 
 class Task {
   final int id;
@@ -64,6 +65,89 @@ class _StaffTaskManagementPageState extends State<StaffTaskManagementPage> {
     fetchTasks();
   }
 
+Future<void> updateTaskStatus(int taskId, String newStatus) async {
+  final url = 'https://hotelcrew-1.onrender.com/api/taskassignment/tasks/$taskId/status/';
+  
+  // Show loader
+  context.loaderOverlay.show();
+  
+  try {
+    final response = await http.patch(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $access_token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'status': newStatus}),
+    ).timeout(
+      const Duration(seconds: 30),
+      onTimeout: () {
+        throw TimeoutException('Connection timed out');
+      },
+    );
+    print(response.statusCode);
+    print(response.body);
+
+    switch (response.statusCode) {
+      case 200:
+        final data = jsonDecode(response.body);
+        setState(() {
+          final taskIndex = tasks.indexWhere((t) => t.id == taskId);
+          if (taskIndex != -1) {
+            tasks[taskIndex] = Task(
+              id: tasks[taskIndex].id,
+              title: tasks[taskIndex].title,
+              department: tasks[taskIndex].department,
+              description: tasks[taskIndex].description,
+              status: data['status'],
+              deadline: tasks[taskIndex].deadline,
+              assignedTo: tasks[taskIndex].assignedTo,
+            );
+            _applyFilter();
+          }
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(data['message'])),
+        );
+        break;
+
+      case 404:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Task not found')),
+        );
+        break;
+
+      case 400:
+        final error = jsonDecode(response.body)['error'];
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error)),
+        );
+        break;
+
+      case 500:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Server error occurred')),
+        );
+        break;
+
+      default:
+        throw Exception('Failed to update task status: ${response.statusCode}');
+    }
+  } on TimeoutException {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Connection timed out')),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error updating task status: $e')),
+    );
+  } finally {
+    // Hide loader
+    context.loaderOverlay.hide();
+  }
+}
+
+
   Future<void> getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
@@ -78,6 +162,7 @@ class _StaffTaskManagementPageState extends State<StaffTaskManagementPage> {
   }
 
   Future<void> fetchTasks() async {
+    // getToken();
     if (isLoading || !hasMore) return;
 
     setState(() {
@@ -198,20 +283,19 @@ class _StaffTaskManagementPageState extends State<StaffTaskManagementPage> {
                     height: 50,
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                        if (selectedStatus.isNotEmpty) {
-                          // Implement status update logic here
-                          print("Selected Status: $selectedStatus");
-                          Navigator.pop(context);
-                        } else {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Please select a status.'),
-                            ),
-                          );
-                        }
-                      },
+                     onPressed: () {
+  if (selectedStatus.isNotEmpty) {
+    updateTaskStatus(task.id, selectedStatus);
+    Navigator.pop(context);
+  } else {
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please select a status.'),
+      ),
+    );
+  }
+},
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Pallete.primary700,
                         shape: RoundedRectangleBorder(

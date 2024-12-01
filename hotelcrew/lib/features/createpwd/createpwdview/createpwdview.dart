@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:password_strength_indicator/password_strength_indicator.dart';
 import '../../auth/view/pages/login_page.dart';
+import 'package:flutter/services.dart'; // Add this import
 import 'createpwdviewmodel.dart';
 
 final confirmpassword = TextEditingController(text: "");
@@ -163,6 +164,7 @@ class _createpwdState extends State<createpwd> {
             },
                   decoration: InputDecoration(
                     counterText: "",
+                    
                     labelText: 'Password',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
@@ -181,6 +183,10 @@ class _createpwdState extends State<createpwd> {
                   ),
                   buildCounter: null,
                   
+                   inputFormatters: [
+                              FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                               FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@._-]')), // Deny spaces
+                            ],
                   obscureText: _obscurePassword,
                   focusNode: passwordFocusNode,
                   obscuringCharacter: '●',
@@ -216,6 +222,10 @@ class _createpwdState extends State<createpwd> {
               const SizedBox(height: 22), // Space between the text fields
               TextFormField(
                 controller: confirmpassword,
+                 inputFormatters: [
+                              FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                               FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@._-]')), // Deny spaces
+                            ],
                 maxLength: 25,
                 validator: (value) {
               // Check if the passwords match
@@ -294,7 +304,8 @@ class _createpwdState extends State<createpwd> {
         });
 
         await viewModel.sendOtp(widget.email, password.text, confirmpassword.text);
-
+        confirmpassword.clear();
+        password.clear();
         // Check for success or error messages from the ViewModel
         if (viewModel.successMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
