@@ -65,12 +65,11 @@ class _SetupCompleteState extends State<SetupComplete> {
             width: screenWidth * 0.9, // Make the width responsive
             child: ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacement<void, void>(
-                  context,
-                  MaterialPageRoute<void>(
-                    builder: (BuildContext context) => const DashboardPage(),
-                  ),
-                );
+                 Navigator.pushAndRemoveUntil(
+  context,
+  MaterialPageRoute(builder: (context) => const DashboardPage()),
+  (Route<dynamic> route) => false,
+);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF47518C),

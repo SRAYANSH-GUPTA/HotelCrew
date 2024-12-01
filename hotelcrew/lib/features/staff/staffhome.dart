@@ -126,7 +126,7 @@ Future<dynamic> fetchWeeklyPerformance() async {
     return;
   }
 
-    const String apiUrl = 'https://hotelcrew-1.onrender.com/api/taskassignment/tasks/day/';
+    const String apiUrl = 'https://hotelcrew-1.onrender.com/api/taskassignment/staff/tasks/day/';
     try {
       final response = await http.get(
         Uri.parse(apiUrl),

@@ -287,61 +287,8 @@ String access_token = "";
     );
   }
 }
-List<Map<String, String>> staffList = [
-  // {
-  //   'id': "1",
-  //   'Staff': 'Aakash',
-  //   'Department': 'Housekeeping',
-  //   'Email': 'aakash@testmail.com',
-  //   'Shift': "Day",
-  //   "account": "1234567890",
-  //   'Status': 'Paid',
-  //   'TransactionId': 'XFD8KLMO23'
-  // },
-  // {
-  //   'id': "2",
-  //   'Staff': 'Amit',
-  //   'Department': 'Maintenance',
-  //   'Email': 'amit@fakemail.com',
-  //   "account": "1234567890",
-  //   'Shift': "Night",
-  //   'Status': 'Not Paid',
-  //   'TransactionId': "None"
-  // },
-  // {
-  //   'id': "3",
-  //   'Staff': 'Tushar',
-  //   'Department': 'Housekeeping',
-  //   'Email': 'tushar@example.com',
-  //   "account": "1234567890",
-  //   'Shift': "Night",
-  //   'Status': 'Transaction Error',
-  //   'TransactionId': "None"
-  // },
-  // {
-  //   'id': "4",
-  //   'Staff': 'Krish',
-  //   'Department': 'Security',
-  //   'Email': 'krish@testmail.com',
-  //   "account": "1234567890",
-  //   'Shift': "Day",
-  //   'Status': 'Paid',
-  //   'TransactionId': 'GHD76KLM29'
-  // }
-  // Add more staff here as needed
-];
-
-
-  //Future<void> fetchStaffData() async {
-  // Make API call here and update `staffList` with response data
-  // For example:
-  // final response = await Dio().get('API_ENDPOINT');
-  // setState(() {
-  //   staffList = response.data;
-  //   filteredList = List.from(staffList);
-  // });
-//}
-
+List<Map<String, String>> staffList = [];
+ 
 final Dio _dio = Dio();
   // Filtered list for updates
   List<Map<String, String>> filteredList = [];
