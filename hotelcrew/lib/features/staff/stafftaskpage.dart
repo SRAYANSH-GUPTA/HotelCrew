@@ -66,11 +66,11 @@ class _StaffTaskManagementPageState extends State<StaffTaskManagementPage> {
   }
 
 Future<void> updateTaskStatus(int taskId, String newStatus) async {
-  final url = 'https://hotelcrew-1.onrender.com/api/taskassignment/tasks/$taskId/status/';
+  final url = 'https://hotelcrew-1.onrender.com/api/taskassignment/tasks/status/$taskId/';
   
   // Show loader
   context.loaderOverlay.show();
-  
+  print(newStatus);
   try {
     final response = await http.patch(
       Uri.parse(url),
@@ -286,6 +286,7 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
                      onPressed: () {
   if (selectedStatus.isNotEmpty) {
     updateTaskStatus(task.id, selectedStatus);
+    print("^^^^^^");
     Navigator.pop(context);
   } else {
     Navigator.pop(context);

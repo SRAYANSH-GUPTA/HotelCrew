@@ -56,7 +56,7 @@ Future<void> fetchWeeklyStats() async {
       });
     } else if (response.statusCode == 404) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Hotel not found')),
+        const SnackBar(content: Text("No hotel associated with user")),
       );
     } else if (response.statusCode == 400) {
       ScaffoldMessenger.of(context).showSnackBar(
