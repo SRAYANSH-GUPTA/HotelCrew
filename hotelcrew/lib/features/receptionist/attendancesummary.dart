@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:table_calendar/table_calendar.dart';
+import '../../core/packages.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AttendanceSummaryPage extends StatefulWidget {
   const AttendanceSummaryPage({super.key});
@@ -9,20 +14,135 @@ class AttendanceSummaryPage extends StatefulWidget {
 }
 
 class _AttendanceSummaryPageState extends State<AttendanceSummaryPage> {
-  String selectedView = 'Month'; // Dropdown for Month/Week/Day views
-  List<Map<String, String>> attendanceData = [
-    {'Date': '2024-11-01', 'Status': 'Present'},
-    {'Date': '2024-11-02', 'Status': 'Absent'},
-    {'Date': '2024-11-03', 'Status': 'Leave'},
-    {'Date': '2024-11-04', 'Status': 'Present'},
-    {'Date': '2024-11-05', 'Status': 'Present'},
-    // Add more dummy records for testing
-  ];
+  String selectedView = 'Month';
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+  
+  // Add state variables
+  String access_token = "";
+  int daysPresent = 0;
+  int totalLeaves = 0;
+  int totalDays = 0;
+  bool isLoading = false;
+  List<String> dates = [];
+List<int> crewPresent = [];
+List<int> staffAbsent = [];
+List<int> crewLeave = [];
+
+Future<void> fetchWeeklyStats() async {
+  if (access_token.isEmpty) return;
+
+  setState(() {
+    isLoading = true;
+  });
+
+  try {
+    final response = await http.get(
+      Uri.parse('https://hotelcrew-1.onrender.com/api/attendance/week/'),
+      headers: {
+        'Authorization': 'Bearer $access_token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      setState(() {
+        dates = List<String>.from(data['dates']);
+        crewPresent = List<int>.from(data['total_crew_present']);
+        staffAbsent = List<int>.from(data['total_staff_absent']);
+        crewLeave = List<int>.from(data['total_leave']);
+      });
+    } else if (response.statusCode == 404) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Hotel not found')),
+      );
+    } else if (response.statusCode == 400) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No hotel associated with user')),
+      );
+    } else {
+      throw Exception('Failed to load weekly stats');
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: $e')),
+    );
+  } finally {
+    setState(() {
+      isLoading = false;
+    });
+  }
+}
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    getToken();
+  }
+
+  Future<void> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    if (token != null && token.isNotEmpty) {
+      setState(() {
+        access_token = token;
+      });
+      if (selectedView == 'Month') {
+        fetchMonthlyStats();
+      }
+    }
+  }
+
+  Future<void> fetchMonthlyStats() async {
+    if (access_token.isEmpty) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse('https://hotelcrew-1.onrender.com/api/attendance/month/'),
+        headers: {
+          'Authorization': 'Bearer $access_token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          daysPresent = data['days_present'];
+          totalLeaves = data['leaves'];
+          totalDays = data['total_days_up_to_today'];
+        });
+      } else {
+        throw Exception('Failed to load monthly stats');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
+      backgroundColor: Pallete.pagecolor,
       appBar: AppBar(
+        foregroundColor: Pallete.pagecolor,
         title: Text(
           'Attendance Summary',
           style: GoogleFonts.montserrat(
@@ -41,12 +161,12 @@ class _AttendanceSummaryPageState extends State<AttendanceSummaryPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Dropdown to switch between Month/Week/Day views
+            // Dropdown to switch between Month/Week views
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'November 2024',
+                  '${_focusedDay.year}-${_focusedDay.month.toString().padLeft(2, '0')}',
                   style: GoogleFonts.montserrat(
                     textStyle: const TextStyle(
                       fontSize: 16,
@@ -55,129 +175,84 @@ class _AttendanceSummaryPageState extends State<AttendanceSummaryPage> {
                     ),
                   ),
                 ),
-                DropdownButton<String>(
+                _buildFilterDropdown(
+                  screenWidth: screenWidth,
                   value: selectedView,
-                  items: ['Month', 'Week', 'Day']
-                      .map((view) => DropdownMenuItem<String>(
-                            value: view,
-                            child: Text(view),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        selectedView = value;
-                      });
-                    }
-                  },
+                  items: ['Month', 'Week'],
+                 onChanged: (value) {
+  if (value != null) {
+    setState(() {
+      selectedView = value;
+      _calendarFormat = value == 'Month'
+          ? CalendarFormat.month
+          : CalendarFormat.week;
+    });
+    if (value == 'Month') {
+      fetchMonthlyStats();
+    } else {
+      fetchWeeklyStats();
+    }
+  }
+},
+
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            // Table Header
+            // Calendar View with BoxDecoration
             Container(
               decoration: BoxDecoration(
-                color: Colors.grey.shade200,
                 borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Pallete.neutral300, width: 1),
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          right: BorderSide(color: Colors.grey, width: 1),
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'Date',
-                          style: GoogleFonts.montserrat(
-                            textStyle: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+              child: TableCalendar(
+                focusedDay: _focusedDay,
+                firstDay: DateTime.utc(2020, 1, 1),
+                lastDay: DateTime.utc(2030, 12, 31),
+                calendarFormat: _calendarFormat,
+                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    _selectedDay = selectedDay;
+                    _focusedDay = focusedDay;
+                  });
+                },
+                calendarStyle: CalendarStyle(
+                  todayDecoration: BoxDecoration(
+                    color: Colors.blueAccent,
+                    shape: BoxShape.circle,
                   ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'Status',
-                        style: GoogleFonts.montserrat(
-                          textStyle: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
+                  selectedDecoration: BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
                   ),
-                ],
+                ),
+                headerStyle: const HeaderStyle(
+                  formatButtonVisible: false,
+                  titleCentered: true,
+                ),
               ),
             ),
-            // Table Rows
-            Expanded(
-              child: ListView.builder(
-                itemCount: attendanceData.length,
-                itemBuilder: (context, index) {
-                  final record = attendanceData[index];
-                  return Container(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        left: BorderSide(color: Colors.grey.shade300, width: 1),
-                        right: BorderSide(color: Colors.grey.shade300, width: 1),
-                        bottom: BorderSide(color: Colors.grey.shade300, width: 1),
-                      ),
-                    ),
+            const SizedBox(height: 35),
+            // Updated Attendance Summary Table
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Column(
+                children: [
+                  // Header Row
+                  Container(
                     child: Row(
                       children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                right: BorderSide(
-                                    color: Colors.grey.shade300, width: 1),
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                record['Date']!,
-                                style: GoogleFonts.montserrat(
-                                  textStyle: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Center(
-                            child: Text(
-                              record['Status']!,
-                              style: GoogleFonts.montserrat(
-                                textStyle: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: _getStatusColor(record['Status']!),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                        _buildHeaderCell('Present'),
+                        _buildHeaderCell('Absent'),
+                        _buildHeaderCell('Leave'),
                       ],
                     ),
-                  );
-                },
+                  ),
+                  
+                  // Data Rows
+                  _buildAttendanceRow(),
+                ],
               ),
             ),
           ],
@@ -186,17 +261,179 @@ class _AttendanceSummaryPageState extends State<AttendanceSummaryPage> {
     );
   }
 
-  // Helper to get color for each status
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'Present':
-        return Colors.green;
-      case 'Absent':
-        return Colors.red;
-      case 'Leave':
-        return Colors.orange;
-      default:
-        return Colors.black;
-    }
+  Widget _buildFilterDropdown({
+    required double screenWidth,
+    required String value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 0),
+      child: SizedBox(
+        height: 30,
+        width: screenWidth * 0.256,
+        child: Card(
+          color: Pallete.pagecolor,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            side: const BorderSide(color: Pallete.neutral400, width: 1),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+            child: Row(
+              children: [
+                SvgPicture.asset("assets/filter.svg"),
+                const SizedBox(width: 3),
+                Expanded(
+                  child: DropdownButton<String>(
+                    value: value,
+                    borderRadius: BorderRadius.circular(4),
+                    menuWidth: screenWidth * 0.39,
+                    elevation: 0,
+                    alignment: Alignment.center,
+                    isExpanded: true,
+                    icon: SvgPicture.asset("assets/dropdownarrow.svg"),
+                    underline: Container(),
+                    onChanged: onChanged,
+                    items: items.map<DropdownMenuItem<String>>((String item) {
+                      return DropdownMenuItem<String>(
+                        value: item,
+                        child: Text(
+                          item,
+                          style: GoogleFonts.montserrat(
+                            textStyle: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              color: Pallete.neutral950,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeaderCell(String title) {
+    return Container(
+      width: 100,
+      decoration: BoxDecoration(
+        color: Pallete.neutral100,
+        border: Border.all(color: Pallete.neutral600, width: 1),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Text(
+        title,
+        textAlign: TextAlign.center,
+        style: GoogleFonts.montserrat(
+          textStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Pallete.neutral900,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAttendanceRow() {
+  if (isLoading) {
+    return const Center(child: CircularProgressIndicator());
+  }
+  
+  if (selectedView == 'Month') {
+    return Container(
+      height: 56,
+      decoration: const BoxDecoration(
+        border: Border(
+          left: BorderSide(color: Pallete.neutral200, width: 1),
+          right: BorderSide(color: Pallete.neutral200, width: 1),
+          bottom: BorderSide(color: Pallete.neutral200, width: 1),
+        ),
+      ),
+      child: Row(
+        children: [
+          _buildDataCell(daysPresent.toString(), Pallete.neutral300, isLeftTopBorder: true),
+          _buildDataCell((totalDays - daysPresent - totalLeaves).toString(), Pallete.neutral300),
+          _buildDataCell(totalLeaves.toString(), Pallete.neutral300, isRightTopBorder: true),
+        ],
+      ),
+    );
+  } else {
+    // Weekly view
+    return Container(
+      height: 56,
+      decoration: const BoxDecoration(
+        border: Border(
+          left: BorderSide(color: Pallete.neutral200, width: 1),
+          right: BorderSide(color: Pallete.neutral200, width: 1),
+          bottom: BorderSide(color: Pallete.neutral200, width: 1),
+        ),
+      ),
+      child: Row(
+        children: [
+          _buildDataCell(
+            crewPresent.isNotEmpty ? crewPresent.last.toString() : '0',
+            Pallete.neutral300,
+            isLeftTopBorder: true
+          ),
+          _buildDataCell(
+            staffAbsent.isNotEmpty ? staffAbsent.last.toString() : '0',
+            Pallete.neutral300
+          ),
+          _buildDataCell(
+            crewLeave.isNotEmpty ? crewLeave.last.toString() : '0',
+            Pallete.neutral300,
+            isRightTopBorder: true
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+  Widget _buildDataCell(String count, Color textColor, {bool isLeftTopBorder = false, bool isRightTopBorder = false}) {
+    return Container(
+      width: 100,
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: Pallete.neutral200,
+            width: isLeftTopBorder || isRightTopBorder ? 2 : 1,
+          ),
+          left: BorderSide(
+            color: Pallete.neutral200,
+            width: isLeftTopBorder ? 2 : 1,
+          ),
+          right: BorderSide(
+            color: Pallete.neutral200,
+            width: isRightTopBorder ? 2 : 1,
+          ),
+          bottom: const BorderSide(
+            color: Pallete.neutral200,
+            width: 1,
+          ),
+        ),
+      ),
+      child: Text(
+        count,
+        textAlign: TextAlign.center,
+        style: GoogleFonts.montserrat(
+          textStyle: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: textColor,
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../core/packages.dart';
-import  'package:fl_chart/fl_chart.dart';
-import '../receptionist/staffannouncement.dart';
-import '../receptionist/staffmanageleave.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../staff/requestaleave.dart';
+import 'dart:async';
+import '../../core/packages.dart';
+import "../receptionist/staffannouncement.dart";
+import '../receptionist/staffmanageleave.dart';
 
 class StaffHomePage extends StatefulWidget {
   const StaffHomePage({super.key});
@@ -14,29 +15,18 @@ class StaffHomePage extends StatefulWidget {
   @override
   State<StaffHomePage> createState() => _StaffHomePageState();
 }
-List<double> doubleData = [1.5, 2, 3, 4, 5, 6, 0]; 
-// List<double> doubleData = data.map((e) => (e as num).toDouble()).toList();
-class _StaffHomePageState extends State<StaffHomePage> {
-double absent = 0;
-double present = 0.0;
-double leave = 0;
-String assigned = "0";
-String pending = "0";
-String completed = "0";
-String access_token = "";
 
- Future<void> getToken() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('access_token');
-  if (token == null || token.isEmpty) {
-    print('Token is null or empty');
-  } else {
-    setState(() {
-      access_token = token;
-    });
-    print('Token retrieved: $access_token');
-  }
-}
+List<double> doubleData = [1.5, 2, 3, 4, 5, 6, 0];
+
+class _StaffHomePageState extends State<StaffHomePage> {
+  double absent = 0;
+  double present = 0.0;
+  double leave = 0;
+  String assigned = "0";
+  String pending = "0";
+  String completed = "0";
+  String access_token = "";
+
   @override
   void initState() {
     super.initState();
@@ -47,12 +37,27 @@ String access_token = "";
     fetchWeeklyPerformance();
   }
 
-Future<dynamic> fetchWeeklyPerformance() async {
-   await getToken(); // Wait for the token to be retrieved
-  if (access_token.isEmpty) {
-    print('Access token is null or empty');
-    return;
+  Future<void> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    if (token == null || token.isEmpty) {
+      print('Token is null or empty');
+    } else {
+      if (mounted) {
+        setState(() {
+          access_token = token;
+        });
+      }
+      print('Token retrieved: $access_token');
+    }
   }
+
+  Future<dynamic> fetchWeeklyPerformance() async {
+    await getToken(); // Wait for the token to be retrieved
+    if (access_token.isEmpty) {
+      print('Access token is null or empty');
+      return;
+    }
 
     final url = Uri.parse('https://hotelcrew-1.onrender.com/api/statics/performance/staff/week/');
     final response = await http.get(
@@ -68,31 +73,27 @@ Future<dynamic> fetchWeeklyPerformance() async {
       List<double> performanceData = dailyStats
           .map<double>((item) => item['performance_percentage'].toDouble())
           .toList();
-          print("^^^^^^^^^^^^^^^^^^^^^");
-          print(performanceData);
+      print("^^^^^^^^^^^^^^^^^^^^^");
+      print(performanceData);
+      if (mounted) {
         setState(() {
           doubleData = performanceData;
         });
-      
+      }
     } else {
-      
       throw Exception('Failed to load performance data');
-
     }
   }
 
+  List<Map<String, dynamic>> leaveRequests = [];
+  Future<void> fetchLeaveRequests() async {
+    await getToken(); // Wait for the token to be retrieved
+    if (access_token.isEmpty) {
+      print('Access token is null or empty');
+      return;
+    }
 
-
-
- List<Map<String, dynamic>> leaveRequests = [];
- Future<void> fetchLeaveRequests() async {
-   await getToken(); // Wait for the token to be retrieved
-  if (access_token.isEmpty) {
-    print('Access token is null or empty');
-    return;
-  }
-
-  print(access_token);
+    print(access_token);
     const String apiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/apply_leave/';
     try {
       final response = await http.get(
@@ -106,9 +107,11 @@ Future<dynamic> fetchWeeklyPerformance() async {
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         List<Map<String, dynamic>> formattedData = convertLeaveRequests(data['data']);
-        setState(() {
-          leaveRequests = formattedData;
-        });
+        if (mounted) {
+          setState(() {
+            leaveRequests = formattedData;
+          });
+        }
       } else {
         print('Failed to load data. Status code: ${response.statusCode}');
       }
@@ -117,14 +120,12 @@ Future<dynamic> fetchWeeklyPerformance() async {
     }
   }
 
-
-
-   Future<void> fetchTaskData() async {
+  Future<void> fetchTaskData() async {
     await getToken(); // Wait for the token to be retrieved
-  if (access_token.isEmpty) {
-    print('Access token is null or empty');
-    return;
-  }
+    if (access_token.isEmpty) {
+      print('Access token is null or empty');
+      return;
+    }
 
     const String apiUrl = 'https://hotelcrew-1.onrender.com/api/taskassignment/staff/tasks/day/';
     try {
@@ -140,11 +141,13 @@ Future<dynamic> fetchWeeklyPerformance() async {
       print(response.statusCode);
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        setState(() {
-          assigned = data['totaltask'].toString();
-          completed = data['taskcompleted'].toString();
-          pending = data['taskpending'].toString();
-        });
+        if (mounted) {
+          setState(() {
+            assigned = data['totaltask'].toString();
+            completed = data['taskcompleted'].toString();
+            pending = data['taskpending'].toString();
+          });
+        }
       } else {
         print('Failed to load task data. Status code: ${response.statusCode}');
       }
@@ -167,62 +170,47 @@ Future<dynamic> fetchWeeklyPerformance() async {
     return formattedLeaveRequests;
   }
 
-
-Future<void> fetchMonthlyAttendanceData() async {
-  await getToken(); // Wait for the token to be retrieved
-  if (access_token.isEmpty) {
-    print('Access token is null or empty');
-    return;
-  }
-
-  const String apiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/month/';
-  try {
-    final response = await http.get(
-      Uri.parse(apiUrl),
-      headers: {
-        'Authorization': 'Bearer $access_token', // Properly formatted Authorization header
-        'Content-Type': 'application/json',
-      },
-    );
-
-    print(response.body);
-    print(response.statusCode);
-    print("^^^^^^^^^^^^^^^^^^^^");
-
-    if (response.statusCode == 200) {
-      var data = json.decode(response.body);
-      int daysPresent = data['days_present'];
-      int totalLeaveDays = data['leaves'];
-      int totalDaysUpToToday = data['total_days_up_to_today'];
-
-      setState(() {
-        present = (daysPresent / totalDaysUpToToday) * 100;
-        leave = (totalLeaveDays / totalDaysUpToToday) * 100;
-        absent = 100 - present - leave;
-      });
-    } else {
-      print('Failed to load monthly attendance data. Status code: ${response.statusCode}');
+  Future<void> fetchMonthlyAttendanceData() async {
+    await getToken(); // Wait for the token to be retrieved
+    if (access_token.isEmpty) {
+      print('Access token is null or empty');
+      return;
     }
-  } catch (e) {
-    print('Error fetching monthly attendance data: $e');
+
+    const String apiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/month/';
+    try {
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Authorization': 'Bearer $access_token', // Properly formatted Authorization header
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print(response.body);
+      print(response.statusCode);
+      print("^^^^^^^^^^^^^^^^^^^^");
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        int daysPresent = data['days_present'];
+        int totalLeaveDays = data['leaves'];
+        int totalDaysUpToToday = data['total_days_up_to_today'];
+
+        if (mounted) {
+          setState(() {
+            present = (daysPresent / totalDaysUpToToday) * 100;
+            leave = (totalLeaveDays / totalDaysUpToToday) * 100;
+            absent = 100 - present - leave;
+          });
+        }
+      } else {
+        print('Failed to load monthly attendance data. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching monthly attendance data: $e');
+    }
   }
-}
-
-  // List<Map<String, dynamic>> convertLeaveRequests(List<dynamic> leaveList) {
-  //   List<Map<String, dynamic>> formattedLeaveRequests = [];
-  //   for (var leave in leaveList) {
-  //     formattedLeaveRequests.add({
-  //       'type': leave['leave_type'],
-  //       'department': leave['user_name'],
-  //       'duration': '${leave['duration']} days',
-  //       'dates': '${leave['from_date']} to ${leave['to_date']}',
-  //       'status': leave['status'],
-  //     });
-  //   }
-  //   return formattedLeaveRequests;
-  // }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -265,44 +253,21 @@ Future<void> fetchMonthlyAttendanceData() async {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Greeting Section
-           const SizedBox(height:20),
-            
-
-            // Weekly Task Overview
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                "Today's Task Overview",
-                style: GoogleFonts.montserrat(
-                  textStyle:const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Pallete.neutral1000,
-                ),),
-              ),
-              const SizedBox(width: 20),
-              //  GestureDetector(
-              //   onTap: () {
-              //     // Navigator.push(context, MaterialPageRoute(builder: (context) => const StaffAttendancePage()));
-
-              //   },
-              //   child: Row(
-              //     children: [Text(
-              //       'View All',
-              //        style: GoogleFonts.montserrat(
-              //       textStyle:const TextStyle(
-              //       fontSize: 12,
-              //       fontWeight: FontWeight.w600,
-              //       color: Pallete.neutral900,
-              //     ),),
-              //     ),
-              //     const SizedBox(width: 4,),
-              //     SvgPicture.asset('assets/dasharrow.svg', height: 12, width: 6),
-              //     ],
-              //   ),
-              // ),
+                  "Today's Task Overview",
+                  style: GoogleFonts.montserrat(
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Pallete.neutral1000,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 20),
               ],
             ),
             const SizedBox(height: 12),
@@ -327,37 +292,33 @@ Future<void> fetchMonthlyAttendanceData() async {
               ],
             ),
             const SizedBox(height: 56),
-
-            // Performance Chart
-             Text(
-                "Your Performance",
-                style: GoogleFonts.montserrat(
-                  textStyle:const TextStyle(
+            Text(
+              "Your Performance",
+              style: GoogleFonts.montserrat(
+                textStyle: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: Pallete.neutral1000,
-                ),),
+                ),
               ),
+            ),
             const SizedBox(height: 12),
             Container(
               height: 200,
               width: screenWidth * 0.9,
-              // padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Pallete.pagecolor,
-                border: Border.all(color: Pallete.neutral200,width: 1),
+                border: Border.all(color: Pallete.neutral200, width: 1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child:const LineChartWidget(),
+              child: const LineChartWidget(),
             ),
             const SizedBox(height: 56),
-
-            // Attendance Pie Chart
             Container(
-               padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Pallete.pagecolor,
-                border: Border.all(color: Pallete.neutral200,width: 1),
+                border: Border.all(color: Pallete.neutral200, width: 1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: PieChartWidgetstaff(
@@ -375,77 +336,194 @@ Future<void> fetchMonthlyAttendanceData() async {
               ),
             ),
             const SizedBox(height: 56),
-
-            // Recent Leave Requests
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-              Text(
-                "Recent Leave Requests",
-                style: GoogleFonts.montserrat(
-                  textStyle:const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Pallete.neutral1000,
-                ),),
-              ),
-              const SizedBox(width: 20),
-               GestureDetector(
-                onTap: ()
-                {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const StaffManageLeavePage()));
-
-                },
-                child: Row(
-                  children: [Text(
-                    'View All',
-                     style: GoogleFonts.montserrat(
-                    textStyle:const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Pallete.neutral900,
-                  ),),
+                Text(
+                  "Recent Leave Requests",
+                  style: GoogleFonts.montserrat(
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Pallete.neutral1000,
+                    ),
                   ),
-                  const SizedBox(width: 4,),
-                  SvgPicture.asset('assets/dasharrow.svg', height: 12, width: 6),
-                  ],
                 ),
-              ),
+                const SizedBox(width: 20),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const StaffManageLeavePage()));
+                  },
+                  child: Row(
+                    children: [
+                      Text(
+                        'View All',
+                        style: GoogleFonts.montserrat(
+                          textStyle: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Pallete.neutral900,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      SvgPicture.asset('assets/dasharrow.svg', height: 12, width: 6),
+                    ],
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 20),
             SizedBox(
               child: ListView.builder(
-                    itemCount: leaveRequests.length > 2 ? 2 : leaveRequests.length,
-                    shrinkWrap: true,
-
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return _buildLeaveRequestCard(
-                          leaveRequests[index], screenWidth);
-                    },
-                  ),
+                itemCount: leaveRequests.length > 2 ? 2 : leaveRequests.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  return _buildLeaveRequestCard(leaveRequests[index], screenWidth);
+                },
+              ),
             ),
           ],
         ),
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   type: BottomNavigationBarType.fixed,
-      //   items: const [
-      //     BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-      //     BottomNavigationBarItem(icon: Icon(Icons.task), label: "Task"),
-      //     BottomNavigationBarItem(
-      //         icon: Icon(Icons.schedule), label: "Schedule"),
-      //     BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-      //   ],
-      //   selectedItemColor: Pallete.primary500,
-      //   unselectedItemColor: Pallete.neutral600,
-      // ),
+    );
+  }
+
+  Widget _buildLeaveRequestCard(Map<String, dynamic> request, double screenWidth) {
+    Color getStatusColor(String status) {
+      switch (status) {
+        case "Pending":
+          return Pallete.warning700;
+        case "Approved":
+          return Pallete.success600;
+        case "Rejected":
+          return Pallete.error700;
+        default:
+          return Pallete.neutral700;
+      }
+    }
+
+    return Card(
+      color: Pallete.pagecolor,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Pallete.neutral300, width: 1),
+      ),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Leave Type
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Leave Type: ",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Pallete.neutral950,
+                          height: 1.5,
+                        ),
+                      ),
+                      TextSpan(
+                        text: request["type"],
+                        style: GoogleFonts.montserrat(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Pallete.neutral950,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                // Duration
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Duration: ",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Pallete.neutral950,
+                          height: 1.5,
+                        ),
+                      ),
+                      TextSpan(
+                        text: request["duration"],
+                        style: GoogleFonts.montserrat(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Pallete.neutral950,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                // Dates
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Dates: ",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Pallete.neutral950,
+                          height: 1.5,
+                        ),
+                      ),
+                      TextSpan(
+                        text: request["dates"],
+                        style: GoogleFonts.montserrat(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Pallete.neutral950,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+            Container(
+              height: 36,
+              width: 94,
+              decoration: BoxDecoration(
+                color: getStatusColor(request["status"]).withOpacity(0.1),
+                border: Border.all(color: getStatusColor(request["status"])),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Text(
+                  request["status"],
+                  style: GoogleFonts.montserrat(
+                    textStyle: const TextStyle(),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: getStatusColor(request["status"]),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
-
-
 
 class PieChartWidgetstaff extends StatelessWidget {
   final String title; // Title of the chart
@@ -466,41 +544,40 @@ class PieChartWidgetstaff extends StatelessWidget {
         const SizedBox(height: 8),
         // Chart Title
         Column(
-          children:[ Text(
-            title,
-            style: GoogleFonts.montserrat(
-              textStyle: const TextStyle(
-                color: Pallete.neutral900,
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-                height: 1.5,
+          children: [
+            Text(
+              title,
+              style: GoogleFonts.montserrat(
+                textStyle: const TextStyle(
+                  color: Pallete.neutral900,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  height: 1.5,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 24),
-          SizedBox(
-          height: 108,
-          width: 108,
-          child: PieChart(
-            PieChartData(
-              sectionsSpace: 0, // Add spacing between sections
-              centerSpaceRadius: 0,
-              sections: data.entries
-                  .map((entry) => PieChartSectionData(
-                        showTitle: false,
-                        radius: 50,
-                        value: entry.value,
-                        color: colors[entry.key] ?? Colors.grey,
-                      ))
-                  .toList(),
+            const SizedBox(height: 24),
+            SizedBox(
+              height: 108,
+              width: 108,
+              child: PieChart(
+                PieChartData(
+                  sectionsSpace: 0, // Add spacing between sections
+                  centerSpaceRadius: 0,
+                  sections: data.entries
+                      .map((entry) => PieChartSectionData(
+                            showTitle: false,
+                            radius: 50,
+                            value: entry.value,
+                            color: colors[entry.key] ?? Colors.grey,
+                          ))
+                      .toList(),
+                ),
+              ),
             ),
-          ),
-          
-        ),
-          
           ],
         ),
-       const Spacer(),
+        const Spacer(),
         // Dynamic Legend
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -536,8 +613,8 @@ class PieChartWidgetstaff extends StatelessWidget {
       ],
     );
   }
-  
 }
+
 class LineChartWidget extends StatelessWidget {
   const LineChartWidget({super.key});
 
