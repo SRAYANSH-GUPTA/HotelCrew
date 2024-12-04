@@ -8,10 +8,12 @@ import 'page7.dart';
 import 'staffdetailsupdated.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:io';
 import 'package:dio/dio.dart';
 import 'dart:developer';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:loader_overlay/loader_overlay.dart';
+import "dart:convert";
+import "staffdetails.dart";
 
 class ProgressPageView extends StatefulWidget {
   const ProgressPageView({super.key});
@@ -23,7 +25,7 @@ class ProgressPageView extends StatefulWidget {
 class _ProgressPageViewState extends State<ProgressPageView> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-  final int _totalPages = 6; // Total number of pages
+  final int _totalPages = 5; // Total number of pages
 
   final List<Widget> _pages = [
     const PageOne(),
@@ -31,7 +33,7 @@ class _ProgressPageViewState extends State<ProgressPageView> {
     const PageThree(),
     const PageFour(),
     const PageFive(),
-    const Staffdetailsupdated(),
+    // const Staffdetailsupdated(),
   ];
 
   final List<String> _hotelInfo = [
@@ -39,39 +41,48 @@ class _ProgressPageViewState extends State<ProgressPageView> {
     'Contact & Location',
     'Property Details',
     'Operational Information',
-    'Staff Management',
+    'Room Details',
     'Upload Staff Details',
   ];
 
-  void clear() async {
+  @override
+  void initState() {
+    super.initState();
+    clearPreferences(); // Clear specific keys from SharedPreferences
+  }
+
+  void clearPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('hotel_name', "");
-    await prefs.setString('legal_business_name', "");
-    await prefs.setString('year_established', "");
-    await prefs.setString('license_number', "");
-    await prefs.setString('primary_contact', "");
-    await prefs.setString('emergency_contact', "");
-    await prefs.setString('email', "");
-    await prefs.setString('address', "");
-    await prefs.setString('country_code', "");
-    await prefs.setString('numberofrooms', "");
-    await prefs.setString('typesofroom', "");
-    await prefs.setString('numberoffloors', "");
-    await prefs.setString('address', "");
-    await prefs.setString('parkingCapacity', "");
-    await prefs.setString('checkin_time', "");
-    await prefs.setString('checkout_time', "");
-    await prefs.setString('payment_method', "");
-    await prefs.setString('parking_capacity', "");
-    await prefs.setString('numberOfDepartments', "");
+    await prefs.remove('hotel_name');
+    await prefs.remove('legal_business_name');
+    await prefs.remove('year_established');
+    await prefs.remove('license_number');
+    await prefs.remove('primary_contact');
+    await prefs.remove('emergency_contact');
+    await prefs.remove('email');
+    await prefs.remove('address');
+    await prefs.remove('country_code');
+    await prefs.remove('numberofrooms');
+    await prefs.remove('typesofroom');
+    await prefs.remove('numberoffloors');
+    await prefs.remove('parkingCapacity');
+    await prefs.remove('checkin_time');
+    await prefs.remove('checkout_time');
+    await prefs.remove('payment_method');
+    await prefs.remove('parking_capacity');
+    await prefs.remove('numberOfDepartments');
+    await prefs.remove('rooms');
+     await prefs.remove('filepath');
+    await prefs.remove('filename'); 
+    await prefs.remove('types'); // Clear room details
   }
 
   Future<void> uploadData({String? filePath, String? fileName}) async {
     try {
       log('Uploading data');
-      print("daya");
       SharedPreferences prefs = await SharedPreferences.getInstance();
       final accessToken = prefs.getString('access_token') ?? "";
+      // String fileaddress = prefs.getString('filepath') ?? "";
 
       Dio dio = Dio();
       dio.options.headers = {
@@ -80,13 +91,17 @@ class _ProgressPageViewState extends State<ProgressPageView> {
       };
       dio.options.validateStatus = (status) => true; // Allows all responses for debugging
 
+      // Retrieve room details from SharedPreferences
+      String? roomsJson = prefs.getString('rooms');
+      List<Map<String, dynamic>> rooms = roomsJson != null ? List<Map<String, dynamic>>.from(jsonDecode(roomsJson)) : [];
+
       Map<String, dynamic> formDataMap = {
         'user': prefs.getString('userid'),
         'hotel_name': prefs.getString('hotel_name'),
         'legal_business_name': prefs.getString('legal_business_name'),
         'year_established': prefs.getString('year_established'),
         'license_registration_numbers': prefs.getString('license_number'),
-        'complete_address': "ghaziabad",
+        'complete_address': prefs.getString("address"),
         'main_phone_number': prefs.getString('primary_contact'),
         'emergency_phone_number': prefs.getString('emergency_contact'),
         'email_address': prefs.getString('email'),
@@ -100,18 +115,34 @@ class _ProgressPageViewState extends State<ProgressPageView> {
         'room_price': prefs.getString('price') ?? '',
         'number_of_departments': 2,
         'department_names': 'Reception, Housekeeping, Maintenance, Kitchen, Security',
+        'rooms': rooms, // Add room details to the form data
+        // 'staff_excel_sheet': await MultipartFile.fromFile(fileaddress, filename: fileName),
       };
 
-      if (filePath != null && fileName != null && filePath.isNotEmpty && fileName.isNotEmpty) {
-        formDataMap['staff_excel_sheet'] = await MultipartFile.fromFile(filePath, filename: fileName);
-      }
+      // if (fileaddress == null && fileName == null && fileaddress.isEmpty) {
+      //   // formDataMap['staff_excel_sheet'] = await MultipartFile.fromFile(fileaddress, filename: fileName);
+      //   print(" not uploaded");
+      //   print("%"*100);
+      //    ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(
+      //       content: Text("Upload file First"),
+      //       backgroundColor: Colors.red,
+      //     ),
+      //   );
+      //   return;
+
+      // }
 
       FormData formData = FormData.fromMap(formDataMap);
-
+      print("&"*7);
+      // print(fileaddress);
+      print(prefs.get("filename"));
       Response response = await dio.post(
         'https://hotelcrew-1.onrender.com/api/hoteldetails/register/',
         data: formData,
       );
+      print(response.statusCode);
+      print("&"*100);
       print('Response: ${response.data}');
       // Handle responses based on status code
       if (response.statusCode == 201) {
@@ -122,10 +153,11 @@ class _ProgressPageViewState extends State<ProgressPageView> {
             backgroundColor: Colors.green,
           ),
         );
-        clear();
+        prefs.setString("Role", "Admin");
+        clearPreferences();
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const SetupComplete()),
+          MaterialPageRoute(builder: (context) => const Staffdetails()),
         );
       } else if (response.statusCode == 401) {
         print('Unauthorized: ${response.data}');
@@ -138,13 +170,20 @@ class _ProgressPageViewState extends State<ProgressPageView> {
         );
       } else if (response.statusCode == 400) {
         print('Bad Request: ${response.data}');
-        String r = response.data.toString();
+        String errorMessage;
+
+        // Check if the error response contains a 'message' field
+        if (response.data is Map && response.data.containsKey('message')) {
+          errorMessage = response.data['message']; // Extract the message
+        } else {
+          // Fallback to a default error message
+          errorMessage = response.data.toString() ?? "Bad request. Please check your data and try again.";
+        }
+
         log('Response data for 400 error: ${response.data}');
-        print(response.data['status']);
-        print('Error data: ${response.data}');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Fill all the fields correctly"),
+          SnackBar(
+            content: Text(errorMessage),
             backgroundColor: Colors.red,
           ),
         );
@@ -188,10 +227,12 @@ class _ProgressPageViewState extends State<ProgressPageView> {
       print('Unexpected Error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("An unexpected error occurred."),
+          content: Text("File Path not found"),
           backgroundColor: Colors.red,
         ),
       );
+    } finally {
+      context.loaderOverlay.hide(); // Hide the loader overlay
     }
   }
 
@@ -228,167 +269,173 @@ class _ProgressPageViewState extends State<ProgressPageView> {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(screenHeight * 0.2),
-        child: AppBar(
-          automaticallyImplyLeading: false,
-          flexibleSpace: Padding(
-            padding: EdgeInsets.only(top: screenHeight * 0.05),
-            child: SizedBox(
-              width: double.infinity,
-              height: screenHeight * 0.18,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: screenWidth * 0.05, vertical: screenHeight * 0.01),
-                        child: Container(
-                          width: screenWidth * 0.8,
-                          height: screenHeight * 0.01,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: Colors.grey[300],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: LinearProgressIndicator(
-                              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
-                              backgroundColor: Colors.transparent,
-                              value: (_currentPage + 1) / _totalPages,
+    return GlobalLoaderOverlay(
+      child: Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(screenHeight * 0.2),
+          child: AppBar(
+            automaticallyImplyLeading: false,
+            flexibleSpace: Padding(
+              padding: EdgeInsets.only(top: screenHeight * 0.05),
+              child: SizedBox(
+                width: double.infinity,
+                height: screenHeight * 0.18,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.05, vertical: screenHeight * 0.01),
+                          child: Container(
+                            width: screenWidth * 0.8,
+                            height: screenHeight * 0.01,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.grey[300],
                             ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: screenWidth * 0.08,
-                        height: screenHeight * 0.03,
-                        child: Text(
-                          '${_currentPage + 1}/$_totalPages',
-                          style: GoogleFonts.montserrat(
-                            textStyle: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                              fontSize: screenHeight * 0.018,
-                              height: 1.3,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20,),
-                  Container(
-                    margin: EdgeInsets.only(left: screenWidth * 0.05),
-                    child: InkWell(
-                      onTap: _goToPreviousPage,
-                      child: SizedBox(
-                        width: screenWidth * 0.2,
-                        child: Row(
-                          children: [
-                            SvgPicture.asset(
-                              'assets/backarrow.svg',
-                              height: screenHeight * 0.02,
-                              width: screenWidth * 0.02,
-                            ),
-                            SizedBox(width: screenWidth * 0.02),
-                            Text(
-                              'Back',
-                              style: GoogleFonts.montserrat(
-                                color: const Color(0xFF4D5962),
-                                fontWeight: FontWeight.w400,
-                                fontSize: screenHeight * 0.02,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: LinearProgressIndicator(
+                                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+                                backgroundColor: Colors.transparent,
+                                value: (_currentPage + 1) / _totalPages,
                               ),
                             ),
-                          ],
+                          ),
+                        ),
+                        SizedBox(
+                          width: screenWidth * 0.08,
+                          height: screenHeight * 0.03,
+                          child: Text(
+                            '${_currentPage + 1}/$_totalPages',
+                            style: GoogleFonts.montserrat(
+                              textStyle: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                                fontSize: screenHeight * 0.018,
+                                height: 1.3,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20,),
+                    Container(
+                      margin: EdgeInsets.only(left: screenWidth * 0.05),
+                      child: InkWell(
+                        onTap: _goToPreviousPage,
+                        child: SizedBox(
+                          width: screenWidth * 0.2,
+                          child: Row(
+                            children: [
+                              SvgPicture.asset(
+                                'assets/backarrow.svg',
+                                height: screenHeight * 0.02,
+                                width: screenWidth * 0.02,
+                              ),
+                              SizedBox(width: screenWidth * 0.02),
+                              Text(
+                                'Back',
+                                style: GoogleFonts.montserrat(
+                                  color: const Color(0xFF4D5962),
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: screenHeight * 0.02,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height:24),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-                    child: Text(
-                      _hotelInfo[_currentPage],
-                      style: GoogleFonts.montserrat(
-                        textStyle: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 24,
-                          height: 1.3,
+                    const SizedBox(height:24),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                      child: Text(
+                        _hotelInfo[_currentPage],
+                        style: GoogleFonts.montserrat(
+                          textStyle: const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 24,
+                            height: 1.3,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
         ),
-      ),
-      body: Column(
-        children: [
-          Container(
-            width: screenWidth,
-            height: screenHeight * 0.0015,
-            color: const Color(0xFFC6D6DB),
-          ),
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: _pages.length,
-              onPageChanged: (int page) {
-                setState(() {
-                  _currentPage = page;
-                });
-              },
-              itemBuilder: (context, index) {
-                return _pages[index];
-              },
+        body: Column(
+          children: [
+            Container(
+              width: screenWidth,
+              height: screenHeight * 0.0015,
+              color: const Color(0xFFC6D6DB),
             ),
-          ),
-          Visibility(
-            visible: !isKeyboardVisible,
-            child: Container(
-              margin: EdgeInsets.only(bottom: screenHeight * 0.06),
-              height: screenHeight * 0.06,
-              width: screenWidth * 0.9,
-              child: ElevatedButton(
-                onPressed: () async {
-                  SharedPreferences prefs = await SharedPreferences.getInstance();
-                  if (_currentPage != _totalPages - 1) {
-                    _goToNextPage();
-                  } else {
-                    await uploadData(
-                      filePath: prefs.getString('filepath'),
-                      fileName: prefs.getString('filename'),
-                    );
-                  }
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: _pages.length,
+                onPageChanged: (int page) {
+                  setState(() {
+                    _currentPage = page;
+                  });
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF47518C),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                itemBuilder: (context, index) {
+                  return _pages[index];
+                },
+              ),
+            ),
+            Visibility(
+              visible: !isKeyboardVisible,
+              child: Container(
+                margin: EdgeInsets.only(bottom: screenHeight * 0.06),
+                height: screenHeight * 0.06,
+                width: screenWidth * 0.9,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    if (_currentPage != _totalPages - 1) {
+                      _goToNextPage();
+                    } else {
+                      print(prefs.getString("filepath"));
+                      print("!!!"*100);
+                      context.loaderOverlay.show(); // Show the loader overlay
+                      await uploadData(
+                        filePath: prefs.getString('filepath'),
+                      
+                        fileName: prefs.getString('filename'),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF47518C),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                ),
-                child: Text(
-                  _currentPage < _totalPages - 1 ? 'Next' : 'Save Information',
-                  style: GoogleFonts.montserrat(
-                    textStyle: TextStyle(
-                      color: const Color(0xFFFAFAFA),
-                      fontWeight: FontWeight.w600,
-                      fontSize: screenHeight * 0.018,
-                      height: 1.5,
+                  child: Text(
+                    _currentPage < _totalPages - 1 ? 'Next' : 'Save Information',
+                    style: GoogleFonts.montserrat(
+                      textStyle: TextStyle(
+                        color: const Color(0xFFFAFAFA),
+                        fontWeight: FontWeight.w600,
+                        fontSize: screenHeight * 0.018,
+                        height: 1.5,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }

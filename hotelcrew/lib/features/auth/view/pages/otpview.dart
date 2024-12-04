@@ -8,7 +8,6 @@ import '../../auth_view_model/registerviewmodel.dart' as reg;
 import 'dart:developer';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import "../../../hoteldetails/pages/hoteldetailspage1.dart";
-import "../../../../core/packages.dart";
 
 class Otpview extends StatefulWidget {
   final String email;
@@ -98,6 +97,7 @@ class _OtpviewState extends State<Otpview> {
                         child: SizedBox(
                           width: 256,
                           child: Pinput(
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                             crossAxisAlignment: CrossAxisAlignment.center,
                            mainAxisAlignment: MainAxisAlignment.spaceBetween, 
                             length: 4,
@@ -297,6 +297,7 @@ class _OtpviewState extends State<Otpview> {
                                         prefs.setString('access_token', viewModel.accessToken ?? "");
                                         prefs.setString('refresh_token', viewModel.refreshToken ?? "");
                                         prefs.setString('userid', viewModel.userId.toString());
+                                        prefs.setString('username', widget.username);
                                         print(prefs.getString('access_token') ?? "Not Available");
 
                                         print("#############");
@@ -329,7 +330,8 @@ class _OtpviewState extends State<Otpview> {
                                           ),
                                         );
 
-                                        Navigator.push(
+                                        context.loaderOverlay.hide(); // Hide the loader overlay before navigation
+                                        Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(builder: (context) => const Hoteldetailspage1()),
                                         );

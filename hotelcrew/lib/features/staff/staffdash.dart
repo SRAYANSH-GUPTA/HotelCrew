@@ -71,15 +71,20 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ),// Same size as unselected
             unselectedFontSize: 12, // Keep consistent
             enableFeedback: false, // Removes haptic feedback
-            items: [              BottomNavigationBarItem(
+            items: [
+              BottomNavigationBarItem(
                 icon: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                   decoration: BoxDecoration(
                     color: _selectedIndex == 0 ? Pallete.primary300: Colors.transparent,
                     borderRadius: const BorderRadius.all(Radius.elliptical(100, 90)), // Oval shape
                   ),
-                  child: SvgPicture.asset('assets/homenav.svg',
-                    color: _selectedIndex == 0 ? Pallete.primary800 : Pallete.neutral600,
+                  child: SvgPicture.asset(
+                     _selectedIndex == 0 
+                     ? 
+                    'assets/shome.svg'
+                
+                    : 'assets/homenav.svg',
                   ),
                 ),
                 label: 'Home',
@@ -92,8 +97,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     borderRadius: const BorderRadius.all(Radius.elliptical(100, 90)),
                   ),
                   child: SvgPicture.asset(
-                    'assets/tasknav.svg',
-                    color: _selectedIndex == 1 ? Pallete.primary800 : Pallete.neutral600,
+                    _selectedIndex == 1 ? 'assets/stask.svg' : 'assets/tasknav.svg',
                   ),
                 ),
                 label: 'Tasks',
@@ -106,8 +110,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     borderRadius: const BorderRadius.all(Radius.elliptical(100, 90)),
                   ),
                   child: SvgPicture.asset(
-                    'assets/schedulenav.svg',
-                    color: _selectedIndex == 2 ? Pallete.primary800 : Pallete.neutral600,
+                    _selectedIndex == 2 ? 'assets/sschedule.svg' : 'assets/schedulenav.svg',
                   ),
                 ),
                 label: 'Schedule',
@@ -120,10 +123,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     borderRadius: const BorderRadius.all(Radius.elliptical(100, 90)),
                   ),
                   child: SvgPicture.asset(
-                    _selectedIndex == 3 
-                        ? 'assets/selectedprofilenav.svg'
-                        : 'assets/profilenav.svg',
-                    color: _selectedIndex == 3 ? Pallete.primary800 : Pallete.neutral600,
+                    _selectedIndex == 3 ? 'assets/sprofile.svg' : 'assets/profilenav.svg',
                   ),
                 ),
                 label: 'Profile',

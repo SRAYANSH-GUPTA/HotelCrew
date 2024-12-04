@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import "../model/addstaff.dart";
-
+import 'package:shared_preferences/shared_preferences.dart';
 class StaffViewModel extends ChangeNotifier {
   final Dio _dio = Dio(); // Initialize Dio instance
   final String apiUrl = 'https://hotelcrew-1.onrender.com/edit/create/';
@@ -19,6 +19,9 @@ class StaffViewModel extends ChangeNotifier {
   Future<void> fetchStaff() async {
     _isLoading = true;
     notifyListeners();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? accessToken = prefs.getString('access_token');
+
 
     try {
       final response = await _dio.get(apiUrl,
@@ -26,7 +29,7 @@ class StaffViewModel extends ChangeNotifier {
           validateStatus: (status) => status! < 501,
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
+            'Authorization': 'Bearer $accessToken',
           },
         ),
       );

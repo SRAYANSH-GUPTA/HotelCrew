@@ -1,13 +1,13 @@
 import 'package:email_validator/email_validator.dart';
 import 'otpview.dart';
 import '../../models/register.dart';
-import 'package:flutter_test/flutter_test.dart';
 import '../../auth_view_model/registerviewmodel.dart';
 import 'package:el_tooltip/el_tooltip.dart';
 import 'package:flutter/gestures.dart';
 import '../../../../core/passwordvalidation.dart';
 import '../../../../core/packages.dart';
 import 'package:flutter/services.dart';
+import "login_page.dart";
 // Add this import
 
 
@@ -545,6 +545,7 @@ class _RegisterState extends ConsumerState<Register> {
                                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                         content: Text(response.message),
                                       ));
+                                      context.loaderOverlay.hide();
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -619,7 +620,46 @@ class _RegisterState extends ConsumerState<Register> {
                                   ),
                           ),
                         ),
+                        
                       ),
+                      Container(
+                        width: screenWidth * 0.9,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Already a member?",
+                              style: GoogleFonts.poppins(
+                                textStyle: TextStyle(
+                                  color: const Color(0xFF4D5962),
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: screenWidth * 0.03,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: screenWidth * 0.088,
+                              child: TextButton(
+                                
+                                onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage())),
+                                child: Text(
+                                  "Log In",
+                                  style: GoogleFonts.poppins(
+                                    textStyle: TextStyle(
+                                      color: const Color(0xFF5662AC),
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
                     ],
                   ),
                 ),

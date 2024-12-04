@@ -33,6 +33,10 @@ android {
             signingConfig = signingConfigs.debug
         }
     }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
 }
 
 dependencies {

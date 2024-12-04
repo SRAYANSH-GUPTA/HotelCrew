@@ -1,12 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
+import "package:shared_preferences/shared_preferences.dart";
 import '../model/getleavemodel.dart'; // Adjust the import path based on your project structure
 
 // Custom Logger Interceptor
 class LeaveCountViewModel with ChangeNotifier {
+   
   final Dio _dio;
   final String _apiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/leave_list/';
-  final String _authToken = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs'; // Replace with your token management logic
+
 
   LeaveCountViewModel() : _dio = Dio() {
     // Add logger interceptor
@@ -23,6 +25,9 @@ class LeaveCountViewModel with ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   Future<List<Map<String, dynamic>>> fetchLeaveRequests() async {
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -31,7 +36,7 @@ class LeaveCountViewModel with ChangeNotifier {
       final response = await _dio.get(
         _apiUrl,
         options: Options(
-          headers: {'Authorization': _authToken},
+          headers: {'Authorization': "Bearer $token"},
           validateStatus: (status) => status! < 500,
         ),
       );

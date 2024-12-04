@@ -60,6 +60,8 @@ class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
     setState(() {
       _isLoading = true;
     });
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? accessToken = prefs.getString('access_token');
 
     try {
       final response = await _dio.get(
@@ -67,7 +69,7 @@ class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
         options: Options(
           validateStatus: (status) => status! < 501,
           headers: {
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
+            'Authorization': 'Bearer $accessToken',
           },
         ),
         queryParameters: department != null ? {'department': department} : null,

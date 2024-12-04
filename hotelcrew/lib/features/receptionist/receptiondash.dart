@@ -3,6 +3,7 @@ import 'recepitonhome.dart';
 import 'staffattendancepage.dart';
 import 'receptionistprofile.dart';
 import '../dashboard/gettaskpage.dart';
+
 class ReceptionDashboardPage extends StatefulWidget {
   const ReceptionDashboardPage({super.key});
 
@@ -12,7 +13,7 @@ class ReceptionDashboardPage extends StatefulWidget {
 
 class _ReceptionDashboardPageState extends State<ReceptionDashboardPage> {
   int _selectedIndex = 0;
-  
+
   // List of pages to show in bottom nav
   final List<Widget> _pages = [
     const ReceptionistDashHomePage(),
@@ -39,7 +40,7 @@ class _ReceptionDashboardPageState extends State<ReceptionDashboardPage> {
         child: Theme(
           data: ThemeData(
             splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
+            // highlightColor: Colors.transparent,
           ),
           child: BottomNavigationBar(
             currentIndex: _selectedIndex,
@@ -51,23 +52,23 @@ class _ReceptionDashboardPageState extends State<ReceptionDashboardPage> {
             type: BottomNavigationBarType.fixed,
             elevation: 2,
             backgroundColor: Pallete.neutral100,
-            selectedItemColor: Pallete.neutral1000,
-            unselectedItemColor: Pallete.neutral600,
-            selectedFontSize: 12, 
+            // selectedItemColor: Pallete.neutral1000,
+            // unselectedItemColor: Pallete.neutral600,
+            selectedFontSize: 12,
             unselectedLabelStyle: GoogleFonts.montserrat(
               textStyle: const TextStyle(
                 fontWeight: FontWeight.w500,
                 fontSize: 12,
-                color: Pallete.neutral950
+                color: Pallete.neutral950,
               ),
-            ),// Same size as unselected
+            ), // Same size as unselected
             selectedLabelStyle: GoogleFonts.montserrat(
               textStyle: const TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 12,
-                color: Pallete.neutral950
+                color: Pallete.neutral950,
               ),
-            ),// Same size as unselected
+            ), // Same size as unselected
             unselectedFontSize: 12, // Keep consistent
             enableFeedback: false, // Removes haptic feedback
             items: [
@@ -75,14 +76,14 @@ class _ReceptionDashboardPageState extends State<ReceptionDashboardPage> {
                 icon: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: _selectedIndex == 0 ? Pallete.primary300: Colors.transparent,
+                    color: _selectedIndex == 0 ? Pallete.primary300 : Colors.transparent,
                     borderRadius: const BorderRadius.all(Radius.elliptical(100, 60)), // Oval shape
                   ),
                   child: SvgPicture.asset(
-                    _selectedIndex == 0 
-                        ? 'assets/homenav_selected.svg'
+                    _selectedIndex == 0
+                        ? 'assets/nav/shome.svg'
                         : 'assets/homenav.svg',
-                    color: _selectedIndex == 0 ? Pallete.primary800 : Pallete.neutral600,
+                    // color: _selectedIndex == 0 ? Pallete.primary800 : Pallete.neutral600,
                   ),
                 ),
                 label: 'Home',
@@ -95,8 +96,10 @@ class _ReceptionDashboardPageState extends State<ReceptionDashboardPage> {
                     borderRadius: const BorderRadius.all(Radius.elliptical(100, 60)),
                   ),
                   child: SvgPicture.asset(
-                    'assets/tasknav.svg',
-                    color: _selectedIndex == 1 ? Pallete.primary800 : Pallete.neutral600,
+                    _selectedIndex == 1
+                        ? 'assets/nav/stask.svg'
+                        : 'assets/nav/stask.svg',
+                    // color: _selectedIndex == 1 ? Pallete.primary800 : Pallete.neutral600,
                   ),
                 ),
                 label: 'Tasks',
@@ -109,8 +112,10 @@ class _ReceptionDashboardPageState extends State<ReceptionDashboardPage> {
                     borderRadius: const BorderRadius.all(Radius.elliptical(100, 60)),
                   ),
                   child: SvgPicture.asset(
-                    'assets/schedulenav.svg',
-                    color: _selectedIndex == 2 ? Pallete.primary800 : Pallete.neutral600,
+                    _selectedIndex == 2
+                        ? 'assets/schedulenav_selected.svg'
+                        : 'assets/schedulenav.svg',
+                    // color: _selectedIndex == 2 ? Pallete.primary800 : Pallete.neutral600,
                   ),
                 ),
                 label: 'Shifts',
@@ -123,10 +128,11 @@ class _ReceptionDashboardPageState extends State<ReceptionDashboardPage> {
                     borderRadius: const BorderRadius.all(Radius.elliptical(100, 60)),
                   ),
                   child: SvgPicture.asset(
-                    _selectedIndex == 3 
-                        ? 'assets/selectedprofilenav.svg'
-                        : 'assets/profilenav.svg',
-                    color: _selectedIndex == 3 ? Pallete.primary800 : Pallete.neutral600,
+                    // _selectedIndex == 3
+                        // ? 
+                        'assets/nav/sprofile.svg'
+                        // : 'assets/profilenav.svg',
+                    // color: _selectedIndex == 3 ? Pallete.primary800 : Pallete.neutral600,
                   ),
                 ),
                 label: 'Profile',

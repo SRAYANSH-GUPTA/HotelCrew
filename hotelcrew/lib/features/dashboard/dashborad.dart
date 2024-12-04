@@ -79,8 +79,10 @@ class _DashboardPageState extends State<DashboardPage> {
                     color: _selectedIndex == 0 ? Pallete.primary300: Colors.transparent,
                     borderRadius: const BorderRadius.all(Radius.elliptical(100, 90)), // Oval shape
                   ),
-                  child: SvgPicture.asset('assets/homenav.svg',
-                    color: _selectedIndex == 0 ? Pallete.primary800 : Pallete.neutral600,
+                  child: SvgPicture.asset(
+                    _selectedIndex == 0 
+                    ? 'assets/shome.svg'
+                    : 'assets/homenav.svg',
                   ),
                 ),
                 label: 'Home',
@@ -93,8 +95,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     borderRadius: const BorderRadius.all(Radius.elliptical(100, 90)),
                   ),
                   child: SvgPicture.asset(
-                    'assets/tasknav.svg',
-                    color: _selectedIndex == 1 ? Pallete.primary800 : Pallete.neutral600,
+                    _selectedIndex == 1 ? 'assets/stask.svg' : 'assets/tasknav.svg',
                   ),
                 ),
                 label: 'Tasks',
@@ -107,8 +108,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     borderRadius: const BorderRadius.all(Radius.elliptical(100, 90)),
                   ),
                   child: SvgPicture.asset(
-                    'assets/schedulenav.svg',
-                    color: _selectedIndex == 2 ? Pallete.primary800 : Pallete.neutral600,
+                    _selectedIndex == 2 ? 'assets/sschedule.svg' : 'assets/schedulenav.svg',
                   ),
                 ),
                 label: 'Shifts',
@@ -121,10 +121,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     borderRadius: const BorderRadius.all(Radius.elliptical(100, 90)),
                   ),
                   child: SvgPicture.asset(
-                    _selectedIndex == 3 
-                        ? 'assets/selectedprofilenav.svg'
-                        : 'assets/profilenav.svg',
-                    color: _selectedIndex == 3 ? Pallete.primary800 : Pallete.neutral600,
+                    _selectedIndex == 3 ? 'assets/sprofile.svg' : 'assets/profilenav.svg',
                   ),
                 ),
                 label: 'Profile',

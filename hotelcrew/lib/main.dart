@@ -1,22 +1,17 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hotelcrew/features/onboarding/page/onboarding_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'features/dashboard/dashborad.dart';
 import 'package:provider/provider.dart' as provider;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/dashboard/viewmodel/getannouncement.dart';
-import 'features/manager/managernav.dart';
 import 'features/staff/staffdash.dart';
 import 'features/receptionist/receptiondash.dart';
 import "features/auth/view/pages/login_page.dart";
 import 'core/packages.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   await dotenv.load();

@@ -2,6 +2,9 @@ import 'package:hotelcrew/core/packages.dart';
 import 'package:intl/intl.dart';
 import "passwordvalidation.dart";
 import 'package:fl_chart/fl_chart.dart';
+import 'package:email_validator/email_validator.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/services.dart';
 // buildMainButton(
 //   context: context,
 //   screenHeight: screenHeight,
@@ -958,124 +961,172 @@ class GeneralListDisplay<T> extends StatelessWidget {
 }
 
 // Graphs
-class LineChartWidget extends StatelessWidget {
-  final List<double> data;
 
-  const LineChartWidget(this.data, {super.key});
+
+class LineChartWidget extends StatelessWidget {
+  final List<double> doubleData; // Input data for the line chart
+
+  const LineChartWidget({Key? key, required this.doubleData}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return LineChart(
-      LineChartData(
-        lineBarsData: [
-          LineChartBarData(
-            color: Pallete.primary800,
-            barWidth: 2,
-            spots: data
-                .asMap()
-                .entries
-                .map((entry) => FlSpot(entry.key.toDouble(), entry.value))
-                .toList(),
-            isCurved: true,
-            dotData: const FlDotData(
-              show: false, // Remove dots
-            ),
-            belowBarData: BarAreaData(
-              show: true,
-              gradient: const LinearGradient(
-                colors: [Colors.transparent, Pallete.primary600],
-                stops: [0.1, 1],  // Adjust stop values for the gradient transition
-                begin: Alignment.bottomCenter,  // Gradient starts from the bottom
-                end: Alignment.topCenter,  // Gradient ends at the top
-                transform: GradientRotation(0),  // No rotation for vertical gradient
-              ),
-            ),
-            gradient: const LinearGradient(
-              colors: [Pallete.primary400, Pallete.primary800],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-            shadow: Shadow(
-              color: Pallete.primary800.withOpacity(0.5),
-              offset: const Offset(0, 4),
-              blurRadius: 8,
-            ),
-          ),
-        ],
-        titlesData: FlTitlesData(
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false), // Hide top x-axis labels
-          ),
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false), // Hide right y-axis labels
-          ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, _) {
-                const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                return Text(
-                  days[value.toInt()],
-                  style: GoogleFonts.inter(
-                    textStyle: const TextStyle(
-                      color: Pallete.neutral900,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 12,
-                      height: 1.5,
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Stack(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Container(
+            height: 196,
+            width: screenWidth * 0.8,
+            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+            child: LineChart(
+              LineChartData(
+                gridData: FlGridData(
+                  drawHorizontalLine: true,
+                  drawVerticalLine: true,
+                  horizontalInterval: 25,
+                  verticalInterval: 1,
+                  getDrawingHorizontalLine: (value) {
+                    return const FlLine(
+                      color: Pallete.neutral300,
+                      strokeWidth: 0.5,
+                    );
+                  },
+                  getDrawingVerticalLine: (value) {
+                    return const FlLine(
+                      color: Pallete.neutral300,
+                      strokeWidth: 0.5,
+                    );
+                  },
+                ),
+                titlesData: FlTitlesData(
+                  rightTitles:
+                      const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles:
+                      const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 25,
+                      reservedSize: 28,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          value.toInt().toString(),
+                         style: GoogleFonts.inter(
+                              textStyle: const TextStyle(
+                                color: Pallete.neutral900,
+                                fontWeight: FontWeight.w400,
+                                fontSize: 12,
+                                height: 1.5,
+                              ),
+                            ),
+                        );
+                      },
                     ),
                   ),
-                );
-              },
-            ),
-          ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              interval: 25.0,
-              showTitles: true,
-              getTitlesWidget: (value, _) => Text(
-                value.toInt().toString(),
-                style: const TextStyle(fontSize: 10),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 1,
+                      getTitlesWidget: (value, meta) {
+                        switch (value.toInt()) {
+                          case 0:
+                            return const Text('Mon',
+                                style: TextStyle(
+                                    color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                          case 1:
+                            return const Text('Tue',
+                                style: TextStyle(
+                                    color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                          case 2:
+                            return const Text('Wed',
+                                style: TextStyle(
+                                    color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                          case 3:
+                            return const Text('Thu',
+                                style: TextStyle(
+                                    color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                          case 4:
+                            return const Text('Fri',
+                                style: TextStyle(
+                                    color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                          case 5:
+                            return const Text('Sat',
+                                style: TextStyle(
+                                    color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                          case 6:
+                            return const Text('Sun',
+                                style: TextStyle(
+                                    color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                          default:
+                            return const Text('');
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                borderData: FlBorderData(
+                  show: true,
+                  border: const Border(
+                    top: BorderSide(
+                      color: Pallete.neutral300,
+                      width: 0.5,
+                    ),
+                    right: BorderSide(
+                      color: Pallete.neutral300,
+                      width: 0.5,
+                    ),
+                    bottom: BorderSide(
+                      color: Pallete.neutral300,
+                      width: 2,
+                    ),
+                    left: BorderSide(
+                      color: Pallete.neutral300,
+                      width: 0.5,
+                    ),
+                  ),
+                ),
+                minX: 0,
+                maxX: 6,
+                minY: 0,
+                maxY: 100,
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: doubleData
+                        .asMap()
+                        .entries
+                        .map((entry) => FlSpot(
+                              entry.key.toDouble(),
+                              entry.value,
+                            ))
+                        .toList(),
+                    isCurved: false,
+                    isStrokeJoinRound: true,
+                    color: Pallete.primary700, // Customize line color
+                    barWidth: 1,
+                    isStrokeCapRound: true,
+                    belowBarData: BarAreaData(
+                      show: false,
+                    ),
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, xPercentage, bar, index) {
+                        return FlDotCirclePainter(
+                          radius: 1,
+                          color: Pallete.primary700,
+                          strokeColor: Pallete.primary700,
+                          strokeWidth: 4,
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
         ),
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: true,
-          drawHorizontalLine: true,
-          verticalInterval: 1,
-          horizontalInterval: 25,
-          getDrawingHorizontalLine: (value) {
-            return const FlLine(
-              color: Pallete.neutral200,
-              strokeWidth: 1,
-            );
-          },
-          getDrawingVerticalLine: (value) {
-            return const FlLine(
-              color: Pallete.neutral200,
-              strokeWidth: 1,
-            );
-          },
-        ),
-        borderData: FlBorderData(
-          show: true,
-          border: const Border(
-            top: BorderSide.none,
-            right: BorderSide.none,
-            bottom: BorderSide(
-              width: 1,
-              color: Pallete.primary500,
-              style: BorderStyle.solid,
-            ),
-            left: BorderSide(
-              width: 1,
-              color: Pallete.primary500,
-              style: BorderStyle.solid,
-            ),
-          ),
-        ),
-      ),
+      ],
     );
   }
 }
@@ -1167,8 +1218,10 @@ class PieChartWidget extends StatelessWidget {
   }
 }
 
+
+
 class BarChartWidget extends StatelessWidget {
-  final List<int> data; // Data for the bar chart
+  final List<double> data; // Data for the bar chart
 
   const BarChartWidget(this.data, {super.key});
 
@@ -1176,126 +1229,196 @@ class BarChartWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 200, // Explicit height constraint
-      child: BarChart(
-        BarChartData(
-          // Border settings for the chart
-          borderData: FlBorderData(
-            border: const Border(
-              top: BorderSide.none,
-              right: BorderSide.none,
-              bottom: BorderSide(
-                width: 1,
-                color: Pallete.primary500,
-                style: BorderStyle.solid,
-              ),
-              left: BorderSide.none,
-            ),
-          ),
-          backgroundColor: Pallete.primary50,
-          
-          // Grid line settings
-          gridData: FlGridData(
-            show: true,
-            getDrawingHorizontalLine: (value) {
-              // Dashed horizontal lines
-              return const FlLine(
-                color: Pallete.primary500,
-                strokeWidth: 0.5,
-                dashArray: [2, 2], // Creates a dashed effect
-              );
-            },
-            checkToShowHorizontalLine: (value) => true,
-            getDrawingVerticalLine: (value) {
-              // Dashed vertical lines
-              return const FlLine(
-                color: Pallete.primary500,
-                strokeWidth: 0.5,
-                dashArray: [2,2], // Creates a dashed effect
-              );
-            },
-            checkToShowVerticalLine: (value) => true,
-            drawHorizontalLine: true,
-            drawVerticalLine: true,
-          ),
-
-          // Align bars with some spacing
-          alignment: BarChartAlignment.spaceAround,
-          barGroups: data
-              .asMap()
-              .entries
-              .map(
-                (entry) => BarChartGroupData(
-                  barsSpace: 24.0,
-                  x: entry.key,
-                  barRods: [
-                    BarChartRodData(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
-                      ),
-                      toY: entry.value.toDouble(),
-                      color: Pallete.primary500,
-                      width: 16,
+      child: data.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(
+                    'assets/empty_chart.svg', // Path to your SVG file
+                    height: 100, // Adjust the height of the SVG
+                    width: 100, // Adjust the width of the SVG
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No Data',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey,
                     ),
-                  ],
+                  ),
+                ],
+              ),
+            )
+          : BarChart(
+              BarChartData(
+                maxY: 100,
+                minY: 0,
+                // Custom border settings for the chart
+                borderData: FlBorderData(
+                  border: Border(
+                    top: BorderSide(
+                      color: Pallete.neutral300,
+                      width: 0.5,
+                      style: BorderStyle.solid,
+                    ),
+                    left: BorderSide(
+                      color: Pallete.neutral300,
+                      width: 0.5,
+                      style: BorderStyle.solid,
+                    ),
+                    right: BorderSide(
+                      color: Pallete.neutral300,
+                      width: 0.5,
+                      style: BorderStyle.solid,
+                    ),
+                    bottom: BorderSide(
+                      color: Pallete.primary800,
+                      width: 1,
+                      style: BorderStyle.solid,
+                    ),
+                  ),
                 ),
-              )
-              .toList(),
-              
-          // Axis titles settings
-          titlesData: FlTitlesData(
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                interval: 2,
-                getTitlesWidget: (value, meta) {
-                  return Text(
-                    '${value.toInt()}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 12,
-                    ),
-                  );
-                },
-              ),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, _) {
-                  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                  if (value.toInt() >= 0 && value.toInt() < days.length) {
-                    return Text(
-                      days[value.toInt()],
-                      style: GoogleFonts.montserrat(
-                        textStyle: const TextStyle(
-                          color: Pallete.neutral900,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 12,
-                          height: 1.5,
-                        ),
+                backgroundColor: Pallete.primary50,
+
+                // Grid line settings
+gridData: FlGridData(
+  show: true,
+  drawHorizontalLine: true,
+  drawVerticalLine: true,
+  horizontalInterval: 25,
+  verticalInterval: 1,
+  // Completely remove these checks and make sure gridlines are always drawn
+  checkToShowHorizontalLine: (_) => true,
+  checkToShowVerticalLine: (_) => true,
+  getDrawingHorizontalLine: (value) {
+    return FlLine(
+      color: Pallete.neutral300,
+      strokeWidth: 0.5,
+    );
+  },
+  getDrawingVerticalLine: (value) {
+    return FlLine(
+      color: Pallete.neutral300,
+      strokeWidth: 0.5,
+    );
+  },
+),
+
+                // Align bars with some spacing
+                alignment: BarChartAlignment.spaceAround,
+                barGroups: data
+                    .asMap()
+                    .entries
+                    .map(
+                      (entry) => BarChartGroupData(
+                        barsSpace: 24.0,
+                        x: entry.key,
+                        barRods: [
+                          BarChartRodData(
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(0),
+                              topRight: Radius.circular(0),
+                            ),
+                            toY: entry.value.toDouble(),
+                            color: Pallete.primary700,
+                            width: 26,
+                          ),
+                        ],
                       ),
-                    );
-                  }
-                  return const Text('');
-                },
+                    )
+                    .toList(),
+
+                // Axis titles settings
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 25, // Set interval to 25 for the y-axis titles
+                      getTitlesWidget: (value, meta) {
+                        // Display only fixed values on the y-axis
+                        final fixedValues = [0, 25, 50, 75, 100];
+                        if (fixedValues.contains(value.toInt())) {
+                          return Text(
+                            '${value.toInt()}',
+                            style: const TextStyle(
+                              color: Pallete.neutral900,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 12,
+                              height: 1.5,
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink(); // Hide all other values
+                      },
+                    ),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        switch (value.toInt()) {
+                          case 0:
+                            return const Text('Mon',
+                                style: TextStyle(
+                                    color: Pallete.neutral900, 
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400));
+                          case 1:
+                            return const Text('Tue',
+                                style: TextStyle(
+                                    color: Pallete.neutral900, 
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400));
+                          case 2:
+                            return const Text('Wed',
+                                style: TextStyle(
+                                    color: Pallete.neutral900, 
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400));
+                          case 3:
+                            return const Text('Thu',
+                                style: TextStyle(
+                                    color: Pallete.neutral900, 
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400));
+                          case 4:
+                            return const Text('Fri',
+                                style: TextStyle(
+                                    color: Pallete.neutral900, 
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400));
+                          case 5:
+                            return const Text('Sat',
+                                style: TextStyle(
+                                    color: Pallete.neutral900, 
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400));
+                          case 6:
+                            return const Text('Sun',
+                                style: TextStyle(
+                                    color: Pallete.neutral900, 
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400));
+                          default:
+                            return const Text('');
+                        }
+                      },
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ),
     );
   }
-}
-
-
-//Home Button
+}//Home Button
 class HomeButtonWidget extends StatelessWidget {
   final String title; // The title to display on the button
   final VoidCallback onPressed; // The callback to trigger on button press
@@ -1688,7 +1811,7 @@ class GlobalNotification {
 class _SuccessNotification extends StatelessWidget {
   final String message;
 
-  const _SuccessNotification({super.key, required this.message});
+  const _SuccessNotification({required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -1721,6 +1844,55 @@ class _SuccessNotification extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+
+class EmailInputField extends StatelessWidget {
+  final TextEditingController controller;
+  final bool validEmail;
+
+  const EmailInputField({
+    super.key,
+    required this.controller,
+    required this.validEmail,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final padding = screenWidth * 0.05;
+
+    return SizedBox(
+      width: screenWidth * 0.9,
+      child: Form(
+        autovalidateMode: AutovalidateMode.always,
+        child: Padding(
+          padding: EdgeInsets.only(top: padding, bottom: padding),
+          child: TextFormField(
+            controller: controller,
+            maxLength: 320,
+            style: TextStyle(
+              fontSize: screenWidth * 0.05,
+              color: const Color(0xFF5B6C78),
+            ),
+            validator: (value) => EmailValidator.validate(value ?? '') ? null : "Enter a valid email.",
+            decoration: InputDecoration(
+              labelText: 'Email',
+              counterText: "",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              errorStyle: const TextStyle(height: 0), // Hide the error message
+              suffixIcon: validEmail ? null : const Icon(Icons.error, color: Color(0xFFC80D0D)),
+            ),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@._-]')),
+            ],
+          ),
+        ),
       ),
     );
   }

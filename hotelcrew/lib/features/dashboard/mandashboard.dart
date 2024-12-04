@@ -22,7 +22,7 @@ class _ManagerDashHomePageState extends State<ManagerDashHomePage> {
       {'name': 'John Doe', 'detail': 'Casual Leave'},
     ];
 
-  List<int> weeklyStaffperformance = [7, 8, 6, 5, 7, 10, 8];
+  List<double> weeklyStaffperformance = [7, 8, 6, 5, 7, 10, 8];
   Map<String, double> staffAttendancePieData = {
     "Present": 70,
     "Absent": 20,
@@ -295,7 +295,7 @@ Widget build(BuildContext context) {
               width: screenWidth * 0.9,
               child: Container(
                 padding: const EdgeInsets.all(16),
-                child: LineChartWidget(financialData)),
+                child: LineChartWidget(doubleData: financialData)),
             ),
             const SizedBox(height: 60),
           ],

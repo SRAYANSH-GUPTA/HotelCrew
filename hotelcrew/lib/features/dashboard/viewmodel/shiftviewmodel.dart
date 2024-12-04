@@ -1,5 +1,6 @@
-import 'package:dio/dio.dart'; 
-import '../model/shiftmodel.dart';// Assuming you are using Dio for API requests
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../model/shiftmodel.dart'; // Assuming you are using Dio for API requests
 
 class StaffScheduleService {
   final Dio _dio = Dio();
@@ -8,13 +9,21 @@ class StaffScheduleService {
   // Fetch staff schedules from the API and transform the data
   Future<List<Map<String, String>>> fetchAndTransformStaffSchedules() async {
     try {
+      // Retrieve the access token from SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? accessToken = prefs.getString('access_token');
+
+      if (accessToken == null) {
+        throw Exception('Access token not found. Please log in again.');
+      }
+
       Response response = await _dio.get(
         apiUrl,
         options: Options(
           validateStatus: (status) => status! < 501,
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA2MTA1LCJpYXQiOjE3MzI2MTQxMDUsImp0aSI6IjFmYWI0NTI4MTQzNDRhNTU5MGY3Y2YzYzFlMzc4YmFmIiwidXNlcl9pZCI6OTB9.JjlVfhXpewcsFv6V1JN8Q5L2C7WHMVOUwgKKp7ZtFDc',
+            'Authorization': 'Bearer $accessToken', // Use the retrieved token
           },
         ),
       );
@@ -32,11 +41,9 @@ class StaffScheduleService {
         // Return the transformed list
         print(staffSchedules.map((schedule) => schedule.toMap()).toList());
         return staffSchedules.map((schedule) => schedule.toMap()).toList();
-      } 
-      else if(response.statusCode == 401){
+      } else if (response.statusCode == 401) {
         throw Exception('Log In Again');
-      }
-      else {
+      } else {
         throw Exception('Failed to load staff schedules');
       }
     } catch (error) {

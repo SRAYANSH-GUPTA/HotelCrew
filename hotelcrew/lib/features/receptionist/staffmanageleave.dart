@@ -41,11 +41,12 @@ String access_token = "";
     return;
   }
     const String apiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/apply_leave/';
+    context.loaderOverlay.show();
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
         headers: {
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MzU5MTEzLCJpYXQiOjE3MzI3NjcxMTMsImp0aSI6IjEyMTgwNTczODc0ZDRkZDdiYTc3ZDZhODViZGUxZDg4IiwidXNlcl9pZCI6MTczfQ.iLnv1Hs-VyNe_Spd-FgOWLAyPaGOI4nFl3fMaGIRiT0',
+          'Authorization': 'Bearer $access_token',
           'Content-Type': 'application/json',
         },
       );
@@ -62,6 +63,7 @@ String access_token = "";
     } catch (e) {
       print('Error fetching data: $e');
     }
+    context.loaderOverlay.hide();
   }
 
   List<Map<String, dynamic>> convertLeaveRequests(List<dynamic> leaveList) {
@@ -88,146 +90,148 @@ String access_token = "";
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        titleSpacing: 0,
-        leading: InkWell(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: const Icon(
-            Icons.arrow_back_ios_outlined,
-            color: Pallete.neutral900,
+    return GlobalLoaderOverlay(
+      child: Scaffold(
+        backgroundColor: Colors.grey[50],
+        appBar: AppBar(
+          titleSpacing: 0,
+          leading: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: const Icon(
+              Icons.arrow_back_ios_outlined,
+              color: Pallete.neutral900,
+            ),
           ),
-        ),
-        title: Text(
-          "Manage Leave",
-          style: GoogleFonts.montserrat(
-            textStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Pallete.neutral1000,
+          title: Text(
+            "Manage Leave",
+            style: GoogleFonts.montserrat(
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Pallete.neutral1000,
+              ),
             ),
           ),
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              Container(
-                width: screenWidth * 0.9,
-                height: 136,
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 11),
-                decoration: BoxDecoration(
-                  color: Pallete.pagecolor,
-                  border: Border.all(
-                    color: Pallete.neutral300,
-                    width: 1,
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 16),
+                Container(
+                  width: screenWidth * 0.9,
+                  height: 136,
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 11),
+                  decoration: BoxDecoration(
+                    color: Pallete.pagecolor,
+                    border: Border.all(
+                      color: Pallete.neutral300,
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  borderRadius: BorderRadius.circular(8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(left: screenWidth * 0.05),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "23",
+                              style: GoogleFonts.montserrat(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                height: 1.5,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "Leave Approved",
+                              style: GoogleFonts.montserrat(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SvgPicture.asset(
+                        "assets/manageleavestaff.svg",
+                        height: 112,
+                        width: screenWidth * 0.32,
+                      ),
+                    ],
+                  ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                const SizedBox(height: 49),
+                Row(
                   children: [
-                    Padding(
-                      padding: EdgeInsets.only(left: screenWidth * 0.05),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            "23",
-                            style: GoogleFonts.montserrat(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                              height: 1.5,
-                            ),
+                    SizedBox(
+                      width: screenWidth * 0.4389,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const RequestALeavePage()));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Pallete.primary800,
+                          padding: const EdgeInsets.symmetric(horizontal: 0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "Leave Approved",
-                            style: GoogleFonts.montserrat(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
+                        ),
+                        child: Text(
+                          "Request a Leave",
+                          style: GoogleFonts.montserrat(
+                            fontSize: 14,
+                            height: 1.5,
+                            color: Pallete.neutral00,
+                            fontWeight: FontWeight.w600,
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                    SvgPicture.asset(
-                      "assets/manageleavestaff.svg",
-                      height: 112,
-                      width: screenWidth * 0.32,
-                    ),
+                    const Spacer(),
                   ],
                 ),
-              ),
-              const SizedBox(height: 49),
-              Row(
-                children: [
-                  SizedBox(
-                    width: screenWidth * 0.4389,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const RequestALeavePage()));
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Pallete.primary800,
-                        padding: const EdgeInsets.symmetric(horizontal: 0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        "Request a Leave",
-                        style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          height: 1.5,
-                          color: Pallete.neutral00,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                const SizedBox(height: 24),
+                Text(
+                  "Leave Requests",
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    height: 1.5,
+                    color: Pallete.neutral950,
+                    fontWeight: FontWeight.w600,
                   ),
-                  const Spacer(),
-                ],
-              ),
-              const SizedBox(height: 24),
-              Text(
-                "Leave Requests",
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  height: 1.5,
-                  color: Pallete.neutral950,
-                  fontWeight: FontWeight.w600,
                 ),
-              ),
-              const SizedBox(height: 16),
-              _buildFilterChips(),
-              const SizedBox(height: 16),
-              // ListView.builder placed in an appropriate Container
-              SizedBox(
-                 // Specify a height to avoid rendering issues
-                child: ListView.builder(
-                  itemCount: filteredRequests.length,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    return _buildLeaveRequestCard(
-                        filteredRequests[index], screenWidth);
-                  },
+                const SizedBox(height: 16),
+                _buildFilterChips(),
+                const SizedBox(height: 16),
+                // ListView.builder placed in an appropriate Container
+                SizedBox(
+                   // Specify a height to avoid rendering issues
+                  child: ListView.builder(
+                    itemCount: filteredRequests.length,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return _buildLeaveRequestCard(
+                          filteredRequests[index], screenWidth);
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

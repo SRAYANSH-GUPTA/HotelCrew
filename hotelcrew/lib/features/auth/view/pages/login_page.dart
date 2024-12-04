@@ -1,8 +1,10 @@
-import 'package:email_validator/email_validator.dart';
+// FILE: login_page.dart
+
 import 'package:hotelcrew/core/packages.dart';
 import 'package:hotelcrew/features/auth/auth_models/loginmodel.dart';
 import 'package:hotelcrew/features/auth/view/pages/register.dart';
 import 'package:flutter/services.dart'; // Add this import
+
 
 import '../../auth_view_model/loginpageviewmodel.dart';
 import '../../../resetpass/resertpasspage/resetpass.dart';
@@ -11,7 +13,6 @@ import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import "dart:developer";
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import "../../../dashboard/dashborad.dart";
 import "../../../staff/staffdash.dart";
@@ -155,40 +156,9 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       SizedBox(height: screenWidth * 0.08),
-                      SizedBox(
-                        width: screenWidth * 0.9,
-                        child: Form(
-                          autovalidateMode: AutovalidateMode.always,
-                          child: Padding(
-                            padding: EdgeInsets.only(top: padding, bottom: padding),
-                            child: TextFormField(
-                              controller: emailController,
-                              maxLength: 320,
-                              style: TextStyle(
-                                fontSize: screenWidth * 0.05,
-                                color: const Color(0xFF5B6C78),
-                              ),
-                              validator: (value) => emailRegex.hasMatch(value ?? '') ? null : "Enter a valid email.",
-                              decoration: InputDecoration(
-                                labelText: 'Email',
-                                counterText: "",
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                errorBorder: validEmail
-                                    ? OutlineInputBorder(
-                                        borderSide: const BorderSide(color: Colors.red, width: 1.0),
-                                        borderRadius: BorderRadius.circular(8.0),
-                                      )
-                                    : null,
-                                suffixIcon: validEmail ? null : const Icon(Icons.error, color: Color(0xFFC80D0D)),
-                              ),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@._-]')),
-                              ],
-                            ),
-                          ),
-                        ),
+                      EmailInputField(
+                        controller: emailController,
+                        validEmail: validEmail,
                       ),
                       SizedBox(
                         width: screenWidth * 0.9,
@@ -204,10 +174,12 @@ class _LoginPageState extends State<LoginPage> {
                             maxLength: 50,
                             validator: (value) => _isInvalidCredentials ? "Invalid Credentials" : null,
                             decoration: InputDecoration(
+                              counterText: '',
                               labelText: 'Password',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
+                              errorStyle: const TextStyle(height: 0), // Hide the error message
                               suffixIcon: IconButton(
                                 icon: _obscurePassword
                                     ? SvgPicture.asset('assets/nopassword.svg')
@@ -255,132 +227,137 @@ class _LoginPageState extends State<LoginPage> {
                       SizedBox(
                         width: screenWidth,
                         child: ElevatedButton(
-                          onPressed: context.loaderOverlay.visible || emailController.text.isEmpty || p.isEmpty || !validEmail
-                              ? null // Disable button while loading or if email is invalid
-                              : () async {
-                                  setState(() {
-                                    context.loaderOverlay.show(); // Start loading
-                                    _isInvalidCredentials = false; // Reset invalid credentials flag
-                                  });
+                          onPressed: () async {
+                            if (emailController.text.isEmpty || p.isEmpty) {
+                              _showSnackbar("Email and password cannot be empty.");
+                              return;
+                            }
 
-                                  try {
-                                    final loginResponse = await authViewModel.loginUser(
-                                      context,
-                                      emailController.text,
-                                      passwordController.text,
-                                    );
-                                    print(loginResponse);
-                                    // Only if login is successful (checking for valid response)
-                                    if (loginResponse is LoginResponse) {
-                                      print("########################");
-                                      print("Login successful!");
-                                      print("User Full Name: ${loginResponse.userData.fullName ?? "Not available"}");
-                                      print("AccessToken: ${loginResponse.accessToken ?? "Not available"}");
-                                      print("RefreshToken: ${loginResponse.refreshToken ?? "Not available"}");
-                                      if (true) {
-                                        print("hello done");
-                                        SharedPreferences prefs = await SharedPreferences.getInstance();
-                                        prefs.remove("access_token");
-                                        prefs.remove("refresh_token");
-                                        prefs.remove("email");
-                                        // prefs.remove("password");
-                                        prefs.setString('access_token', loginResponse.accessToken);
-                                        prefs.setString('refresh_token', loginResponse.refreshToken);
-                                        prefs.setString('email', emailController.text);
-                                        prefs.setString('password', passwordController.text);
-                                        prefs.setString('Role', loginResponse.role);
+                            setState(() {
+                              context.loaderOverlay.show(); // Start loading
+                              _isInvalidCredentials = false; // Reset invalid credentials flag
+                            });
 
-                                        print(prefs.getString('Role'));
-                                        String role = prefs.getString('Role') ?? "";
-                                        print(role);
-                                        print(prefs.getString('access_token') ?? "Not Available");
-                                        log(prefs.getString('access_token') ?? "Not Available");
-                                        log(prefs.getString('password') ?? "Not Available");
-                                        log(prefs.getString('email') ?? "Not Available");
-                                        print(prefs.getString('email') ?? "Not Available");
-                                        log(prefs.getString('refresh_token') ?? "Not Available");
-                                        String fcm = prefs.getString('fcm') ?? "";
-                                        print("%%%%%%%%%%%%%%");
-                                        print(prefs.getString('email') ?? "Not Available");
-                                        String access = prefs.getString('access_token') ?? "";
-                                        if (fcm.isNotEmpty && access.isNotEmpty) {
-                                          registerDeviceToken(fcm, access);
-                                        }
-                                        print(role);
-                                        if (role == "Admin" || role == "Manager") {
-                                          Navigator.pushAndRemoveUntil(
-                                            context,
-                                            MaterialPageRoute(builder: (context) => const DashboardPage()),
-                                            (Route<dynamic> route) => false,
-                                          );
-                                        } else if (role == "Receptionist") {
-                                          Navigator.pushAndRemoveUntil(
-                                            context,
-                                            MaterialPageRoute(builder: (context) => const ReceptionDashboardPage()),
-                                            (Route<dynamic> route) => false,
-                                          );
-                                        } else if (role == "Staff") {
-                                          Navigator.pushAndRemoveUntil(
-                                            context,
-                                            MaterialPageRoute(builder: (context) => const StaffDashboardPage()),
-                                            (Route<dynamic> route) => false,
-                                          );
-                                        } else {
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(builder: (context) => const LoginPage()),
-                                          );
-                                        }
-                                      }
-                                    } else if (loginResponse == "Server Error") {
-                                      _showSnackbar("Server error, please try again later.");
-                                    } else if (loginResponse == "Invalid credentials") {
-                                      _showSnackbar("Invalid credentials, please try again.");
-                                    } else {
-                                      _showSnackbar("Connection Error");
-                                    }
-                                  } catch (e) {
-                                    print("###################");
-                                    print("Login failed: $e");
-                                    _showSnackbar("An error occurred, please try again later.");
-                                    emailController.clear();
-                                    passwordController.clear();
+                            try {
+                              final loginResponse = await authViewModel.loginUser(
+                                context,
+                                emailController.text,
+                                passwordController.text,
+                              );
+                              print(loginResponse);
+                              // Only if login is successful (checking for valid response)
+                              if (loginResponse is LoginResponse) {
+                                print("########################");
+                                print("Login successful!");
+                                print("User Full Name: ${loginResponse.userData.fullName ?? "Not available"}");
+                                print("AccessToken: ${loginResponse.accessToken ?? "Not available"}");
+                                print("RefreshToken: ${loginResponse.refreshToken ?? "Not available"}");
+                                if (true) {
+                                  print("hello done");
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  prefs.remove("access_token");
+                                  prefs.remove("refresh_token");
+                                  prefs.remove("email");
+                                  // prefs.remove("password");
+                                  prefs.setString('access_token', loginResponse.accessToken);
+                                  prefs.setString('refresh_token', loginResponse.refreshToken);
+                                  prefs.setString('email', emailController.text);
+                                  prefs.setString('password', passwordController.text);
+                                  prefs.setString('Role', loginResponse.role);
+                                  prefs.setString('username', loginResponse.userData.fullName);
 
-                                    setState(() {
-                                      _isInvalidCredentials = true; // Show invalid credentials message
-                                    });
 
-                                    // Check if the error is a DioError
-                                    if (e is DioException) {
-                                      // Handle DioError specifically
-                                      String? errorMessage = e.message;
-                                      print("**********");
-
-                                      if (errorMessage != null) {
-                                        if (errorMessage.contains("Connection timed out")) {
-                                          // Connection timeout
-                                          _showSnackbar("Connection timed out. Please check your internet connection.");
-                                        } else if (errorMessage.contains("TimeoutException")) {
-                                          // Receive timeout
-                                          _showSnackbar("Server response timed out. Please try again.");
-                                        } else if (errorMessage.contains("No Internet")) {
-                                          // Network error
-                                          _showSnackbar("No internet connection or unknown error. Please check your connection.");
-                                        } else {
-                                          // Handle other Dio errors here
-                                          _showSnackbar("An unexpected error occurred. Please try again.");
-                                        }
-                                      }
-                                    } else {
-                                      // Handle other types of exceptions
-                                      _showSnackbar("Failed to log in: An error occurred.");
-                                    }
-                                  } finally {
-                                    setState(() {
-                                      context.loaderOverlay.hide(); // Stop loading
-                                    });
+                                  print(prefs.getString('Role'));
+                                  String role = prefs.getString('Role') ?? "";
+                                  print(role);
+                                  print(prefs.getString('access_token') ?? "Not Available");
+                                  log(prefs.getString('access_token') ?? "Not Available");
+                                  log(prefs.getString('password') ?? "Not Available");
+                                  log(prefs.getString('email') ?? "Not Available");
+                                  print(prefs.getString('email') ?? "Not Available");
+                                  log(prefs.getString('refresh_token') ?? "Not Available");
+                                  String fcm = prefs.getString('fcm') ?? "";
+                                  print("%%%%%%%%%%%%%%");
+                                  print(prefs.getString('email') ?? "Not Available");
+                                  String access = prefs.getString('access_token') ?? "";
+                                  if (fcm.isNotEmpty && access.isNotEmpty) {
+                                    registerDeviceToken(fcm, access);
                                   }
-                                },
+                                  print(role);
+                                  if (role == "Admin" || role == "Manager") {
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const DashboardPage()),
+                                      (Route<dynamic> route) => false,
+                                    );
+                                  } else if (role == "Receptionist") {
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const ReceptionDashboardPage()),
+                                      (Route<dynamic> route) => false,
+                                    );
+                                  } else if (role == "Staff") {
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const StaffDashboardPage()),
+                                      (Route<dynamic> route) => false,
+                                    );
+                                  } else {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const LoginPage()),
+                                    );
+                                  }
+                                }
+                              } else if (loginResponse == "Server Error") {
+                                _showSnackbar("Server error, please try again later.");
+                              } else if (loginResponse == "Invalid credentials") {
+                                _showSnackbar("Invalid credentials, please try again.");
+                              } else {
+                                _showSnackbar("Connection Error");
+                              }
+                            } catch (e) {
+                              print("###################");
+                              print("Login failed: $e");
+                              _showSnackbar("An error occurred, please try again later.");
+                              emailController.clear();
+                              passwordController.clear();
+
+                              setState(() {
+                                _isInvalidCredentials = true; // Show invalid credentials message
+                              });
+
+                              // Check if the error is a DioError
+                              if (e is DioException) {
+                                // Handle DioError specifically
+                                String? errorMessage = e.message;
+                                print("**********");
+
+                                if (errorMessage != null) {
+                                  if (errorMessage.contains("Connection timed out")) {
+                                    // Connection timeout
+                                    _showSnackbar("Connection timed out. Please check your internet connection.");
+                                  } else if (errorMessage.contains("TimeoutException")) {
+                                    // Receive timeout
+                                    _showSnackbar("Server response timed out. Please try again.");
+                                  } else if (errorMessage.contains("No Internet")) {
+                                    // Network error
+                                    _showSnackbar("No internet connection or unknown error. Please check your connection.");
+                                  } else {
+                                    // Handle other Dio errors here
+                                    _showSnackbar("An unexpected error occurred. Please try again.");
+                                  }
+                                }
+                              } else {
+                                // Handle other types of exceptions
+                                _showSnackbar("Failed to log in: An error occurred.");
+                              }
+                            } finally {
+                              setState(() {
+                                context.loaderOverlay.hide(); // Stop loading
+                              });
+                            }
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF5662AC),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -413,16 +390,17 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                             SizedBox(
-                              height: screenWidth * 0.09,
+                              height: screenWidth * 0.088,
                               child: TextButton(
-                                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const Register())),
+                                
+                                onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Register())),
                                 child: Text(
                                   "Sign Up",
                                   style: GoogleFonts.poppins(
                                     textStyle: TextStyle(
                                       color: const Color(0xFF5662AC),
                                       fontWeight: FontWeight.w700,
-                                      fontSize: screenWidth * 0.035,
+                                      fontSize: 12,
                                       height: 1.3,
                                     ),
                                   ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import "../../dashboard/dashborad.dart";
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SetupComplete extends StatefulWidget {
   const SetupComplete({super.key});
@@ -63,7 +64,10 @@ class _SetupCompleteState extends State<SetupComplete> {
             height: 40,
             width: screenWidth * 0.9, // Make the width responsive
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                prefs.setString('Role', "Admin");
+                                
                  Navigator.pushAndRemoveUntil(
   context,
   MaterialPageRoute(builder: (context) => const DashboardPage()),

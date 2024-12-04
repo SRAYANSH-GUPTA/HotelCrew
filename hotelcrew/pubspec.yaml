@@ -68,6 +68,8 @@ dependencies:
   flutter_dotenv: ^5.2.1
   pinput: ^5.0.0
   mockito: ^5.4.4
+  image_picker: ^1.1.2
+  open_file_plus: ^3.4.1+1
 
   
 #pinput
@@ -91,6 +93,7 @@ flutter:
   assets:
     - assets/
     - .env
+    - assets/staff.xlsx
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

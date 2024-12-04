@@ -38,27 +38,31 @@ class _HotelDetailsEditState extends State<HotelDetailsEdit>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hotel Details',
-        style: TextStyle(
-          fontSize: 16
-        ),),
-        backgroundColor: Pallete.primary400,
+        backgroundColor: Pallete.pagecolor,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
+        title: Text(
+          'Hotel Details',
+          style: GoogleFonts.montserrat(
+            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black),
+          ),
+        ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: SvgPicture.asset("assets/pencil.svg",
-            height: 24,
-            width: 24,),
+            padding: const EdgeInsets.only(right: 16, top: 10),
+            child: InkWell(
+              onTap: () {
+                // Navigator.push(context, MaterialPageRoute(builder: (context) => const AnnouncementPage()));
+              },
+              splashColor: Colors.transparent, // Removes the splash effect
+              highlightColor: Colors.transparent,
+              child: SvgPicture.asset(
+                "assets/pencil.svg",
+                
+              ),
+            ),
           )
         ],
-        leading: Padding(
-            padding: const EdgeInsets.only(left: 16),
-            child: SvgPicture.asset("assets/pencil.svg",
-            height: 24,
-            width: 24,),
-          )
-      
       ),
       body: Column(
         children: [

@@ -1,4 +1,6 @@
 import '../../../core/packages.dart';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PageOne extends StatefulWidget {
   const PageOne({super.key});
@@ -26,11 +28,28 @@ class _PageOneState extends State<PageOne> {
     businessFocusNode.addListener(() => setState(() {}));
     yearFocusNode.addListener(() => setState(() {}));
     licenseFocusNode.addListener(() => setState(() {}));
+
+    // Add listeners to save data as it changes
+    nameController.addListener(() {
+      final trimmedName = nameController.text.trim();
+      saveData('hotel_name', trimmedName);
+    });
+    businessController.addListener(() {
+      final trimmedBusiness = businessController.text.trim();
+      saveData('legal_business_name', trimmedBusiness);
+    });
+    yearController.addListener(() {
+      final trimmedYear = yearController.text.trim();
+      saveData('year_established', trimmedYear);
+    });
+    licenseController.addListener(() {
+      final trimmedLicense = licenseController.text.trim();
+      saveData('license_number', trimmedLicense);
+    });
   }
 
   @override
   void dispose() {
-    saveData();  // Save data when the page is disposed (before navigating)
     nameFocusNode.dispose();
     businessFocusNode.dispose();
     yearFocusNode.dispose();
@@ -70,12 +89,9 @@ class _PageOneState extends State<PageOne> {
   }
 
   // Method to save data
-  Future<void> saveData() async {
+  Future<void> saveData(String key, String value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('hotel_name', nameController.text);
-    await prefs.setString('legal_business_name', businessController.text);
-    await prefs.setString('year_established', yearController.text);
-    await prefs.setString('license_number', licenseController.text);
+    await prefs.setString(key, value);
   }
 
   // Method to load saved data
@@ -116,14 +132,19 @@ class _PageOneState extends State<PageOne> {
               width: screenWidth * 0.91,
               child: Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 22),
-                child: TextFormField( validator: (value) {
-    if (value == null || value.isEmpty) {
-      return 'This is a required field.'; // Error message
-    }
-    return null;
-  },
+                child: TextFormField(
+                  maxLength: 40,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'This is a required field.'; // Error message
+                    }
+                    return null;
+                  },
                   controller: nameController,
                   focusNode: nameFocusNode,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s,.-]')), // Allow letters, numbers, spaces, commas, periods, and hyphens
+                  ],
                   decoration: InputDecoration(
                     labelText: 'Hotel Name',
                     enabledBorder: OutlineInputBorder(
@@ -140,6 +161,7 @@ class _PageOneState extends State<PageOne> {
                         width: 2.0,
                       ),
                     ),
+                    counterText: '', // Remove the max length counter
                     suffixIcon: nameFocusNode.hasFocus && nameController.text.isNotEmpty
                         ? IconButton(
                             icon: SvgPicture.asset(
@@ -171,14 +193,19 @@ class _PageOneState extends State<PageOne> {
               width: screenWidth * 0.9,
               child: Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 22),
-                child: TextFormField( validator: (value) {
-    if (value == null || value.isEmpty) {
-      return 'This is a required field.'; // Error message
-    }
-    return null;
-  },
+                child: TextFormField(
+                  maxLength: 40,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'This is a required field.'; // Error message
+                    }
+                    return null;
+                  },
                   controller: businessController,
                   focusNode: businessFocusNode,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s,.-]')), // Allow letters, numbers, spaces, commas, periods, and hyphens
+                  ],
                   decoration: InputDecoration(
                     labelText: 'Legal Business Name',
                     enabledBorder: OutlineInputBorder(
@@ -195,6 +222,7 @@ class _PageOneState extends State<PageOne> {
                         width: 2.0,
                       ),
                     ),
+                    counterText: '', // Remove the max length counter
                     suffixIcon: businessFocusNode.hasFocus && businessController.text.isNotEmpty
                         ? IconButton(
                             icon: SvgPicture.asset(
@@ -225,12 +253,14 @@ class _PageOneState extends State<PageOne> {
               height: 86,
               width: screenWidth * 0.9,
               padding: const EdgeInsets.only(top: 8, bottom: 22),
-              child: TextFormField( validator: (value) {
-    if (value == null || value.isEmpty) {
-      return 'This is a required field.'; // Error message
-    }
-    return null;
-  },
+              child: TextFormField(
+                maxLength: 40,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'This is a required field.'; // Error message
+                  }
+                  return null;
+                },
                 controller: yearController,
                 focusNode: yearFocusNode,
                 readOnly: true, // Make it readonly so users must use the year picker
@@ -250,6 +280,7 @@ class _PageOneState extends State<PageOne> {
                       width: 2.0,
                     ),
                   ),
+                  counterText: '', // Remove the max length counter
                   suffixIcon: IconButton(
                     icon: SvgPicture.asset(
                       'assets/calender.svg',
@@ -275,14 +306,19 @@ class _PageOneState extends State<PageOne> {
               height: 86,
               width: screenWidth * 0.9,
               padding: const EdgeInsets.only(top: 8, bottom: 22),
-              child: TextFormField( validator: (value) {
-    if (value == null || value.isEmpty) {
-      return 'This is a required field.'; // Error message
-    }
-    return null;
-  },
+              child: TextFormField(
+                maxLength: 40,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'This is a required field.'; // Error message
+                  }
+                  return null;
+                },
                 controller: licenseController,
                 focusNode: licenseFocusNode,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s,.-]')), // Allow letters, numbers, spaces, commas, periods, and hyphens
+                ],
                 decoration: InputDecoration(
                   labelText: 'License/Registration Number',
                   enabledBorder: OutlineInputBorder(
@@ -299,6 +335,7 @@ class _PageOneState extends State<PageOne> {
                       width: 2.0,
                     ),
                   ),
+                  counterText: '', // Remove the max length counter
                   suffixIcon: licenseFocusNode.hasFocus && licenseController.text.isNotEmpty
                       ? IconButton(
                           icon: SvgPicture.asset(

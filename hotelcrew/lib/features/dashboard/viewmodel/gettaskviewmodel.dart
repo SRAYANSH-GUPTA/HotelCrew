@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../model/gettaskmodel.dart';
 
 class TaskService {
@@ -9,17 +10,22 @@ class TaskService {
   // Fetch tasks with pagination
   Future<List<Task>> fetchTasks({int page = 1, int pageSize = 10}) async {
     try {
-      // Simulate network delay
-      // await Future.delayed(const Duration(seconds: 2));
+      // Retrieve the access token from SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? accessToken = prefs.getString('access_token');
+
+      if (accessToken == null) {
+        throw Exception('Access token not found');
+      }
 
       // API Request with query parameters for pagination
       final response = await _dio.get(
         apiUrl,
         options: Options(
-          validateStatus: (status) => status! < 501, 
+          validateStatus: (status) => status! < 501,
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA2MTA1LCJpYXQiOjE3MzI2MTQxMDUsImp0aSI6IjFmYWI0NTI4MTQzNDRhNTU5MGY3Y2YzYzFlMzc4YmFmIiwidXNlcl9pZCI6OTB9.JjlVfhXpewcsFv6V1JN8Q5L2C7WHMVOUwgKKp7ZtFDc', // Replace with actual token
+            'Authorization': 'Bearer $accessToken', // Use the retrieved token
           },
         ),
         queryParameters: {

@@ -1,8 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
+import 'package:intl/intl.dart';
 import 'package:hotelcrew/core/packages.dart';
 
 class StaffAnnouncementPage extends StatefulWidget {
@@ -48,16 +45,13 @@ class _StaffAnnouncementPageState extends State<StaffAnnouncementPage> {
 
     try {
       final response = await Dio().get(
-        'https://api.example.com/announcements?page=$page',
+        'https://hotelcrew-1.onrender.com/api/taskassignment/announcements/?page=$page',
         options: Options(
           headers: {
             'Authorization': 'Bearer $access_token',
           },
         ),
       );
-      print(response.data);
-      print(response.statusCode);
-      print("%"*100);
 
       if (response.statusCode == 200) {
         List<dynamic> data = response.data['results'];
@@ -126,7 +120,7 @@ class _StaffAnnouncementPageState extends State<StaffAnnouncementPage> {
       body: isLoading && announcements.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : announcements.isEmpty
-              ? const Center(child: Text('No tasks to show'))
+              ? const Center(child: Text('No Announcement'))
               : NotificationListener<ScrollNotification>(
                   onNotification: (ScrollNotification scrollInfo) {
                     if (!isLoading && hasMore && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
@@ -171,10 +165,10 @@ class Announcement {
     return Announcement(
       title: json['title'],
       description: json['description'],
-      priority: json['priority'],
+      priority: json['urgency'],
       department: json['department'],
-      role: json['role'],
-      date: json['date'],
+      role: json['assigned_by'],
+      date: json['created_at'],
     );
   }
 }
@@ -186,6 +180,8 @@ class AnnouncementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localDate = DateFormat.yMMMd().add_jm().format(DateTime.parse(announcement.date).toLocal());
+
     return Card(
       color: Pallete.primary50,
       elevation: 0,
@@ -275,7 +271,7 @@ class AnnouncementCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
@@ -311,11 +307,15 @@ class AnnouncementCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                Text(
-                  announcement.date,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                ),
               ],
+            ),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Text(
+                localDate,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
             ),
           ],
         ),

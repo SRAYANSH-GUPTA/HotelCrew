@@ -1,5 +1,8 @@
 import 'package:email_validator/email_validator.dart';
+import 'package:flutter/services.dart';
 import '../../../core/packages.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 class PageTwo extends StatefulWidget {
   const PageTwo({super.key});
 
@@ -30,11 +33,19 @@ class _PageTwoState extends State<PageTwo> {
     enumberFocusNode.addListener(() => setState(() {}));
     emailFocusNode.addListener(() => setState(() {}));
     addressFocusNode.addListener(() => setState(() {}));
+
+    // Add listeners to save data as it changes
+    cnumberController.addListener(() => saveData('primary_contact', cnumberController.text));
+    enumberController.addListener(() => saveData('emergency_contact', enumberController.text));
+    emailController.addListener(() => saveData('email', emailController.text));
+    addressController.addListener(() {
+      final trimmedAddress = addressController.text.trim();
+      saveData('address', trimmedAddress);
+    });
   }
 
   @override
   void dispose() {
-    saveData();  // Save data when the page is disposed (before navigating)
     cnumberController.dispose();
     enumberController.dispose();
     emailController.dispose();
@@ -47,13 +58,9 @@ class _PageTwoState extends State<PageTwo> {
   }
 
   // Method to save data
-  Future<void> saveData() async {
+  Future<void> saveData(String key, String value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('primary_contact', cnumberController.text);
-    await prefs.setString('emergency_contact', enumberController.text);
-    await prefs.setString('email', emailController.text);
-    await prefs.setString('address', addressController.text);
-    
+    await prefs.setString(key, value);
   }
 
   // Method to load saved data
@@ -64,7 +71,6 @@ class _PageTwoState extends State<PageTwo> {
     String? savedEmail = prefs.getString('email');
     String? savedAddress = prefs.getString('address');
   
-
     // If saved data exists, populate the fields
     if (savedCNumber != null) {
       cnumberController.text = savedCNumber;
@@ -78,7 +84,6 @@ class _PageTwoState extends State<PageTwo> {
     if (savedAddress != null) {
       addressController.text = savedAddress;
     }
-    
   }
 
   @override
@@ -103,8 +108,11 @@ class _PageTwoState extends State<PageTwo> {
                     controller: cnumberController,
                     focusNode: cnumberFocusNode,
                     keyboardType: TextInputType.number,
+                    maxLength: 10, // Set max length to 10
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly], // Only allow numbers
                     decoration: InputDecoration(
                       labelText: 'Primary Contact Number',
+                      counterText: '', // Remove the max length counter
                       prefixIcon: Padding(
                         padding: const EdgeInsets.only(left: 8, right: 8),
                         child: DropdownButtonHideUnderline(
@@ -173,8 +181,11 @@ class _PageTwoState extends State<PageTwo> {
                     controller: enumberController,
                     focusNode: enumberFocusNode,
                     keyboardType: TextInputType.number,
+                    maxLength: 10, // Set max length to 10
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly], // Only allow numbers
                     decoration: InputDecoration(
                       labelText: 'Emergency Contact Number',
+                      counterText: '', // Remove the max length counter
                       prefixIcon: Padding(
                         padding: const EdgeInsets.only(left: 8, right: 8),
                         child: DropdownButtonHideUnderline(
@@ -264,8 +275,13 @@ class _PageTwoState extends State<PageTwo> {
                 child: TextFormField(
                   controller: addressController,
                   focusNode: addressFocusNode,
+                  maxLength: 100, // Set max length to 100
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s,.-]')), // Allow letters, numbers, spaces, commas, periods, and hyphens
+                  ],
                   decoration: InputDecoration(
                     labelText: 'Complete Address',
+                    counterText: '', // Remove the max length counter
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: const BorderSide(
@@ -301,6 +317,10 @@ class _PageTwoState extends State<PageTwo> {
                       height: 1.5,
                     ),
                   ),
+                  onChanged: (value) {
+                    final trimmedAddress = value.trim();
+                    saveData('address', trimmedAddress);
+                  },
                 ),
               ),
             ],

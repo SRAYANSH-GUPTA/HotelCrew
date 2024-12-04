@@ -18,7 +18,7 @@ class _AttendanceSummaryPageState extends State<AttendanceSummaryPage> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  
+
   // Add state variables
   String access_token = "";
   int daysPresent = 0;
@@ -26,57 +26,55 @@ class _AttendanceSummaryPageState extends State<AttendanceSummaryPage> {
   int totalDays = 0;
   bool isLoading = false;
   List<String> dates = [];
-List<int> crewPresent = [];
-List<int> staffAbsent = [];
-List<int> crewLeave = [];
+  List<int> crewPresent = [];
+  List<int> staffAbsent = [];
+  List<int> crewLeave = [];
 
-Future<void> fetchWeeklyStats() async {
-  if (access_token.isEmpty) return;
+  Future<void> fetchWeeklyStats() async {
+    if (access_token.isEmpty) return;
 
-  setState(() {
-    isLoading = true;
-  });
-
-  try {
-    final response = await http.get(
-      Uri.parse('https://hotelcrew-1.onrender.com/api/attendance/week/'),
-      headers: {
-        'Authorization': 'Bearer $access_token',
-        'Content-Type': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      setState(() {
-        dates = List<String>.from(data['dates']);
-        crewPresent = List<int>.from(data['total_crew_present']);
-        staffAbsent = List<int>.from(data['total_staff_absent']);
-        crewLeave = List<int>.from(data['total_leave']);
-      });
-    } else if (response.statusCode == 404) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("No hotel associated with user")),
-      );
-    } else if (response.statusCode == 400) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No hotel associated with user')),
-      );
-    } else {
-      throw Exception('Failed to load weekly stats');
-    }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error: $e')),
-    );
-  } finally {
     setState(() {
-      isLoading = false;
+      isLoading = true;
     });
+
+    try {
+      final response = await http.get(
+        Uri.parse('https://hotelcrew-1.onrender.com/api/attendance/week/'),
+        headers: {
+          'Authorization': 'Bearer $access_token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          dates = List<String>.from(data['dates']);
+          crewPresent = List<int>.from(data['total_crew_present']);
+          staffAbsent = List<int>.from(data['total_staff_absent']);
+          crewLeave = List<int>.from(data['total_leave']);
+        });
+      } else if (response.statusCode == 404) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("No hotel associated with user")),
+        );
+      } else if (response.statusCode == 400) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No hotel associated with user')),
+        );
+      } else {
+        throw Exception('Failed to load weekly stats');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
-}
-
-
 
   @override
   void initState() {
@@ -112,7 +110,7 @@ Future<void> fetchWeeklyStats() async {
           'Content-Type': 'application/json',
         },
       );
-
+      print(response.body);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
@@ -142,21 +140,27 @@ Future<void> fetchWeeklyStats() async {
     return Scaffold(
       backgroundColor: Pallete.pagecolor,
       appBar: AppBar(
-        foregroundColor: Pallete.pagecolor,
-        title: Text(
-          'Attendance Summary',
-          style: GoogleFonts.montserrat(
-            textStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
+          titleSpacing: 0,
+          leading: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: const Icon(
+              Icons.arrow_back_ios_outlined,
+              color: Pallete.neutral900,
+            ),
+          ),
+          title: Text(
+            "Attendance Summary",
+            style: GoogleFonts.montserrat(
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Pallete.neutral1000,
+              ),
             ),
           ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -179,22 +183,21 @@ Future<void> fetchWeeklyStats() async {
                   screenWidth: screenWidth,
                   value: selectedView,
                   items: ['Month', 'Week'],
-                 onChanged: (value) {
-  if (value != null) {
-    setState(() {
-      selectedView = value;
-      _calendarFormat = value == 'Month'
-          ? CalendarFormat.month
-          : CalendarFormat.week;
-    });
-    if (value == 'Month') {
-      fetchMonthlyStats();
-    } else {
-      fetchWeeklyStats();
-    }
-  }
-},
-
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        selectedView = value;
+                        _calendarFormat = value == 'Month'
+                            ? CalendarFormat.month
+                            : CalendarFormat.week;
+                      });
+                      if (value == 'Month') {
+                        fetchMonthlyStats();
+                      } else {
+                        fetchWeeklyStats();
+                      }
+                    }
+                  },
                 ),
               ],
             ),
@@ -217,7 +220,7 @@ Future<void> fetchWeeklyStats() async {
                     _focusedDay = focusedDay;
                   });
                 },
-                calendarStyle: CalendarStyle(
+                calendarStyle: const CalendarStyle(
                   todayDecoration: BoxDecoration(
                     color: Colors.blueAccent,
                     shape: BoxShape.circle,
@@ -240,18 +243,82 @@ Future<void> fetchWeeklyStats() async {
               child: Column(
                 children: [
                   // Header Row
-                  Container(
-                    child: Row(
-                      children: [
-                        _buildHeaderCell('Present'),
-                        _buildHeaderCell('Absent'),
-                        _buildHeaderCell('Leave'),
-                      ],
-                    ),
-                  ),
-                  
+                  SizedBox(
+                    width:screenWidth * 0.9,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Pallete.neutral100,
+                                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(8)),
+                                      border: Border.all(color: Pallete.neutral300, width: 1),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                    child: Text(
+                                      'Present',
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Pallete.neutral900,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                      color: Pallete.neutral100,
+                                      border: Border(
+                                        top: BorderSide(color: Pallete.neutral300, width: 1),
+                                        bottom: BorderSide(color: Pallete.neutral300, width: 1),
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                    child: Text(
+                                      'Absent',
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Pallete.neutral900,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Pallete.neutral100,
+                                      borderRadius: const BorderRadius.only(topRight: Radius.circular(8)),
+                                      border: Border.all(color: Pallete.neutral300, width: 1),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                    child: Text(
+                                      'Leave',
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.montserrat(
+                                        textStyle: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Pallete.neutral900,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                   // Data Rows
-                  _buildAttendanceRow(),
+                  SizedBox(
+                    width: screenWidth * 0.9,
+                    child: _buildAttendanceRow()),
                 ],
               ),
             ),
@@ -321,43 +388,14 @@ Future<void> fetchWeeklyStats() async {
     );
   }
 
-  Widget _buildHeaderCell(String title) {
-    return Container(
-      width: 100,
-      decoration: BoxDecoration(
-        color: Pallete.neutral100,
-        border: Border.all(color: Pallete.neutral600, width: 1),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Text(
-        title,
-        textAlign: TextAlign.center,
-        style: GoogleFonts.montserrat(
-          textStyle: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Pallete.neutral900,
-          ),
-        ),
-      ),
-    );
-  }
-
+ 
   Widget _buildAttendanceRow() {
   if (isLoading) {
     return const Center(child: CircularProgressIndicator());
   }
-  
+
   if (selectedView == 'Month') {
-    return Container(
-      height: 56,
-      decoration: const BoxDecoration(
-        border: Border(
-          left: BorderSide(color: Pallete.neutral200, width: 1),
-          right: BorderSide(color: Pallete.neutral200, width: 1),
-          bottom: BorderSide(color: Pallete.neutral200, width: 1),
-        ),
-      ),
+    return Expanded(
       child: Row(
         children: [
           _buildDataCell(daysPresent.toString(), Pallete.neutral300, isLeftTopBorder: true),
@@ -365,11 +403,11 @@ Future<void> fetchWeeklyStats() async {
           _buildDataCell(totalLeaves.toString(), Pallete.neutral300, isRightTopBorder: true),
         ],
       ),
-    );
+    );  // Added closing parenthesis for Expanded widget
   } else {
     // Weekly view
-    return Container(
-      height: 56,
+    return Container( 
+    
       decoration: const BoxDecoration(
         border: Border(
           left: BorderSide(color: Pallete.neutral200, width: 1),
@@ -382,16 +420,16 @@ Future<void> fetchWeeklyStats() async {
           _buildDataCell(
             crewPresent.isNotEmpty ? crewPresent.last.toString() : '0',
             Pallete.neutral300,
-            isLeftTopBorder: true
+            isLeftTopBorder: true,
           ),
           _buildDataCell(
             staffAbsent.isNotEmpty ? staffAbsent.last.toString() : '0',
-            Pallete.neutral300
+            Pallete.neutral300,
           ),
           _buildDataCell(
             crewLeave.isNotEmpty ? crewLeave.last.toString() : '0',
             Pallete.neutral300,
-            isRightTopBorder: true
+            isRightTopBorder: true,
           ),
         ],
       ),
@@ -399,27 +437,33 @@ Future<void> fetchWeeklyStats() async {
   }
 }
 
-  Widget _buildDataCell(String count, Color textColor, {bool isLeftTopBorder = false, bool isRightTopBorder = false}) {
+
+  Widget _buildDataCell(
+    String count,
+    Color textColor, {
+    bool isLeftTopBorder = false,
+    bool isRightTopBorder = false,
+  }) {
     return Container(
-      width: 100,
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      width: 100, // Adjusted width for consistency
+      padding: const EdgeInsets.symmetric(vertical: 8.0), // Adjusted vertical padding
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(
+          top: const BorderSide(
             color: Pallete.neutral200,
-            width: isLeftTopBorder || isRightTopBorder ? 2 : 1,
+            width: 2,
           ),
           left: BorderSide(
             color: Pallete.neutral200,
             width: isLeftTopBorder ? 2 : 1,
           ),
-          right: BorderSide(
+          right: const BorderSide(
             color: Pallete.neutral200,
-            width: isRightTopBorder ? 2 : 1,
+            width: 2,
           ),
           bottom: const BorderSide(
             color: Pallete.neutral200,
-            width: 1,
+            width: 2,
           ),
         ),
       ),
@@ -427,10 +471,10 @@ Future<void> fetchWeeklyStats() async {
         count,
         textAlign: TextAlign.center,
         style: GoogleFonts.montserrat(
-          textStyle: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: textColor,
+          textStyle: const TextStyle(
+            fontSize: 14, // Adjusted font size for consistency
+            fontWeight: FontWeight.w600, // Kept bold for emphasis
+            color: Pallete.neutral900, // Adjusted color for visibility
           ),
         ),
       ),

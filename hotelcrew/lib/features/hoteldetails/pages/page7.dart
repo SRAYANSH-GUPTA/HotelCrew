@@ -1,5 +1,7 @@
 import '../../../core/packages.dart';
 import 'dart:convert';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PageFive extends StatefulWidget {
   const PageFive({super.key});
@@ -19,6 +21,12 @@ class _PageFiveState extends State<PageFive> {
   void initState() {
     super.initState();
     _loadData(); // Load data when the page is initialized
+
+    // Add listeners to save data as it changes
+    numberOfRoomsController.addListener(() {
+      _generateRoomFields();
+      _saveData();
+    });
   }
 
   // Load data from SharedPreferences
@@ -33,12 +41,19 @@ class _PageFiveState extends State<PageFive> {
         roomPriceControllers.add(TextEditingController(text: prefs.getString('roomPrice_$i') ?? ''));
       }
     });
+
+    // Add listeners to dynamically save data as it changes
+    for (int i = 0; i < roomTypeControllers.length; i++) {
+      roomTypeControllers[i].addListener(() => _saveData());
+      roomCountControllers[i].addListener(() => _saveData());
+      roomPriceControllers[i].addListener(() => _saveData());
+    }
   }
 
   // Save data to SharedPreferences
   Future<void> _saveData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('numberOfRooms', numberOfRoomsController.text);
+    prefs.setString('types', numberOfRoomsController.text);
     List<Map<String, dynamic>> rooms = [];
     for (int i = 0; i < roomTypeControllers.length; i++) {
       rooms.add({
@@ -46,14 +61,11 @@ class _PageFiveState extends State<PageFive> {
         "count": int.tryParse(roomCountControllers[i].text) ?? 0,
         "price": roomPriceControllers[i].text,
       });
-      print(rooms);
-      
       prefs.setString('roomType_$i', roomTypeControllers[i].text);
       prefs.setString('roomCount_$i', roomCountControllers[i].text);
       prefs.setString('roomPrice_$i', roomPriceControllers[i].text);
     }
     prefs.setString('rooms', jsonEncode(rooms));
-    print(prefs.getString('rooms'));
   }
 
   void _generateRoomFields() {
@@ -67,6 +79,13 @@ class _PageFiveState extends State<PageFive> {
       roomPriceControllers.add(TextEditingController());
     }
     setState(() {});
+
+    // Add listeners to dynamically save data as it changes
+    for (int i = 0; i < roomTypeControllers.length; i++) {
+      roomTypeControllers[i].addListener(() => _saveData());
+      roomCountControllers[i].addListener(() => _saveData());
+      roomPriceControllers[i].addListener(() => _saveData());
+    }
   }
 
   @override
@@ -106,8 +125,13 @@ class _PageFiveState extends State<PageFive> {
                     controller: numberOfRoomsController,
                     focusNode: numberOfRoomsFocusNode,
                     keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(2),
+                      FilteringTextInputFormatter.allow(RegExp(r'^[0-9]$|^1[0-9]$|^20$')), // Only allow numbers between 0 and 20
+                    ],
                     decoration: InputDecoration(
-                      labelText: 'Number Of Rooms',
+                      labelText: 'Types Of Rooms',
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                         borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
@@ -116,6 +140,7 @@ class _PageFiveState extends State<PageFive> {
                         borderRadius: BorderRadius.circular(8.0),
                         borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
                       ),
+                      counterText: '', // Remove the max length counter
                       suffixIcon: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -127,12 +152,14 @@ class _PageFiveState extends State<PageFive> {
                             ),
                             onPressed: () {
                               int currentValue = int.tryParse(numberOfRoomsController.text) ?? 0;
-                              numberOfRoomsController.text = (currentValue + 1).toString();
-                              numberOfRoomsController.selection = TextSelection.fromPosition(
-                                TextPosition(offset: numberOfRoomsController.text.length),
-                              );
-                              _generateRoomFields();
-                              _saveData();
+                              if (currentValue < 20) {
+                                numberOfRoomsController.text = (currentValue + 1).toString();
+                                numberOfRoomsController.selection = TextSelection.fromPosition(
+                                  TextPosition(offset: numberOfRoomsController.text.length),
+                                );
+                                _generateRoomFields();
+                                _saveData();
+                              }
                             },
                           ),
                           IconButton(
@@ -164,10 +191,6 @@ class _PageFiveState extends State<PageFive> {
                         height: 1.5,
                       ),
                     ),
-                    onChanged: (value) {
-                      _generateRoomFields();
-                      _saveData();
-                    },
                   ),
                 ),
               ),
@@ -184,6 +207,8 @@ class _PageFiveState extends State<PageFive> {
                         padding: const EdgeInsets.only(top: 8, bottom: 22),
                         child: TextFormField(
                           controller: roomTypeControllers[i],
+                          maxLength: 40, // Set max length to 40
+                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]'))], // Only allow letters and numbers
                           decoration: InputDecoration(
                             labelText: 'Room Type ${i + 1}',
                             enabledBorder: OutlineInputBorder(
@@ -194,6 +219,7 @@ class _PageFiveState extends State<PageFive> {
                               borderRadius: BorderRadius.circular(8.0),
                               borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
                             ),
+                            counterText: '', // Remove the max length counter
                           ),
                           style: GoogleFonts.montserrat(
                             textStyle: const TextStyle(
@@ -213,7 +239,9 @@ class _PageFiveState extends State<PageFive> {
                         padding: const EdgeInsets.only(top: 8, bottom: 22),
                         child: TextFormField(
                           controller: roomCountControllers[i],
+                          maxLength: 5, // Set max length to 5
                           keyboardType: TextInputType.number,
+                          inputFormatters: [FilteringTextInputFormatter.digitsOnly], // Only allow numbers
                           decoration: InputDecoration(
                             labelText: 'Room Count ${i + 1}',
                             enabledBorder: OutlineInputBorder(
@@ -224,6 +252,7 @@ class _PageFiveState extends State<PageFive> {
                               borderRadius: BorderRadius.circular(8.0),
                               borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
                             ),
+                            counterText: '', // Remove the max length counter
                           ),
                           style: GoogleFonts.montserrat(
                             textStyle: const TextStyle(
@@ -243,7 +272,9 @@ class _PageFiveState extends State<PageFive> {
                         padding: const EdgeInsets.only(top: 8, bottom: 22),
                         child: TextFormField(
                           controller: roomPriceControllers[i],
+                          maxLength: 8, // Set max length to 8
                           keyboardType: TextInputType.number,
+                          inputFormatters: [FilteringTextInputFormatter.digitsOnly], // Only allow numbers
                           decoration: InputDecoration(
                             labelText: 'Room Price ${i + 1}',
                             enabledBorder: OutlineInputBorder(
@@ -254,6 +285,7 @@ class _PageFiveState extends State<PageFive> {
                               borderRadius: BorderRadius.circular(8.0),
                               borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
                             ),
+                            counterText: '', // Remove the max length counter
                           ),
                           style: GoogleFonts.montserrat(
                             textStyle: const TextStyle(
@@ -268,29 +300,6 @@ class _PageFiveState extends State<PageFive> {
                     ),
                   ],
                 ),
-              const SizedBox(height: 16),
-
-              // Save Button
-              SizedBox(
-                width: screenWidth * 0.9,
-                child: ElevatedButton(
-                  onPressed: _saveData,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Pallete.primary700,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    'Save',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
         ),

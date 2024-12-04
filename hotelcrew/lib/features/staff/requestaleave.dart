@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:file_picker/file_picker.dart';
-import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import "../../core/packages.dart";
@@ -19,7 +16,12 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
   final TextEditingController dateToController = TextEditingController();
   final TextEditingController reasonController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
-  File? selectedFile;
+  final FocusNode dateFromFocusNode = FocusNode();
+  final FocusNode dateToFocusNode = FocusNode();
+  final FocusNode reasonFocusNode = FocusNode();
+  final FocusNode descriptionFocusNode = FocusNode();
+
+  bool _isLoading = false;
 
   Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
     DateTime? selectedDate = await showDatePicker(
@@ -36,46 +38,36 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
     }
   }
 
-  
-
-  Future<void> _pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf'],
-    );
-
-    if (result != null) {
-      setState(() {
-        selectedFile = File(result.files.single.path!);
-      });
-    }
-  }
   String access_token = "";
 
   Future<void> getToken() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('access_token');
-  if (token == null || token.isEmpty) {
-    print('Token is null or empty');
-  } else {
-    setState(() {
-      access_token = token;
-    });
-    print('Token retrieved: $access_token');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    if (token == null || token.isEmpty) {
+      print('Token is null or empty');
+    } else {
+      setState(() {
+        access_token = token;
+      });
+      print('Token retrieved: $access_token');
+    }
   }
-}
 
   Future<void> _submitLeaveRequest() async {
     await getToken(); // Wait for the token to be retrieved
-  if (access_token.isEmpty) {
-    print('Access token is null or empty');
-    return;
-  }
+    if (access_token.isEmpty) {
+      print('Access token is null or empty');
+      return;
+    }
     if (_formKey.currentState!.validate()) {
       final String fromDate = dateFromController.text;
       final String toDate = dateToController.text;
       final String reason = reasonController.text;
       final String description = descriptionController.text;
+
+      setState(() {
+        _isLoading = true;
+      });
 
       try {
         final response = await http.post(
@@ -107,6 +99,10 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e')),
         );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
@@ -114,7 +110,6 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -139,64 +134,59 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
           ),
         ),
       ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    const SizedBox(height: 24),
-                    _buildTextField('Reason for Leave', reasonController),
-                    const SizedBox(height: 34),
-                    _buildDateField('Date From', dateFromController),
-                    const SizedBox(height: 34),
-                    _buildDateField('Date To', dateToController),
-                    const SizedBox(height: 34),
-                    _buildTextField('Description', descriptionController, maxLines: 4),
-                    const SizedBox(height: 34),
-                    _buildFilePickerField(),
-                    SizedBox(height: isKeyboardVisible ? 16 : 34),
-                    if (!isKeyboardVisible)
-            SizedBox(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              const SizedBox(height: 24),
+              _buildTextField('Reason for Leave', reasonController, reasonFocusNode),
+              const SizedBox(height: 34),
+              _buildDateField('Date From', dateFromController, dateFromFocusNode),
+              const SizedBox(height: 34),
+              _buildDateField('Date To', dateToController, dateToFocusNode),
+              const SizedBox(height: 34),
+              _buildTextField('Description', descriptionController, descriptionFocusNode, maxLines: 4),
+              const SizedBox(height: 130),
+              SizedBox(
                 width: screenWidth * 0.9,
                 child: ElevatedButton(
-                  onPressed: _submitLeaveRequest,
+                  onPressed: _isLoading ? null : _submitLeaveRequest,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Pallete.primary700,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    backgroundColor: const Color(0xFF5662AC),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: const Text(
-                    'Assign Task',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(color: Color(0xFFFAFAFA)),
+                        )
+                      : Text(
+                          'Assign Task',
+                          style: GoogleFonts.montserrat(
+                            textStyle: TextStyle(
+                              fontSize: screenWidth * 0.04,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
                 ),
               ),
-                  ],
-                ),
-              ),
-            ),
+              const SizedBox(height: 16), // Adjusted spacing
+            ],
           ),
-          
-            
-        ],
+        ),
       ),
     );
   }
 
-
-  Widget _buildTextField(String label, TextEditingController controller, {int maxLines = 1}) {
+  Widget _buildTextField(String label, TextEditingController controller, FocusNode focusNode, {int maxLines = 1}) {
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return '$label cannot be empty';
@@ -206,20 +196,27 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
       maxLines: maxLines,
       decoration: InputDecoration(
         labelText: label,
-        border: OutlineInputBorder(
+        enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(
-            color: Colors.grey.shade400,
+          borderSide: const BorderSide(
+            color: Pallete.neutral700,
             width: 1.0,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
           borderSide: const BorderSide(
-            color: Colors.blue,
+            color: Pallete.primary700,
             width: 2.0,
           ),
         ),
+        focusedErrorBorder: OutlineInputBorder( // Add this to handle focus with error
+        borderRadius: BorderRadius.circular(8.0),
+        borderSide: const BorderSide(
+          color: Colors.red,
+          width: 2.0,
+        ),
+      ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
           borderSide: const BorderSide(
@@ -227,13 +224,34 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
             width: 2.0,
           ),
         ),
+        suffixIcon: focusNode.hasFocus && controller.text.isNotEmpty
+            ? IconButton(
+                icon: SvgPicture.asset(
+                  'assets/removeline.svg',
+                  height: 24,
+                  width: 24,
+                ),
+                onPressed: () {
+                  controller.clear();
+                },
+              )
+            : null,
+      ),
+      style: GoogleFonts.montserrat(
+        textStyle: const TextStyle(
+          color: Pallete.neutral950,
+          fontWeight: FontWeight.w400,
+          fontSize: 16,
+          height: 1.5,
+        ),
       ),
     );
   }
 
-  Widget _buildDateField(String label, TextEditingController controller) {
+  Widget _buildDateField(String label, TextEditingController controller, FocusNode focusNode) {
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return '$label cannot be empty';
@@ -244,18 +262,20 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
       onTap: () => _selectDate(context, controller),
       decoration: InputDecoration(
         labelText: label,
-        suffixIcon: Icon(Icons.calendar_today, color: Colors.grey.shade600),
-        border: OutlineInputBorder(
+        suffixIcon: focusNode.hasFocus
+            ? Icon(Icons.calendar_today, color: Colors.grey.shade600)
+            : null,
+        enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(
-            color: Colors.grey.shade400,
+          borderSide: const BorderSide(
+            color: Pallete.neutral700,
             width: 1.0,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
           borderSide: const BorderSide(
-            color: Colors.blue,
+            color: Pallete.primary700,
             width: 2.0,
           ),
         ),
@@ -267,50 +287,14 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildFilePickerField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Attachments',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black,
-          ),
+      style: GoogleFonts.montserrat(
+        textStyle: const TextStyle(
+          color: Pallete.neutral950,
+          fontWeight: FontWeight.w400,
+          fontSize: 16,
+          height: 1.5,
         ),
-        const SizedBox(height: 8),
-        GestureDetector(
-          onTap: _pickFile,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8.0),
-              border: Border.all(
-                color: selectedFile == null ? Colors.grey.shade400 : Colors.blue,
-                width: 1.0,
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  selectedFile == null ? 'Add files' : selectedFile!.path.split('/').last,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: selectedFile == null ? Colors.grey.shade600 : Colors.black,
-                  ),
-                ),
-                Icon(Icons.attach_file, color: Colors.grey.shade600),
-              ],
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

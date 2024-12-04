@@ -3,6 +3,9 @@ import 'staffmanageleave.dart';
 import 'attendancesummary.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import "staffannouncement.dart";
+import '../../providers/shift_providers.dart'; // Import the shift provider
 
 class StaffAttendancePage extends StatefulWidget {
   const StaffAttendancePage({super.key});
@@ -22,37 +25,63 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
   int totalLeaveDays = 0;
   int totalDaysUpToToday = 0;
 
+  String shift = 'Loading..';
+  String shiftTime = '';
+
   final String attendanceApiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/month-check/';
   final String monthlyAttendanceApiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/month/';
 
   @override
   void initState() {
     super.initState();
+    getTokenAndFetchData();
+    fetchShiftData(); // Fetch shift data
+  }
+
+  String access_token = "";
+
+  Future<void> getTokenAndFetchData() async {
+    await getToken();
     fetchAttendanceData();
     fetchMonthlyAttendanceData();
   }
-  String access_token = "";
-   Future<void> getToken() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('access_token');
-  if (token == null || token.isEmpty) {
-    print('Token is null or empty');
-  } else {
-    setState(() {
-      access_token = token;
-    });
-    print('Token retrieved: $access_token');
-  }
-}
 
+  Future<void> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    if (token == null || token.isEmpty) {
+      print('Token is null or empty');
+    } else {
+      if (mounted) {
+        setState(() {
+          access_token = token;
+        });
+      }
+      print('Token retrieved: $access_token');
+    }
+  }
+
+  Future<void> fetchShiftData() async {
+    try {
+      ShiftProvider shiftProvider = ShiftProvider();
+      Map<String, String> shiftData = await shiftProvider.fetchShiftData();
+      if (mounted) {
+        setState(() {
+          shift = shiftData['shift']!;
+          shiftTime = shiftData['shiftTime']!;
+        });
+      }
+    } catch (e) {
+      print('Error fetching shift data: $e');
+    }
+  }
 
   Future<void> fetchAttendanceData() async {
-    await getToken(); // Wait for the token to be retrieved
-  if (access_token.isEmpty) {
-    print('Access token is null or empty');
-    return;
-  }
-    
+    if (access_token.isEmpty) {
+      print('Access token is null or empty');
+      return;
+    }
+
     if (isLoading || !hasMoreData) return;
 
     setState(() {
@@ -72,29 +101,38 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         List<Map<String, dynamic>> newAttendanceData = convertAttendanceData(data['results']);
-        setState(() {
-          attendanceData.addAll(newAttendanceData);
-          currentPage++;
-          hasMoreData = data['next'] != null;
-        });
+        if (mounted) {
+          setState(() {
+            attendanceData.addAll(newAttendanceData);
+            currentPage++;
+            hasMoreData = data['next'] != null;
+          });
+        }
       } else {
         print('Failed to load data. Status code: ${response.statusCode}');
       }
     } catch (e) {
       print('Error fetching data: $e');
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
   Future<void> fetchMonthlyAttendanceData() async {
+    if (access_token.isEmpty) {
+      print('Access token is null or empty');
+      return;
+    }
+
     try {
       final response = await http.get(
         Uri.parse(monthlyAttendanceApiUrl),
         headers: {
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
+          'Authorization': 'Bearer $access_token',
         },
       );
       print("%" * 50);
@@ -102,11 +140,13 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
       print(response.statusCode);
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        setState(() {
-          daysPresent = data['days_present'];
-          totalLeaveDays = data['leaves'];
-          totalDaysUpToToday = data['total_days_up_to_today'];
-        });
+        if (mounted) {
+          setState(() {
+            daysPresent = data['days_present'];
+            totalLeaveDays = data['leaves'];
+            totalDaysUpToToday = data['total_days_up_to_today'];
+          });
+        }
       } else {
         print('Failed to load monthly attendance data. Status code: ${response.statusCode}');
       }
@@ -132,6 +172,12 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
   }
 
   @override
+  void dispose() {
+    // Clean up any resources if needed
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     int daysAbsent = totalDaysUpToToday - daysPresent - totalLeaveDays;
@@ -144,7 +190,7 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
             padding: const EdgeInsets.only(right: 16, top: 16),
             child: InkWell(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const StaffAttendancePage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const StaffAnnouncementPage()));
               },
               splashColor: Colors.transparent, // Removes the splash effect
               highlightColor: Colors.transparent,
@@ -194,7 +240,7 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "Day Shift",
+                            shift[0].toUpperCase() + shift.substring(1),
                             style: GoogleFonts.montserrat(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -203,7 +249,7 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            "9:00 AM - 4:00 PM",
+                            shiftTime,
                             style: GoogleFonts.montserrat(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -326,6 +372,7 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
     );
   }
 
+
   Widget _buildOverviewCard(String title, String count, Color color) {
     return Container(
       width: MediaQuery.of(context).size.width * 0.28,
@@ -369,25 +416,34 @@ class AttendanceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 1,
       margin: const EdgeInsets.symmetric(vertical: 8),
-      child: ListTile(
-        title: Text(
-          date,
-          style: GoogleFonts.montserrat(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Pallete.neutral100,
+          borderRadius: BorderRadius.circular(8),
         ),
-        trailing: Text(
-          status,
-          style: GoogleFonts.montserrat(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: status == 'Present'
-                ? Pallete.success500
-                : status == 'Absent'
-                    ? Pallete.error500
-                    : Pallete.warning400,
+        child: ListTile(
+          title: Text(
+            date,
+            style: GoogleFonts.montserrat(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          trailing: Text(
+            status == 'Present' ? 'P' :
+            status == 'Absent' ? 'A' : 
+            status == 'Leave' ? 'L' : '',
+            style: GoogleFonts.montserrat(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: status == 'Present'
+                  ? Pallete.success500
+                  : status == 'Absent'
+                      ? Pallete.error700
+                      : Pallete.warning600,
+            ),
           ),
         ),
       ),

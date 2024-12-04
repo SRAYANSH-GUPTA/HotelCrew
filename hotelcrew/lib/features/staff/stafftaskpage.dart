@@ -12,6 +12,9 @@ class Task {
   final String status;
   final String deadline;
   final String assignedTo;
+  final String assignedBy;
+  final String createdat;
+  final String updatedat;
 
   Task({
     required this.id,
@@ -21,6 +24,9 @@ class Task {
     required this.status,
     required this.deadline,
     required this.assignedTo,
+    required this.assignedBy,
+    required this.createdat,
+    required this.updatedat,
   });
 
   // Factory method to create a Task object from JSON
@@ -33,6 +39,9 @@ class Task {
       status: json['status'] ?? "",
       deadline: json['deadline'] ?? "",
       assignedTo: json['assigned_to'] ?? "",
+      assignedBy: json['assigned_by'] ?? "",
+      createdat: json['created_at'] ?? "",
+      updatedat: json['updated_at'] ?? "",
     );
   }
 }
@@ -69,7 +78,7 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
   final url = 'https://hotelcrew-1.onrender.com/api/taskassignment/tasks/status/$taskId/';
   
   // Show loader
-  context.loaderOverlay.show();
+  // context.loaderOverlay.show();
   print(newStatus);
   try {
     final response = await http.patch(
@@ -102,6 +111,10 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
               status: data['status'],
               deadline: tasks[taskIndex].deadline,
               assignedTo: tasks[taskIndex].assignedTo,
+              assignedBy: tasks[taskIndex].assignedBy,
+              createdat: tasks[taskIndex].createdat,
+              updatedat: DateTime.now().toUtc().toIso8601String(),
+              
             );
             _applyFilter();
           }
@@ -143,7 +156,7 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
     );
   } finally {
     // Hide loader
-    context.loaderOverlay.hide();
+    // context.loaderOverlay.hide();
   }
 }
 
@@ -162,9 +175,13 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
   }
 
   Future<void> fetchTasks() async {
+    print("^"*100);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
     // getToken();
+  
     if (isLoading || !hasMore) return;
-
+  print("%"*100);
     setState(() {
       isLoading = true;
     });
@@ -173,10 +190,11 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
       final response = await http.get(
         Uri.parse(nextPageUrl),
         headers: {
-          'Authorization': 'Bearer $access_token',
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
+      print(response.statusCode);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -232,6 +250,7 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
                         icon: const Icon(Icons.close),
                         onPressed: () {
                           Navigator.pop(context);
+                          
                         },
                       ),
                     ],
@@ -285,9 +304,23 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
                     child: ElevatedButton(
                      onPressed: () {
   if (selectedStatus.isNotEmpty) {
+    if(task.status == "Completed") {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('The Task is Completed'),
+        ),
+      );
+      return;
+    }
     updateTaskStatus(task.id, selectedStatus);
+    
     print("^^^^^^");
     Navigator.pop(context);
+    setState(() {
+      isLoading = true;
+    });
+    fetchTasks();
   } else {
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -489,7 +522,10 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
                           ),
                           children: [
                             TextSpan(
-                              text: task.deadline,
+                              text: task.deadline.isNotEmpty 
+    ? "${DateTime.parse(task.deadline).toLocal().hour}:${DateTime.parse(task.deadline).toLocal().minute.toString().padLeft(2, '0')}"
+    : "None",
+
                               style: GoogleFonts.montserrat(
                                 textStyle: const TextStyle(
                                   fontSize: 12,
@@ -530,7 +566,7 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
                 ),
                 children: [
                   TextSpan(
-                    text: task.assignedTo,
+                    text: task.assignedBy,
                     style: GoogleFonts.montserrat(
                       textStyle: const TextStyle(
                         fontSize: 12,
@@ -562,7 +598,8 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
                           ),
                         ),
                         TextSpan(
-                          text: '11:00 PM',
+                          text: "${DateTime.parse(task.updatedat).toLocal().hour}:${DateTime.parse(task.updatedat).toLocal().minute.toString().padLeft(2, '0')}",
+
                           style: GoogleFonts.montserrat(
                             textStyle: const TextStyle(
                               fontSize: 12,
@@ -578,7 +615,8 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
                 Align(
                   alignment: Alignment.bottomRight,
                   child: Text(
-                    '11:00 PM',
+                    "${DateTime.parse(task.createdat).toLocal().hour}:${DateTime.parse(task.createdat).toLocal().minute.toString().padLeft(2, '0')}",
+
                     style: GoogleFonts.montserrat(
                       textStyle: const TextStyle(
                         fontSize: 12,
@@ -598,55 +636,57 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Task Management',
-          style: GoogleFonts.montserrat(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+    return GlobalLoaderOverlay(
+      child: Scaffold(backgroundColor: Pallete.pagecolor,
+        appBar: AppBar(
+          title: Text(
+            'Task Management',
+            style: GoogleFonts.montserrat(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
+          backgroundColor: Pallete.pagecolor,
+          iconTheme: const IconThemeData(color: Colors.white),
         ),
-        backgroundColor: Pallete.pagecolor,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: FutureBuilder<void>(
-        future: fetchTasks(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: _buildFilterChips(),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: filteredTasks.length + (hasMore ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == filteredTasks.length) {
-                        fetchTasks();
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                      return GestureDetector(
-                        onTap: () {
-                          _showStatusUpdateBottomSheet(filteredTasks[index]);
-                        },
-                        child: _buildTaskCard(filteredTasks[index]),
-                      );
-                    },
+        body: FutureBuilder<void>(
+          future: fetchTasks(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return const Center(child: Text('No Task Found'));
+            } else {
+              return Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: _buildFilterChips(),
                   ),
-                ),
-              ],
-            );
-          }
-        },
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: filteredTasks.length + (hasMore ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == filteredTasks.length) {
+                          fetchTasks();
+                          return Center(
+                            child: Container(),
+                          );
+                        }
+                        return GestureDetector(
+                          onTap: () {
+                            _showStatusUpdateBottomSheet(filteredTasks[index]);
+                          },
+                          child: _buildTaskCard(filteredTasks[index]),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            }
+          },
+        ),
       ),
     );
   }
@@ -694,8 +734,11 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
     setState(() {
       if (selectedFilter == "All") {
         filteredTasks = tasks;
+
       } else {
         filteredTasks = tasks.where((task) => task.status == selectedFilter).toList();
+        
+        
       }
     });
   }

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
 import '../model/createtaskmodel.dart';
 
 class TaskViewModel {
@@ -12,7 +13,7 @@ class TaskViewModel {
     return prefs.getString('access_token');
   }
 
-  Future<void> assignTask(Task task) async {
+  Future<void> assignTask(Task task, BuildContext context) async {
     try {
       final token = await _getToken();
       if (token == null) {
@@ -25,7 +26,7 @@ class TaskViewModel {
         options: Options(
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA2MTA1LCJpYXQiOjE3MzI2MTQxMDUsImp0aSI6IjFmYWI0NTI4MTQzNDRhNTU5MGY3Y2YzYzFlMzc4YmFmIiwidXNlcl9pZCI6OTB9.JjlVfhXpewcsFv6V1JN8Q5L2C7WHMVOUwgKKp7ZtFDc',
+            'Authorization': 'Bearer $token', // Use the retrieved token
           },
         ),
       );
@@ -34,15 +35,33 @@ class TaskViewModel {
       print(response.statusCode);
       if (response.statusCode == 201) {
         print('Task Created Successfully: ${response.data}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Task Created Successfully: ${response.data['message']}'),
+            backgroundColor: Colors.green,
+          ),
+        );
       } else {
-        throw Exception('Failed to create task');
+        throw Exception('Failed to create task: ${response.data['message']}');
       }
     } on DioException catch (e) {
       if (e.response != null) {
         print('Error Response: ${e.response?.data}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.response?.data['message'] ?? 'Failed to create task'),
+            backgroundColor: Colors.red,
+          ),
+        );
         throw Exception(e.response?.data['message'] ?? 'Failed to create task');
       } else {
         print('Error: ${e.message}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An error occurred. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
         throw Exception('An error occurred. Please try again.');
       }
     }

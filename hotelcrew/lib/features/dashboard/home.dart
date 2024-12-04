@@ -6,6 +6,7 @@ import 'payroll.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import "viewmodel/getleaveviewmodel.dart";
+import 'analytics.dart' as ana;
 
 class DashHomePage extends StatefulWidget {
   const DashHomePage({super.key});
@@ -24,7 +25,7 @@ class _DashHomePageState extends State<DashHomePage> {
   final leaveCountViewModel = LeaveCountViewModel();
   List<Map<String, dynamic>> leaveRequests = [];
 
-  List<int> weeklyStaffperformance = [7, 8, 6, 5, 7, 10, 8];
+  List<double> weeklyStaffperformance = [];
   Map<String, double> staffAttendancePieData = {
     "Present": 70,
     "Absent": 20,
@@ -41,17 +42,106 @@ class _DashHomePageState extends State<DashHomePage> {
   bool isLoadingRoomData = true;
   bool isLoadingAttendanceData = true;
   bool isLoadingStaffData = true;
-  List<double> financialData = [40, 50, 60, 60, 90, 70, 90];
+  List<double> financialData = [];
+
+
+void fetchWeeklyRevenue() async {
+  // Retrieve the token from shared preferences
+   SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    print("^^^^"*50);
+    print(token);
+
+  // Define the API endpoint
+  const url = 'https://hotelcrew-1.onrender.com/api/statics/finance/week/';
+
+  // Make the GET request
+  final response = await http.get(
+    Uri.parse(url),
+    headers: {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    },
+  );
+  print("@"*100);
+  print(response.statusCode);
+  print(response.body);
+
+  // Check the response status
+  if (response.statusCode == 200) {
+    final Map<String, dynamic> data = jsonDecode(response.body);
+
+    // Extract the daily stats
+    final List<dynamic> dailyStats = data['daily_stats'];
+
+    // Map the revenue to a list of doubles
+    final List<double> totalRevenue = dailyStats
+        .map<double>((item) => (item['total_revenue'] ?? 0).toDouble())
+        .toList();
+
+    setState(() {
+      financialData = totalRevenue;
+    });
+  } else {
+    // Throw an exception for any unsuccessful response
+    throw Exception('Failed to fetch weekly revenue: ${response.statusCode}');
+  }
+}
+
+
+
+
+
+void fetchStaffPerformanceData() async {
+ SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    print("^^^^"*50);
+    print(token);
+
+    // Make a GET request to the API
+    final response = await http.get(
+      Uri.parse('https://hotelcrew-1.onrender.com/api/statics/performance/hotel/week/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    print("*"*100);
+    print(response.statusCode);
+    print(response.body);
+    // If the response is successful
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final weeklyStats = data['weekly_stats'] as List;
+
+      // Extract the performance percentages into a list of doubles
+      List<double> performancePercentages = weeklyStats
+          .map((stat) => stat['performance_percentage'] as double)
+          .toList();
+
+      setState(() {
+        weeklyStaffperformance = performancePercentages;
+      });
+    
+  
+    } else {
+      print('Failed with status: ${response.statusCode}');
+    }
+}
+
+
 
   void fetchAvailableStaff() async {
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
     const url = 'https://hotelcrew-1.onrender.com/api/taskassignment/staff/available/';
-    const token = '<your-jwt-token>'; // Replace with your actual token
+// Replace with your actual token
 
     try {
       final response = await http.get(
         Uri.parse(url),
         headers: {
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
@@ -94,9 +184,11 @@ class _DashHomePageState extends State<DashHomePage> {
   }
 
   Future<void> approveLeaveRequest(String leaveId, String status) async {
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
     final String url = 'https://hotelcrew-1.onrender.com/api/attendance/leave_approve/$leaveId/';
     final Map<String, String> headers = {
-      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
+      'Authorization': 'Bearer $token',
       'Content-Type': 'application/json',
     };
 
@@ -152,12 +244,14 @@ class _DashHomePageState extends State<DashHomePage> {
   String Roles = "";
 
   Future<void> fetchRoomPieData() async {
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
     const String apiUrl = "https://hotelcrew-1.onrender.com/api/hoteldetails/all-rooms/";
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
         headers: {
-          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs",
+          "Authorization": "Bearer $token",
           "Content-Type": "application/json",
         },
       );
@@ -191,9 +285,10 @@ class _DashHomePageState extends State<DashHomePage> {
   }
 
   Future<void> fetchAttendancePieData() async {
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
     const String apiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/week-stats/';
-    const String token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs";
+    
 
     try {
       final response = await http.get(
@@ -257,8 +352,11 @@ class _DashHomePageState extends State<DashHomePage> {
     super.initState();
     getrole();
     fetchRoomPieData();
+    fetchStaffPerformanceData();
+    fetchWeeklyRevenue();
     fetchAvailableStaff();
     fetchAttendancePieData();
+    fetchWeeklyRevenue();
     getdata(); // Fetch data during initialization
   }
 
@@ -268,6 +366,7 @@ class _DashHomePageState extends State<DashHomePage> {
     final screenHeight = MediaQuery.of(context).size.height;
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Pallete.pagecolor,
         appBar: AppBar(
           title: Text(
             'Good Morning, User',
@@ -366,7 +465,7 @@ class _DashHomePageState extends State<DashHomePage> {
                     ),
                 ],
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 32),
               if (Roles == "Admin")
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -420,7 +519,14 @@ class _DashHomePageState extends State<DashHomePage> {
                       width: screenWidth * 0.428,
                       child: HomeButtonWidget(
                         title: 'Analytics', // Title for the button
-                        onPressed: onPressedList[2], // The callback from the onPressedList at index 2
+                        onPressed:() {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ana.AnalyticsPage(),
+                            ),
+                          );
+                        },  // The callback from the onPressedList at index 2
                         icon: 'assets/analyticsdash.svg', // Path to the SVG icon for Analytics
                         screenWidth: MediaQuery.of(context).size.width, // Get screen width dynamically
                         color: Pallete.primary800, // Background color from your Pallete
@@ -457,9 +563,13 @@ class _DashHomePageState extends State<DashHomePage> {
               ),
               const SizedBox(height: 24),
               Container(
-                color: Pallete.primary50,
-                width: screenWidth * 0.92,
-                height: 210,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Pallete.primary50,
+                  border: Border.all(color: Pallete.primary100, width: 1)),
+                
+                width: screenWidth * 0.9,
+                height: 200,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: BarChartWidget(weeklyStaffperformance),
@@ -498,7 +608,7 @@ class _DashHomePageState extends State<DashHomePage> {
                                 title: 'Staff Attendance',
                                 data: staffAttendancePieData,
                                 colors: const {
-                                  "Present": Pallete.success500,
+                                  "Present": Color(0xFF34A853),
                                   "Absent": Pallete.error500,
                                   "Leave": Pallete.warning300,
                                 },
@@ -580,15 +690,20 @@ class _DashHomePageState extends State<DashHomePage> {
               const SizedBox(height: 10),
               const SizedBox(height: 20),
               Container(
-                color: Pallete.primary50,
-                height: 283,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Pallete.primary50,
+                  border: Border.all(color: Pallete.primary100, width: 1)),
+          
                 width: screenWidth * 0.9,
                 child: Container(
-                  padding: const EdgeInsets.all(16),
-                  child: LineChartWidget(financialData),
+                   
+                
+      
+                  child: LineChartWidget(doubleData: financialData,),
                 ),
               ),
-              const SizedBox(height: 60),
+              const SizedBox(height: 30),
             ],
           ),
         ),
@@ -596,6 +711,8 @@ class _DashHomePageState extends State<DashHomePage> {
     );
   }
 }
+
+
 
 class GeneralListDisplay<T> extends StatelessWidget {
   final List<T> items;
@@ -619,9 +736,12 @@ class GeneralListDisplay<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isEmpty = items.isEmpty;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Header
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -629,7 +749,7 @@ class GeneralListDisplay<T> extends StatelessWidget {
               title,
               style: GoogleFonts.montserrat(
                 textStyle: const TextStyle(
-                  color: Pallete.neutral1000,
+                  color: Color(0xFF000000),
                   fontWeight: FontWeight.w600,
                   fontSize: 16,
                   height: 1.5,
@@ -658,46 +778,100 @@ class GeneralListDisplay<T> extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        items.isEmpty
-            ? const Center(
-                child: Text(
-                  'No results found',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey,
-                  ),
+
+        // Content
+        if (isEmpty)
+          Center(
+            child: Column(
+              children: [
+                SvgPicture.asset(
+                  'assets/emptypendingleavedash.svg', // Replace with your image path
+                  height: 36,
+                  width: 316,
                 ),
-              )
-            : ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  final item = items[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    child: ListTile(
-                      title: Text(getTitle(item)),
-                      subtitle: Text(getSubtitle(item)),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
+                const SizedBox(height: 8),
+               
+              ],
+            ),
+          )
+        else
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: items.length > 2 ? 2 : items.length, // Show only 2 items
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFCCE5FF), width: 1),
+                ),
+                child: Row(
+                  children: [
+                    // Title and Subtitle
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          IconButton(
-                            icon: const Icon(Icons.check, color: Colors.green),
-                            onPressed: () => onApprove(item),
+                          Text(
+                            getTitle(item),
+                            style: GoogleFonts.montserrat(
+                              textStyle: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: Pallete.neutral1000,
+                              ),
+                            ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.close, color: Colors.red),
-                            onPressed: () => onReject(item),
+                          const SizedBox(height: 4),
+                          Text(
+                            getSubtitle(item),
+                            style: GoogleFonts.montserrat(
+                              textStyle: const TextStyle(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 12,
+                                color: Pallete.neutral900,
+                              ),
+                            ),
                           ),
                         ],
                       ),
                     ),
-                  );
-                },
-              ),
+                    const SizedBox(width: 16),
+
+                    // Approve and Reject Buttons
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () => onApprove(item),
+                          child: SvgPicture.asset(
+                            'assets/tickdash.svg',
+                            height: 24,
+                            width: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        GestureDetector(
+                          onTap: () => onReject(item),
+                          child: SvgPicture.asset(
+                            'assets/crossdash.svg',
+                            height: 24,
+                            width: 24,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
       ],
     );
   }
 }
+
+

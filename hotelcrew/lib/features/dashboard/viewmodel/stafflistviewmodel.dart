@@ -6,36 +6,7 @@ class CustomerDatabaseViewModel {
 
     // Sample customer data
     return [
-      {
-        'name': 'John Doe',
-        'customerId': '1234567890',
-        'email': 'abcd123@gmail.com',
-        'contact': '9876543210',
-        'room': '301',
-        'checkIn': '20-03-2024',
-        'checkOut': '20-05-2024',
-        'status': 'Regular',
-      },
-      {
-        'name': 'Jane Smith',
-        'customerId': '0987654321',
-        'email': 'janesmith@gmail.com',
-        'contact': '1234567890',
-        'room': '302',
-        'checkIn': '22-03-2024',
-        'checkOut': '22-05-2024',
-        'status': 'VIP',
-      },
-      {
-        'name': 'Mark Johnson',
-        'customerId': '1122334455',
-        'email': 'markjohnson@gmail.com',
-        'contact': '5566778899',
-        'room': '303',
-        'checkIn': '25-03-2024',
-        'checkOut': '25-05-2024',
-        'status': 'Regular',
-      },
+      
     ];
   }
 

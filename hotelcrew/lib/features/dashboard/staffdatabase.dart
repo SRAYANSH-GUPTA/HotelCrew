@@ -310,6 +310,8 @@ Future<void> fetchAttendanceData({String? department}) async {
   setState(() {
     isLoading = true;
   });
+   SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? accessToken = prefs.getString('access_token');
 
   try {
     final response = await _dio.get(
@@ -317,7 +319,7 @@ Future<void> fetchAttendanceData({String? department}) async {
       options: Options(
         validateStatus: (status) => status! < 501,
         headers: {
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
+          'Authorization': 'Bearer $accessToken',
         },
       ),
       queryParameters: department != null ? {'department': department} : null,
@@ -728,9 +730,11 @@ Future<void> updateStaff(BuildContext context, {
   required String shift,
 }) async {
   final String url = 'https://hotelcrew-1.onrender.com/api/edit/update/$userId/';
+   SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? accessToken = prefs.getString('access_token');
   
   final Map<String, String> headers = {
-    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
+    'Authorization': 'Bearer $accessToken',
     'Content-Type': 'application/json',
   };
 
@@ -968,9 +972,11 @@ void showEditStaffBottomSheet(BuildContext context,
 
  Future<void> deleteItem(int id) async {
     final String url = 'https://hotelcrew-1.onrender.com/api/edit/delete/$id/';
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? accessToken = prefs.getString('access_token');
     print(id);
     final Map<String, String> headers = {
-      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
+      'Authorization': 'Bearer $accessToken',
       'Content-Type': 'application/json',
     };
 

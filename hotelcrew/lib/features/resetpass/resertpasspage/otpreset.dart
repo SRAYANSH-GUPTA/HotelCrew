@@ -97,6 +97,7 @@ class _OtpresetState extends State<Otpreset> {
                           child: SizedBox(
                             width: 256,
                             child: Pinput(
+                              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               length: 4,
