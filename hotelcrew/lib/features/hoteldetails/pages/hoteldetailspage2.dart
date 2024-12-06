@@ -77,28 +77,34 @@ class _ProgressPageViewState extends State<ProgressPageView> {
     await prefs.remove('types'); // Clear room details
   }
 
-  Future<void> uploadData({String? filePath, String? fileName}) async {
-    try {
-      log('Uploading data');
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final accessToken = prefs.getString('access_token') ?? "";
-      // String fileaddress = prefs.getString('filepath') ?? "";
+Future<void> uploadData({String? filePath, String? fileName}) async {
+  try {
+    log('Uploading data');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('access_token') ?? "";
+    print(accessToken);
+    if (accessToken.isEmpty) {
+      log("Access token is missing.");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Access token is missing."), backgroundColor: Colors.red),
+      );
+      return;
+    }
 
-      Dio dio = Dio();
-      dio.options.headers = {
-        'Content-Type': 'multipart/form-data',
-        'Authorization': 'Bearer $accessToken',
-      };
-      dio.options.validateStatus = (status) => true; // Allows all responses for debugging
+    Dio dio = Dio();
+    dio.options.headers = {
+      'Content-Type': 'application/json', // Set Content-Type to JSON
+      'Authorization': 'Bearer $accessToken',
+    };
+     dio.options.validateStatus = (status) => true; // Allows all responses for debugging
 
-      // Retrieve room details from SharedPreferences
-      String? roomsJson = prefs.getString('room_types');
-      print(roomsJson);
-      print("&"*100);
-      List<Map<String, dynamic>> rooms = roomsJson != null ? List<Map<String, dynamic>>.from(jsonDecode(roomsJson)) : [];
-      print(rooms);
-      Map<String, dynamic> formDataMap = {
-        'user': prefs.getString('userid'),
+    // Retrieve room details from SharedPreferences
+    String? roomsJson = prefs.getString('room_types');
+    List<Map<String, dynamic>> rooms = roomsJson != null ? List<Map<String, dynamic>>.from(jsonDecode(roomsJson)) : [];
+
+    // Prepare raw JSON body
+    Map<String, dynamic> rawData = {
+       'user': prefs.getString('userid'),
         'hotel_name': prefs.getString('hotel_name'),
         'legal_business_name': prefs.getString('legal_business_name'),
         'year_established': prefs.getString('year_established'),
@@ -117,41 +123,24 @@ class _ProgressPageViewState extends State<ProgressPageView> {
         'room_price': prefs.getString('price') ?? '',
         'number_of_departments': 2,
         'department_names': 'Reception, Housekeeping, Maintenance, Kitchen, Security',
-        'room_types': roomsJson, // Add room details to the form data
-        // 'staff_excel_sheet': await MultipartFile.fromFile(fileaddress, filename: fileName),
-      };
-      print("-"*100);
-      print(roomsJson.toString());
-      print(formDataMap);
+      "room_types": rooms, // Use the room types list
+    };
 
-      // if (fileaddress == null && fileName == null && fileaddress.isEmpty) {
-      //   // formDataMap['staff_excel_sheet'] = await MultipartFile.fromFile(fileaddress, filename: fileName);
-      //   print(" not uploaded");
-      //   print("%"*100);
-      //    ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(
-      //       content: Text("Upload file First"),
-      //       backgroundColor: Colors.red,
-      //     ),
-      //   );
-      //   return;
+    log("Raw Data: $rawData");
+    print("Raw Data: $rawData");
+    print("&"*100);
 
-      // }
-      // print(rooms);
-      print("*"*100);
-      FormData formData = FormData.fromMap(formDataMap);
-      print("&"*7);
-      // print(fileaddress);
-      print(prefs.get("filename"));
-      Response response = await dio.post(
-        'https://hotelcrew-1.onrender.com/api/hoteldetails/registe/',
-        data: formData,
-      );
-      print(response.statusCode);
-      print("&"*100);
-      print('Response: ${response.data}');
-      // Handle responses based on status code
-      if (response.statusCode == 201) {
+    // Send POST request
+    Response response = await dio.post(
+      'https://hotelcrew-1.onrender.com/api/hoteldetails/register/',
+      data: jsonEncode(rawData), // Encode raw data as JSON
+    );
+
+    print("^"*100);
+  print(response.statusCode);
+  print(response.data);
+    // Handle response
+   if (response.statusCode == 201) {
         print('Upload successful: ${response.data['message']}');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -220,6 +209,7 @@ class _ProgressPageViewState extends State<ProgressPageView> {
       } else if (e.type == DioExceptionType.receiveTimeout) {
         errorMessage = "Server response timeout. Please try again later.";
       } else if (e.type == DioExceptionType.badResponse) {
+        print(e.response?.data);
         errorMessage = e.response?.data['message'] ?? "Invalid response from server.";
       }
       ScaffoldMessenger.of(context).showSnackBar(
