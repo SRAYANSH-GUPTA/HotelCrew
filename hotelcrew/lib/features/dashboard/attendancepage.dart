@@ -211,14 +211,7 @@ void getrole() async {
                               });
                               fetchAttendanceData(department: newValue != 'All Staff' ? newValue : null);
                             },
-                            items: <String>[
-                              'All Staff',
-                              'Housekeeping',
-                              'Security',
-                              'Maintenance',
-                              'Receptionist',
-                              'Manager'
-                            ].map<DropdownMenuItem<String>>((String value) {
+                            items: dept.map<DropdownMenuItem<String>>((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
                                 child: Text(

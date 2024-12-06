@@ -149,25 +149,43 @@ void showAddStaffBottomSheet(BuildContext context) {
                     ),
                   ),
                   const SizedBox(height: 38),
-                  TextFormField(
-                    controller: shiftController, // Add controller
-          validator: (value) => value?.isEmpty ?? true ? 'This is required' : null,
-                    decoration: InputDecoration(
-                      labelText: "Shift",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
-                      ),
-                    ),
-                  ),
+                  DropdownButtonFormField<String>(
+  value: shiftController.text.isNotEmpty ? shiftController.text : null,
+  items: [
+    DropdownMenuItem(
+      value: 'Morning',
+      child: Text('Morning'),
+    ),
+    DropdownMenuItem(
+      value: 'Evening',
+      child: Text('Evening'),
+    ),
+    DropdownMenuItem(
+      value: 'Night',
+      child: Text('Night'),
+    ),
+  ],
+  onChanged: (value) {
+    shiftController.text = value ?? '';  // Update the controller with the selected value
+  },
+  validator: (value) => value?.isEmpty ?? true ? 'This is required' : null,
+  decoration: InputDecoration(
+    labelText: "Shift",
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8.0),
+      borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8.0),
+      borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8.0),
+      borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
+    ),
+  ),
+),
+
                   const SizedBox(height: 38),
                   // Styled Button
                   SizedBox(
@@ -1035,7 +1053,7 @@ void showEditStaffBottomSheet(BuildContext context,
                   child: ElevatedButton(
                     onPressed: () async {
                       if (formKey.currentState?.validate() ?? false) {
-                        context.loaderOverlay.show();
+                  
 
                         await updateStaff(
                           context,

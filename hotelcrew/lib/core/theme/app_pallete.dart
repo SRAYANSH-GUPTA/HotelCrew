@@ -36,12 +36,14 @@ class Pallete {
   static const error200 = Color(0xFFFFC5C5);
   static const error100 = Color(0xFFFFDFDF);
   static const error500 = Color(0xFFFF4D4D);
+  static const error1000 = Color(0xFFEA4335);
   static const warning200 = Color(0xFFFFE4A8);
   static const warning600 = Color(0xfffef7a07);
   static const warning100 = Color(0xFFFFF3D4);
   static const warning300 = Color(0xFFFFCF71);
   static const warning700 = Color(0xFFC65C08);
   static const success200 = Color(0xFFC8EAC9);
+  static const success1000 = Color(0xFF34A853);
   static const success700 = Color(0xFF2D6830);
   static const success400 = Color(0xFF6BBD6E);
   static const success600 = Color(0xFF358438);

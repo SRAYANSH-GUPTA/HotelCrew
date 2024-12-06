@@ -65,36 +65,7 @@ void fetchDepartments(BuildContext context) async {
 
 
   List<dynamic> attendanceList = [
-    {
-      'user_name': 'John Doe',
-      "user_id": "1",
-      'department': 'Housekeeping',
-      'attendance': 'Present',
-    },
-    {
-      'user_name': 'Jane Smith',
-      "user_id": "7",
-      'department': 'Receptionist',
-      'attendance': 'Absent',
-    },
-    {
-      'user_name': 'David Johnson',
-      "user_id": "4",
-      'department': 'Security',
-      'attendance': 'Present',
-    },
-    {
-      'user_name': 'Emily Davis',
-      "user_id": "3",
-      'department': 'Maintenance',
-      'attendance': 'Absent',
-    },
-    {
-      'user_name': 'Michael Brown',
-      "user_id": "2",
-      'department': 'Manager',
-      'attendance': 'Present',
-    },
+  
   ];
 
   @override

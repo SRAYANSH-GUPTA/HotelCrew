@@ -59,7 +59,7 @@ class _DashboardPageState extends State<DashboardPage> {
               textStyle: const TextStyle(
                 fontWeight: FontWeight.w500,
                 fontSize: 12,
-                color: Pallete.neutral950
+                color: Color(0xFF2D3439),
               ),
             ),// Same size as unselected
             selectedLabelStyle: GoogleFonts.montserrat(

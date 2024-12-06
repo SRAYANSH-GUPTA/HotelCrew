@@ -3,6 +3,9 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart'; // Add this import for date formatting
 import "../../core/packages.dart"; // Add the correct path to your palette
 import 'analyticschart.dart' as chart; 
+import 'package:http/http.dart' as http;
+import "dart:convert";
+
 import 'package:flutter/material.dart';// Import the bar chart widget
  // Import the bar chart widget
 
@@ -18,64 +21,149 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   final DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
+ 
+
+
+void fetchPerformanceData() async {
+  print("^"*100);
+   SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    print("^^^^"*50);
+    print(token);
+
+  final url = Uri.parse('https://hotelcrew-1.onrender.com/api/statics/performance/hotel/past7/');
+  final headers = {
+    'Authorization': 'Bearer $token',
+  };
+
+
+  final response = await http.get(url, headers: headers);
+  print(response.body);
+  print(response.statusCode);
+  if (response.statusCode == 200) {
+    final Map<String, dynamic> data = jsonDecode(response.body);
+    print(data);
+    // Map the response data to the required format
+    final Map<String, double> performanceData = {};
+    final weeklyStats = data['weekly_stats'] as List;
+    print(weeklyStats);
+    print("^"*100);
+
+    for (var stat in weeklyStats) {
+      print("1");
+      final date = stat['date'] as String;
+      print("2");
+      final performancePercentage = stat['performance_percentage'] as double;
+      print("3");
+      final formattedDate = _formatDate(date);  // Format the date to 'dd/MM'
+
+      performanceData[formattedDate] = performancePercentage;
+      print(performanceData);
+    }
+    print(performanceData);
+    print("&"*100);
+    // convertPerformanceDataToSampleData(performanceData);
+    setState(() {
+      sampleData = performanceData;
+    });
+
+    
+  } else {
+    throw Exception('Failed to load performance data');
+  }
+}
+
+
+void fetchAttendanceData() async {
+   SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    print("^^^^"*50);
+    print(token);
+  final url = Uri.parse('https://hotelcrew-1.onrender.com/api/attendance/week-stats/');
+  final headers = {
+    'Authorization': 'Bearer $token',
+  };
+
+  final response = await http.get(url, headers: headers);
+  print(response.body);
+  print(response.statusCode);
+  if (response.statusCode == 200) {
+    final Map<String, dynamic> data = jsonDecode(response.body);
+    final List<String> dates = List<String>.from(data['dates']);
+    final List<int> totalCrewPresent = List<int>.from(data['total_crew_present']);
+    final List<int> totalStaffAbsent = List<int>.from(data['total_staff_absent']);
+    
+    List<Map<String, dynamic>> formattedData = [];
+
+    for (int i = 0; i < dates.length; i++) {
+      final date = dates[i];
+      final present = totalCrewPresent[i];
+      final absent = totalStaffAbsent[i];
+      final total = present + absent;
+
+      // Format date to "dd/MM"
+      final formattedDate = _formatDate(date);
+
+      // Add the formatted data to the list
+      formattedData.add({
+        'date': formattedDate,
+        'present': present,
+        'absent': absent,
+        'total': total,
+      });
+    }
+
+    // Update the dailyData list using setState
+    setState(() {
+      dailyData = formattedData;
+    });
+
+  } else {
+    throw Exception('Failed to load attendance data');
+  }
+}
+
+
+String _formatDate(String date) {
+  final parts = date.split('-');
+  final dayAndMonth = '${parts[2]}/${parts[1]}';  // Format as "dd/MM"
+  return dayAndMonth;
+}
+
+
+Map<String, double> convertPerformanceDataToSampleData(List<Map<String, dynamic>> performanceData) {
+  Map<String, double> formattedData = {};
+
+  // Iterate over the performance data and format the date
+  for (var stat in performanceData) {
+    final String date = stat['date'];
+    final double performancePercentage = stat['performance_percentage'];
+
+    // Extract the day and month from the date (in the format 'yyyy-MM-dd')
+    final DateTime dateTime = DateTime.parse(date);
+    final String formattedDate = DateFormat('dd/MM').format(dateTime);
+
+    // Add the formatted date and performance percentage to the map
+    formattedData[formattedDate] = performancePercentage;
+  }
+
+  return formattedData;
+}
+
+
+
+  Map<String, double> sampleData = {
+    
+  };
+
   // Weekly attendance data
   // Daily attendance data from 13/11 to 23/11
-  final List<Map<String, dynamic>> dailyData = [
-    {
-      'date': '13/11',
-      'present': 42,
-      'absent': 3,
-      'total': 45
-    },
-    {
-      'date': '14/11',
-      'present': 44,
-      'absent': 2,
-      'total': 46
-    },
-    {
-      'date': '15/11',
-      'present': 43,
-      'absent': 3,
-      'total': 46
-    },
-    {
-      'date': '16/11',
-      'present': 45,
-      'absent': 1,
-      'total': 46
-    },
-    {
-      'date': '17/11',
-      'present': 41,
-      'absent': 4,
-      'total': 45
-    },
-    {
-      'date': '20/11',
-      'present': 44,
-      'absent': 2,
-      'total': 46
-    },
-    {
-      'date': '21/11',
-      'present': 43,
-      'absent': 2,
-      'total': 45
-    },
-    {
-      'date': '22/11',
-      'present': 45,
-      'absent': 1,
-      'total': 46
-    },
-    {
-      'date': '23/11',
-      'present': 42,
-      'absent': 3,
-      'total': 45
-    },
+  List<Map<String, dynamic>> dailyData = [
+  
+  
   ];
+
+
 
   // Sample data for the bar chart, you can fetch this based on the selected date
   final Map<String, List<int>> performanceData = {
@@ -133,7 +221,9 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   @override
   void initState() {
     super.initState();
-    _updateBarChartData();
+    fetchPerformanceData();
+    fetchAttendanceData();
+    // _updateBarChartData();
   }
 
   // Update the bar chart data based on selected date
@@ -160,7 +250,9 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
+      backgroundColor: Pallete.pagecolor,
       appBar: AppBar(
+        backgroundColor: Pallete.pagecolor,
         titleSpacing: 0,
         leading: InkWell(
           onTap: () {
@@ -222,31 +314,108 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
               const SizedBox(height: 20),
 
               // Text for metrics
-              const Text(
-                'Staff Performance Metrics',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 20),
+              Text(
+  'Staff Performance Metrics',
+  style: GoogleFonts.montserrat(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    height: 24 / 16, // line-height in px / font-size in px
+    textBaseline: TextBaseline.alphabetic, // Ensure proper text alignment
+  ),
+  textAlign: TextAlign.left, // Align text to the left
+),
 
+              const SizedBox(height: 20),
+Container(
+                color: Pallete.primary50,
+                width: screenWidth*0.9,
+                height: 220,
+                child: Column(
+                  children: [Padding(
+                    padding: const EdgeInsets.only(left: 12.0,right: 12.0,top: 12.0),
+                    child: Container(
+                      height: 200,
+                      width: screenWidth*0.9,
+                      child: WeeklyBarChart(sampleData)),
+                  ),
+                  
+
+                  ]
+                )),
               // Bar chart widget using the new BarChartWidget
-              BarChartWidget(dailyData: dailyData),
+             
               const SizedBox(height: 20),
 
               Text(
-                'Attendance Analytics',
-                style: GoogleFonts.montserrat(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+  'Staff Attendance',
+  style: GoogleFonts.montserrat(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    height: 24 / 16, // line-height in px / font-size in px
+    textBaseline: TextBaseline.alphabetic, // Ensure proper text alignment
+  ),
+  textAlign: TextAlign.left, // Align text to the left
+),
+
+
+
+
               const SizedBox(height: 24),
 
               // Bar chart widget using the new BarChartWidget
-              BarChartWidget(dailyData: dailyData),
-              const SizedBox(height: 24),
+               Container(
+                color: Pallete.primary50,
+                width: screenWidth*0.9,
+                height: 260,
+                child: Column(
+                  children: [Padding(
+                    padding: const EdgeInsets.only(left: 12.0,right: 12.0,top: 12.0),
+                    child: Container(
+                      height: 200,
+                      width: screenWidth*0.9,
+                      child: BarChartWidget(dailyData: dailyData)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0,right: 8.0),
+                    child: Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    Row(
+      children: [
+        Icon(Icons.circle, color: Colors.green, size: 12),
+        SizedBox(width: 8),
+        Text(
+          'Present',
+          style: GoogleFonts.montserrat(
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+            color: Colors.black,
+          ),
+        ),
+      ],
+    ),
+    SizedBox(height: 8),
+    Row(
+      children: [
+        Icon(Icons.circle, color: Colors.red, size: 12),
+        SizedBox(width: 8),
+        Text(
+          'Absent',
+          style: GoogleFonts.montserrat(
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+            color: Colors.black,
+          ),
+        ),
+      ],
+    ),
+  ],
+),
+                  )
+
+                  ]
+                )),
+             
             ],
           ),
         ),
@@ -269,7 +438,7 @@ class BarChartWidget extends StatelessWidget {
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
-          maxY: 50,
+          maxY: 60,
           barTouchData: BarTouchData(
             enabled: true,
             touchTooltipData: BarTouchTooltipData(
@@ -286,29 +455,67 @@ class BarChartWidget extends StatelessWidget {
               },
             ),
           ),
+          gridData: FlGridData(
+            show: true,
+            drawHorizontalLine: true,
+            drawVerticalLine: true,
+            horizontalInterval: 15,
+            verticalInterval: 1,
+            checkToShowHorizontalLine: (_) => true,
+            checkToShowVerticalLine: (_) => true,
+            getDrawingHorizontalLine: (value) {
+              return FlLine(
+                color: Pallete.neutral300,
+                strokeWidth: 0.5,
+              );
+            },
+            getDrawingVerticalLine: (value) {
+              return FlLine(
+                color: Pallete.neutral300,
+                strokeWidth: 0.5,
+              );
+            },
+          ),
           titlesData: FlTitlesData(
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
+              
                 getTitlesWidget: (value, meta) {
                   if (value.toInt() >= dailyData.length) return const Text('');
                   return Text(
                     dailyData[value.toInt()]['date'],
-                    style: GoogleFonts.montserrat(
+                    style: GoogleFonts.inter(
                       fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w400,
+                      height: 14.52 / 12, // line-height in px / font-size in px
+                      textBaseline: TextBaseline.alphabetic,
                     ),
+                    textAlign: TextAlign.center,
                   );
                 },
                 reservedSize: 30,
               ),
             ),
-            leftTitles: const AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 30,
-              ),
-            ),
+            leftTitles: AxisTitles(
+  sideTitles: SideTitles(
+    interval: 15,
+    showTitles: true,
+    getTitlesWidget: (value, meta) {
+      return Text(
+        value.toInt().toString(), // Convert the double value to an integer
+        style: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+          height: 14.52 / 12, // line-height in px / font-size in px
+          textBaseline: TextBaseline.alphabetic,
+        ),
+        textAlign: TextAlign.left,
+      );
+    },
+    reservedSize: 30,
+  ),
+),
             topTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false),
             ),
@@ -316,7 +523,31 @@ class BarChartWidget extends StatelessWidget {
               sideTitles: SideTitles(showTitles: false),
             ),
           ),
-          borderData: FlBorderData(show: false),
+          backgroundColor: Pallete.primary50,
+          borderData: FlBorderData(
+            border: Border(
+              top: BorderSide(
+                color: Pallete.neutral300,
+                width: 0.5,
+                style: BorderStyle.solid,
+              ),
+              left: BorderSide(
+                color: Pallete.neutral300,
+                width: 0.5,
+                style: BorderStyle.solid,
+              ),
+              right: BorderSide(
+                color: Pallete.neutral300,
+                width: 0.5,
+                style: BorderStyle.solid,
+              ),
+              bottom: BorderSide(
+                color: Pallete.primary800,
+                width: 1,
+                style: BorderStyle.solid,
+              ),
+            ),
+          ),
           barGroups: dailyData.asMap().entries.map((entry) {
             final index = entry.key;
             final data = entry.value;
@@ -325,21 +556,176 @@ class BarChartWidget extends StatelessWidget {
               barRods: [
                 BarChartRodData(
                   toY: data['present'].toDouble(),
-                  color: Pallete.success400,
-                  width: 16,
-                  borderRadius: BorderRadius.circular(4),
+                  color: Pallete.success1000,
+                  width: 12,
+                  borderRadius: BorderRadius.circular(0),
                 ),
                 BarChartRodData(
                   toY: data['absent'].toDouble(),
-                  color: Pallete.error400,
-                  width: 16,
-                  borderRadius: BorderRadius.circular(4),
+                  color: Pallete.error1000,
+                  width: 12,
+                  borderRadius: BorderRadius.circular(0),
                 ),
               ],
             );
           }).toList(),
         ),
       ),
+    );
+  }
+}
+
+
+class WeeklyBarChart extends StatelessWidget {
+  final Map<String, double> data; // Data for the bar chart as a map
+
+  const WeeklyBarChart(this.data, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final dates = data.keys.toList(); // Extract dates from the map
+    final values = data.values.toList(); // Extract values from the map
+
+    return SizedBox(
+      height: 200,
+      child: data.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(
+                    'assets/empty_chart.svg',
+                    height: 100,
+                    width: 100,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No Data',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : BarChart(
+              BarChartData(
+                maxY: 100,
+                minY: 0,
+                borderData: FlBorderData(
+                  border: Border(
+                    top: BorderSide(
+                      color: Pallete.neutral300,
+                      width: 0.5,
+                    ),
+                    left: BorderSide(
+                      color: Pallete.neutral300,
+                      width: 0.5,
+                    ),
+                    bottom: BorderSide(
+                      color: Pallete.primary800,
+                      width: 1,
+                    ),
+                     right: BorderSide(
+                      color: Pallete.neutral300,
+                      width: 0.5,
+                    ),
+                  ),
+                ),
+                backgroundColor: Pallete.primary50,
+                gridData: FlGridData(
+                  show: true,
+                  drawHorizontalLine: true,
+                  drawVerticalLine: true,
+                  horizontalInterval: 25,
+                  verticalInterval: 1,
+                  checkToShowHorizontalLine: (_) => true,
+                  checkToShowVerticalLine: (_) => true,
+                  getDrawingHorizontalLine: (value) {
+                    return FlLine(
+                      color: Pallete.neutral300,
+                      strokeWidth: 0.5,
+                    );
+                  },
+                  getDrawingVerticalLine: (value) {
+                    return FlLine(
+                      color: Pallete.neutral300,
+                      strokeWidth: 0.5,
+                    );
+                  },
+                ),
+                alignment: BarChartAlignment.spaceAround,
+                barGroups: values
+                    .asMap()
+                    .entries
+                    .map(
+                      (entry) => BarChartGroupData(
+                        x: entry.key,
+                        barRods: [
+                          BarChartRodData(
+                            toY: entry.value,
+                            color: Pallete.primary700,
+                            width: 26,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(0),
+                              topRight: Radius.circular(0),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                    .toList(),
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 25,
+                      getTitlesWidget: (value, meta) {
+                        final fixedValues = [0, 25, 50, 75, 100];
+                        if (fixedValues.contains(value.toInt())) {
+                          return Text(
+                            '${value.toInt()}',
+                            style: const TextStyle(
+                              color: Pallete.neutral900,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 12,
+                              height: 1.5,
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        if (value.toInt() >= 0 && value.toInt() < dates.length) {
+                          return Text(
+                            dates[value.toInt()],
+                            style: const TextStyle(
+                              color: Pallete.neutral900,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          );
+                        }
+                        return const Text('');
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
     );
   }
 }
