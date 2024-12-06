@@ -321,6 +321,9 @@ void showFilterModal(BuildContext context) {
     return Scaffold(
       backgroundColor: Pallete.pagecolor,
       appBar: AppBar(
+        scrolledUnderElevation: 0,
+          foregroundColor: Pallete.pagecolor,
+          backgroundColor: Pallete.pagecolor,
           titleSpacing: 0,
           leading: InkWell(
             onTap: () {

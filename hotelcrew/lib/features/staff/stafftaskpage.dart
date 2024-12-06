@@ -57,9 +57,9 @@ class _StaffTaskManagementPageState extends State<StaffTaskManagementPage> {
   List<Task> tasks = [];
   List<Task> filteredTasks = [];
   String selectedFilter = "All";
-  String nextPageUrl = 'https://hotelcrew-1.onrender.com/api/taskassignment/tasks/staff/';
+  String nextPageUrl = 'https://hotelcrew-1.onrender.com/api/taskassignment/staff/tasks/day/';
   bool isLoading = false;
-  bool hasMore = true;
+  bool hasMore = false;
 
   String access_token = "";
 
@@ -174,50 +174,41 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
     }
   }
 
-  Future<void> fetchTasks() async {
-    print("^"*100);
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('access_token');
-    // getToken();
+ Future<void> fetchTasks() async {
+  print("^" * 100);
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString('access_token');
   
-    if (isLoading || !hasMore) return;
-  print("%"*100);
-    setState(() {
-      isLoading = true;
-    });
+  try {
+    final response = await http.get(
+      Uri.parse('https://hotelcrew-1.onrender.com/api/taskassignment/staff/tasks/day/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    print(response.statusCode);
+    print(response.body);
 
-    try {
-      final response = await http.get(
-        Uri.parse(nextPageUrl),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      print(response.statusCode);
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final List<dynamic> results = data['tasks'];
+      print(results);
+      print("&"*100); // Assuming 'tasks' is the key in the response
+      final List<Task> fetchedTasks = results.map((taskJson) => Task.fromJson(taskJson as Map<String, dynamic>)).toList();
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final List<dynamic> results = data['results'];
-        final List<Task> fetchedTasks = results.map((taskJson) => Task.fromJson(taskJson as Map<String, dynamic>)).toList();
-
-        setState(() {
-          tasks.addAll(fetchedTasks);
-          filteredTasks = tasks;
-          nextPageUrl = data['next'] ?? '';
-          hasMore = nextPageUrl.isNotEmpty;
-        });
-      } else {
-        print('Failed to load tasks. Status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error fetching tasks: $e');
-    } finally {
       setState(() {
-        isLoading = false;
+        tasks = fetchedTasks;  // Clear the existing tasks and set new ones
+        filteredTasks = tasks; // Assign the tasks to filteredTasks
       });
+    } else {
+      print('Failed to load tasks. Status code: ${response.statusCode}');
     }
+  } catch (e) {
+    print('Error fetching tasks: $e');
   }
+}
+
 
   void _showStatusUpdateBottomSheet(Task task) {
     String selectedStatus = '';
@@ -318,7 +309,7 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
     print("^^^^^^");
     Navigator.pop(context);
     setState(() {
-      isLoading = true;
+      // isLoading = true;
     });
     fetchTasks();
   } else {
@@ -450,20 +441,25 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
                     children: [
                       const SizedBox(height: 16),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            task.title,
-                            style: GoogleFonts.montserrat(
-                              textStyle: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Pallete.neutral950,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    Expanded(
+      child: Text(
+        task.title,
+        style: GoogleFonts.montserrat(
+          textStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Pallete.neutral950,
+          ),
+        ),
+        overflow: TextOverflow.ellipsis, // Optional: shows an ellipsis if the text overflows
+        softWrap: true, // Ensures the text wraps to the next line when it overflows
+      ),
+    ),
+  ],
+),
+
                       const SizedBox(height: 10),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -649,53 +645,36 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
           backgroundColor: Pallete.pagecolor,
           iconTheme: const IconThemeData(color: Colors.white),
         ),
-        body: FutureBuilder<void>(
-          future: fetchTasks(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return const Center(child: Text('No Task Found'));
-            } else {
-              return Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: _buildFilterChips(),
-                  ),
-                  Expanded(
-                    child: filteredTasks.isEmpty
-    ? Center(
-        child: SvgPicture.asset(
-          'assets/staffemptytask.svg', // Replace with your SVG file path
-          width: 328, // Adjust width as needed
-          height: 272, // Adjust height as needed
+        body: Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: _buildFilterChips(), // Your filter widgets
         ),
-      )
-    : ListView.builder(
-        itemCount: filteredTasks.length + (hasMore ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index == filteredTasks.length) {
-            fetchTasks();
-            return Center(
-              child: Container(),
-            );
-          }
-          return GestureDetector(
-            onTap: () {
-              _showStatusUpdateBottomSheet(filteredTasks[index]);
-            },
-            child: _buildTaskCard(filteredTasks[index]),
-          );
-        },
-      )
+        Expanded(
+          child: filteredTasks.isEmpty
+              ? Center(
+                  child: SvgPicture.asset(
+                    'assets/staffemptytask.svg', // Adjust your SVG file path
+                    width: 328,
+                    height: 272,
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: filteredTasks.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        _showStatusUpdateBottomSheet(filteredTasks[index]);
+                      },
+                      child: _buildTaskCard(filteredTasks[index]),
+                    );
+                  },
+                ),
+        ),
+      ],
+    ),
 
-                  ),
-                ],
-              );
-            }
-          },
-        ),
       ),
     );
   }

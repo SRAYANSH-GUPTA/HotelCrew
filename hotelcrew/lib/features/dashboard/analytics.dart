@@ -162,6 +162,54 @@ Map<String, double> convertPerformanceDataToSampleData(List<Map<String, dynamic>
   
   
   ];
+   List<Map<String, dynamic>> dailyroomData = [
+     {
+      'date': '13/11',
+      'present': 42,
+      'absent': 3,
+      'total': 45
+    },
+    {
+      'date': '14/11',
+      'present': 44,
+      'absent': 2,
+      'total': 46
+    },
+    {
+      'date': '15/11',
+      'present': 43,
+      'absent': 3,
+      'total': 46
+    },
+    {
+      'date': '16/11',
+      'present': 45,
+      'absent': 1,
+      'total': 46
+    },
+    {
+      'date': '17/11',
+      'present': 41,
+      'absent': 4,
+      'total': 45
+    },
+    {
+      'date': '20/11',
+      'present': 44,
+      'absent': 2,
+      'total': 46
+    },
+    {
+      'date': '21/11',
+      'present': 43,
+      'absent': 2,
+      'total': 45
+    },
+   
+  
+  
+  ];
+  
 
 
 
@@ -283,7 +331,7 @@ Map<String, double> convertPerformanceDataToSampleData(List<Map<String, dynamic>
               // Calendar widget
               Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(0),
                   border: Border.all(color: Colors.black, width: 1),
                 ),
                 child: TableCalendar(
@@ -364,7 +412,12 @@ Container(
 
               // Bar chart widget using the new BarChartWidget
                Container(
+                 decoration: BoxDecoration(
                 color: Pallete.primary50,
+                border: Border.all(color: Pallete.primary100, width: 1),
+                borderRadius: BorderRadius.circular(0),
+              ),
+                // color: Pallete.primary50,
                 width: screenWidth*0.9,
                 height: 260,
                 child: Column(
@@ -415,6 +468,132 @@ Container(
 
                   ]
                 )),
+
+
+                              const SizedBox(height: 20),
+
+              Text(
+  'Room Status',
+  style: GoogleFonts.montserrat(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    height: 24 / 16, // line-height in px / font-size in px
+    textBaseline: TextBaseline.alphabetic, // Ensure proper text alignment
+  ),
+  textAlign: TextAlign.left, // Align text to the left
+),
+
+
+
+
+              const SizedBox(height: 24),
+
+              // Bar chart widget using the new BarChartWidget
+               Container(
+                 decoration: BoxDecoration(
+                color: Pallete.primary50,
+                border: Border.all(color: Pallete.primary100, width: 1),
+                borderRadius: BorderRadius.circular(0),
+              ),
+                
+                width: screenWidth*0.9,
+                height: 260,
+                child: Column(
+                  children: [Padding(
+                    padding: const EdgeInsets.only(left: 12.0,right: 12.0,top: 12.0),
+                    child: Container(
+                      height: 200,
+                      width: screenWidth*0.9,
+                      child: BarChartWidget(dailyData: dailyroomData)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0,right: 8.0),
+                    child: Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    Row(
+      children: [
+        Icon(Icons.circle, color: Colors.green, size: 12),
+        SizedBox(width: 8),
+        Text(
+          'Occupied',
+          style: GoogleFonts.montserrat(
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+            color: Colors.black,
+          ),
+        ),
+      ],
+    ),
+    SizedBox(height: 8),
+    Row(
+      children: [
+        Icon(Icons.circle, color: Colors.red, size: 12),
+        SizedBox(width: 8),
+        Text(
+          'Unoccupied',
+          style: GoogleFonts.montserrat(
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+            color: Colors.black,
+          ),
+        ),
+
+        
+
+
+
+
+
+      ],
+    ),
+    
+  
+  
+  ],
+),
+                  ),
+                  
+
+                  ]
+                )),
+                const SizedBox(height: 24),
+                Text(
+  'Check-in revenue',
+  style: GoogleFonts.montserrat(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    height: 24 / 16, // line-height in px / font-size in px
+    textBaseline: TextBaseline.alphabetic, // Ensure proper text alignment
+  ),
+  textAlign: TextAlign.left, // Align text to the left
+),
+SizedBox(height: 20),
+              // Bar chart widget using the new BarChartWidget
+               Container(
+                decoration: BoxDecoration(
+                color: Pallete.primary50,
+                border: Border.all(color: Pallete.primary100, width: 1),
+                borderRadius: BorderRadius.circular(0),
+              ),
+          
+                width: screenWidth*0.9,
+                height: 210,
+                child: Column(
+                  children: [Padding(
+                    padding: const EdgeInsets.only(left: 0,right: 0,top: 0),
+                    child: Container(
+                      height: 200,
+                      width: screenWidth*0.9,
+                      child: LineChartWidget(doubleData: [20,40,50,40,60,10,50],),
+                  ),),
+                  
+                  
+                  
+
+                  ])
+                ),
+                SizedBox(height: 138),
              
             ],
           ),
@@ -729,3 +908,173 @@ class WeeklyBarChart extends StatelessWidget {
     );
   }
 }
+class LineChartWidget extends StatelessWidget {
+  final List<double> doubleData; // Input data for the line chart
+
+  const LineChartWidget({Key? key, required this.doubleData}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Stack(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Container(
+            height: 196,
+            width: screenWidth * 0.9,
+            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+            child: Center(
+              child: LineChart(
+                LineChartData(
+                  gridData: FlGridData(
+                    drawHorizontalLine: true,
+                    drawVerticalLine: true,
+                    horizontalInterval: 25,
+                    verticalInterval: 1,
+                    getDrawingHorizontalLine: (value) {
+                      return const FlLine(
+                        color: Pallete.neutral300,
+                        strokeWidth: 0.5,
+                      );
+                    },
+                    getDrawingVerticalLine: (value) {
+                      return const FlLine(
+                        color: Pallete.neutral300,
+                        strokeWidth: 0.5,
+                      );
+                    },
+                  ),
+                  titlesData: FlTitlesData(
+                    rightTitles:
+                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles:
+                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: 25,
+                        reservedSize: 28,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            value.toInt().toString(),
+                           style: GoogleFonts.inter(
+                                textStyle: const TextStyle(
+                                  color: Pallete.neutral900,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 12,
+                                  height: 1.5,
+                                ),
+                              ),
+                          );
+                        },
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: 1,
+                        getTitlesWidget: (value, meta) {
+                          switch (value.toInt()) {
+                            case 0:
+                              return const Text('14/11',
+                                  style: TextStyle(
+                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                            case 1:
+                              return const Text('15/11',
+                                  style: TextStyle(
+                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                            case 2:
+                              return const Text('16/11',
+                                  style: TextStyle(
+                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                            case 3:
+                              return const Text('17/11',
+                                  style: TextStyle(
+                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                            case 4:
+                              return const Text('20/11',
+                                  style: TextStyle(
+                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                            case 5:
+                              return const Text('21/11',
+                                  style: TextStyle(
+                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                            case 6:
+                              return const Text('22/11',
+                                  style: TextStyle(
+                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                            default:
+                              return const Text('');
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  borderData: FlBorderData(
+                    show: true,
+                    border: const Border(
+                      top: BorderSide(
+                        color: Pallete.neutral300,
+                        width: 0.5,
+                      ),
+                      right: BorderSide(
+                        color: Pallete.neutral300,
+                        width: 0.5,
+                      ),
+                      bottom: BorderSide(
+                        color: Pallete.neutral300,
+                        width: 2,
+                      ),
+                      left: BorderSide(
+                        color: Pallete.neutral300,
+                        width: 0.5,
+                      ),
+                    ),
+                  ),
+                  minX: 0,
+                  maxX: 6,
+                  minY: 0,
+                  maxY: 100,
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: doubleData
+                          .asMap()
+                          .entries
+                          .map((entry) => FlSpot(
+                                entry.key.toDouble(),
+                                entry.value,
+                              ))
+                          .toList(),
+                      isCurved: false,
+                      isStrokeJoinRound: true,
+                      color: Pallete.primary700, // Customize line color
+                      barWidth: 1,
+                      isStrokeCapRound: true,
+                      belowBarData: BarAreaData(
+                        show: false,
+                      ),
+                      dotData: FlDotData(
+                        show: true,
+                        getDotPainter: (spot, xPercentage, bar, index) {
+                          return FlDotCirclePainter(
+                            radius: 1,
+                            color: Pallete.primary700,
+                            strokeColor: Pallete.primary700,
+                            strokeWidth: 4,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+

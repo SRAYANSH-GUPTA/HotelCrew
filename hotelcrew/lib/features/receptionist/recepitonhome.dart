@@ -27,6 +27,163 @@ List<String> dates = [];
   List<int> dailyCheckOuts = [];
   bool isLoading = true;
 
+
+bool isLoadingAttendanceData = false;
+
+bool isLoadingStaffData = true;
+
+bool isLoadingRoomData = false;
+  void fetchAvailableStaff() async {
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    const url = 'https://hotelcrew-1.onrender.com/api/taskassignment/staff/available/';
+// Replace with your actual token
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print("="*100);
+      print(response.body);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        final int availableStaff = data['availablestaff'] ?? 0;
+        final int staffBusy = data['staffbusy'] ?? 0;
+        final int totalStaff = data['totalstaff'] ?? 0;
+
+        setState(() {
+          staffStatusData = {
+            "Vacant": availableStaff / totalStaff * 100,
+            "Busy": staffBusy / totalStaff * 100,
+          };
+          isLoadingStaffData = false;
+        });
+
+        print('Available Staff: $availableStaff');
+        print('Staff Busy: $staffBusy');
+        print('Total Staff: $totalStaff');
+      } else {
+        print('Failed with status: ${response.statusCode}, ${response.body}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+   Future<void> fetchRoomPieData() async {
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    const String apiUrl = "https://hotelcrew-1.onrender.com/api/hoteldetails/all-rooms/";
+    try {
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print("room pie data resp: $data");
+        int roomsOccupied = data['rooms_occupied'] ?? 0;
+        int availableRooms = data['available_rooms'] ?? 0;
+
+        double totalRooms = (roomsOccupied + availableRooms).toDouble();
+        double occupiedPercentage = totalRooms > 0 ? (roomsOccupied / totalRooms) * 100 : 0;
+        double availablePercentage = totalRooms > 0 ? (availableRooms / totalRooms) * 100 : 0;
+
+        setState(() {
+          roomStatusData = {
+            "Occupied": occupiedPercentage,
+            "Unoccupied": availablePercentage,
+          };
+          isLoadingRoomData = false;
+        });
+      } else {
+        throw Exception("Failed to fetch data: ${response.statusCode}");
+      }
+    } catch (error) {
+      setState(() {
+        isLoadingRoomData = false;
+      });
+      print("Error fetching room data: $error");
+    }
+  }
+
+  Future<void> fetchAttendancePieData() async {
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    const String apiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/week-stats/';
+    
+
+    try {
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        List<String> dates = List<String>.from(data['dates']);
+        List<int> crewPresent = List<int>.from(data['total_crew_present']);
+        List<int> staffAbsent = List<int>.from(data['total_staff_absent']);
+        List<int> leave = List<int>.from(data['total_leave']);
+
+        if (dates.isNotEmpty) {
+          int lastIndex = dates.length - 1;
+
+          int totalPresent = crewPresent[lastIndex];
+          int totalAbsent = staffAbsent[lastIndex];
+          int totalLeave = leave[lastIndex];
+
+          int totalRecords = totalPresent + totalAbsent + totalLeave;
+
+          double presentPercentage = totalRecords > 0 ? (totalPresent / totalRecords) * 100 : 0;
+          double absentPercentage = totalRecords > 0 ? (totalAbsent / totalRecords) * 100 : 0;
+          double leavePercentage = totalRecords > 0 ? (totalLeave / totalRecords) * 100 : 0;
+
+          setState(() {
+            staffAttendancePieData = {
+              "Present": presentPercentage,
+              "Absent": absentPercentage,
+              "Leave": leavePercentage,
+            };
+            isLoadingAttendanceData = false;
+          });
+
+          print("Attendance Pie Data: $staffAttendancePieData");
+        } else {
+          print("No attendance data available.");
+          setState(() {
+            isLoadingAttendanceData = false;
+          });
+        }
+      } else {
+        throw Exception('Failed to fetch data: ${response.statusCode}');
+      }
+    } catch (error) {
+      setState(() {
+        isLoadingAttendanceData = false;
+      });
+      print('Error fetching attendance data: $error');
+    }
+  }
+
+
+
+
+
 String access_token = "";
 Future<void> fetchCheckInOutData() async {
   await getToken(); // Wait for the token to be retrieved
@@ -85,25 +242,47 @@ Future<void> fetchCheckInOutData() async {
 
   List<int> weeklyStaffperformance = [7, 8, 6, 5, 7, 10, 8];
   Map<String, double> staffAttendancePieData = {
-    "Present": 70,
-    "Absent": 20,
-    "Leave": 10,
-  };
-  Map<String, double> roomStatusData = {
-    "Occupied": 50,
-    "Unoccupied": 30,
-    "Maintenance": 20,
-  };
-  Map<String, double> staffStatusData = {
-    "Busy": 80,
-    "Vacant": 20,
     
   };
+  Map<String, double> roomStatusData = {
+    
+  };
+  Map<String, double> staffStatusData = {
+   
+  };
+
+  Widget _buildLegend(Color color, String label) {
+    return Row(
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+            height: 14.52 / 12, // line-height in px / font-size in px
+            textBaseline: TextBaseline.alphabetic,
+          ),
+        ),
+      ],
+    );
+  }
 
  @override
   void initState() {
     super.initState();
     getrole();
+    fetchRoomPieData();
+    fetchAttendancePieData();
+    fetchAvailableStaff();
     fetchCheckInOutData();
   }
 
@@ -141,6 +320,7 @@ Widget build(BuildContext context) {
   final screenWidth = MediaQuery.of(context).size.width;
   final screenHeight = MediaQuery.of(context).size.height;
   return Scaffold(
+    backgroundColor: Pallete.pagecolor,
       appBar: AppBar(
         title: Text(
           'Good Morning, $username',
@@ -266,23 +446,41 @@ Widget build(BuildContext context) {
             ),
             const SizedBox(height: 24),
             Container(
-              color: Pallete.primary50,
-              width: screenWidth * 0.92,
-              height: 210,
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: CheckInOutChart(
-                dates: dates,
-                dailyCheckIns: dailyCheckIns,
-                dailyCheckOuts: dailyCheckOuts,
+  decoration: BoxDecoration(
+    color: Pallete.primary50,
+    border: Border.all(color: Pallete.primary100, width: 1),
+    borderRadius: BorderRadius.circular(0),
+  ),
+  width: screenWidth * 0.90,
+  height: 232,
+  child: Padding(
+    padding: const EdgeInsets.all(8),
+    child: isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CheckInOutChart(
+                  dates: dates,
+                  dailyCheckIns: dailyCheckIns,
+                  dailyCheckOuts: dailyCheckOuts,
+                ),
               ),
-            ),
+              // This Row for the Check-in and Check-out legend
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  _buildLegend(Color(0xFF34A853), 'Check in'),
+                  const SizedBox(width: 16),
+                  _buildLegend(Pallete.error500, 'Check out'),
+                ],
               ),
-            ),
+            ],
+          ),
+  ),
+),
+
             const SizedBox(height: 56),
             Text(
               "Stats Overview",
@@ -304,61 +502,62 @@ Widget build(BuildContext context) {
                 child: Row(
                   children: [
                     Container(
-                      // height: 228,
-                      width: screenWidth * 0.483,
-                      decoration: BoxDecoration(
-                        color: Pallete.pagecolor,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Pallete.primary200, width: 1),
+                        width: screenWidth * 0.483,
+                        decoration: BoxDecoration(
+                          color: Pallete.pagecolor,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Pallete.primary200, width: 1),
+                        ),
+                        child: isLoadingAttendanceData
+                            ? const Center(child: CircularProgressIndicator())
+                            : PieChartWidget(
+                                title: 'Staff Attendance',
+                                data: staffAttendancePieData,
+                                colors: const {
+                                  "Present": Color(0xFF34A853),
+                                  "Absent": Pallete.error500,
+                                  "Leave": Pallete.warning300,
+                                },
+                              ),
                       ),
-                      child: PieChartWidget(
-              title: 'Staff Attendance',
-              data: staffAttendancePieData,
-              colors: const {
-                "Present": Pallete.success500,
-                "Absent": Pallete.error500,
-                "Leave": Pallete.warning300,
-              },
-            ),
-
-                    ),
                     const SizedBox(width: 16),
                     Container(
-                      // height: 228,
-                      width: screenWidth * 0.483,
-                      decoration: BoxDecoration(
-                        color: Pallete.pagecolor,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Pallete.primary200, width: 1),
+                        width: screenWidth * 0.483,
+                        decoration: BoxDecoration(
+                          color: Pallete.pagecolor,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Pallete.primary200, width: 1),
+                        ),
+                        child: isLoadingRoomData
+                            ? const Center(child: CircularProgressIndicator())
+                            : PieChartWidget(
+                                title: 'Room Status',
+                                data: roomStatusData,
+                                colors: const {
+                                  "Occupied": Pallete.success500,
+                                  "Unoccupied": Pallete.error500,
+                                },
+                              ),
                       ),
-                      child:  PieChartWidget(
-              title: 'Room Status',
-              data: roomStatusData,
-              colors: const {
-                "Occupied": Pallete.success500,
-                "Unoccupied": Pallete.error500,
-                "Maintenance": Pallete.warning300,
-              },
-            ),
-                    ),
                       const SizedBox(width: 16),
                     Container(
-                      // height: 228,
-                      width: screenWidth * 0.483,
-                      decoration: BoxDecoration(
-                         color: Pallete.pagecolor,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Pallete.primary200, width: 1),
+                        width: screenWidth * 0.483,
+                        decoration: BoxDecoration(
+                          color: Pallete.pagecolor,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Pallete.primary200, width: 1),
+                        ),
+                        child: isLoadingStaffData
+                            ? const Center(child: CircularProgressIndicator())
+                            : PieChartWidget(
+                                title: 'Staff Status',
+                                data: staffStatusData,
+                                colors: const {
+                                  "Busy": Pallete.success500,
+                                  "Vacant": Pallete.error500,
+                                },
+                              ),
                       ),
-                      child:  PieChartWidget(
-              title: 'Staff Status',
-              data: staffStatusData,
-              colors: const {
-                "Busy": Pallete.success500,
-                "Vacant": Pallete.error500,
-              },
-            ),
-                    ),
                   ],
                 ),
               ),
@@ -455,38 +654,65 @@ class CheckInOutChart extends StatelessWidget {
     return Column(
       children: [
         SizedBox(
-          height: 300,
+          height: 163,
           child: BarChart(
             BarChartData(
               alignment: BarChartAlignment.spaceAround,
-              maxY: 10, // Adjust based on your maximum check-in/check-out counts.
-              barTouchData: BarTouchData(enabled: false),
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 40,
-                    getTitlesWidget: (value, _) {
-                      return Text(
-                        value.toInt().toString(),
-                        style: const TextStyle(fontSize: 12),
-                      );
-                    },
-                  ),
+              // maxY: 100, // Adjust based on your maximum check-in/check-out counts.
+              barTouchData: BarTouchData(
+                enabled: true,
+                touchTooltipData: BarTouchTooltipData(
+                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                    final date = dates[group.x.toInt()];
+                    String status = rodIndex == 0 ? 'Check in' : 'Check out';
+                    return BarTooltipItem(
+                      '$status: ${rod.toY.toInt()}\n$date',
+                      GoogleFonts.montserrat(
+                        color: Pallete.neutral900,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    );
+                  },
                 ),
+              ),
+              gridData: FlGridData(
+                show: true,
+                drawHorizontalLine: true,
+                drawVerticalLine: true,
+                horizontalInterval: 1,
+                verticalInterval: 10,
+                checkToShowHorizontalLine: (_) => true,
+                checkToShowVerticalLine: (_) => true,
+                getDrawingHorizontalLine: (value) {
+                  return FlLine(
+                    color: Pallete.neutral300,
+                    strokeWidth: 0.5,
+                  );
+                },
+                getDrawingVerticalLine: (value) {
+                  return FlLine(
+                    color: Pallete.neutral300,
+                    strokeWidth: 0.5,
+                  );
+                },
+              ),
+              titlesData: FlTitlesData(
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    getTitlesWidget: (value, _) {
+                    getTitlesWidget: (value, meta) {
                       final index = value.toInt();
                       if (index < dates.length) {
                         final date = dates[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Text(
-                            date, // Date will already be in "dd/MM" format.
-                            style: const TextStyle(fontSize: 12),
+                        return Text(
+                          date, // Date will already be in "dd/MM" format.
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                            height: 14.52 / 12,
+                            textBaseline: TextBaseline.alphabetic,
                           ),
+                          textAlign: TextAlign.center,
                         );
                       }
                       return const SizedBox();
@@ -494,54 +720,94 @@ class CheckInOutChart extends StatelessWidget {
                     reservedSize: 30,
                   ),
                 ),
+                leftTitles: AxisTitles(
+                  
+                  sideTitles: SideTitles(
+                    
+                    interval: 10,
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) {
+                      return Text(
+                        value.toInt().toString(),
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          height: 14.52 / 12,
+                          textBaseline: TextBaseline.alphabetic,
+                        ),
+                        textAlign: TextAlign.left,
+                      );
+                    },
+                    reservedSize: 15,
+                  ),
+                ),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
               ),
-              gridData: const FlGridData(show: true, drawHorizontalLine: true, drawVerticalLine: false),
+              backgroundColor: Pallete.primary50,
               borderData: FlBorderData(
-                show: true,
-                border: const Border(
-                  bottom: BorderSide(color: Colors.black26, width: 1),
-                  left: BorderSide(color: Colors.black26, width: 1),
+                border: Border(
+                  top: BorderSide(
+                    color: Pallete.neutral300,
+                    width: 0.5,
+                    style: BorderStyle.solid,
+                  ),
+                  left: BorderSide(
+                    color: Pallete.neutral300,
+                    width: 0.5,
+                    style: BorderStyle.solid,
+                  ),
+                  right: BorderSide(
+                    color: Pallete.neutral300,
+                    width: 0.5,
+                    style: BorderStyle.solid,
+                  ),
+                  bottom: BorderSide(
+                    color: Pallete.primary800,
+                    width: 1,
+                    style: BorderStyle.solid,
+                  ),
                 ),
               ),
               barGroups: _generateBarGroups(),
             ),
           ),
         ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildLegend(Colors.green, 'Check in'),
-            const SizedBox(width: 16),
-            _buildLegend(Colors.red, 'Check out'),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLegend(Color color, String text) {
-    return Row(
-      children: [
-        Container(width: 12, height: 12, color: color),
-        const SizedBox(width: 4),
-        Text(text, style: const TextStyle(fontSize: 12)),
+        // const SizedBox(height: 16),
+       
       ],
     );
   }
 
   List<BarChartGroupData> _generateBarGroups() {
     return List.generate(dates.length, (index) {
-      final checkIn = dailyCheckIns[index];
-      final checkOut = dailyCheckOuts[index];
-
       return BarChartGroupData(
         x: index,
         barRods: [
-          BarChartRodData(toY: checkIn.toDouble(), color: Colors.green, width: 12),
-          BarChartRodData(toY: checkOut.toDouble(), color: Colors.red, width: 12),
+          BarChartRodData(
+            toY: dailyCheckIns[index].toDouble(),
+            color: Pallete.success1000,
+            width: 12,
+            borderRadius: BorderRadius.circular(0),
+          ),
+          BarChartRodData(
+            toY: dailyCheckOuts[index].toDouble(),
+            color: Pallete.error1000,
+            width: 12,
+            borderRadius: BorderRadius.circular(0),
+          ),
         ],
       );
     });
   }
+
+   
 }
+
+ 
+
+  

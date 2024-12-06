@@ -1010,7 +1010,7 @@ class LineChartWidget extends StatelessWidget {
                       sideTitles: SideTitles(
                         showTitles: true,
                         // interval: 25,
-                        // reservedSize: 28,
+                        reservedSize: 5,
                         getTitlesWidget: (value, meta) {
                           return Text(
                             value.toInt().toString(),

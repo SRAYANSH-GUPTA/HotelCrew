@@ -100,158 +100,180 @@ class _ReceptionistCustomerDatabasePageState extends State<ReceptionistCustomerD
     });
   }
 
-  void showFilterModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Pallete.pagecolor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-      ),
-      builder: (context) => StatefulBuilder(
-        builder: (BuildContext context, StateSetter setModalState) {
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Filters',
-                      style: GoogleFonts.montserrat(
-                        textStyle: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Pallete.neutral950,
-                        ),
+ void showFilterModal(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Pallete.pagecolor,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+    ),
+    builder: (context) => StatefulBuilder(
+      builder: (BuildContext context, StateSetter setModalState) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Filters',
+                    style: GoogleFonts.montserrat(
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Pallete.neutral950,
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        resetFilters();
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 44),
-                Text(
-                  'Status',
-                  style: GoogleFonts.montserrat(
-                    textStyle: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Pallete.neutral900,
-                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      resetFilters();
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 44),
+
+              // Status Filter
+              Text(
+                'Status',
+                style: GoogleFonts.montserrat(
+                  textStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Pallete.neutral900,
                   ),
                 ),
-                const SizedBox(height: 24),
-                FilterChip(
-                  side: const BorderSide(color: Pallete.neutral200, width: 1),
-                  selectedColor: Pallete.primary700,
-                  showCheckmark: false,
-                  label: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'All',
-                        style: GoogleFonts.montserrat(
-                          textStyle: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: selectedStatuses.isEmpty
-                                ? Pallete.neutral00
-                                : Pallete.neutral900,
-                          ),
-                        ),
-                      ),
-                      if (selectedStatuses.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.only(left: 4.0),
-                          child: Icon(
-                            Icons.check,
-                            color: Pallete.neutral00,
-                            size: 18,
-                          ),
-                        ),
-                    ],
-                  ),
-                  selected: selectedStatuses.isEmpty,
-                  onSelected: (bool selected) {
-                    setModalState(() {
-                      selectedStatuses.clear();
-                    });
-                  },
-                ),
-                const SizedBox(height: 24),
-                Wrap(
-                  spacing: 8.0,
-                  children: ['VIP', 'Regular']
-                      .map(
-                        (status) => FilterChip(
-                          side: const BorderSide(color: Pallete.neutral200, width: 1),
-                          selectedColor: Pallete.primary700,
-                          showCheckmark: false,
-                          label: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                status,
-                                style: GoogleFonts.montserrat(
-                                  textStyle: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: selectedStatuses.contains(status)
-                                        ? Pallete.neutral00
-                                        : Pallete.neutral900,
-                                  ),
+              ),
+              const SizedBox(height: 24),
+
+              // "All" button to clear the status filter
+              // FilterChip(
+              //   side: const BorderSide(color: Pallete.neutral200, width: 1),
+              //   selectedColor: Pallete.primary700,
+              //   showCheckmark: false,
+              //   label: Row(
+              //     mainAxisSize: MainAxisSize.min,
+              //     children: [
+              //       // Text(
+              //       //   'All',
+              //       //   style: GoogleFonts.montserrat(
+              //       //     textStyle: TextStyle(
+              //       //       fontSize: 14,
+              //       //       fontWeight: FontWeight.w400,
+              //       //       color: selectedStatuses.isEmpty
+              //       //           ? Pallete.neutral00
+              //       //           : Pallete.neutral900,
+              //       //     ),
+              //       //   ),
+              //       // ),
+              //       if (selectedStatuses.isEmpty)
+              //         const Padding(
+              //           padding: EdgeInsets.only(left: 4.0),
+              //           child: Icon(
+              //             Icons.check,
+              //             color: Pallete.neutral00,
+              //             size: 18,
+              //           ),
+              //         ),
+              //     ],
+              //   ),
+              //   selected: selectedStatuses.isEmpty,
+              //   onSelected: (bool selected) {
+              //     setModalState(() {
+              //       selectedStatuses.clear(); // Clear all statuses to show all
+              //     });
+              //   },
+              // ),
+              const SizedBox(height: 24),
+
+              // VIP and Regular Filters
+              Wrap(
+                spacing: 8.0,
+                children: ['VIP', 'Regular']
+                    .map(
+                      (status) => FilterChip(
+                        side: const BorderSide(color: Pallete.neutral200, width: 1),
+                        selectedColor: Pallete.primary700,
+                        showCheckmark: false,
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              status,
+                              style: GoogleFonts.montserrat(
+                                textStyle: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: selectedStatuses.contains(status)
+                                      ? Pallete.neutral00
+                                      : Pallete.neutral900,
                                 ),
                               ),
-                              if (selectedStatuses.contains(status))
-                                const Padding(
-                                  padding: EdgeInsets.only(left: 4.0),
-                                  child: Icon(
-                                    Icons.check,
-                                    color: Pallete.neutral00,
-                                    size: 18,
-                                  ),
+                            ),
+                            if (selectedStatuses.contains(status))
+                              const Padding(
+                                padding: EdgeInsets.only(left: 4.0),
+                                child: Icon(
+                                  Icons.check,
+                                  color: Pallete.neutral00,
+                                  size: 18,
                                 ),
-                            ],
-                          ),
-                          selected: selectedStatuses.contains(status),
-                          onSelected: (bool selected) {
-                            setModalState(() {
-                              if (selected) {
-                                selectedStatuses.add(status);
-                              } else {
-                                selectedStatuses.remove(status);
-                              }
-                            });
-                          },
+                              ),
+                          ],
                         ),
-                      )
-                      .toList(),
-                ),
-                const SizedBox(height: 106),
-                ElevatedButton(
-                  onPressed: applyFilters,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 48),
-                  ),
-                  child: const Text('Show Results'),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
+                        selected: selectedStatuses.contains(status),
+                        onSelected: (bool selected) {
+                          setModalState(() {
+                            if (selected) {
+                              selectedStatuses.add(status); // Add to selected statuses
+                            } else {
+                              selectedStatuses.remove(status); // Remove from selected statuses
+                            }
+                          });
+                        },
+                      ),
+                    )
+                    .toList(),
+              ),
+              const SizedBox(height: 106),
 
+              // Apply Filters Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: applyFilters,
+                   style: ElevatedButton.styleFrom(
+                        backgroundColor: Pallete.primary800, // Button color
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0), // Button radius
+                        ),
+                        // padding: const EdgeInsets.symmetric(vertical: 14.0), // Padding
+                      ),
+                      child: Text(
+                        "Show Results",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Pallete.neutral00, // Button text color
+                        ),
+                      ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    ),
+  );
+}
    Future<void> getToken() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString('access_token');
@@ -305,6 +327,9 @@ String access_token = "";
     return Scaffold(
       backgroundColor: Pallete.pagecolor,
       appBar: AppBar(
+        scrolledUnderElevation: 0,
+          foregroundColor: Pallete.pagecolor,
+          backgroundColor: Pallete.pagecolor,
         titleSpacing: 0,
         leading: InkWell(
           onTap: () {
