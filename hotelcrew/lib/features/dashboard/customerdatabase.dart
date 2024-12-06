@@ -192,43 +192,43 @@ void showFilterModal(BuildContext context) {
               const SizedBox(height: 24),
 
               // "All" button to clear the status filter
-              FilterChip(
-                side: const BorderSide(color: Pallete.neutral200, width: 1),
-                selectedColor: Pallete.primary700,
-                showCheckmark: false,
-                label: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'All',
-                      style: GoogleFonts.montserrat(
-                        textStyle: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: selectedStatuses.isEmpty
-                              ? Pallete.neutral00
-                              : Pallete.neutral900,
-                        ),
-                      ),
-                    ),
-                    if (selectedStatuses.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.only(left: 4.0),
-                        child: Icon(
-                          Icons.check,
-                          color: Pallete.neutral00,
-                          size: 18,
-                        ),
-                      ),
-                  ],
-                ),
-                selected: selectedStatuses.isEmpty,
-                onSelected: (bool selected) {
-                  setModalState(() {
-                    selectedStatuses.clear(); // Clear all statuses to show all
-                  });
-                },
-              ),
+              // FilterChip(
+              //   side: const BorderSide(color: Pallete.neutral200, width: 1),
+              //   selectedColor: Pallete.primary700,
+              //   showCheckmark: false,
+              //   label: Row(
+              //     mainAxisSize: MainAxisSize.min,
+              //     children: [
+              //       // Text(
+              //       //   'All',
+              //       //   style: GoogleFonts.montserrat(
+              //       //     textStyle: TextStyle(
+              //       //       fontSize: 14,
+              //       //       fontWeight: FontWeight.w400,
+              //       //       color: selectedStatuses.isEmpty
+              //       //           ? Pallete.neutral00
+              //       //           : Pallete.neutral900,
+              //       //     ),
+              //       //   ),
+              //       // ),
+              //       if (selectedStatuses.isEmpty)
+              //         const Padding(
+              //           padding: EdgeInsets.only(left: 4.0),
+              //           child: Icon(
+              //             Icons.check,
+              //             color: Pallete.neutral00,
+              //             size: 18,
+              //           ),
+              //         ),
+              //     ],
+              //   ),
+              //   selected: selectedStatuses.isEmpty,
+              //   onSelected: (bool selected) {
+              //     setModalState(() {
+              //       selectedStatuses.clear(); // Clear all statuses to show all
+              //     });
+              //   },
+              // ),
               const SizedBox(height: 24),
 
               // VIP and Regular Filters
@@ -283,12 +283,27 @@ void showFilterModal(BuildContext context) {
               const SizedBox(height: 106),
 
               // Apply Filters Button
-              ElevatedButton(
-                onPressed: applyFilters,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 48),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: applyFilters,
+                   style: ElevatedButton.styleFrom(
+                        backgroundColor: Pallete.primary800, // Button color
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0), // Button radius
+                        ),
+                        // padding: const EdgeInsets.symmetric(vertical: 14.0), // Padding
+                      ),
+                      child: Text(
+                        "Show Results",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Pallete.neutral00, // Button text color
+                        ),
+                      ),
                 ),
-                child: const Text('Show Results'),
               ),
             ],
           ),
@@ -313,7 +328,7 @@ void showFilterModal(BuildContext context) {
             },
             child: const Icon(Icons.arrow_back_ios_outlined, color: Pallete.neutral900)),
           title: Text(
-            "Customer Database",
+            "Guest Details",
             style: GoogleFonts.montserrat(
               textStyle: const TextStyle(
                 fontSize: 16,
@@ -425,16 +440,13 @@ void showFilterModal(BuildContext context) {
               
               Expanded(
           child: filteredList.isEmpty
-        ? const Center(
-            child: Text(
-              'No results found',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey,
+        ? Center(
+              child: SvgPicture.asset(
+                'assets/noguest.svg',
+                height: 272,
+                width: 293.03,
               ),
-            ),
-          )
+            )
         : Column(mainAxisSize: MainAxisSize.min,
             children: [
               // Table headers with vertical lines

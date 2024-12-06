@@ -1,4 +1,5 @@
 import 'package:hotelcrew/core/packages.dart';
+import '../../core/packages.dart';
 import 'package:hotelcrew/features/dashboard/announcementpage.dart';
 import 'package:hotelcrew/features/dashboard/database.dart';
 import 'leave.dart';
@@ -81,7 +82,10 @@ void fetchWeeklyRevenue() async {
 
     setState(() {
       financialData = totalRevenue;
+      
     });
+    print("@"*100);
+      print(financialData);
   } else {
     // Throw an exception for any unsuccessful response
     throw Exception('Failed to fetch weekly revenue: ${response.statusCode}');
@@ -145,7 +149,9 @@ void fetchStaffPerformanceData() async {
           'Content-Type': 'application/json',
         },
       );
-      print("***********");
+      print("="*100);
+      print(response.body);
+      print(response.statusCode);
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
@@ -171,15 +177,20 @@ void fetchStaffPerformanceData() async {
       print('Error: $e');
     }
   }
-
+String username = "";
   bool leaveisLoading = false;
 
   void getrole() async {
+    print("&"*10000);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String Role = prefs.getString('Role') ?? '';
+    final String Username= prefs.getString('username') ?? '';
     print(Role);
+    print(Username);
+    print("-"*1000);
     setState(() {
       Roles = Role;
+      username = Username;
     });
   }
 
@@ -368,8 +379,10 @@ void fetchStaffPerformanceData() async {
       child: Scaffold(
         backgroundColor: Pallete.pagecolor,
         appBar: AppBar(
+          foregroundColor: Pallete.pagecolor,
+          backgroundColor: Pallete.pagecolor,
           title: Text(
-            'Good Morning, User',
+            'Good Morning, $username',
             style: GoogleFonts.montserrat(
               textStyle: const TextStyle(
                 color: Pallete.neutral950,
@@ -396,7 +409,7 @@ void fetchStaffPerformanceData() async {
               ),
             )
           ],
-          backgroundColor: Pallete.pagecolor,
+          // backgroundColor: Pallete.pagecolor,
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -417,53 +430,80 @@ void fetchStaffPerformanceData() async {
                   ),
                 ),
               if (Roles == "Manager") const SizedBox(height: 24),
-              Row(
-                children: [
-                  if (Roles == "Manager")
-                    Container(
-                      width: screenWidth * 0.428, // Set width here
-                      height: 97, // Set height here
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Pallete.primary300, width: 1),
-                        borderRadius: BorderRadius.circular(8),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    if (Roles == "Manager")
+                      Container(
+                        width: screenWidth * 0.428, // Set width here
+                        height: 97, // Set height here
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Pallete.primary300, width: 1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: QuickActionButton(
+                          title: 'Attendance',
+                          iconPath: 'assets/manattendance.svg', // Your icon path
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LeaveAttendancePage(),
+                              ),
+                            );
+                          },
+                        ),
                       ),
-                      child: QuickActionButton(
-                        title: 'Attendance',
-                        iconPath: 'assets/manattendance.svg', // Your icon path
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const LeaveAttendancePage(),
-                            ),
-                          );
-                        },
+                    SizedBox(width: 8,),
+                    if (Roles == "Manager")
+                      Container(
+                        width: screenWidth * 0.428, // Set width here
+                        height: 97, // Set height here
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Pallete.primary300, width: 1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: QuickActionButton(
+                          title: 'Database',
+                          iconPath: 'assets/mandatabase.svg', // Your icon path
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const DatabasePage(),
+                              ),
+                            );
+                            print('Attendance button pressed');
+                          },
+                        ),
                       ),
-                    ),
-                  const Spacer(),
-                  if (Roles == "Manager")
-                    Container(
-                      width: screenWidth * 0.428, // Set width here
-                      height: 97, // Set height here
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Pallete.primary300, width: 1),
-                        borderRadius: BorderRadius.circular(8),
+                      if (Roles == "Manager")
+                      SizedBox(width: 8,),
+                      if (Roles == "Manager")
+                      Container(
+                        width: screenWidth * 0.428, // Set width here
+                        height: 97, // Set height here
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Pallete.primary300, width: 1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: QuickActionButton(
+                          title: 'Analytics',
+                          iconPath: 'assets/analyticsman.svg', // Your icon path
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const DatabasePage(),
+                              ),
+                            );
+                            print('Attendance button pressed');
+                          },
+                        ),
                       ),
-                      child: QuickActionButton(
-                        title: 'Database',
-                        iconPath: 'assets/mandatabase.svg', // Your icon path
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const DatabasePage(),
-                            ),
-                          );
-                          print('Attendance button pressed');
-                        },
-                      ),
-                    ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: 32),
               if (Roles == "Admin")
@@ -572,7 +612,25 @@ void fetchStaffPerformanceData() async {
                 height: 200,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: BarChartWidget(weeklyStaffperformance),
+                  child: weeklyStaffperformance.every((value) => value == 0.0)
+    ? Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              'assets/emptystaffperformance.svg', // Replace with your SVG file path
+              width: 200,
+              height: 150,
+            ),
+            const SizedBox(height: 16),
+            // const Text(
+            //   "No performance data available",
+            //   style: TextStyle(fontSize: 16, color: Colors.grey),
+            // ),
+          ],
+        ),
+      )
+    : BarChartWidget(weeklyStaffperformance),
                 ),
               ),
               const SizedBox(height: 56),
@@ -700,7 +758,27 @@ void fetchStaffPerformanceData() async {
                    
                 
       
-                  child: LineChartWidget(doubleData: financialData,),
+                  child: financialData.every((value) => value == 0.0)
+                   
+    ? Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              'assets/emptyfinancial.svg', // Replace with your SVG file path
+              width: 200,
+              height: 200,
+            ),
+            const SizedBox(height: 16),
+            // const Text(
+            //   "No announcements available",
+            //   style: TextStyle(fontSize: 16, color: Colors.grey),
+            // ),
+          ],
+        ),
+      )
+    : LineChartWidget(doubleData: financialData),
+
                 ),
               ),
               const SizedBox(height: 30),
@@ -801,70 +879,74 @@ class GeneralListDisplay<T> extends StatelessWidget {
             itemCount: items.length > 2 ? 2 : items.length, // Show only 2 items
             itemBuilder: (context, index) {
               final item = items[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFCCE5FF), width: 1),
-                ),
-                child: Row(
-                  children: [
-                    // Title and Subtitle
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            getTitle(item),
-                            style: GoogleFonts.montserrat(
-                              textStyle: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                color: Pallete.neutral1000,
+              return Material(
+                elevation: 0,
+              
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Pallete.pagecolor,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Pallete.primary200, width: 1),
+                  ),
+                  child: Row(
+                    children: [
+                      // Title and Subtitle
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              getTitle(item),
+                              style: GoogleFonts.montserrat(
+                                textStyle: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  color: Pallete.neutral1000,
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            getSubtitle(item),
-                            style: GoogleFonts.montserrat(
-                              textStyle: const TextStyle(
-                                fontWeight: FontWeight.w400,
-                                fontSize: 12,
-                                color: Pallete.neutral900,
+                            const SizedBox(height: 4),
+                            Text(
+                              getSubtitle(item),
+                              style: GoogleFonts.montserrat(
+                                textStyle: const TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 12,
+                                  color: Pallete.neutral900,
+                                ),
                               ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                
+                      // Approve and Reject Buttons
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () => onApprove(item),
+                            child: SvgPicture.asset(
+                              'assets/tickdash.svg',
+                              height: 24,
+                              width: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          GestureDetector(
+                            onTap: () => onReject(item),
+                            child: SvgPicture.asset(
+                              'assets/crossdash.svg',
+                              height: 24,
+                              width: 24,
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(width: 16),
-
-                    // Approve and Reject Buttons
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () => onApprove(item),
-                          child: SvgPicture.asset(
-                            'assets/tickdash.svg',
-                            height: 24,
-                            width: 24,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        GestureDetector(
-                          onTap: () => onReject(item),
-                          child: SvgPicture.asset(
-                            'assets/crossdash.svg',
-                            height: 24,
-                            width: 24,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },

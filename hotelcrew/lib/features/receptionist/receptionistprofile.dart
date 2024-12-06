@@ -323,10 +323,11 @@ class _StaffProfilePageState extends State<StaffProfilePage> {
               prefs.remove("refresh_token");
               prefs.remove("email");
               prefs.remove("Role");
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-              );
+              Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const LoginPage()),
+                                      (Route<dynamic> route) => false,
+                                    );
             },
             child: const Text('Log Out'),
           ),

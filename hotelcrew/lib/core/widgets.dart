@@ -978,150 +978,152 @@ class LineChartWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: Container(
             height: 196,
-            width: screenWidth * 0.8,
+            width: screenWidth * 0.9,
             padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-            child: LineChart(
-              LineChartData(
-                gridData: FlGridData(
-                  drawHorizontalLine: true,
-                  drawVerticalLine: true,
-                  horizontalInterval: 25,
-                  verticalInterval: 1,
-                  getDrawingHorizontalLine: (value) {
-                    return const FlLine(
-                      color: Pallete.neutral300,
-                      strokeWidth: 0.5,
-                    );
-                  },
-                  getDrawingVerticalLine: (value) {
-                    return const FlLine(
-                      color: Pallete.neutral300,
-                      strokeWidth: 0.5,
-                    );
-                  },
-                ),
-                titlesData: FlTitlesData(
-                  rightTitles:
-                      const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles:
-                      const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      interval: 25,
-                      reservedSize: 28,
-                      getTitlesWidget: (value, meta) {
-                        return Text(
-                          value.toInt().toString(),
-                         style: GoogleFonts.inter(
-                              textStyle: const TextStyle(
-                                color: Pallete.neutral900,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 12,
-                                height: 1.5,
+            child: Center(
+              child: LineChart(
+                LineChartData(
+                  gridData: FlGridData(
+                    drawHorizontalLine: true,
+                    drawVerticalLine: false,
+                    // horizontalInterval: 25,
+                    verticalInterval: 1,
+                    // getDrawingHorizontalLine: (value) {
+                    //   return const FlLine(
+                    //     color: Pallete.neutral300,
+                    //     strokeWidth: 0.5,
+                    //   );
+                    // },
+                    getDrawingVerticalLine: (value) {
+                      return const FlLine(
+                        color: Pallete.neutral300,
+                        strokeWidth: 0.5,
+                      );
+                    },
+                  ),
+                  titlesData: FlTitlesData(
+                    rightTitles:
+                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles:
+                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        // interval: 25,
+                        // reservedSize: 28,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            value.toInt().toString(),
+                           style: GoogleFonts.inter(
+                                textStyle: const TextStyle(
+                                  color: Pallete.neutral900,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 12,
+                                  height: 1.5,
+                                ),
                               ),
-                            ),
-                        );
-                      },
+                          );
+                        },
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: 1,
+                        getTitlesWidget: (value, meta) {
+                          switch (value.toInt()) {
+                            case 0:
+                              return const Text('Mon',
+                                  style: TextStyle(
+                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                            case 1:
+                              return const Text('Tue',
+                                  style: TextStyle(
+                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                            case 2:
+                              return const Text('Wed',
+                                  style: TextStyle(
+                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                            case 3:
+                              return const Text('Thu',
+                                  style: TextStyle(
+                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                            case 4:
+                              return const Text('Fri',
+                                  style: TextStyle(
+                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                            case 5:
+                              return const Text('Sat',
+                                  style: TextStyle(
+                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                            case 6:
+                              return const Text('Sun',
+                                  style: TextStyle(
+                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                            default:
+                              return const Text('');
+                          }
+                        },
+                      ),
                     ),
                   ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      interval: 1,
-                      getTitlesWidget: (value, meta) {
-                        switch (value.toInt()) {
-                          case 0:
-                            return const Text('Mon',
-                                style: TextStyle(
-                                    color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
-                          case 1:
-                            return const Text('Tue',
-                                style: TextStyle(
-                                    color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
-                          case 2:
-                            return const Text('Wed',
-                                style: TextStyle(
-                                    color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
-                          case 3:
-                            return const Text('Thu',
-                                style: TextStyle(
-                                    color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
-                          case 4:
-                            return const Text('Fri',
-                                style: TextStyle(
-                                    color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
-                          case 5:
-                            return const Text('Sat',
-                                style: TextStyle(
-                                    color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
-                          case 6:
-                            return const Text('Sun',
-                                style: TextStyle(
-                                    color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
-                          default:
-                            return const Text('');
-                        }
-                      },
+                  borderData: FlBorderData(
+                    show: true,
+                    border: const Border(
+                      top: BorderSide(
+                        color: Pallete.neutral300,
+                        width: 0.5,
+                      ),
+                      right: BorderSide(
+                        color: Pallete.neutral300,
+                        width: 0.5,
+                      ),
+                      bottom: BorderSide(
+                        color: Pallete.neutral300,
+                        width: 2,
+                      ),
+                      left: BorderSide(
+                        color: Pallete.neutral300,
+                        width: 0.5,
+                      ),
                     ),
                   ),
+                  minX: 0,
+                  maxX: 6,
+                  // minY: 0,
+                  // maxY: 100,
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: doubleData
+                          .asMap()
+                          .entries
+                          .map((entry) => FlSpot(
+                                entry.key.toDouble(),
+                                entry.value,
+                              ))
+                          .toList(),
+                      isCurved: false,
+                      isStrokeJoinRound: true,
+                      color: Pallete.primary700, // Customize line color
+                      barWidth: 1,
+                      isStrokeCapRound: true,
+                      belowBarData: BarAreaData(
+                        show: false,
+                      ),
+                      dotData: FlDotData(
+                        show: true,
+                        getDotPainter: (spot, xPercentage, bar, index) {
+                          return FlDotCirclePainter(
+                            radius: 1,
+                            color: Pallete.primary700,
+                            strokeColor: Pallete.primary700,
+                            strokeWidth: 4,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                borderData: FlBorderData(
-                  show: true,
-                  border: const Border(
-                    top: BorderSide(
-                      color: Pallete.neutral300,
-                      width: 0.5,
-                    ),
-                    right: BorderSide(
-                      color: Pallete.neutral300,
-                      width: 0.5,
-                    ),
-                    bottom: BorderSide(
-                      color: Pallete.neutral300,
-                      width: 2,
-                    ),
-                    left: BorderSide(
-                      color: Pallete.neutral300,
-                      width: 0.5,
-                    ),
-                  ),
-                ),
-                minX: 0,
-                maxX: 6,
-                minY: 0,
-                maxY: 100,
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: doubleData
-                        .asMap()
-                        .entries
-                        .map((entry) => FlSpot(
-                              entry.key.toDouble(),
-                              entry.value,
-                            ))
-                        .toList(),
-                    isCurved: false,
-                    isStrokeJoinRound: true,
-                    color: Pallete.primary700, // Customize line color
-                    barWidth: 1,
-                    isStrokeCapRound: true,
-                    belowBarData: BarAreaData(
-                      show: false,
-                    ),
-                    dotData: FlDotData(
-                      show: true,
-                      getDotPainter: (spot, xPercentage, bar, index) {
-                        return FlDotCirclePainter(
-                          radius: 1,
-                          color: Pallete.primary700,
-                          strokeColor: Pallete.primary700,
-                          strokeWidth: 4,
-                        );
-                      },
-                    ),
-                  ),
-                ],
               ),
             ),
           ),

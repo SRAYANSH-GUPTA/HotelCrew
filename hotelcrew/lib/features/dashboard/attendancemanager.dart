@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../../core/packages.dart';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 class ManagerAttendancePage extends StatefulWidget {
   const ManagerAttendancePage({super.key});
 
@@ -12,8 +13,56 @@ class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
   final Dio _dio = Dio();
   final String attendanceApiUrl = 'https://hotelcrew-1.onrender.com/api/attendance';
 
-  String selectedAttendanceStatus = 'None';
+  String selectedAttendanceStatus = 'Absent';
   String selectedDepartment = 'All Staff';
+List<String> dept = [];
+
+void fetchDepartments(BuildContext context) async {
+  final Uri url = Uri.parse('https://hotelcrew-1.onrender.com/api/edit/department_list/'); // Replace with your actual endpoint
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString('access_token'); // Fetch access token from shared preferences
+
+  try {
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    print(response.body);
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (responseData['status'] == 'success') {
+        final Map<String, dynamic> staffPerDepartment =
+            responseData['staff_per_department'] ?? {};
+        List<String> departments = ['All Staff']; // Start with 'All Staff'
+        departments.addAll(staffPerDepartment.keys);
+        setState(() {
+          dept = departments + ['Manager','Receptionist'];
+        });
+        
+      } else {
+        throw Exception('Unexpected response: ${responseData['message']}');
+      }
+    } else {
+      final Map<String, dynamic> errorData = json.decode(response.body);
+      throw Exception(errorData['message'] ?? 'Failed to fetch departments.');
+    }
+  } catch (error) {
+    // Show error in Snackbar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error: $error'),
+        backgroundColor: Colors.red,
+      ),
+    );
+
+  }
+}
+
+
 
   List<dynamic> attendanceList = [
     {
@@ -51,6 +100,7 @@ class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
   @override
   void initState() {
     super.initState();
+    fetchDepartments(context);
     fetchAttendanceData();
   }
 
@@ -76,10 +126,21 @@ class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
       );
       print(response.data);
       if (response.statusCode == 200) {
-        setState(() {
-          attendanceList = response.data;
-          _isLoading = false;
-        });
+       setState(() {
+  attendanceList = response.data.map((item) {
+    return {
+      'id': item['id'] ?? '',
+      'user_name': item['user_name'] ?? 'N/A',
+      'email': item['email'] ?? 'N/A',
+      'role': item['role'] ?? 'N/A',
+      'department': item['department'] ?? 'N/A',
+      'current_attendance': item['current_attendance'] ?? 'N/A',
+      'user_profile': item['user_profile'] ?? '', // Handle null user_profile
+      'shift': item['shift'] ?? 'N/A',
+    };
+  }).toList();
+  _isLoading = false;
+});
         print(response.data);
       } else {
         throw Exception('Failed to fetch attendance');
@@ -105,13 +166,17 @@ class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
         attendanceList[userIndex]['current_attendance'] = newStatus;
       });
       String id = userId.toString();
+       SharedPreferences prefs = await SharedPreferences.getInstance();
+   
+    String? accessToken = prefs.getString('access_token');
+    print(accessToken);
       try {
         // API request
         print("^"*20);
         print(userId);
         final response = await _dio.post(
           'https://hotelcrew-1.onrender.com/api/attendance/change/$id/',
-          options: Options(headers: {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs'}),
+          options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
         );
         print(response.statusCode);
         print(response.data);
@@ -143,18 +208,22 @@ class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
         setState(() {
           staff['current_attendance'] = status;
         });
-
+ SharedPreferences prefs = await SharedPreferences.getInstance();
+   
+    String? accessToken = prefs.getString('access_token');
+    print(accessToken);
         // Make API request to update attendance
-        await _dio.post(
+        final response = await _dio.post(
           'https://hotelcrew-1.onrender.com/api/attendance/change/${staff['id'].toString()}/',
           options: Options(
             validateStatus: (status) => status! < 501,
             headers: {
-              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
+              'Authorization': 'Bearer $accessToken',
             },
           ),
          // Include data if required
         );
+        print(response.statusCode);
       }
     }
     print('All matching attendance updated to $status');
@@ -203,22 +272,20 @@ class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  _buildFilterDropdown(
-                    screenWidth: screenWidth,
-                    value: selectedDepartment,
-                    items: <String>[
-                      'All Staff',
-                      'Housekeeping',
-                      'Security',
-                      'Maintenance',
-                      'Receptionist',
-                      'Manager',
-                    ],
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedDepartment = newValue!;
-                      });
-                    },
+                  Container(
+                    height: 35,
+                width: screenWidth * 0.35,
+                    child: _buildFilterDropdown(
+                      pic: true,  
+                      screenWidth: screenWidth,
+                      value: selectedDepartment,
+                      items: dept,
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedDepartment = newValue!;
+                        });
+                      },
+                    ),
                   ),
                   const Spacer(),
                   Row(
@@ -235,25 +302,29 @@ class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
                         ),
                       ),
                       const SizedBox(width: 5),
-                      _buildFilterDropdown(
-                        screenWidth: screenWidth,
-                        value: selectedAttendanceStatus,
-                        items: <String>[
-                          'None',
-                          'Present',
-                          'Absent',
-                        ],
-                        onChanged: (newValue) async {
-                          if (newValue != null) {
-                            setState(() {
-                              selectedAttendanceStatus = newValue;
-                            });
-                            if (newValue == 'Present' || newValue == 'Absent') {
-                              await markAll(newValue);
-                              print('called');
+                      Container(
+                        height: 35 ,
+                        child: _buildFilterDropdown(
+                          pic: false,
+                          screenWidth: screenWidth,
+                          value: selectedAttendanceStatus,
+                          items: <String>[
+            
+                            'Present',
+                            'Absent',
+                          ],
+                          onChanged: (newValue) async {
+                            if (newValue != null) {
+                              setState(() {
+                                selectedAttendanceStatus = newValue;
+                              });
+                              if (newValue == 'Present' || newValue == 'Absent') {
+                                await markAll(newValue);
+                                print('called');
+                              }
                             }
-                          }
-                        },
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -336,24 +407,30 @@ class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
                               height: 32,
                               decoration: BoxDecoration(
                                 color: staff['current_attendance'] == 'Present'
-                                    ? const Color.fromARGB(255, 179, 255, 181)
-                                    : Pallete.pagecolor,
+                                    ? const Color(0xFFE3F5E3)
+                                    : Color(0xFFFFDFDF),
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: Pallete.success100,
+                                  color: 
+                                  staff['current_attendance'] == 'Present'
+                                  ?
+                                  Color(0xFF4CAF50)
+                                  : Color(0xFFC80D0D),
                                   width: 1,
                                 ),
                               ),
                               child: Center(
                                 child: Text(
-                                  'P',
+                                  staff['current_attendance'] == 'Present'
+                                  ?'P'
+                                  :'A',
                                   style: TextStyle(
                                     fontSize: 14,
                                     height: 1.5,
                                     fontWeight: FontWeight.w400,
                                     color: staff['current_attendance'] == 'Present'
-                                        ? Pallete.success700
-                                        : Pallete.neutral900,
+                                        ? Color(0xFF2D6830)
+                                        : Color(0xFF881414),
                                   ),
                                 ),
                               ),
@@ -372,6 +449,7 @@ class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
   Widget _buildFilterDropdown({
     required double screenWidth,
     required String value,
+    required bool pic,
     required List<String> items,
     required ValueChanged<String?> onChanged,
   }) {
@@ -391,6 +469,7 @@ class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
             padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
             child: Row(
               children: [
+                if(pic)
                 SvgPicture.asset("assets/filter.svg"),
                 const SizedBox(width: 3),
                 Expanded(

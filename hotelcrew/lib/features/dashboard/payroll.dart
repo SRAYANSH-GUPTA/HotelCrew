@@ -268,12 +268,27 @@ void resetFilters() {
 ),
 
                 const SizedBox(height: 106),
-                ElevatedButton(
-                  onPressed: applyFilters,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 48),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: applyFilters,
+                    style: ElevatedButton.styleFrom(
+                          backgroundColor: Pallete.primary800, // Button color
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0), // Button radius
+                          ),
+                          // padding: const EdgeInsets.symmetric(vertical: 14.0), // Padding
+                        ),
+                        child: Text(
+                          "Show Results",
+                          style: GoogleFonts.montserrat(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Pallete.neutral00, // Button text color
+                          ),
+                        ),
                   ),
-                  child: const Text('Show Results'),
                 ),
                 buildMainButton(
   context: context,
@@ -299,6 +314,9 @@ void resetFilters() {
     return Scaffold(
       backgroundColor: Pallete.pagecolor,
       appBar: AppBar(
+        scrolledUnderElevation: 0,
+        foregroundColor: Pallete.pagecolor,
+        backgroundColor: Pallete.pagecolor,
           titleSpacing: 0,
           leading: InkWell(
             onTap: () {

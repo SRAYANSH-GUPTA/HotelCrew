@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
 import '../../core/packages.dart';
 import "dart:io";
+import "../resetpass/resertpasspage/resetpass.dart";
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -96,7 +97,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
         prefs.setString('user_profile', data['user_profile'] ?? '');
         setState(() {
           nameController.text = data['user_name'] ?? '';
-          userProfile = data['user_profile'] ?? '';
+          if(selectedImage != null)
+          {
+            userProfile = data['user_profile'] ?? '';
+          }
+          
         });
         // Refresh the page
         fetchUserData();
@@ -118,7 +123,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return Scaffold(
+      backgroundColor: Pallete.pagecolor,
       appBar: AppBar(
+        backgroundColor: Pallete.pagecolor,
         titleSpacing: 0,
         leading: InkWell(
             onTap: () {
@@ -245,7 +252,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           alignment: Alignment.centerLeft,
                           child: TextButton(
                             onPressed: () {
-                              // Add change password functionality
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => Resetpass()));
                             },
                             child: Text(
                               'Change Password',

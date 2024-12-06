@@ -1,4 +1,6 @@
 import '../../core/packages.dart';
+import 'package:http/http.dart' as http;
+import "dart:convert";
 import '../dashboard/viewmodel/createannouncementviewmodel.dart';
 
 class CreateAnnouncementPage extends StatefulWidget {
@@ -19,6 +21,64 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
   List<String> _selectedDepartments = [];
   bool _isPriorityLevelError = false;
   bool _isDepartmentsError = false;
+
+@override
+  void initState() {
+    super.initState();
+    fetchDepartments(context);
+    // Initially, the filtered list is the same as the full staff list
+  }
+
+
+
+void fetchDepartments(BuildContext context) async {
+  final Uri url = Uri.parse('https://hotelcrew-1.onrender.com/api/edit/department_list/'); // Replace with your actual endpoint
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString('access_token'); // Fetch access token from shared preferences
+
+  try {
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    print(response.body);
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (responseData['status'] == 'success') {
+        final Map<String, dynamic> staffPerDepartment =
+            responseData['staff_per_department'] ?? {};
+        List<String> department = []; // Start with 'All Staff'
+        department.addAll(staffPerDepartment.keys);
+        setState(() {
+          dept = department;
+        });
+        
+      } else {
+        throw Exception('Unexpected response: ${responseData['message']}');
+      }
+    } else {
+      final Map<String, dynamic> errorData = json.decode(response.body);
+      throw Exception(errorData['message'] ?? 'Failed to fetch departments.');
+    }
+  } catch (error) {
+    // Show error in Snackbar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error: $error'),
+        backgroundColor: Colors.red,
+      ),
+    );
+
+  }
+}
+
+
+
+  List<String> dept = [];
 
   void _showPriorityLevelBottomSheet(BuildContext context) {
   showModalBottomSheet(
@@ -59,7 +119,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
               width: 12,
               height: 12,
               decoration: const BoxDecoration(
-                color: Colors.red,
+                color: Pallete.error700,
                 shape: BoxShape.circle,
               ),
             ),
@@ -169,39 +229,43 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                     child: ListView(
                       children: [
                         // Checkbox for "All Departments"
-                        CheckboxListTile(
-                          title: const Text("All Departments"),
-                          value: _selectedDepartments.length == 4,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedDepartments = value!
-                                  ? ["Housekeeping", "Receptionist", "Kitchen", "Security"]
-                                  : [];
-                                 
-                              _departmentsController.text = "All";
-                              _isDepartmentsError = _selectedDepartments.isEmpty;
-                            });
-                          },
-                        ),
-                        // Individual Department Checkboxes
-                        ...["Housekeeping", "Receptionist", "Kitchen", "Security"]
-                            .map((dept) => CheckboxListTile(
-                                  title: Text(dept),
-                                  value: _selectedDepartments.contains(dept),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      if (value == true) {
-                                        _selectedDepartments.add(dept);
-                                      } else {
-                                        _selectedDepartments.remove(dept);
-                                      }
-                                      _departmentsController.text =
-                                          _selectedDepartments.join(", ");
-                                      _isDepartmentsError = _selectedDepartments.isEmpty;
-                                    });
-                                  },
-                                ))
-                            ,
+CheckboxListTile(
+  title: const Text("All Departments"),
+  value: _selectedDepartments.length == dept.length, // Check if all departments are selected
+  onChanged: (value) {
+    setState(() {
+      if (value == true) {
+        _selectedDepartments = List.from(dept); // Select all departments
+      } else {
+        _selectedDepartments.clear(); // Clear selection
+      }
+      _departmentsController.text = value == true ? "All" : "";
+      _isDepartmentsError = _selectedDepartments.isEmpty;
+    });
+  },
+),
+// Individual Department Checkboxes
+...dept.map(
+  (department) => CheckboxListTile(
+    title: Text(department),
+    value: _selectedDepartments.contains(department), // Check if this department is selected
+    onChanged: (value) {
+      setState(() {
+        if (value == true) {
+          _selectedDepartments = [department]; // Only select this department
+        } else {
+          _selectedDepartments.clear(); // Clear selection
+        }
+        _departmentsController.text =
+            _selectedDepartments.isEmpty ? "" : _selectedDepartments.first;
+        _isDepartmentsError = _selectedDepartments.isEmpty;
+      });
+    },
+  ),
+),
+
+
+                            
                       ],
                     ),
                   ),
@@ -231,6 +295,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
 
 
  void _postAnnouncement() async {
+  print("^"*100);
   setState(() {
     _isPriorityLevelError = _priorityLevel == null;
     _isDepartmentsError = _selectedDepartments.isEmpty;
@@ -268,7 +333,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(result['message']),
-        backgroundColor: result['status'] ? Colors.green : Colors.red,
+        backgroundColor: result['status'] ? Colors.green : Pallete.error700,
       ),
     );
     
@@ -284,7 +349,9 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
         _selectedDepartments.clear();
       });
     }
-     Navigator.pop(context);
+    Navigator.pop(context);
+    Navigator.pop(context);
+     
     
   }
   
@@ -325,40 +392,47 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
               key: _formKey,
               child: Column(
                 children: [const SizedBox(height: 48,),
-                  TextFormField(
-                    controller: _titleController,
-                    decoration: InputDecoration(
-                       enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: const BorderSide(
-                    color: Colors.grey,
-                    width: 1.0,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: const BorderSide(
-                    color: Colors.blue,
-                    width: 2.0,
-                  ),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: const BorderSide(
-                    color: Colors.red,
-                    width: 2.0,
-                  ),
-                ),
-                      labelText: "Announcement Title",
-                      border: InputBorder.none, // No border
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Please enter an announcement title";
-                      }
-                      return null;
-                    },
-                  ),
+                 TextFormField(
+  controller: _titleController,
+  decoration: InputDecoration(
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8.0),
+      borderSide: const BorderSide(
+        color: Pallete.neutral700,
+        width: 1.0,
+      ),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8.0),
+      borderSide: const BorderSide(
+        color: Pallete.primary700,
+        width: 2.0,
+      ),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8.0),
+      borderSide: const BorderSide(
+        color: Pallete.error700,
+        width: 2.0,
+      ),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8.0),
+      borderSide: const BorderSide(
+        color: Pallete.error700,
+        width: 2.0,
+      ),
+    ),
+    labelText: "Announcement Title",
+  ),
+  validator: (value) {
+    if (value == null || value.isEmpty) {
+      return "Please enter an announcement title";
+    }
+    return null;
+  },
+),
+
                   const SizedBox(height: 38),
                   GestureDetector(
                     onTap: () => _showPriorityLevelBottomSheet(context),
@@ -369,14 +443,14 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                            enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                   borderSide: const BorderSide(
-                    color: Colors.grey,
+                    color: Pallete.neutral700,
                     width: 1.0,
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                   borderSide: const BorderSide(
-                    color: Colors.blue,
+                    color: Pallete.primary700,
                     width: 2.0,
                   ),
                 ),
@@ -384,7 +458,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                  errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                   borderSide: const BorderSide(
-                    color: Colors.red,
+                    color: Pallete.error700,
                     width: 2.0,
                   ),
                 ),
@@ -415,14 +489,14 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                   borderSide: const BorderSide(
-                    color: Colors.blue,
+                    color: Pallete.primary700,
                     width: 2.0,
                   ),
                 ),
                  errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                   borderSide: const BorderSide(
-                    color: Colors.red,
+                    color: Pallete.error700,
                     width: 2.0,
                   ),
                 ),
@@ -443,21 +517,21 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                        enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                   borderSide: const BorderSide(
-                    color: Colors.grey,
+                    color: Pallete.neutral700,
                     width: 1.0,
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                   borderSide: const BorderSide(
-                    color: Colors.blue,
+                    color: Pallete.primary700,
                     width: 2.0,
                   ),
                 ),
                  errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                   borderSide: const BorderSide(
-                    color: Colors.red,
+                    color: Pallete.error700,
                     width: 2.0,
                   ),
                 ),
@@ -467,7 +541,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                       border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                   borderSide: const BorderSide(
-                    color: Colors.blue,
+                    color: Pallete.primary700,
                     width: 1.0,
                   ),
                 ), // No border
@@ -480,7 +554,7 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20,),
+                  SizedBox(height: screenHeight * 0.025,),
                   
                   if (!isKeyboardVisible(context)) 
     SizedBox(height: screenHeight * 0.178),
@@ -491,7 +565,9 @@ class _CreateAnnouncementPageState extends State<CreateAnnouncementPage> {
                       screenHeight: screenHeight,
                       screenWidth: screenWidth,
                       buttonText: "Post Announcement",
-                      onPressed:  _postAnnouncement,
+                      onPressed:_postAnnouncement,
+                      
+                      
                     ),
                   
               

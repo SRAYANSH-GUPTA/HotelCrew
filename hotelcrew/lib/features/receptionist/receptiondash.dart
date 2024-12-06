@@ -52,87 +52,78 @@ class _ReceptionDashboardPageState extends State<ReceptionDashboardPage> {
             type: BottomNavigationBarType.fixed,
             elevation: 2,
             backgroundColor: Pallete.neutral100,
-            // selectedItemColor: Pallete.neutral1000,
-            // unselectedItemColor: Pallete.neutral600,
-            selectedFontSize: 12,
+            selectedItemColor: Pallete.neutral1000,
+            unselectedItemColor: Pallete.neutral600,
+            selectedFontSize: 12, 
             unselectedLabelStyle: GoogleFonts.montserrat(
               textStyle: const TextStyle(
                 fontWeight: FontWeight.w500,
                 fontSize: 12,
-                color: Pallete.neutral950,
+                color: Pallete.neutral950
               ),
-            ), // Same size as unselected
+            ),// Same size as unselected
             selectedLabelStyle: GoogleFonts.montserrat(
               textStyle: const TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 12,
-                color: Pallete.neutral950,
+                color: Pallete.neutral950
               ),
-            ), // Same size as unselected
+            ),// Same size as unselected
             unselectedFontSize: 12, // Keep consistent
             enableFeedback: false, // Removes haptic feedback
             items: [
               BottomNavigationBarItem(
                 icon: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                   decoration: BoxDecoration(
-                    color: _selectedIndex == 0 ? Pallete.primary300 : Colors.transparent,
-                    borderRadius: const BorderRadius.all(Radius.elliptical(100, 60)), // Oval shape
+                    color: _selectedIndex == 0 ? Pallete.primary300: Colors.transparent,
+                    borderRadius: const BorderRadius.all(Radius.elliptical(100, 90)), // Oval shape
                   ),
                   child: SvgPicture.asset(
-                    _selectedIndex == 0
-                        ? 'assets/nav/shome.svg'
-                        : 'assets/homenav.svg',
-                    // color: _selectedIndex == 0 ? Pallete.primary800 : Pallete.neutral600,
+                     _selectedIndex == 0 
+                     ? 
+                    'assets/shome.svg'
+                
+                    : 'assets/homenav.svg',
                   ),
                 ),
                 label: 'Home',
               ),
               BottomNavigationBarItem(
                 icon: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                   decoration: BoxDecoration(
                     color: _selectedIndex == 1 ? Pallete.primary300 : Colors.transparent,
-                    borderRadius: const BorderRadius.all(Radius.elliptical(100, 60)),
+                    borderRadius: const BorderRadius.all(Radius.elliptical(100, 90)),
                   ),
                   child: SvgPicture.asset(
-                    _selectedIndex == 1
-                        ? 'assets/nav/stask.svg'
-                        : 'assets/nav/stask.svg',
-                    // color: _selectedIndex == 1 ? Pallete.primary800 : Pallete.neutral600,
+                    _selectedIndex == 1 ? 'assets/stask.svg' : 'assets/tasknav.svg',
                   ),
                 ),
                 label: 'Tasks',
               ),
               BottomNavigationBarItem(
                 icon: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                   decoration: BoxDecoration(
                     color: _selectedIndex == 2 ? Pallete.primary300 : Colors.transparent,
-                    borderRadius: const BorderRadius.all(Radius.elliptical(100, 60)),
+                    borderRadius: const BorderRadius.all(Radius.elliptical(100, 90)),
                   ),
                   child: SvgPicture.asset(
-                    _selectedIndex == 2
-                        ? 'assets/schedulenav_selected.svg'
-                        : 'assets/schedulenav.svg',
-                    // color: _selectedIndex == 2 ? Pallete.primary800 : Pallete.neutral600,
+                    _selectedIndex == 2 ? 'assets/sschedule.svg' : 'assets/schedulenav.svg',
                   ),
                 ),
-                label: 'Shifts',
+                label: 'Schedule',
               ),
               BottomNavigationBarItem(
                 icon: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                   decoration: BoxDecoration(
                     color: _selectedIndex == 3 ? Pallete.primary300 : Colors.transparent,
-                    borderRadius: const BorderRadius.all(Radius.elliptical(100, 60)),
+                    borderRadius: const BorderRadius.all(Radius.elliptical(100, 90)),
                   ),
                   child: SvgPicture.asset(
-                    // _selectedIndex == 3
-                        // ? 
-                        'assets/nav/sprofile.svg'
-                        // : 'assets/profilenav.svg',
-                    // color: _selectedIndex == 3 ? Pallete.primary800 : Pallete.neutral600,
+                    _selectedIndex == 3 ? 'assets/sprofile.svg' : 'assets/profilenav.svg',
                   ),
                 ),
                 label: 'Profile',

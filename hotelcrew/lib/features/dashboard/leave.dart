@@ -32,6 +32,8 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
   bool _isLoading = true;
 
   Future<void> fetchAttendance() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? accessToken = prefs.getString('access_token');
     const String apiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/week-stats/';
     const String token =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVC9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs";
@@ -40,7 +42,7 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
       final response = await http.get(
         Uri.parse(apiUrl),
         headers: {
-          "Authorization": "Bearer $token",
+          "Authorization": "Bearer $accessToken",
           "Content-Type": "application/json",
         },
       );
@@ -85,6 +87,8 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
   final String apiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/leave_count/';
 
   Future<void> fetchleavecount() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? accessToken = prefs.getString('access_token');
     setState(() {
       _isLoading = true;
     });
@@ -94,7 +98,7 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
         apiUrl,
         options: Options(
           headers: {
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
+            'Authorization': 'Bearer $accessToken',
           },
         ),
       );
@@ -119,9 +123,11 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
   }
 
   Future<void> approveLeaveRequest(String leaveId, String status) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? accessToken = prefs.getString('access_token');
     final String url = 'https://hotelcrew-1.onrender.com/api/attendance/leave_approve/$leaveId/';
     final Map<String, String> headers = {
-      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
+      'Authorization': 'Bearer $accessToken',
       'Content-Type': 'application/json',
     };
 
@@ -156,42 +162,44 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
   }
 
   List<Map<String, dynamic>> leaveRequests = [
-    {
-      "id": "001",
-      "name": "John Doe",
-      "type": "Sick Leave",
-      "department": "Engineering",
-      "duration": "2 days",
-      "reason": "Sick",
-      "dates": "15 Mar - 16 Mar",
-      "status": "Pending"
-    },
-    {
-      "id": "002",
-      "name": "Jane Smith",
-      "type": "Annual Leave",
-      "department": "HR",
-      "duration": "3 days",
-      "reason": "Vacation",
-      "dates": "20 Mar - 22 Mar",
-      "status": "Approved"
-    },
-    {
-      "id": "003",
-      "name": "Bob Wilson",
-      "type": "Sick Leave",
-      "department": "Sales",
-      "duration": "1 day",
-      "reason": "Flu",
-      "dates": "18 Mar",
-      "status": "Rejected"
-    },
+    // {
+    //   "id": "001",
+    //   "name": "John Doe",
+    //   "type": "Sick Leave",
+    //   "department": "Engineering",
+    //   "duration": "2 days",
+    //   "reason": "Sick",
+    //   "dates": "15 Mar - 16 Mar",
+    //   "status": "Pending"
+    // },
+    // {
+    //   "id": "002",
+    //   "name": "Jane Smith",
+    //   "type": "Annual Leave",
+    //   "department": "HR",
+    //   "duration": "3 days",
+    //   "reason": "Vacation",
+    //   "dates": "20 Mar - 22 Mar",
+    //   "status": "Approved"
+    // },
+    // {
+    //   "id": "003",
+    //   "name": "Bob Wilson",
+    //   "type": "Sick Leave",
+    //   "department": "Sales",
+    //   "duration": "1 day",
+    //   "reason": "Flu",
+    //   "dates": "18 Mar",
+    //   "status": "Rejected"
+    // },
   ];
 
   String selectedFilter = "All";
 
   List<Map<String, dynamic>> get filteredRequests {
     if (selectedFilter == "All") {
+      print("#"*1000);
+      print(leaveRequests);
       return leaveRequests;
     }
     return leaveRequests.where((request) => request["status"] == selectedFilter).toList();
@@ -229,7 +237,7 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Pallete.pagecolor,
       appBar: AppBar(
         titleSpacing: 0,
         leading: InkWell(
@@ -325,28 +333,22 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
             Text(
               "Leave Requests",
               style: GoogleFonts.montserrat(
-                fontSize: 14,
+                fontSize: 16,
                 height: 1.5,
                 color: Pallete.neutral950,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 16),
+            // const SizedBox(height: 16),
+            if(leaveRequests.isNotEmpty)
             _buildFilterChips(),
             const SizedBox(height: 16),
             Expanded(
               child: isLoading
-                  ? const Center(child: LinearProgressIndicator())
+                  ? Center(child: CircularProgressIndicator())
                   : leaveRequests.isEmpty
-                      ? const Center(
-                          child: Text(
-                            'No results found',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey,
-                            ),
-                          ),
+                      ? Center(
+                          child: SvgPicture.asset("assets/emptyleave.svg",width: 328,height: 252,),
                         )
                       : ListView.builder(
                           itemCount: filteredRequests.length,
@@ -381,6 +383,7 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
             title,
             style: GoogleFonts.montserrat(
               fontSize: 14,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -398,7 +401,11 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
                   padding: const EdgeInsets.only(right: 8),
                   child: ChoiceChip(
                     showCheckmark: false,
+                    side: BorderSide(
+                      color: Pallete.neutral200,
+                    ),
                     selectedColor: Pallete.neutral200,
+                    backgroundColor: Pallete.pagecolor,
                     label: Text(
                       filter,
                       style: GoogleFonts.montserrat(

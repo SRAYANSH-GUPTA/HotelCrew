@@ -7,7 +7,7 @@ class StaffScheduleService {
   final String apiUrl = 'https://hotelcrew-1.onrender.com/api/edit/schedule_list/'; // Your API endpoint
 
   // Fetch staff schedules from the API and transform the data
-  Future<List<Map<String, String>>> fetchAndTransformStaffSchedules() async {
+  Future<List<Map<String, dynamic>>> fetchAndTransformStaffSchedules() async {
     try {
       // Retrieve the access token from SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -27,7 +27,7 @@ class StaffScheduleService {
           },
         ),
       );
-
+      print(response.data);
       if (response.statusCode == 200) {
         // Check if the response is successful
         List<dynamic> scheduleList = response.data['schedule_list'];

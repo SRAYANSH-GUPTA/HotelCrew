@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import '../../core/packages.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class AttendancePage extends StatefulWidget {
   const AttendancePage({super.key});
@@ -42,9 +44,59 @@ class _AttendancePageState extends State<AttendancePage> {
   String selectedDepartment = 'All Staff';
   bool isLoading = true;
 
+List<String> dept = [];
+
+void fetchDepartments(BuildContext context) async {
+  final Uri url = Uri.parse('https://hotelcrew-1.onrender.com/api/edit/department_list/'); // Replace with your actual endpoint
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString('access_token'); // Fetch access token from shared preferences
+
+  try {
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    print(response.body);
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (responseData['status'] == 'success') {
+        final Map<String, dynamic> staffPerDepartment =
+            responseData['staff_per_department'] ?? {};
+        List<String> departments = ['All Staff']; // Start with 'All Staff'
+        departments.addAll(staffPerDepartment.keys);
+        setState(() {
+          dept = departments + ['Manager','Receptionist'];
+        });
+        
+      } else {
+        throw Exception('Unexpected response: ${responseData['message']}');
+      }
+    } else {
+      final Map<String, dynamic> errorData = json.decode(response.body);
+      throw Exception(errorData['message'] ?? 'Failed to fetch departments.');
+    }
+  } catch (error) {
+    // Show error in Snackbar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error: $error'),
+        backgroundColor: Colors.red,
+      ),
+    );
+
+  }
+}
+
+
+
   @override
   void initState() {
     super.initState();
+    fetchDepartments(context);
     getrole();
     fetchAttendanceData();
   }
@@ -73,6 +125,7 @@ void getrole() async {
           validateStatus: (status) => status! < 501,
           headers: {
             'Authorization': 'Bearer $accessToken',
+            
           },
         ),
         queryParameters: department != null ? {'department': department} : null,
@@ -127,7 +180,7 @@ void getrole() async {
             Padding(
               padding: const EdgeInsets.only(left: 19),
               child: SizedBox(
-                height: 30,
+                height: 35,
                 width: screenWidth * 0.39,
                 child: Card(
                   color: Pallete.pagecolor,
@@ -137,7 +190,7 @@ void getrole() async {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+                    padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 3),
                     child: Row(
                       children: [
                         SvgPicture.asset("assets/filter.svg"),
@@ -188,7 +241,7 @@ void getrole() async {
                 ),
               ),
             ),
-            const SizedBox(height: 25),
+            const SizedBox(height: 21),
             // Header Row
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 28),

@@ -7,6 +7,7 @@ class ForgetPasswordViewModel {
   Future<dynamic> sendForgetPasswordRequest(String email) async {
     final requestModel = ForgetPasswordRequest(email: email);
     try {
+      print("&"*100);
       final response = await _dio.post(
         'https://hotelcrew-1.onrender.com/api/auth/forget-password/',
         options: Options(

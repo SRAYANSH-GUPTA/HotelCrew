@@ -92,9 +92,11 @@ class _ProgressPageViewState extends State<ProgressPageView> {
       dio.options.validateStatus = (status) => true; // Allows all responses for debugging
 
       // Retrieve room details from SharedPreferences
-      String? roomsJson = prefs.getString('rooms');
+      String? roomsJson = prefs.getString('room_types');
+      print(roomsJson);
+      print("&"*100);
       List<Map<String, dynamic>> rooms = roomsJson != null ? List<Map<String, dynamic>>.from(jsonDecode(roomsJson)) : [];
-
+      print(rooms);
       Map<String, dynamic> formDataMap = {
         'user': prefs.getString('userid'),
         'hotel_name': prefs.getString('hotel_name'),
@@ -115,9 +117,12 @@ class _ProgressPageViewState extends State<ProgressPageView> {
         'room_price': prefs.getString('price') ?? '',
         'number_of_departments': 2,
         'department_names': 'Reception, Housekeeping, Maintenance, Kitchen, Security',
-        'rooms': rooms, // Add room details to the form data
+        'room_types': roomsJson, // Add room details to the form data
         // 'staff_excel_sheet': await MultipartFile.fromFile(fileaddress, filename: fileName),
       };
+      print("-"*100);
+      print(roomsJson.toString());
+      print(formDataMap);
 
       // if (fileaddress == null && fileName == null && fileaddress.isEmpty) {
       //   // formDataMap['staff_excel_sheet'] = await MultipartFile.fromFile(fileaddress, filename: fileName);
@@ -132,13 +137,14 @@ class _ProgressPageViewState extends State<ProgressPageView> {
       //   return;
 
       // }
-
+      // print(rooms);
+      print("*"*100);
       FormData formData = FormData.fromMap(formDataMap);
       print("&"*7);
       // print(fileaddress);
       print(prefs.get("filename"));
       Response response = await dio.post(
-        'https://hotelcrew-1.onrender.com/api/hoteldetails/register/',
+        'https://hotelcrew-1.onrender.com/api/hoteldetails/registe/',
         data: formData,
       );
       print(response.statusCode);

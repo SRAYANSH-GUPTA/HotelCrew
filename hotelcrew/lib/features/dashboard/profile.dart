@@ -6,6 +6,7 @@ import '../auth/view/pages/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
+import "../dashboard/staffdatabase.dart";
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
@@ -61,6 +62,60 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       });
     }
   }
+
+
+void _showLogoutDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Log Out'),
+        content: const Text('Are you sure you want to log out?'),
+        actions: <Widget>[
+          ElevatedButton(
+            
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              backgroundColor: Pallete.pagecolor, // Adjust color if needed
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Pallete.primary700, // Use your primary color
+              foregroundColor: Pallete.neutral100, // Text color
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.remove("access_token");
+              prefs.remove("refresh_token");
+              prefs.remove("email");
+              prefs.remove("Role");
+              Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const LoginPage()),
+                                      (Route<dynamic> route) => false,
+                                    );
+            },
+            child: const Text('Log Out'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -212,7 +267,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           height: 16,
                           width: 22,
                         ),
-                        onTap: () {},
+                        onTap: () {
+                           Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => StaffDatabasePage()));
+                          },
                       ),
                       buildMenuItem(
                         img: SvgPicture.asset(
@@ -274,16 +333,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           width: 36,
                         ),
                         title: 'Log Out',
-                        onTap: () async {
-                          SharedPreferences prefs = await SharedPreferences.getInstance();
-                          prefs.remove("access_token");
-                          prefs.remove("refresh_token");
-                          prefs.remove("email");
-                          prefs.remove("Role");
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => const LoginPage()),
-                          );
+                        onTap: () {
+                          _showLogoutDialog(context);
+                    
                         },
                       ),
                     ],

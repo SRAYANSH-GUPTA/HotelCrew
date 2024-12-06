@@ -22,14 +22,14 @@ class ShiftProvider {
 
       switch (shift) {
         case 'Morning':
-          shiftTime = '1:00 AM - 9:00 AM';
+          shiftTime = '6:00 AM - 2:00 PM';
           break;
         case 'Evening':
-          shiftTime = '4:00 PM - 1:00 AM';
+          shiftTime = '2:00 PM - 10:00 PM';
           break;
-        case 'Day':
+        case 'Night':
         default:
-          shiftTime = '9:00 AM - 4:00 PM';
+          shiftTime = '10:00 PM - 6:00 AM';
           break;
       }
 

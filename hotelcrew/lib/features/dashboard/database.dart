@@ -6,6 +6,7 @@ class DatabasePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Pallete.pagecolor,
       appBar:AppBar(
@@ -40,8 +41,9 @@ class DatabasePage extends StatelessWidget {
                 );
               },
               child: Container(
+                height: 118,
                 margin: const EdgeInsets.only(bottom: 16),
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(horizontal: 12.33,vertical: 9),
                 decoration: BoxDecoration(
                   color: Pallete.pagecolor,
                   borderRadius: BorderRadius.circular(8),
@@ -54,6 +56,7 @@ class DatabasePage extends StatelessWidget {
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             "Staff Details",
@@ -75,10 +78,11 @@ class DatabasePage extends StatelessWidget {
                         ],
                       ),
                     ),
+                    SizedBox(width: 25),
                    SvgPicture.asset(
                       'assets/databasestaff.svg',
-                      width: 64,
-                      height: 64,
+                      width: screenWidth * 0.268,
+                      height: 100,
                     ),],
                 ),
               ),
@@ -91,7 +95,8 @@ class DatabasePage extends StatelessWidget {
                 );
               },
               child: Container(
-                padding: const EdgeInsets.all(16),
+                height: 118,
+                padding: const EdgeInsets.symmetric(horizontal: 12.33,vertical: 9),
                 decoration: BoxDecoration(
                   color: Pallete.pagecolor,
                   borderRadius: BorderRadius.circular(8),
@@ -108,9 +113,10 @@ class DatabasePage extends StatelessWidget {
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "Customer Details",
+                            "Guest Details",
                              style: GoogleFonts.montserrat(textStyle:const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -129,10 +135,11 @@ class DatabasePage extends StatelessWidget {
                         ],
                       ),
                     ),
+                    SizedBox(width: 32),
                      SvgPicture.asset(
-                      'assets/databasestaff.svg',
-                      width: 64,
-                      height: 64,
+                      'assets/customerdetails.svg',
+                      width: screenWidth * 0.268,
+                      height: 100,
                     ),
                   ],
                 ),

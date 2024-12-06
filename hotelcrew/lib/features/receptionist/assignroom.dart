@@ -19,6 +19,59 @@ class _AssignRoomPageState extends State<AssignRoomPage> {
   String? status;
   String? roomType;
 
+List<String> room = [];
+
+
+void fetchRoomTypes() async {
+  try {
+    // Get the access token from SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('access_token');
+
+    if (accessToken == null) {
+      throw Exception('Access token not found.');
+    }
+
+    // API endpoint
+    const String apiUrl = 'https://hotelcrew-1.onrender.com/api/hoteldetails/room/details/';
+
+    // Make the GET request
+    final response = await http.get(
+      Uri.parse(apiUrl),
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    // Check response status
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      // Extract room names from the API response
+      if (data['status'] == 'success') {
+        final roomList = data['data'] as List;
+        print("^"*100);
+        print(roomList);
+        print(roomList.map<String>((room) => room['room_type'] as String).toList());
+        setState(() {
+          room = roomList.map<String>((room) => room['room_type'] as String).toList();
+        });
+      } else {
+        throw Exception('Error: ${data['message']}');
+      }
+    } else {
+      throw Exception('Failed to fetch room details. Status: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Handle errors
+    print('Error: $e');
+    
+  }
+}
+
+
+
   final Dio _dio = Dio();
 
   Future<void> _selectStatus() async {
@@ -118,7 +171,8 @@ class _AssignRoomPageState extends State<AssignRoomPage> {
                   ),
                 ],
               ),
-              ...['Luxury', 'Deluxe ', 'Suite'].map((roomOption) {
+              ...room
+              .map((roomOption) {
                 return ListTile(
                   title: Text(
                     roomOption,
@@ -142,6 +196,15 @@ class _AssignRoomPageState extends State<AssignRoomPage> {
       },
     );
   }
+
+ @override
+  void initState() {
+    super.initState();
+    fetchRoomTypes();
+  }
+
+
+
 
   Future<void> _selectCheckOutDateTime() async {
     DateTime? selectedDate = await showDatePicker(
@@ -226,6 +289,7 @@ String access_token = "";
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Room assigned successfully')),
         );
+        Navigator.pop(context);
       } else {
         final responseData = jsonDecode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -243,81 +307,90 @@ String access_token = "";
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    return Scaffold(
-      appBar: AppBar(
-        leading: InkWell(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: const Icon(Icons.arrow_back_ios_outlined, color: Pallete.neutral900),
-        ),
-        titleSpacing: 0,
-        title: Text(
-          'Assign Room',
-          style: GoogleFonts.montserrat(
-            textStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Pallete.neutral1000,
+    return GlobalLoaderOverlay(
+      child: Scaffold(
+        appBar: AppBar(
+          leading: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: const Icon(Icons.arrow_back_ios_outlined, color: Pallete.neutral900),
+          ),
+          titleSpacing: 0,
+          title: Text(
+            'Assign Room',
+            style: GoogleFonts.montserrat(
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Pallete.neutral1000,
+              ),
             ),
           ),
+          backgroundColor: Pallete.pagecolor,
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.black),
         ),
-        backgroundColor: Pallete.pagecolor,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
+                    child: ListView(
+                      children: [
+                        const SizedBox(height: 32),
+                        _buildTextField('Name', nameController),
+                        const SizedBox(height: 30),
+                        _buildTextField('Email', emailController),
+                        const SizedBox(height: 30),
+                        _buildBottomSheetField('Status', status, _selectStatus),
+                        const SizedBox(height: 30),
+                        _buildTextField('Contact', contactController),
+                        const SizedBox(height: 30),
+                        _buildBottomSheetField('Room Type', roomType, _selectRoomType),
+                        const SizedBox(height: 30),
+                        _buildCheckOutField('Check-Out', checkOutController, _selectCheckOutDateTime),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+        padding: const EdgeInsets.only(bottom: 30),
+        child: MediaQuery.of(context).viewInsets.bottom == 0 // Check if the keyboard is hidden
+        ? SizedBox(
+            width: screenWidth * 0.9,
+            child: ElevatedButton(
+              onPressed:() async{ 
+                context.loaderOverlay.show();
+                await _assignRoom();
+                context.loaderOverlay.hide();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Pallete.primary800,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Assign Room',
+                style: GoogleFonts.montserrat(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Pallete.neutral00,
+                ),
+              ),
+            ),
+          )
+        : const SizedBox(), // Hide the button when the keyboard is visible
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  child: ListView(
-                    children: [
-                      const SizedBox(height: 32),
-                      _buildTextField('Name', nameController),
-                      const SizedBox(height: 30),
-                      _buildTextField('Email', emailController),
-                      const SizedBox(height: 30),
-                      _buildBottomSheetField('Status', status, _selectStatus),
-                      const SizedBox(height: 30),
-                      _buildTextField('Contact', contactController),
-                      const SizedBox(height: 30),
-                      _buildBottomSheetField('Room Type', roomType, _selectRoomType),
-                      const SizedBox(height: 30),
-                      _buildCheckOutField('Check-Out', checkOutController, _selectCheckOutDateTime),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 40),
-              child: SizedBox(
-                width: screenWidth * 0.9,
-                child: ElevatedButton(
-                  onPressed: _assignRoom,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Pallete.primary800,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    'Assign Room',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Pallete.neutral00,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
+      
+            ],
+          ),
         ),
       ),
     );
@@ -344,14 +417,14 @@ String access_token = "";
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
           borderSide: const BorderSide(
-            color: Colors.indigo,
+            color: Pallete.primary800,
             width: 2.0,
           ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
           borderSide: const BorderSide(
-            color: Colors.red,
+            color: Pallete.error700,
             width: 2.0,
           ),
         ),
@@ -367,7 +440,7 @@ String access_token = "";
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8.0),
           border: Border.all(
-            color: value == null ? Colors.grey.shade400 : Colors.indigo,
+            color: value == null ? Pallete.neutral700 : Pallete.neutral700,
             width: 1.0,
           ),
         ),
@@ -379,7 +452,7 @@ String access_token = "";
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: value == null ? Colors.grey.shade600 : Colors.black,
+                color: value == null ? Pallete.neutral950 : Pallete.neutral950,
               ),
             ),
           ],
@@ -419,7 +492,7 @@ String access_token = "";
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
           borderSide: const BorderSide(
-            color: Colors.red,
+            color: Pallete.error700,
             width: 2.0,
           ),
         ),

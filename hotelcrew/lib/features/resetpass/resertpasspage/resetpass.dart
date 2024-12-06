@@ -139,7 +139,7 @@ class _ResetpassState extends State<Resetpass> {
                           width: screenWidth * 0.9,
                           child: ElevatedButton(
                             onPressed: () async {
-                              if (EmailValidator.validate(resetpassemail.text)) {
+                              if (EmailValidator.validate(resetpassemail.text) && resetpassemail.text.isNotEmpty) {
                                 context.loaderOverlay.show(); // Start loading
                                 final response = await viewModel
                                     .sendForgetPasswordRequest(resetpassemail.text);

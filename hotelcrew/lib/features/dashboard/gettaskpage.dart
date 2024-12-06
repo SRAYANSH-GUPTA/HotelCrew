@@ -4,6 +4,9 @@ import 'model/gettaskmodel.dart';
 import 'viewmodel/gettaskviewmodel.dart';
 import 'edittaskpage.dart';
 import 'package:hotelcrew/features/dashboard/announcementpage.dart';
+import "package:http/http.dart" as http;
+import 'package:intl/intl.dart';
+import 'dart:convert';
 
 class TaskManagementPage extends StatefulWidget {
   const TaskManagementPage({super.key});
@@ -15,7 +18,7 @@ class TaskManagementPage extends StatefulWidget {
 class _TaskManagementPageState extends State<TaskManagementPage> {
   final TaskService _taskService = TaskService();
   final List<Task> _tasks = [];
-  final ScrollController _scrollController = ScrollController(); // Add scroll controller
+  final ScrollController _scrollController = ScrollController();
 
   bool _isLoading = false;
   bool _hasMore = true;
@@ -26,7 +29,7 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
   void initState() {
     super.initState();
     _fetchTasks(); // Initial fetch
-    
+
     // Add scroll listener
     _scrollController.addListener(() {
       if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
@@ -76,31 +79,31 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
     }
   }
 
-  // Mock function for deleting a task
-  void _deleteTask(int taskId) {
-    print("Task with ID $taskId deleted.");
-    setState(() {
-      //  _tasks.removeWhere((task) => task.id == taskId); // Refresh tasks list
-    });
+  void _navigateToCreateTask() async {
+    // Navigate to CreateTaskPage and fetch tasks when it pops
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CreateTaskPage()),
+    );
+    _fetchTasks(); // Refresh tasks after returning
   }
 
-  // Mock function to navigate to update task page
-  void _navigateToUpdateTask(Task task) {
-    print("Navigating to update page for task: ${task.title}");
-    Navigator.push(
+  void _navigateToUpdateTask(Task task) async {
+    // Navigate to EditTaskPage and fetch tasks when it pops
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => EditTaskPage(
-          id: task.id.toString(), // Replace with actual task ID
-          taskTitle: task.title, // Replace with actual task title
-          department: task.department ?? "", // Replace with actual department
-          description: task.description, // Replace with actual description
+          id: task.id.toString(),
+          taskTitle: task.title,
+          department: task.department ?? "",
+          description: task.description,
         ),
       ),
     );
+    _fetchTasks(); // Refresh tasks after returning
   }
-
-  @override
+   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -122,7 +125,7 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const AnnouncementPage()));
               },
-              splashColor: Colors.transparent, // Removes the splash effect
+              splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
               child: SvgPicture.asset(
                 "assets/message.svg",
@@ -134,17 +137,16 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
         ],
       ),
       body: SingleChildScrollView(
-        controller: _scrollController, // Add controller here
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start,
-          children:[
+        controller: _scrollController,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Container(
-              margin: const EdgeInsets.only(left: 16,top: 32),
-              width: screenWidth * 0.5445, // Width in pixels
-              height: 40,  // Height in pixels
+              margin: const EdgeInsets.only(left: 16, top: 32),
+              width: screenWidth * 0.5445,
+              height: 40,
               child: ElevatedButton.icon(
-                onPressed: () {   
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateTaskPage()));
-                },
+                onPressed: _navigateToCreateTask,
                 icon: const Icon(Icons.add, size: 18, color: Colors.white),
                 label: Text(
                   "Create a new task",
@@ -158,16 +160,16 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 10),
-                  backgroundColor: Pallete.primary800, // Button color
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  backgroundColor: Pallete.primary800,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8), // Rounded corners
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  elevation: 2, // Button elevation for shadow
+                  elevation: 2,
                 ),
               ),
             ),
-            const SizedBox(height: 32,),
+            const SizedBox(height: 32),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -182,42 +184,87 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 32,),
+            const SizedBox(height: 32),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 0),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Column(
-                  children: [
-                    ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _tasks.isEmpty
+                  ? Center(
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 30),
+                          Center(
+                            child: SvgPicture.asset(
+                              'assets/emptytask.svg',
+                              width: 328,
+                              height: 272,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: _tasks.length + (_hasMore ? 1 : 0),
                       itemBuilder: (context, index) {
                         if (index == _tasks.length) {
-                          return _hasMore 
-                            ? const Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: CircularProgressIndicator(),
-                                ),
-                              )
-                            : const SizedBox();
+                          return _hasMore
+                              ? const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                              : const SizedBox();
                         }
                         return _buildTaskCard(_tasks[index]);
                       },
                     ),
-                    // if (_isLoading && _tasks.isEmpty)
-                    //   const Center(child: CircularProgressIndicator()),
-                  ],
-                ),
-              ),
             ),
           ],
         ),
       ),
     );
   }
+
+void _deleteTask(int taskId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token =  prefs.getString('access_token'); // Fetch access token from shared preferences
+  final Uri url = Uri.parse('https://hotelcrew-1.onrender.com/api/taskassignment/tasks/delete/$taskId/'); // Replace with your API URL
+
+  try {
+    final response = await http.delete(
+      url,
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      // Success: Show success message in Snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Task deleted successfully')),
+      );
+      setState(() {
+        // Optionally, remove the task from the list in the UI
+        _tasks.removeWhere((task) => task.id == taskId);
+      });
+      _fetchTasks();
+    } else {
+      // Failure: Show error message in Snackbar
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(responseData['detail'] ?? 'An error occurred')),
+      );
+    }
+  } catch (e) {
+    // Network or other errors
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('An error occurred: $e')),
+    );
+  }
+}
+
+
 
   Widget _buildTaskCard(Task task) {
     // Determine icon and color based on status
@@ -298,7 +345,7 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
                               if (value == 'Edit') {
                                 _navigateToUpdateTask(task);
                               } else if (value == 'Delete') {
-                                //  _deleteTask(task.id);
+                                _deleteTask(task.id);
                               }
                             },
                             itemBuilder: (context) => [
@@ -411,7 +458,8 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
                 ),
                 children: [
                   TextSpan(
-                    text: task.deadline.toString(),
+                    text: task.deadline == null ? 'None' : DateFormat('dd MMM, hh:mm a').format(task.deadline!.toLocal()),
+
                     style: GoogleFonts.montserrat(
                       textStyle: const TextStyle(
                         fontSize: 12,
@@ -442,7 +490,7 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
                     ),
                     children: [
                       TextSpan(
-                        text: '11:00 PM',
+                        text: '${DateFormat('dd MMM, hh:mm a').format(task.updatedAt.toLocal())}',
                         style: GoogleFonts.montserrat(
                           textStyle: const TextStyle(
                             fontSize: 12,
@@ -468,7 +516,7 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
                 ),
                 children: [
                   TextSpan(
-                    text: 'User ${task.assignedBy}', // Dynamic part of the text
+                    text: '${task.assignedBy}', // Dynamic part of the text
                     style: GoogleFonts.montserrat(
                       textStyle: const TextStyle(
                         fontSize: 12,

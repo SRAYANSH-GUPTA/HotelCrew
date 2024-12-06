@@ -228,6 +228,54 @@ Future<void> getToken() async {
     print('Token retrieved: $access_token');
   }
 }
+List<String> dept = ['Housekeeping', 'Maintenance', 'Kitchen', 'Security'];
+
+void fetchDepartments(BuildContext context) async {
+  final Uri url = Uri.parse('https://hotelcrew-1.onrender.com/api/edit/department_list/'); // Replace with your actual endpoint
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString('access_token'); // Fetch access token from shared preferences
+
+  try {
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    print(response.body);
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (responseData['status'] == 'success') {
+        final Map<String, dynamic> staffPerDepartment =
+            responseData['staff_per_department'] ?? {};
+        List<String> departments = []; // Start with 'All Staff'
+        departments.addAll(staffPerDepartment.keys);
+        setState(() {
+          dept = departments + ['Manager','Receptionist'];
+        });
+        
+      } else {
+        throw Exception('Unexpected response: ${responseData['message']}');
+      }
+    } else {
+      final Map<String, dynamic> errorData = json.decode(response.body);
+      throw Exception(errorData['message'] ?? 'Failed to fetch departments.');
+    }
+  } catch (error) {
+    // Show error in Snackbar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error: $error'),
+        backgroundColor: Colors.red,
+      ),
+    );
+
+  }
+}
+
+
 String access_token = "";
 
 
@@ -239,9 +287,10 @@ String access_token = "";
   required String shift,
 }) async {
   const String url = 'https://hotelcrew-1.onrender.com/api/edit/create/';
-  
+   SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString('access_token');
   final Map<String, String> headers = {
-    'Authorization': 'Bearer $access_token',
+    'Authorization': 'Bearer $token',
     'Content-Type': 'application/json',
   };
 
@@ -274,8 +323,9 @@ String access_token = "";
     else if(response.statusCode == 400)
     {
       Navigator.pop(context);
+      String error = jsonDecode(response.body)['message'];
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email Already Exists')),
+        SnackBar(content: Text(error)),
       );
     }
     else {
@@ -300,6 +350,7 @@ final Dio _dio = Dio();
   @override
   void initState() {
     super.initState();
+    fetchDepartments(context);
     // Initially, the filtered list is the same as the full staff list
     fetchAttendanceData();
     filteredList = List.from(staffList);
@@ -431,7 +482,7 @@ void showFilterModal(BuildContext context) {
               const SizedBox(height: 24),
               Wrap(
                 spacing: 8.0,
-                children: ['Housekeeping', 'Maintenance', 'Kitchen', 'Security']
+                children: dept
                     .map(
                       (department) => FilterChip(
                         side: const BorderSide(color: Pallete.neutral200, width: 1),
@@ -478,12 +529,27 @@ void showFilterModal(BuildContext context) {
                     .toList(),
               ),
               const SizedBox(height: 106),
-              ElevatedButton(
-                onPressed: applyFilters,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 48),
+              SizedBox(
+                width :double.infinity,
+                child: ElevatedButton(
+                  onPressed: applyFilters,
+                  style: ElevatedButton.styleFrom(
+                          backgroundColor: Pallete.primary800, // Button color
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0), // Button radius
+                          ),
+                          // padding: const EdgeInsets.symmetric(vertical: 14.0), // Padding
+                        ),
+                        child: Text(
+                          "Show Results",
+                          style: GoogleFonts.montserrat(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Pallete.neutral00, // Button text color
+                          ),
+                        ),
                 ),
-                child: const Text('Show Results'),
               ),
               buildMainButton(
                 context: context,
@@ -509,6 +575,9 @@ void showFilterModal(BuildContext context) {
       child: Scaffold(
         backgroundColor: Pallete.pagecolor,
         appBar: AppBar(
+          scrolledUnderElevation: 0,
+          foregroundColor: Pallete.pagecolor,
+          backgroundColor: Pallete.pagecolor,
             titleSpacing: 0,
             leading: InkWell(
               onTap: () {
@@ -516,7 +585,7 @@ void showFilterModal(BuildContext context) {
               },
               child: const Icon(Icons.arrow_back_ios_outlined, color: Pallete.neutral900)),
             title: Text(
-              "Database",
+              "Staff Details",
               style: GoogleFonts.montserrat(
                 textStyle: const TextStyle(
                   fontSize: 16,
@@ -554,10 +623,8 @@ void showFilterModal(BuildContext context) {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(left: 8.0),
-                      child: SizedBox(
-                        // height: 36,
-                        width: screenWidth * 0.822,
-                        child: TextField(
+                      child: TextField(
+                          
                           style: GoogleFonts.montserrat(
                               textStyle: const TextStyle(
                                 fontSize: 12,
@@ -579,10 +646,10 @@ void showFilterModal(BuildContext context) {
           ),
               ),
               prefixIconConstraints: const BoxConstraints(
-          minHeight: 36,
+          minHeight: 44,
           minWidth: 36, // Ensure icon is properly sized
               ),
-              hintText: 'Search staff...',
+              hintText: 'Search for staff details',
               labelStyle: const TextStyle(
           
           color: Pallete.neutral400), // Optional label text color
@@ -616,7 +683,7 @@ void showFilterModal(BuildContext context) {
               });
             },
           ),
-                      ),
+                      
                     ),
                   ),
             
@@ -629,14 +696,11 @@ void showFilterModal(BuildContext context) {
                 
                 Expanded(
             child: filteredList.isEmpty
-          ? const Center(
-              child: Text(
-                'No results found',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey,
-                ),
+          ? Center(
+              child: SvgPicture.asset(
+                'assets/nostaff.svg',
+                height: 272,
+                width: 293.03,
               ),
             )
           : Column(mainAxisSize: MainAxisSize.min,
@@ -747,9 +811,10 @@ Future<void> updateStaff(BuildContext context, {
     'salary': '0',  // Default value
     'upi_id': ''    // Default value
   };
-
+  // Navigator.pop(context);
+  
   try {
-    final response = await http.put(
+    final response = await http.patch(
       Uri.parse(url),
       headers: headers,
       body: jsonEncode(body),
@@ -757,14 +822,32 @@ Future<void> updateStaff(BuildContext context, {
 
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
+     final Map<String, dynamic> responseMap = jsonDecode(response.body);
+
+  // Extract the message
+  final String message = responseMap['message'] ?? 'Something went wrong';
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Staff updated successfully')),
       );
+      // Navigator.pop(context);
+      onDelete(); // Refresh list using the callback
+    }
+    
+    else if (response.statusCode == 403) {
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message),
+         behavior: SnackBarBehavior.floating,
+         
+        ),
+        
+      );
       Navigator.pop(context);
       onDelete(); // Refresh list using the callback
-    } else {
+    }
+     else {
       final errorData = jsonDecode(response.body);
       throw Exception(errorData['message'] ?? 'Failed to update staff');
     }
@@ -796,7 +879,7 @@ final buttonStyle = ElevatedButton.styleFrom(
 // Edit Staff Bottom Sheet
 void showEditStaffBottomSheet(BuildContext context,
     {required String name, required String email, required String department, required String Shift}) {
-   final nameController = TextEditingController(text: name);
+  final nameController = TextEditingController(text: name);
   final emailController = TextEditingController(text: email);
   final departmentController = TextEditingController(text: department);
   final shiftController = TextEditingController(text: Shift);
@@ -842,7 +925,8 @@ void showEditStaffBottomSheet(BuildContext context,
                   ],
                 ),
                 const SizedBox(height: 38), // Spacing between title row and first text field
-                // Styled TextFields
+                
+                // Name Field
                 TextFormField(
                   decoration: InputDecoration(
                     labelText: "Name",
@@ -863,6 +947,8 @@ void showEditStaffBottomSheet(BuildContext context,
                   validator: (value) => value?.isEmpty ?? true ? 'Name is required' : null,
                 ),
                 const SizedBox(height: 38),
+                
+                // Email Field
                 TextFormField(
                   controller: emailController,
                   validator: (value) => value?.isEmpty ?? true ? 'Email is required' : null,
@@ -881,9 +967,10 @@ void showEditStaffBottomSheet(BuildContext context,
                       borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
                     ),
                   ),
-            
                 ),
-                const SizedBox(height: 38),
+                const SizedBox(height: 38), 
+
+                // Department Field
                 TextFormField(
                   controller: departmentController,
                   validator: (value) => value?.isEmpty ?? true ? 'Department is required' : null,
@@ -902,37 +989,55 @@ void showEditStaffBottomSheet(BuildContext context,
                       borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
                     ),
                   ),
-                  
                 ),
                 const SizedBox(height: 38),
-                TextFormField(
-                  controller: shiftController,
-                  validator: (value) => value?.isEmpty ?? true ? 'Shift is required' : null,
-                  decoration: InputDecoration(
-                    labelText: "Shift",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
+
+                // Shift Dropdown
+                Container(
+                  width: screenWidth * 0.9, // Ensures the dropdown has the same width as the text fields
+                  child: DropdownButtonFormField<String>(
+                    value: shiftController.text.isNotEmpty ? shiftController.text : null,
+                    items: [
+                      DropdownMenuItem(
+                        value: 'Morning',
+                        child: Text('Morning'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Evening',
+                        child: Text('Evening'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Night',
+                        child: Text('Night'),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      shiftController.text = value ?? '';
+                    },
+                    decoration: InputDecoration(
+                      labelText: "Shift",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(color: Pallete.primary700, width: 1.0),
+                      ),
                     ),
                   ),
-                  
                 ),
                 const SizedBox(height: 38),
-                // Styled Button
+
+                // Update Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (formKey.currentState?.validate() ?? false) {
-                        updateStaff(
+                        context.loaderOverlay.show();
+
+                        await updateStaff(
                           context,
                           userId: id,
                           name: nameController.text,
@@ -941,8 +1046,8 @@ void showEditStaffBottomSheet(BuildContext context,
                           shift: shiftController.text,
                         );
                       }
+                      Navigator.pop(context);
                     },
-            
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Pallete.primary800, // Button color
                       elevation: 0,
@@ -969,6 +1074,8 @@ void showEditStaffBottomSheet(BuildContext context,
     },
   );
 }
+
+
 
  Future<void> deleteItem(int id) async {
     final String url = 'https://hotelcrew-1.onrender.com/api/edit/delete/$id/';
@@ -1260,8 +1367,8 @@ Widget build(BuildContext context) {
             ),
           ),
           SizedBox(
-            height: 24,
-            width: 24,
+            // height: 24,
+            // width: 24,
             child: PopupMenuButton<String>(
                 color: Pallete.neutral00,
                 elevation: 0,

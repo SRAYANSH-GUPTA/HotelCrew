@@ -53,130 +53,135 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
     }
   }
 
-  Future<void> _submitLeaveRequest() async {
-    await getToken(); // Wait for the token to be retrieved
-    if (access_token.isEmpty) {
-      print('Access token is null or empty');
-      return;
-    }
-    if (_formKey.currentState!.validate()) {
-      final String fromDate = dateFromController.text;
-      final String toDate = dateToController.text;
-      final String reason = reasonController.text;
-      final String description = descriptionController.text;
+ Future<void> _submitLeaveRequest() async {
+  await getToken(); // Wait for the token to be retrieved
+  if (access_token.isEmpty) {
+    print('Access token is null or empty');
+    return;
+  }
 
-      setState(() {
-        _isLoading = true;
-      });
+  if (_formKey.currentState!.validate()) {
+    final String fromDate = dateFromController.text;
+    final String toDate = dateToController.text;
+    final String reason = reasonController.text;
+    final String description = descriptionController.text;
 
-      try {
-        final response = await http.post(
-          Uri.parse('https://hotelcrew-1.onrender.com/api/attendance/apply_leave/'),
-          headers: {
-            'Authorization': 'Bearer $access_token',
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode({
-            'from_date': fromDate,
-            'to_date': toDate,
-            'leave_type': description,
-            'reason': reason,
-          }),
-        );
+    // Show the global loader
+    context.loaderOverlay.show();
 
-        if (response.statusCode == 201) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Leave request submitted successfully')),
-          );
-          GlobalNotification.showSuccessMessage("Task Updated Successfully!!");
-        } else {
-          final responseData = jsonDecode(response.body);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to submit leave request: ${responseData['message']}')),
-          );
-        }
-      } catch (e) {
+    try {
+      final response = await http.post(
+        Uri.parse('https://hotelcrew-1.onrender.com/api/attendance/apply_leave/'),
+        headers: {
+          'Authorization': 'Bearer $access_token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'from_date': fromDate,
+          'to_date': toDate,
+          'leave_type': description,
+          'reason': reason,
+        }),
+      );
+
+      if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          const SnackBar(content: Text('Leave request submitted successfully')),
         );
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
+        context.loaderOverlay.hide();
+      Navigator.pop(context);
+        // GlobalNotification.showSuccessMessage("Task Updated Successfully!!");
+      } else {
+        final responseData = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to submit leave request: ${responseData['message']}')),
+        );
       }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      // Hide the loader
+      context.loaderOverlay.hide();
+    
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 0,
-        leading: InkWell(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: const Icon(
-            Icons.arrow_back_ios_outlined,
-            color: Pallete.neutral900,
+    return GlobalLoaderOverlay(
+      child: Scaffold(
+        appBar: AppBar(
+          titleSpacing: 0,
+          leading: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: const Icon(
+              Icons.arrow_back_ios_outlined,
+              color: Pallete.neutral900,
+            ),
           ),
-        ),
-        title: Text(
-          "Request a Leave",
-          style: GoogleFonts.montserrat(
-            textStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Pallete.neutral1000,
+          title: Text(
+            "Request a Leave",
+            style: GoogleFonts.montserrat(
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Pallete.neutral1000,
+              ),
             ),
           ),
         ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              const SizedBox(height: 24),
-              _buildTextField('Reason for Leave', reasonController, reasonFocusNode),
-              const SizedBox(height: 34),
-              _buildDateField('Date From', dateFromController, dateFromFocusNode),
-              const SizedBox(height: 34),
-              _buildDateField('Date To', dateToController, dateToFocusNode),
-              const SizedBox(height: 34),
-              _buildTextField('Description', descriptionController, descriptionFocusNode, maxLines: 4),
-              const SizedBox(height: 130),
-              SizedBox(
-                width: screenWidth * 0.9,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _submitLeaveRequest,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5662AC),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(color: Color(0xFFFAFAFA)),
-                        )
-                      : Text(
-                          'Assign Task',
-                          style: GoogleFonts.montserrat(
-                            textStyle: TextStyle(
-                              fontSize: screenWidth * 0.04,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                const SizedBox(height: 24),
+                _buildTextField('Reason for Leave', reasonController, reasonFocusNode),
+                const SizedBox(height: 34),
+                _buildDateField('Date From', dateFromController, dateFromFocusNode),
+                const SizedBox(height: 34),
+                _buildDateField('Date To', dateToController, dateToFocusNode),
+                const SizedBox(height: 34),
+                _buildTextField('Description', descriptionController, descriptionFocusNode, maxLines: 4),
+                SizedBox(height: screenHeight * 0.2),
+                SizedBox(
+                  width: screenWidth * 0.9,
+                  child: ElevatedButton(
+                    onPressed:  _submitLeaveRequest,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Pallete.primary700,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(color: Color(0xFFFAFAFA)),
+                          )
+                        : Text(
+                            'Request Leave',
+                            style: GoogleFonts.montserrat(
+                              textStyle: TextStyle(
+                                fontSize: screenWidth * 0.04,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
-                        ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16), // Adjusted spacing
-            ],
+                const SizedBox(height: 16), // Adjusted spacing
+              ],
+            ),
           ),
         ),
       ),

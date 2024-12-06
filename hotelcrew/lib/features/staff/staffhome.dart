@@ -28,6 +28,7 @@ class _StaffHomePageState extends State<StaffHomePage> {
   void initState() {
     super.initState();
     getToken();
+    getrole();
     fetchLeaveRequests();
     fetchMonthlyAttendanceData();
     fetchTaskData();
@@ -48,6 +49,25 @@ class _StaffHomePageState extends State<StaffHomePage> {
       print('Token retrieved: $access_token');
     }
   }
+
+String username = "";
+
+
+  void getrole() async {
+    print("&"*10000);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String Role = prefs.getString('Role') ?? '';
+    final String Username= prefs.getString('username') ?? '';
+    print(Role);
+    print(Username);
+    print("-"*1000);
+    setState(() {
+      // Roles = Role;
+      username = Username;
+    });
+  }
+
+
 
   Future<dynamic> fetchWeeklyPerformance() async {
     await getToken(); // Wait for the token to be retrieved
@@ -190,15 +210,28 @@ class _StaffHomePageState extends State<StaffHomePage> {
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        int daysPresent = data['days_present'];
-        int totalLeaveDays = data['leaves'];
-        int totalDaysUpToToday = data['total_days_up_to_today'];
+        double daysPresent = data['days_present'];
+        double totalLeaveDays = data['leaves'];
+        double totalDaysUpToToday = data['total_days_up_to_today'];
+        print("^^^^"*100);
+        print(daysPresent);
+        print(totalLeaveDays);
+        print(totalDaysUpToToday);
 
         if (mounted) {
           setState(() {
-            present = (daysPresent / totalDaysUpToToday) * 100;
-            leave = (totalLeaveDays / totalDaysUpToToday) * 100;
-            absent = 100 - present - leave;
+            // present = (daysPresent / totalDaysUpToToday) * 100;
+            // leave = (totalLeaveDays / totalDaysUpToToday) * 100;
+            if(100 - daysPresent -totalLeaveDays >= 0){
+            double absent = 100 - daysPresent - totalLeaveDays;}
+            else
+            {
+              absent = 0;
+            }
+            double total = daysPresent + totalLeaveDays + absent;
+            // present = (daysPresent / total) * 100;
+            // absent = (absent / total) * 100;
+            // leave = (totalLeaveDays / total);
           });
         }
       } else {
@@ -216,7 +249,7 @@ class _StaffHomePageState extends State<StaffHomePage> {
       backgroundColor: Pallete.pagecolor,
       appBar: AppBar(
         title: Text(
-          'Good Morning, User',
+          'Good Morning, $username',
           style: GoogleFonts.montserrat(
             textStyle: const TextStyle(
               color: Pallete.neutral950,
@@ -308,7 +341,7 @@ class _StaffHomePageState extends State<StaffHomePage> {
                 border: Border.all(color: Pallete.neutral200, width: 1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const LineChartWidget(),
+              child: LineChartWidget(),
             ),
             const SizedBox(height: 56),
             Container(
@@ -318,19 +351,39 @@ class _StaffHomePageState extends State<StaffHomePage> {
                 border: Border.all(color: Pallete.neutral200, width: 1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: PieChartWidgetstaff(
-                title: "Your Attendance",
-                data: {
-                  "Present": present,
-                  "Absent": absent,
-                  "Leave": leave,
-                },
-                colors: const {
-                  "Present": Colors.green,
-                  "Absent": Colors.red,
-                  "Leave": Colors.orange,
-                },
-              ),
+              child: (present == 0 && absent == 0 && leave == 0)
+    ? Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            'assets/emptystaffattendance.svg', // Replace with your SVG file path
+            width: 200, // Adjust width as needed
+            height: 200, // Adjust height as needed
+          ),
+          const SizedBox(height: 16),
+          // Text(
+          //   "No attendance data available",
+          //   style: TextStyle(
+          //     fontSize: 16,
+          //     color: Colors.grey,
+          //   ),
+          // ),
+        ],
+      )
+    : PieChartWidgetstaff(
+        title: "Your Attendance",
+        data: {
+          "Present": present,
+          "Absent": absent,
+          "Leave": leave,
+        },
+        colors: const {
+          "Present": Colors.green,
+          "Absent": Colors.red,
+          "Leave": Colors.orange,
+        },
+      )
+
             ),
             const SizedBox(height: 56),
             Row(
@@ -371,16 +424,36 @@ class _StaffHomePageState extends State<StaffHomePage> {
               ],
             ),
             const SizedBox(height: 20),
-            SizedBox(
-              child: ListView.builder(
-                itemCount: leaveRequests.length > 2 ? 2 : leaveRequests.length,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (context, index) {
-                  return _buildLeaveRequestCard(leaveRequests[index], screenWidth);
-                },
-              ),
+           SizedBox(
+  child: leaveRequests.isEmpty
+      ? Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              'assets/staffleave.svg', // Replace with your SVG file path
+              width: 200, // Adjust width as needed
+              height: 200, // Adjust height as needed
             ),
+            const SizedBox(height: 16),
+            // Text(
+            //   "No leave requests available",
+            //   style: TextStyle(
+            //     fontSize: 16,
+            //     color: Colors.grey,
+            //   ),
+            // ),
+          ],
+        )
+      : ListView.builder(
+          itemCount: leaveRequests.length > 2 ? 2 : leaveRequests.length,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemBuilder: (context, index) {
+            return _buildLeaveRequestCard(leaveRequests[index], screenWidth);
+          },
+        ),
+)
+
           ],
         ),
       ),

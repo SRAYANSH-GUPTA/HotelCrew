@@ -14,46 +14,19 @@ class _ReceptionistCustomerDatabasePageState extends State<ReceptionistCustomerD
   final screenWidth = const MediaQueryData().size.width;
 
   List<Map<String, String>> customerData = [
-    {
-      'name': 'John Doe',
-      'customerId': '1234567890',
-      'email': 'abcd123@gmail.com',
-      'contact': '9876543210',
-      'room': '301',
-      'checkIn': '20-03-2024',
-      'checkOut': '20-05-2024',
-      'status': 'Regular',
-    },
-    {
-      'name': 'Jane Smith',
-      'customerId': '0987654321',
-      'email': 'janesmith@gmail.com',
-      'contact': '1234567890',
-      'room': '302',
-      'checkIn': '22-03-2024',
-      'checkOut': '22-05-2024',
-      'status': 'VIP',
-    },
-    {
-      'name': 'Mark Johnson',
-      'customerId': '1122334455',
-      'email': 'markjohnson@gmail.com',
-      'contact': '5566778899',
-      'room': '303',
-      'checkIn': '25-03-2024',
-      'checkOut': '25-05-2024',
-      'status': 'Regular',
-    },
+    
   ];
 
   final String apiUrl = 'https://hotelcrew-1.onrender.com/api/hoteldetails/all-customers/';
 
   Future<void> fetchData() async {
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? accessToken = prefs.getString('access_token');
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
         headers: {
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs',
+          'Authorization': 'Bearer $accessToken',
         },
       );
 
@@ -431,21 +404,21 @@ String access_token = "";
             ),
             const SizedBox(height: 35),
             Expanded(
-              child: filteredList.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'No results found',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    )
-                  : Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Expanded(
+          child: filteredList.isEmpty
+        ? Center(
+              child: SvgPicture.asset(
+                'assets/noguest.svg',
+                height: 272,
+                width: 293.03,
+              ),
+            )
+        : Column(mainAxisSize: MainAxisSize.min,
+            children: [
+              // Table headers with vertical lines
+             
+          
+              // Table header with vertical lines
+             Expanded(
                           child: ListView.builder(
                             itemCount: filteredList.length,
                             shrinkWrap: true,

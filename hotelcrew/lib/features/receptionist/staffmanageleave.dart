@@ -145,7 +145,7 @@ String access_token = "";
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              "23",
+                              leaveRequests.length.toString(),
                               style: GoogleFonts.montserrat(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w500,
@@ -154,7 +154,7 @@ String access_token = "";
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              "Leave Approved",
+                              "Total Leaves Applied",
                               style: GoogleFonts.montserrat(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -171,7 +171,7 @@ String access_token = "";
                     ],
                   ),
                 ),
-                const SizedBox(height: 49),
+                const SizedBox(height: 32),
                 Row(
                   children: [
                     SizedBox(
@@ -182,6 +182,7 @@ String access_token = "";
                               context,
                               MaterialPageRoute(
                                   builder: (context) => const RequestALeavePage()));
+                                  fetchLeaveRequests();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Pallete.primary800,
@@ -249,9 +250,12 @@ String access_token = "";
               (filter) => Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: ChoiceChip(
+                  side: BorderSide(
+                    color: Pallete.neutral200
+                  ),
                   showCheckmark: false,
                   selectedColor: Pallete.neutral200,
-                  backgroundColor: Colors.white,
+                  backgroundColor: Pallete.pagecolor,
                   label: Text(
                     filter,
                     style: GoogleFonts.montserrat(

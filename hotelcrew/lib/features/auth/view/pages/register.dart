@@ -171,11 +171,13 @@ class _RegisterState extends ConsumerState<Register> {
                           width: responsiveWidth,
                           child: TextFormField(
                             controller: username,
+                            maxLength: 30,
                              inputFormatters: [
                               FilteringTextInputFormatter.deny(RegExp(r'\s')),
                                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@._-]')), // Deny spaces
                             ],
                             decoration: InputDecoration(
+                              counterText: '',
                               labelText: 'User Name',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.0),
@@ -415,42 +417,50 @@ class _RegisterState extends ConsumerState<Register> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // Checkbox Container
-                            Container(
-                              height: 18,
-                              width: 18,
-                              padding: const EdgeInsets.only(top: 8),
-                              margin: EdgeInsets.zero,
-                              child: CheckboxTheme(
-                                data: CheckboxThemeData(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  side: const BorderSide(
-                                    width: 1,
-                                    color: Colors.transparent,
-                                  ),
-                                ),
-                                child: Checkbox(
-                                  checkColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  value: checkBoxValue,
-                                  splashRadius: 0,
-                                  fillColor: WidgetStateProperty.resolveWith<Color>((states) {
-                                    if (states.contains(WidgetState.selected)) {
-                                      return const Color(0xFF5662AC);
-                                    }
-                                    return const Color(0xFFC6D6DB);
-                                  }),
-                                  onChanged: (newValue) {
-                                    setState(() {
-                                      checkBoxValue = newValue ?? false;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
+                            GestureDetector(
+  onTap: () {
+    setState(() {
+      checkBoxValue = !checkBoxValue; // Toggle the checkbox value
+    });
+  },
+  child: Container(
+    height: 18,
+    width: 18,
+    padding: const EdgeInsets.only(top: 8),
+    margin: EdgeInsets.zero,
+    child: CheckboxTheme(
+      data: CheckboxThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+        ),
+        side: const BorderSide(
+          width: 1,
+          color: Colors.transparent,
+        ),
+      ),
+      child: Checkbox(
+        checkColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+        ),
+        value: checkBoxValue,
+        splashRadius: 0,
+        fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const Color(0xFF5662AC);
+          }
+          return const Color(0xFFC6D6DB);
+        }),
+        onChanged: (newValue) {
+          setState(() {
+            checkBoxValue = newValue ?? false;
+          });
+        },
+      ),
+    ),
+  ),
+),
+
                             SizedBox(width: screenWidth * 0.022),
                             // Text with RichText Widget
                             Flexible(
@@ -546,6 +556,12 @@ class _RegisterState extends ConsumerState<Register> {
                                         content: Text(response.message),
                                       ));
                                       context.loaderOverlay.hide();
+                                       SharedPreferences prefs = await SharedPreferences.getInstance();
+                                       prefs.setString('username', username.text);
+                                       prefs.setString('email', emailController.text);
+                                       print("username: ${prefs.getString('username')}");
+                                       print("email: ${prefs.getString('email')}");
+                                       print("-"*100);
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(

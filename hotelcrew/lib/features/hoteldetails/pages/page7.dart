@@ -53,10 +53,10 @@ class _PageFiveState extends State<PageFive> {
   // Save data to SharedPreferences
   Future<void> _saveData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('types', numberOfRoomsController.text);
-    List<Map<String, dynamic>> rooms = [];
+    prefs.setString('numberOfRooms', numberOfRoomsController.text);
+    List<Map<String, dynamic>> roomTypes = [];
     for (int i = 0; i < roomTypeControllers.length; i++) {
-      rooms.add({
+      roomTypes.add({
         "room_type": roomTypeControllers[i].text,
         "count": int.tryParse(roomCountControllers[i].text) ?? 0,
         "price": roomPriceControllers[i].text,
@@ -65,14 +65,28 @@ class _PageFiveState extends State<PageFive> {
       prefs.setString('roomCount_$i', roomCountControllers[i].text);
       prefs.setString('roomPrice_$i', roomPriceControllers[i].text);
     }
-    prefs.setString('rooms', jsonEncode(rooms));
+    prefs.setString('room_types', jsonEncode(roomTypes));
+    print(prefs.getString('room_types'));
   }
 
   void _generateRoomFields() {
     int numberOfRooms = int.tryParse(numberOfRoomsController.text) ?? 0;
+
+    // Clear existing controllers
+    for (var controller in roomTypeControllers) {
+      controller.dispose();
+    }
+    for (var controller in roomCountControllers) {
+      controller.dispose();
+    }
+    for (var controller in roomPriceControllers) {
+      controller.dispose();
+    }
     roomTypeControllers.clear();
     roomCountControllers.clear();
     roomPriceControllers.clear();
+
+    // Add new controllers
     for (int i = 0; i < numberOfRooms; i++) {
       roomTypeControllers.add(TextEditingController());
       roomCountControllers.add(TextEditingController());

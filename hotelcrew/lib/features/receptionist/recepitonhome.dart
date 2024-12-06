@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:hotelcrew/features/dashboard/announcementpage.dart';
 import 'package:http/http.dart' as http;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:hotelcrew/core/packages.dart';
@@ -7,6 +8,7 @@ import 'receptionistdatabase.dart';
 import 'package:intl/intl.dart';
 import '../dashboard/gettaskpage.dart';
 import 'staffattendancepage.dart';
+import "staffannouncement.dart";
 
 
 
@@ -101,6 +103,7 @@ Future<void> fetchCheckInOutData() async {
  @override
   void initState() {
     super.initState();
+    getrole();
     fetchCheckInOutData();
   }
 
@@ -116,7 +119,21 @@ Future<void> fetchCheckInOutData() async {
     print('Token retrieved: $access_token');
   }
 }
+String username = "Loading..";
 
+ void getrole() async {
+    print("&"*10000);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String Role = prefs.getString('Role') ?? '';
+    final String Username= prefs.getString('username') ?? '';
+    print(Role);
+    print(Username);
+    print("-"*1000);
+    setState(() {
+      // Roles = Role;
+      username = Username;
+    });
+  }
 
 
  @override
@@ -126,7 +143,7 @@ Widget build(BuildContext context) {
   return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Good Morning, User',
+          'Good Morning, $username',
           style: GoogleFonts.montserrat(
             textStyle: const TextStyle(
               color: Pallete.neutral950,
@@ -141,7 +158,7 @@ Widget build(BuildContext context) {
             padding: const EdgeInsets.only(right: 16, top: 16),
             child: InkWell(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const StaffAttendancePage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => StaffAnnouncementPage()));
               },
               splashColor: Colors.transparent, // Removes the splash effect
               highlightColor: Colors.transparent,

@@ -8,6 +8,7 @@ import '../../auth_view_model/registerviewmodel.dart' as reg;
 import 'dart:developer';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import "../../../hoteldetails/pages/hoteldetailspage1.dart";
+import "dart:async";
 
 class Otpview extends StatefulWidget {
   final String email;
@@ -273,6 +274,7 @@ class _OtpviewState extends State<Otpview> {
                               onPressed: context.loaderOverlay.visible
                                   ? null
                                   : () async {
+                                    context.loaderOverlay.show();
                                       if (enteredOtp.isEmpty || enteredOtp.length < 4) {
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           const SnackBar(
@@ -280,9 +282,11 @@ class _OtpviewState extends State<Otpview> {
                                             backgroundColor: Colors.red,
                                           ),
                                         );
+                                        await Future.delayed(Duration(seconds: 2));
                                         return;
+                                        
                                       }
-                                      context.loaderOverlay.show();
+                                      // context.loaderOverlay.show();
                                       // Call the view model's sendOtp method
                                       await viewModel.sendOtp(widget.email, enteredOtp);
                                       if (viewModel.successMessage != null) {
@@ -313,12 +317,12 @@ class _OtpviewState extends State<Otpview> {
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Text('Login Successful'),
-                                              Text('Tokens Saved Successfully'), // Fixed the syntax error here
+                                              // Text('Tokens Saved Successfully'), // Fixed the syntax error here
                                             ],
                                           ),
                                           duration: const Duration(seconds: 3),
                                           action: SnackBarAction(
-                                            label: 'ACTION',
+                                            label: '',
                                             onPressed: () {},
                                           ),
                                         ));
@@ -347,6 +351,9 @@ class _OtpviewState extends State<Otpview> {
                                           ),
                                         );
                                       }
+                                     Future.delayed(Duration(seconds: 2), () {
+context.loaderOverlay.hide();
+});
                                       context.loaderOverlay.hide();
                                     },
                               style: ElevatedButton.styleFrom(

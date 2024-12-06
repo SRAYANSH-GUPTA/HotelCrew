@@ -26,7 +26,7 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
   int totalDaysUpToToday = 0;
 
   String shift = 'Loading..';
-  String shiftTime = '';
+  String shiftTime = 'Loading';
 
   final String attendanceApiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/month-check/';
   final String monthlyAttendanceApiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/month/';
@@ -70,6 +70,7 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
           shift = shiftData['shift']!;
           shiftTime = shiftData['shiftTime']!;
         });
+        print("shift: $shiftTime");
       }
     } catch (e) {
       print('Error fetching shift data: $e');
@@ -349,22 +350,31 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
                 ),
               ),
               const SizedBox(height: 16),
-              ListView.builder(
-                itemCount: attendanceData.length + (hasMoreData ? 1 : 0),
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (context, index) {
-                  if (index == attendanceData.length) {
-                    fetchAttendanceData();
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  final item = attendanceData[index];
-                  return AttendanceCard(
-                    date: item['date']!,
-                    status: item['status']!,
-                  );
-                },
-              ),
+              attendanceData.isEmpty
+    ? Center(
+        child: SvgPicture.asset(
+          'assets/staffnoattendancehistory.svg', // Replace with your SVG file path
+          width: 200, // Adjust the width as needed
+          height: 200, // Adjust the height as needed
+        ),
+      )
+    : ListView.builder(
+        itemCount: attendanceData.length + (hasMoreData ? 1 : 0),
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemBuilder: (context, index) {
+          if (index == attendanceData.length) {
+            fetchAttendanceData();
+            return const Center(child: CircularProgressIndicator());
+          }
+          final item = attendanceData[index];
+          return AttendanceCard(
+            date: item['date']!,
+            status: item['status']!,
+          );
+        },
+      )
+
             ],
           ),
         ),

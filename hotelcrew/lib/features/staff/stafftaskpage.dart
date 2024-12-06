@@ -308,7 +308,7 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('The Task is Completed'),
+          content: Text('The Task is Already Completed!! Cannot Update It'),
         ),
       );
       return;
@@ -664,23 +664,32 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
                     child: _buildFilterChips(),
                   ),
                   Expanded(
-                    child: ListView.builder(
-                      itemCount: filteredTasks.length + (hasMore ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index == filteredTasks.length) {
-                          fetchTasks();
-                          return Center(
-                            child: Container(),
-                          );
-                        }
-                        return GestureDetector(
-                          onTap: () {
-                            _showStatusUpdateBottomSheet(filteredTasks[index]);
-                          },
-                          child: _buildTaskCard(filteredTasks[index]),
-                        );
-                      },
-                    ),
+                    child: filteredTasks.isEmpty
+    ? Center(
+        child: SvgPicture.asset(
+          'assets/staffemptytask.svg', // Replace with your SVG file path
+          width: 328, // Adjust width as needed
+          height: 272, // Adjust height as needed
+        ),
+      )
+    : ListView.builder(
+        itemCount: filteredTasks.length + (hasMore ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == filteredTasks.length) {
+            fetchTasks();
+            return Center(
+              child: Container(),
+            );
+          }
+          return GestureDetector(
+            onTap: () {
+              _showStatusUpdateBottomSheet(filteredTasks[index]);
+            },
+            child: _buildTaskCard(filteredTasks[index]),
+          );
+        },
+      )
+
                   ),
                 ],
               );
@@ -701,9 +710,12 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
               (filter) => Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: ChoiceChip(
+                  side: BorderSide(
+                    color: Pallete.neutral200
+                  ),
                   showCheckmark: false,
-                  selectedColor: Pallete.primary200,
-                  backgroundColor: Colors.white,
+                  selectedColor: Pallete.neutral200,
+                  backgroundColor: Pallete.pagecolor,
                   label: Text(
                     filter,
                     style: GoogleFonts.montserrat(

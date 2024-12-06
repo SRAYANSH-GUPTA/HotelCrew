@@ -4,11 +4,14 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hotelcrew/core/packages.dart';
 import 'package:hotelcrew/features/hoteldetails/pages/setupcomplete.dart';
 import 'dart:developer';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import "../../dashboard/dashborad.dart";
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class Staffdetails extends StatefulWidget {
   const Staffdetails({super.key});
@@ -25,6 +28,38 @@ class _StaffdetailsState extends State<Staffdetails> {
     super.initState();
     _loadSavedFile(); // Load saved file information from SharedPreferences
   }
+Future<void> registerDeviceToken(String fcmToken, String authToken) async {
+    final String apiUrl = 'https://hotelcrew-1.onrender.com/api/auth/register-device-token/';
+    
+    final url = Uri.parse(apiUrl);
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $authToken',
+        },
+        body: jsonEncode({'fcm_token': fcmToken}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print("^"*100);
+        print(data['message']); // Message from the server
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to register device token');
+      }
+    } catch (e) {
+      print('Error registering device token: $e');
+      rethrow;
+    }
+  }
+
+
+
+
 
   Future<void> _loadSavedFile() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -109,6 +144,12 @@ class _StaffdetailsState extends State<Staffdetails> {
       );
       print(response.data);
       if (response.statusCode == 201) {
+        String access = prefs.getString('access_token') ?? "";
+        String fcm = prefs.getString('fcm') ?? "";
+         if (fcm.isNotEmpty && access.isNotEmpty) {
+                                    registerDeviceToken(fcm, access);
+                                    print("Fcm registered successfully");
+                                  }
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Staff details uploaded successfully."),
@@ -117,7 +158,7 @@ class _StaffdetailsState extends State<Staffdetails> {
         );
          Navigator.pushAndRemoveUntil(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const DashboardPage()),
+                                      MaterialPageRoute(builder: (context) => const SetupComplete()),
                                       (Route<dynamic> route) => false,
                                     );
       
@@ -176,11 +217,12 @@ class _StaffdetailsState extends State<Staffdetails> {
     double screenHeight = MediaQuery.of(context).size.height;
     return GlobalLoaderOverlay(
       child: Scaffold(
+        backgroundColor: Pallete.pagecolor,
         body: Column(
           children: [
             Container(
               margin: const EdgeInsets.only(top: 44),
-              height: 158,
+              height: 120,
               width: screenWidth,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,35 +265,41 @@ class _StaffdetailsState extends State<Staffdetails> {
                       padding: const EdgeInsets.only(top: 38),
                       child: Center(
                         child: SvgPicture.asset(
-                          'assets/cuate.svg',
-                          width: screenWidth * 0.815,
-                          height: screenWidth * 0.771,
-                        ),
+                        'assets/staffdetails.svg',
+                        width: screenWidth * 0.5263,
+                        height: screenWidth * 0.587,
+                      ),
                       ),
                     )
-                  : SizedBox(
-                      width: screenWidth,
-                      height: screenWidth * 0.777,
-                      child: ListView.builder(
-                        itemCount: uploadedFiles.length,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            leading: SvgPicture.asset(
-                              'assets/tick.svg',
-                              width: 20,
-                              height: 20,
-                            ),
-                            title: Text(uploadedFiles[index]),
-                            trailing: IconButton(
-                              icon: SvgPicture.asset('assets/remove.svg'),
-                              onPressed: () => _deleteFile(index),
-                            ),
-                          );
-                        },
+                  : Padding(
+                      padding: const EdgeInsets.only(top: 0),
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 0),
+                        width: screenWidth,
+                        height: screenWidth * 0.777,
+                        child: ListView.builder(
+                          itemCount: uploadedFiles.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              leading: SvgPicture.asset(
+                                'assets/tick.svg',
+                                width: 20,
+                                height: 20,
+                              ),
+                              title: Text(uploadedFiles[index]),
+                              trailing: IconButton(
+                                icon: SvgPicture.asset('assets/remove.svg'),
+                                onPressed: () => _deleteFile(index),
+                              ),
+                            );
+                          },
+                        ),
                       ),
-                    ),
+                  ),
             ),
             const SizedBox(height: 34.2),
+            if (uploadedFiles.isEmpty)
+            SizedBox(height: 50,),
             if (uploadedFiles.isEmpty)
               Container(
                 decoration: BoxDecoration(
@@ -284,7 +332,9 @@ class _StaffdetailsState extends State<Staffdetails> {
                   ),
                 ),
               ),
-            const SizedBox(height: 86),
+            const SizedBox(height: 140),
+            if (uploadedFiles.isNotEmpty)
+            SizedBox(height: 48,),
             SizedBox(
               width: screenWidth * 0.9,
               height: 40,

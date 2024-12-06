@@ -45,6 +45,7 @@ class AnnouncementViewModel {
         ),
       );
       print(response.data);
+      print(response.statusCode);
       print(departments.toString());
 
       if (response.statusCode == 201) {
@@ -52,7 +53,14 @@ class AnnouncementViewModel {
           "status": true,
           "message": response.data['message'] ?? "Announcement created successfully",
         };
-      } else {
+      }
+       else if (response.statusCode == 400) {
+        return {
+          "status": true,
+          "message": response.data['department'] ?? "Failed to create Announcement",
+        };
+      }
+       else {
         print(response.statusCode);
         print(response.data);
         return {

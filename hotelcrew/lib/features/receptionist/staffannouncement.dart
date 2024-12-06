@@ -52,7 +52,8 @@ class _StaffAnnouncementPageState extends State<StaffAnnouncementPage> {
           },
         ),
       );
-
+      print(response.data);
+      print("^^"*100);
       if (response.statusCode == 200) {
         List<dynamic> data = response.data['results'];
         setState(() {

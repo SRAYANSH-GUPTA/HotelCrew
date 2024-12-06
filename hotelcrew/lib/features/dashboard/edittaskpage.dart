@@ -1,6 +1,8 @@
 import "../../core/packages.dart";
 import 'viewmodel/createtaskviewmodel.dart';
 import 'model/createtaskmodel.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 
 class EditTaskPage extends StatefulWidget {
@@ -28,16 +30,62 @@ class _EditTaskPageState extends State<EditTaskPage> {
   final TextEditingController deadlineController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 
-  final List<String> departments = ['Housekeeping', 'Receptionist', 'Kitchen', 'Security'];
+  List<String> departments = [];
   final TaskViewModel taskViewModel = TaskViewModel();
 
   
 @override
 void initState() {
   super.initState();
+  fetchDepartments(context);
   titleController.text = widget.taskTitle;
   departmentController.text = widget.department;
   descriptionController.text = widget.description;
+}
+
+void fetchDepartments(BuildContext context) async {
+  final Uri url = Uri.parse('https://hotelcrew-1.onrender.com/api/edit/department_list/'); // Replace with your actual endpoint
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString('access_token'); // Fetch access token from shared preferences
+
+  try {
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    print(response.body);
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (responseData['status'] == 'success') {
+        final Map<String, dynamic> staffPerDepartment =
+            responseData['staff_per_department'] ?? {};
+        List<String> department = []; // Start with 'All Staff'
+        department.addAll(staffPerDepartment.keys);
+        setState(() {
+          departments = department;
+        });
+        
+      } else {
+        throw Exception('Unexpected response: ${responseData['message']}');
+      }
+    } else {
+      final Map<String, dynamic> errorData = json.decode(response.body);
+      throw Exception(errorData['message'] ?? 'Failed to fetch departments.');
+    }
+  } catch (error) {
+    // Show error in Snackbar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error: $error'),
+        backgroundColor: Colors.red,
+      ),
+    );
+
+  }
 }
 
 
@@ -97,44 +145,58 @@ void initState() {
 }
 
   Future<void> _submitTask() async {
-    if(context.loaderOverlay.visible)
-    {
-      return;
-    }
-    context.loaderOverlay.show();
-    if (_formKey.currentState!.validate()) {
-      Task newTask = Task(
-        title: titleController.text,
-        department: departmentController.text,
-        deadline: deadlineController.text.isNotEmpty ? deadlineController.text : null,
-        description: descriptionController.text,
-      );
-      
+  if (context.loaderOverlay.visible) {
+    return;
+  }
+  context.loaderOverlay.show();
+   SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? accessToken = prefs.getString('access_token');
 
-      try {
-        await taskViewModel.assignTask(newTask,context);
+  if (_formKey.currentState!.validate()) {
+    Task newTask = Task(
+      title: titleController.text,
+      department: departmentController.text,
+      deadline: deadlineController.text.isNotEmpty ? deadlineController.text : null,
+      description: descriptionController.text,
+    );
+
+    try {
+      final response = await http.put(
+        Uri.parse('https://hotelcrew-1.onrender.com/api/taskassignment/tasks/update/${widget.id}/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken', // Add authentication if required
+        },
+        body: jsonEncode(newTask.toJson()),
+      );
+      print("Response Status: ${response.statusCode}");
+      print(response.body);
+      if (response.statusCode == 200) {
+        // Task updated successfully
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Task Created Successfully')),
+          SnackBar(content: Text('Task updated successfully!')),
         );
-        _clearForm();
         context.loaderOverlay.hide();
-      } catch (e) {
+        Navigator.pop(context);
+        // _clearForm();
+      } else {
+        // Handle error
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text('Failed to update task: ${response.body}')),
         );
-        context.loaderOverlay.hide();
       }
-      
+    } catch (e) {
+      // Handle network or other errors
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred: $e')),
+      );
+    } finally {
+      context.loaderOverlay.hide();
     }
+  } else {
     context.loaderOverlay.hide();
   }
-
-  void _clearForm() {
-    titleController.clear();
-    departmentController.clear();
-    deadlineController.clear();
-    descriptionController.clear();
-  }
+}
 
   @override
   Widget build(BuildContext context) {
