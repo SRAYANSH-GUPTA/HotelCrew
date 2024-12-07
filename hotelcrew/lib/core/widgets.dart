@@ -966,7 +966,7 @@ class GeneralListDisplay<T> extends StatelessWidget {
 class LineChartWidget extends StatelessWidget {
   final List<double> doubleData; // Input data for the line chart
 
-  const LineChartWidget({Key? key, required this.doubleData}) : super(key: key);
+  const LineChartWidget({super.key, required this.doubleData});
 
   @override
   Widget build(BuildContext context) {
@@ -985,15 +985,15 @@ class LineChartWidget extends StatelessWidget {
                 LineChartData(
                   gridData: FlGridData(
                     drawHorizontalLine: true,
-                    drawVerticalLine: false,
+                    drawVerticalLine: true,
                     // horizontalInterval: 25,
-                    verticalInterval: 1,
-                    // getDrawingHorizontalLine: (value) {
-                    //   return const FlLine(
-                    //     color: Pallete.neutral300,
-                    //     strokeWidth: 0.5,
-                    //   );
-                    // },
+                    // verticalInterval: 1,
+                    getDrawingHorizontalLine: (value) {
+                      return const FlLine(
+                        color: Pallete.neutral300,
+                        strokeWidth: 0.5,
+                      );
+                    },
                     getDrawingVerticalLine: (value) {
                       return const FlLine(
                         color: Pallete.neutral300,
@@ -1010,7 +1010,7 @@ class LineChartWidget extends StatelessWidget {
                       sideTitles: SideTitles(
                         showTitles: true,
                         // interval: 25,
-                        reservedSize: 5,
+                        reservedSize: 50,
                         getTitlesWidget: (value, meta) {
                           return Text(
                             value.toInt().toString(),
@@ -1259,7 +1259,7 @@ class BarChartWidget extends StatelessWidget {
                 minY: 0,
                 // Custom border settings for the chart
                 borderData: FlBorderData(
-                  border: Border(
+                  border: const Border(
                     top: BorderSide(
                       color: Pallete.neutral300,
                       width: 0.5,
@@ -1295,13 +1295,13 @@ gridData: FlGridData(
   checkToShowHorizontalLine: (_) => true,
   checkToShowVerticalLine: (_) => true,
   getDrawingHorizontalLine: (value) {
-    return FlLine(
+    return const FlLine(
       color: Pallete.neutral300,
       strokeWidth: 0.5,
     );
   },
   getDrawingVerticalLine: (value) {
-    return FlLine(
+    return const FlLine(
       color: Pallete.neutral300,
       strokeWidth: 0.5,
     );

@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:typed_data'; // Import for ByteData
+// Import for ByteData
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -8,10 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hotelcrew/features/hoteldetails/pages/setupcomplete.dart';
 import 'dart:developer';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart'; // Import for launching files
-import 'package:open_file_plus/open_file_plus.dart';
 
 class Staffdetailsupdated extends StatefulWidget {
   const Staffdetailsupdated({super.key});

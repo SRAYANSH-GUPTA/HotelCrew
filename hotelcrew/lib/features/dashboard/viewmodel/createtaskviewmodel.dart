@@ -57,7 +57,7 @@ class TaskViewModel {
       } else {
         print('Error: ${e.message}');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('An error occurred. Please try again.'),
             backgroundColor: Colors.red,
           ),

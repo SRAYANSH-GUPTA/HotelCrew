@@ -242,7 +242,7 @@ void _deleteTask(int taskId) async {
     if (response.statusCode == 200) {
       // Success: Show success message in Snackbar
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Task deleted successfully')),
+        const SnackBar(content: Text('Task deleted successfully')),
       );
       setState(() {
         // Optionally, remove the task from the list in the UI
@@ -490,7 +490,7 @@ void _deleteTask(int taskId) async {
                     ),
                     children: [
                       TextSpan(
-                        text: '${DateFormat('dd MMM, hh:mm a').format(task.updatedAt.toLocal())}',
+                        text: DateFormat('dd MMM, hh:mm a').format(task.updatedAt.toLocal()),
                         style: GoogleFonts.montserrat(
                           textStyle: const TextStyle(
                             fontSize: 12,
@@ -516,7 +516,7 @@ void _deleteTask(int taskId) async {
                 ),
                 children: [
                   TextSpan(
-                    text: '${task.assignedBy}', // Dynamic part of the text
+                    text: task.assignedBy, // Dynamic part of the text
                     style: GoogleFonts.montserrat(
                       textStyle: const TextStyle(
                         fontSize: 12,

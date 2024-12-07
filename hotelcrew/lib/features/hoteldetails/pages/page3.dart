@@ -1,6 +1,5 @@
 import '../../../core/packages.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class PageOne extends StatefulWidget {
   const PageOne({super.key});

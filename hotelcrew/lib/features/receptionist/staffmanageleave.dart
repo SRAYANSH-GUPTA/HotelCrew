@@ -250,7 +250,7 @@ String access_token = "";
               (filter) => Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: ChoiceChip(
-                  side: BorderSide(
+                  side: const BorderSide(
                     color: Pallete.neutral200
                   ),
                   showCheckmark: false,

@@ -282,7 +282,7 @@ class _OtpviewState extends State<Otpview> {
                                             backgroundColor: Colors.red,
                                           ),
                                         );
-                                        await Future.delayed(Duration(seconds: 2));
+                                        await Future.delayed(const Duration(seconds: 2));
                                         return;
                                         
                                       }
@@ -351,7 +351,7 @@ class _OtpviewState extends State<Otpview> {
                                           ),
                                         );
                                       }
-                                     Future.delayed(Duration(seconds: 2), () {
+                                     Future.delayed(const Duration(seconds: 2), () {
 context.loaderOverlay.hide();
 });
                                       context.loaderOverlay.hide();

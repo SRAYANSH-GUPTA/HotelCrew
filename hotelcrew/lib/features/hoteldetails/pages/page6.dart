@@ -24,7 +24,7 @@ class _PageFourState extends State<PageFour> {
   final FocusNode parkingCapacityFocusNode = FocusNode();
   final List<String> roomTypes = ['Deluxe', 'Suites', 'Standard', 'Economy'];
   final Map<String, TextEditingController> priceControllers = {};
-  bool _showClock = false;
+  final bool _showClock = false;
   String? _selectedAvailability;
 
   @override

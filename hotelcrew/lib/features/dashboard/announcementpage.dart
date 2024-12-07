@@ -17,7 +17,7 @@ class AnnouncementPage extends StatefulWidget {
 
 class _AnnouncementPageState extends State<AnnouncementPage> {
   final ScrollController _scrollController = ScrollController();
-  List<Announcement> _announcements = [];
+  final List<Announcement> _announcements = [];
   bool _isLoading = true;
   String? _nextPageUrl;
   String email = "";

@@ -198,7 +198,7 @@ void fetchDepartments(BuildContext context) async {
           ['Morning', 'Evening', 'Night'].contains(shiftController.text)
       ? shiftController.text
       : null,
-  items: [
+  items: const [
     DropdownMenuItem(
       value: 'Morning',
       child: Text('Morning'),
@@ -351,7 +351,7 @@ print("^"*100);
         ),
       );
     }
-  } on DioError catch (e) {
+  } on DioException catch (e) {
     if (e.response != null) {
       // Handle API errors and show the error message from the response
       ScaffoldMessenger.of(context).showSnackBar(
@@ -680,10 +680,10 @@ print("^"*100);
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
-                      return Center(
+                      return const Center(
                         child: Text(
                           'Error: Unexpected Error',
-                          style: const TextStyle(fontSize: 16, color: Colors.red),
+                          style: TextStyle(fontSize: 16, color: Colors.red),
                         ),
                       );
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

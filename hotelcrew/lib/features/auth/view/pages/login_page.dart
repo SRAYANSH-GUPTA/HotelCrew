@@ -397,8 +397,8 @@ class _LoginPageState extends State<LoginPage> {
                                 child: Text(
                                   "Sign Up",
                                   style: GoogleFonts.poppins(
-                                    textStyle: TextStyle(
-                                      color: const Color(0xFF5662AC),
+                                    textStyle: const TextStyle(
+                                      color: Color(0xFF5662AC),
                                       fontWeight: FontWeight.w700,
                                       fontSize: 12,
                                       height: 1.3,

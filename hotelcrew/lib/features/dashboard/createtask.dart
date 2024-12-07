@@ -259,7 +259,7 @@ void fetchDepartments(BuildContext context) async {
 
         // Convert the combined DateTime to ISO 8601 format with UTC
         String formattedDateTime =
-            combinedDateTime.toUtc().toIso8601String().split('.')[0] + 'Z';
+            '${combinedDateTime.toUtc().toIso8601String().split('.')[0]}Z';
 
         // Set the formatted value to the TextField's controller
         deadlineController.text = formattedDateTime;

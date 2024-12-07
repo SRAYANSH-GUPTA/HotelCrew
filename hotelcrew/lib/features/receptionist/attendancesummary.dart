@@ -455,7 +455,7 @@ class _AttendanceSummaryPageState extends State<AttendanceSummaryPage> {
     padding: const EdgeInsets.symmetric(vertical: 8.0),
     decoration: BoxDecoration(
       border: Border(
-        top: BorderSide(
+        top: const BorderSide(
           color: Pallete.neutral200,
           width: 2,
         ),

@@ -638,7 +638,7 @@ class _RegisterState extends ConsumerState<Register> {
                         ),
                         
                       ),
-                      Container(
+                      SizedBox(
                         width: screenWidth * 0.9,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -662,8 +662,8 @@ class _RegisterState extends ConsumerState<Register> {
                                 child: Text(
                                   "Log In",
                                   style: GoogleFonts.poppins(
-                                    textStyle: TextStyle(
-                                      color: const Color(0xFF5662AC),
+                                    textStyle: const TextStyle(
+                                      color: Color(0xFF5662AC),
                                       fontWeight: FontWeight.w700,
                                       fontSize: 12,
                                       height: 1.3,

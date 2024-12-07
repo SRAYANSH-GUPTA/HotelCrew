@@ -174,7 +174,7 @@ void fetchDepartments(BuildContext context) async {
       if (response.statusCode == 200) {
         // Task updated successfully
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Task updated successfully!')),
+          const SnackBar(content: Text('Task updated successfully!')),
         );
         context.loaderOverlay.hide();
         Navigator.pop(context);

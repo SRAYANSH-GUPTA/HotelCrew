@@ -21,7 +21,7 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
   final FocusNode reasonFocusNode = FocusNode();
   final FocusNode descriptionFocusNode = FocusNode();
 
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
     DateTime? selectedDate = await showDatePicker(
@@ -79,8 +79,8 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
         body: jsonEncode({
           'from_date': fromDate,
           'to_date': toDate,
-          'leave_type': description,
-          'reason': reason,
+          'leave_type': reason,
+          'reason': description,
         }),
       );
 

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:hotelcrew/features/hoteldetails/pages/setupcomplete.dart';
 import 'page3.dart';
 import 'page4.dart';
 import 'page5.dart';
 import 'page6.dart';
 import 'page7.dart';
-import 'staffdetailsupdated.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dio/dio.dart';
@@ -59,7 +57,7 @@ class _ProgressPageViewState extends State<ProgressPageView> {
     await prefs.remove('license_number');
     await prefs.remove('primary_contact');
     await prefs.remove('emergency_contact');
-    await prefs.remove('email');
+    await prefs.remove('emails');
     await prefs.remove('address');
     await prefs.remove('country_code');
     await prefs.remove('numberofrooms');
@@ -112,7 +110,7 @@ Future<void> uploadData({String? filePath, String? fileName}) async {
         'complete_address': prefs.getString("address"),
         'main_phone_number': prefs.getString('primary_contact'),
         'emergency_phone_number': prefs.getString('emergency_contact'),
-        'email_address': prefs.getString('email'),
+        'email_address': prefs.getString('emails'),
         'total_number_of_rooms': prefs.getString('numberofrooms'),
         'number_of_floors': prefs.getString('numberoffloors'),
         'valet_parking_available': prefs.getString('availability'),

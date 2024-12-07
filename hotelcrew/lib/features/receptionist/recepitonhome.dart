@@ -338,7 +338,7 @@ Widget build(BuildContext context) {
             padding: const EdgeInsets.only(right: 16, top: 16),
             child: InkWell(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => StaffAnnouncementPage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const StaffAnnouncementPage()));
               },
               splashColor: Colors.transparent, // Removes the splash effect
               highlightColor: Colors.transparent,
@@ -471,7 +471,7 @@ Widget build(BuildContext context) {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  _buildLegend(Color(0xFF34A853), 'Check in'),
+                  _buildLegend(const Color(0xFF34A853), 'Check in'),
                   const SizedBox(width: 16),
                   _buildLegend(Pallete.error500, 'Check out'),
                 ],
@@ -684,13 +684,13 @@ class CheckInOutChart extends StatelessWidget {
                 checkToShowHorizontalLine: (_) => true,
                 checkToShowVerticalLine: (_) => true,
                 getDrawingHorizontalLine: (value) {
-                  return FlLine(
+                  return const FlLine(
                     color: Pallete.neutral300,
                     strokeWidth: 0.5,
                   );
                 },
                 getDrawingVerticalLine: (value) {
-                  return FlLine(
+                  return const FlLine(
                     color: Pallete.neutral300,
                     strokeWidth: 0.5,
                   );
@@ -750,7 +750,7 @@ class CheckInOutChart extends StatelessWidget {
               ),
               backgroundColor: Pallete.primary50,
               borderData: FlBorderData(
-                border: Border(
+                border: const Border(
                   top: BorderSide(
                     color: Pallete.neutral300,
                     width: 0.5,

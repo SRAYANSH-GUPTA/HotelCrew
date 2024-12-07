@@ -252,7 +252,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           alignment: Alignment.centerLeft,
                           child: TextButton(
                             onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => Resetpass()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const Resetpass()));
                             },
                             child: Text(
                               'Change Password',

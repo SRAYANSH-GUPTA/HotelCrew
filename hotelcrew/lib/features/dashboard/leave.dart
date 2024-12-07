@@ -345,7 +345,7 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
             const SizedBox(height: 16),
             Expanded(
               child: isLoading
-                  ? Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator())
                   : leaveRequests.isEmpty
                       ? Center(
                           child: SvgPicture.asset("assets/emptyleave.svg",width: 328,height: 252,),
@@ -401,7 +401,7 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
                   padding: const EdgeInsets.only(right: 8),
                   child: ChoiceChip(
                     showCheckmark: false,
-                    side: BorderSide(
+                    side: const BorderSide(
                       color: Pallete.neutral200,
                     ),
                     selectedColor: Pallete.neutral200,
@@ -479,30 +479,30 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: "Department: ",
-                              style: GoogleFonts.montserrat(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Pallete.neutral950,
-                                height: 1.5,
-                              ),
-                            ),
-                            TextSpan(
-                              text: request["department"],
-                              style: GoogleFonts.montserrat(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: Pallete.neutral950,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      // const SizedBox(height: 4),
+                      // RichText(
+                      //   text: TextSpan(
+                      //     children: [
+                      //       TextSpan(
+                      //         text: "Department: ",
+                      //         style: GoogleFonts.montserrat(
+                      //           fontSize: 14,
+                      //           fontWeight: FontWeight.w600,
+                      //           color: Pallete.neutral950,
+                      //           height: 1.5,
+                      //         ),
+                      //       ),
+                      //       TextSpan(
+                      //         text: request["department"],
+                      //         style: GoogleFonts.montserrat(
+                      //           fontSize: 12,
+                      //           fontWeight: FontWeight.w500,
+                      //           color: Pallete.neutral950,
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                       const SizedBox(height: 4),
                       RichText(
                         text: TextSpan(

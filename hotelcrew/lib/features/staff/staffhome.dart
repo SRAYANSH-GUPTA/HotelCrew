@@ -220,18 +220,17 @@ String username = "";
 
         if (mounted) {
           setState(() {
-            // present = (daysPresent / totalDaysUpToToday) * 100;
-            // leave = (totalLeaveDays / totalDaysUpToToday) * 100;
-            if(100 - daysPresent -totalLeaveDays >= 0){
-            double absent = 100 - daysPresent - totalLeaveDays;}
-            else
-            {
-              absent = 0;
-            }
-            double total = daysPresent + totalLeaveDays + absent;
-            // present = (daysPresent / total) * 100;
-            // absent = (absent / total) * 100;
-            // leave = (totalLeaveDays / total);
+            present = (daysPresent / totalDaysUpToToday) * 100;
+          leave = (totalLeaveDays / totalDaysUpToToday) * 100;
+          if(100 - daysPresent -totalLeaveDays >= 0){ absent = 100 - daysPresent - totalLeaveDays;}
+          else{ absent = 0;}
+            // if(100 - daysPresent -totalLeaveDays >= 0){
+            // double absent = 100 - daysPresent - totalLeaveDays;}
+            // else
+            // {
+            //   absent = 0;
+            // }
+             
           });
         }
       } else {
@@ -341,7 +340,7 @@ String username = "";
                 border: Border.all(color: Pallete.neutral200, width: 1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: LineChartWidget(),
+              child: const LineChartWidget(),
             ),
             const SizedBox(height: 56),
             Container(

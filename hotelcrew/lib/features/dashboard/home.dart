@@ -455,7 +455,7 @@ String username = "";
                           },
                         ),
                       ),
-                    SizedBox(width: 8,),
+                    const SizedBox(width: 8,),
                     if (Roles == "Manager")
                       Container(
                         width: screenWidth * 0.428, // Set width here
@@ -479,7 +479,7 @@ String username = "";
                         ),
                       ),
                       if (Roles == "Manager")
-                      SizedBox(width: 8,),
+                      const SizedBox(width: 8,),
                       if (Roles == "Manager")
                       Container(
                         width: screenWidth * 0.428, // Set width here
@@ -492,12 +492,12 @@ String username = "";
                           title: 'Analytics',
                           iconPath: 'assets/analyticsman.svg', // Your icon path
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const DatabasePage(),
-                              ),
-                            );
+                           Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ana.AnalyticsPage(),
+                            ),
+                          );
                             print('Attendance button pressed');
                           },
                         ),

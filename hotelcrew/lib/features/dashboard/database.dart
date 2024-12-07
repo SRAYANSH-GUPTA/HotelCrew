@@ -78,7 +78,7 @@ class DatabasePage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(width: 25),
+                    const SizedBox(width: 25),
                    SvgPicture.asset(
                       'assets/databasestaff.svg',
                       width: screenWidth * 0.268,
@@ -135,7 +135,7 @@ class DatabasePage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(width: 32),
+                    const SizedBox(width: 32),
                      SvgPicture.asset(
                       'assets/customerdetails.svg',
                       width: screenWidth * 0.268,

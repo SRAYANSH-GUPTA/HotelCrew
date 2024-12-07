@@ -331,7 +331,7 @@ Map<String, double> convertPerformanceDataToSampleData(List<Map<String, dynamic>
               // Calendar widget
               Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(0),
+                  borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.black, width: 1),
                 ),
                 child: TableCalendar(
@@ -381,7 +381,7 @@ Container(
                 child: Column(
                   children: [Padding(
                     padding: const EdgeInsets.only(left: 12.0,right: 12.0,top: 12.0),
-                    child: Container(
+                    child: SizedBox(
                       height: 200,
                       width: screenWidth*0.9,
                       child: WeeklyBarChart(sampleData)),
@@ -423,7 +423,7 @@ Container(
                 child: Column(
                   children: [Padding(
                     padding: const EdgeInsets.only(left: 12.0,right: 12.0,top: 12.0),
-                    child: Container(
+                    child: SizedBox(
                       height: 200,
                       width: screenWidth*0.9,
                       child: BarChartWidget(dailyData: dailyData)),
@@ -435,8 +435,8 @@ Container(
   children: [
     Row(
       children: [
-        Icon(Icons.circle, color: Colors.green, size: 12),
-        SizedBox(width: 8),
+        const Icon(Icons.circle, color: Colors.green, size: 12),
+        const SizedBox(width: 8),
         Text(
           'Present',
           style: GoogleFonts.montserrat(
@@ -447,11 +447,11 @@ Container(
         ),
       ],
     ),
-    SizedBox(height: 8),
+    const SizedBox(height: 8),
     Row(
       children: [
-        Icon(Icons.circle, color: Colors.red, size: 12),
-        SizedBox(width: 8),
+        const Icon(Icons.circle, color: Colors.red, size: 12),
+        const SizedBox(width: 8),
         Text(
           'Absent',
           style: GoogleFonts.montserrat(
@@ -501,7 +501,7 @@ Container(
                 child: Column(
                   children: [Padding(
                     padding: const EdgeInsets.only(left: 12.0,right: 12.0,top: 12.0),
-                    child: Container(
+                    child: SizedBox(
                       height: 200,
                       width: screenWidth*0.9,
                       child: BarChartWidget(dailyData: dailyroomData)),
@@ -513,8 +513,8 @@ Container(
   children: [
     Row(
       children: [
-        Icon(Icons.circle, color: Colors.green, size: 12),
-        SizedBox(width: 8),
+        const Icon(Icons.circle, color: Colors.green, size: 12),
+        const SizedBox(width: 8),
         Text(
           'Occupied',
           style: GoogleFonts.montserrat(
@@ -525,11 +525,11 @@ Container(
         ),
       ],
     ),
-    SizedBox(height: 8),
+    const SizedBox(height: 8),
     Row(
       children: [
-        Icon(Icons.circle, color: Colors.red, size: 12),
-        SizedBox(width: 8),
+        const Icon(Icons.circle, color: Colors.red, size: 12),
+        const SizedBox(width: 8),
         Text(
           'Unoccupied',
           style: GoogleFonts.montserrat(
@@ -568,7 +568,7 @@ Container(
   ),
   textAlign: TextAlign.left, // Align text to the left
 ),
-SizedBox(height: 20),
+const SizedBox(height: 20),
               // Bar chart widget using the new BarChartWidget
                Container(
                 decoration: BoxDecoration(
@@ -582,10 +582,10 @@ SizedBox(height: 20),
                 child: Column(
                   children: [Padding(
                     padding: const EdgeInsets.only(left: 0,right: 0,top: 0),
-                    child: Container(
+                    child: SizedBox(
                       height: 200,
                       width: screenWidth*0.9,
-                      child: LineChartWidget(doubleData: [20,40,50,40,60,10,50],),
+                      child: const LineChartWidget(doubleData: [20,40,50,40,60,10,50],),
                   ),),
                   
                   
@@ -593,7 +593,7 @@ SizedBox(height: 20),
 
                   ])
                 ),
-                SizedBox(height: 138),
+                const SizedBox(height: 138),
              
             ],
           ),
@@ -606,9 +606,9 @@ class BarChartWidget extends StatelessWidget {
   final List<Map<String, dynamic>> dailyData;
 
   const BarChartWidget({
-    Key? key,
+    super.key,
     required this.dailyData,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -643,13 +643,13 @@ class BarChartWidget extends StatelessWidget {
             checkToShowHorizontalLine: (_) => true,
             checkToShowVerticalLine: (_) => true,
             getDrawingHorizontalLine: (value) {
-              return FlLine(
+              return const FlLine(
                 color: Pallete.neutral300,
                 strokeWidth: 0.5,
               );
             },
             getDrawingVerticalLine: (value) {
-              return FlLine(
+              return const FlLine(
                 color: Pallete.neutral300,
                 strokeWidth: 0.5,
               );
@@ -704,7 +704,7 @@ class BarChartWidget extends StatelessWidget {
           ),
           backgroundColor: Pallete.primary50,
           borderData: FlBorderData(
-            border: Border(
+            border: const Border(
               top: BorderSide(
                 color: Pallete.neutral300,
                 width: 0.5,
@@ -794,7 +794,7 @@ class WeeklyBarChart extends StatelessWidget {
                 maxY: 100,
                 minY: 0,
                 borderData: FlBorderData(
-                  border: Border(
+                  border: const Border(
                     top: BorderSide(
                       color: Pallete.neutral300,
                       width: 0.5,
@@ -823,13 +823,13 @@ class WeeklyBarChart extends StatelessWidget {
                   checkToShowHorizontalLine: (_) => true,
                   checkToShowVerticalLine: (_) => true,
                   getDrawingHorizontalLine: (value) {
-                    return FlLine(
+                    return const FlLine(
                       color: Pallete.neutral300,
                       strokeWidth: 0.5,
                     );
                   },
                   getDrawingVerticalLine: (value) {
-                    return FlLine(
+                    return const FlLine(
                       color: Pallete.neutral300,
                       strokeWidth: 0.5,
                     );
@@ -911,7 +911,7 @@ class WeeklyBarChart extends StatelessWidget {
 class LineChartWidget extends StatelessWidget {
   final List<double> doubleData; // Input data for the line chart
 
-  const LineChartWidget({Key? key, required this.doubleData}) : super(key: key);
+  const LineChartWidget({super.key, required this.doubleData});
 
   @override
   Widget build(BuildContext context) {

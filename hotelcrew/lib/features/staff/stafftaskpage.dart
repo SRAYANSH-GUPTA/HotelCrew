@@ -689,7 +689,7 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
               (filter) => Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: ChoiceChip(
-                  side: BorderSide(
+                  side: const BorderSide(
                     color: Pallete.neutral200
                   ),
                   showCheckmark: false,

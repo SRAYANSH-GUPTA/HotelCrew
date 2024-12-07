@@ -29,7 +29,7 @@ class _StaffdetailsState extends State<Staffdetails> {
     _loadSavedFile(); // Load saved file information from SharedPreferences
   }
 Future<void> registerDeviceToken(String fcmToken, String authToken) async {
-    final String apiUrl = 'https://hotelcrew-1.onrender.com/api/auth/register-device-token/';
+    const String apiUrl = 'https://hotelcrew-1.onrender.com/api/auth/register-device-token/';
     
     final url = Uri.parse(apiUrl);
 
@@ -299,7 +299,7 @@ Future<void> registerDeviceToken(String fcmToken, String authToken) async {
             ),
             const SizedBox(height: 34.2),
             if (uploadedFiles.isEmpty)
-            SizedBox(height: 50,),
+            const SizedBox(height: 50,),
             if (uploadedFiles.isEmpty)
               Container(
                 decoration: BoxDecoration(
@@ -334,7 +334,7 @@ Future<void> registerDeviceToken(String fcmToken, String authToken) async {
               ),
             const SizedBox(height: 140),
             if (uploadedFiles.isNotEmpty)
-            SizedBox(height: 48,),
+            const SizedBox(height: 48,),
             SizedBox(
               width: screenWidth * 0.9,
               height: 40,

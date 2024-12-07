@@ -151,7 +151,7 @@ void showAddStaffBottomSheet(BuildContext context) {
                   const SizedBox(height: 38),
                   DropdownButtonFormField<String>(
   value: shiftController.text.isNotEmpty ? shiftController.text : null,
-  items: [
+  items: const [
     DropdownMenuItem(
       value: 'Morning',
       child: Text('Morning'),
@@ -1011,11 +1011,11 @@ void showEditStaffBottomSheet(BuildContext context,
                 const SizedBox(height: 38),
 
                 // Shift Dropdown
-                Container(
+                SizedBox(
                   width: screenWidth * 0.9, // Ensures the dropdown has the same width as the text fields
                   child: DropdownButtonFormField<String>(
                     value: shiftController.text.isNotEmpty ? shiftController.text : null,
-                    items: [
+                    items: const [
                       DropdownMenuItem(
                         value: 'Morning',
                         child: Text('Morning'),

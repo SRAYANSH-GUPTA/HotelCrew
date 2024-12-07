@@ -243,7 +243,7 @@ void fetchDepartments(BuildContext context) async {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  Container(
+                  SizedBox(
                     height: 35,
                 width: screenWidth * 0.35,
                     child: _buildFilterDropdown(
@@ -273,7 +273,7 @@ void fetchDepartments(BuildContext context) async {
                         ),
                       ),
                       const SizedBox(width: 5),
-                      Container(
+                      SizedBox(
                         height: 35 ,
                         child: _buildFilterDropdown(
                           pic: false,
@@ -379,14 +379,14 @@ void fetchDepartments(BuildContext context) async {
                               decoration: BoxDecoration(
                                 color: staff['current_attendance'] == 'Present'
                                     ? const Color(0xFFE3F5E3)
-                                    : Color(0xFFFFDFDF),
+                                    : const Color(0xFFFFDFDF),
                                 shape: BoxShape.circle,
                                 border: Border.all(
                                   color: 
                                   staff['current_attendance'] == 'Present'
                                   ?
-                                  Color(0xFF4CAF50)
-                                  : Color(0xFFC80D0D),
+                                  const Color(0xFF4CAF50)
+                                  : const Color(0xFFC80D0D),
                                   width: 1,
                                 ),
                               ),
@@ -400,8 +400,8 @@ void fetchDepartments(BuildContext context) async {
                                     height: 1.5,
                                     fontWeight: FontWeight.w400,
                                     color: staff['current_attendance'] == 'Present'
-                                        ? Color(0xFF2D6830)
-                                        : Color(0xFF881414),
+                                        ? const Color(0xFF2D6830)
+                                        : const Color(0xFF881414),
                                   ),
                                 ),
                               ),

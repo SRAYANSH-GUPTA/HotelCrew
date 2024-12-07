@@ -1,7 +1,6 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/services.dart';
 import '../../../core/packages.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class PageTwo extends StatefulWidget {
   const PageTwo({super.key});
@@ -37,7 +36,7 @@ class _PageTwoState extends State<PageTwo> {
     // Add listeners to save data as it changes
     cnumberController.addListener(() => saveData('primary_contact', cnumberController.text));
     enumberController.addListener(() => saveData('emergency_contact', enumberController.text));
-    emailController.addListener(() => saveData('email', emailController.text));
+    emailController.addListener(() => saveData('emails', emailController.text));
     addressController.addListener(() {
       final trimmedAddress = addressController.text.trim();
       saveData('address', trimmedAddress);

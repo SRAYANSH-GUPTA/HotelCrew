@@ -1,7 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
 import '../../core/packages.dart';
 import '../auth/view/pages/login_page.dart';
