@@ -92,7 +92,7 @@ dev_dependencies:
 flutter:
   assets:
     - assets/
-    - .env
+    #- .env
     - assets/staff.xlsx
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
