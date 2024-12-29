@@ -21,7 +21,7 @@ Hotelcrew is an all-in-one hotel staff management application designed to simpli
 - **Announcements**:
   - Create announcements for specific departments.
 - **Dashboards**:
-  - Bar chart graphs for:
+  - Bar chart graphs (powered by **fl_chart**) for:
     - Staff present, vacant, or busy.
     - Room availability (occupied vs. empty).
   - Shift management for staff.
@@ -59,11 +59,21 @@ Hotelcrew is an all-in-one hotel staff management application designed to simpli
 | **Technology**         | **Purpose**                |
 |-------------------------|----------------------------|
 | **Flutter**             | Frontend Development       |
+| **Django**              | Backend Development        |
 | **Riverpod / Provider** | State Management           |
 | **Dio / HTTP**          | API Communication          |
 | **Firebase Messaging**  | Push Notifications         |
 | **Flutter Diagnostic Tools** | Debugging and Performance |
 | **GitHub Actions**      | CI/CD and Signed APK Creation |
+| **fl_chart**            | Graph Visualizations       |
+
+---
+
+## Backend Details
+
+The backend for Hotelcrew is built using **Django**, providing a robust and scalable solution for handling hotel and staff data.  
+Backend Developer: **Mrigank Raj**  
+GitHub Repository: [Mrigank Raj's Backend](https://github.com/mrigank-raj-backend-link)
 
 ---
 
@@ -130,11 +140,12 @@ Hotelcrew is an all-in-one hotel staff management application designed to simpli
 
 ### Prerequisites
 - Flutter 3.x or later
+- Django backend setup
 - Firebase configuration files
 - Android Studio / VS Code
 
 ### Steps
-1. **Clone the Repository**:
+1. **Clone the Frontend Repository**:
    ```bash
    git clone https://github.com/your-repo/hotelcrew.git
    cd hotelcrew
