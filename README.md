@@ -3,7 +3,70 @@
 Hotelcrew is an all-in-one hotel staff management application designed to simplify hotel operations. From hotel registration to staff management and analytics, the app provides powerful tools for admins, managers, receptionists, and staff to handle their tasks efficiently.
 
 ---
+## Screenshots and Videos
 
+### Admin Features
+- **Hotel Registration**:
+<div style="display: flex; gap: 10px; align-items: center;">
+  <img src="readme_images/admin/admin dashboard.png" alt="Home Screen" width="250" height = "900" />
+  <img src="readme_images/admin/admin analytics.png" alt="Home Screen" width="250" height="900" />
+  <img src="readme_images/admin/admin attendance.png" alt="Home Screen" width="230" height="900" />
+  <img src="readme_images/admin/announcement.png" alt="Home Screen" width="250" height="900" />
+</div>
+
+<div style="display: flex; gap: 10px; align-items: center; margin-top:10px">
+  <img src="readme_images/admin/admin payroll.png" alt="Home Screen" width="250" height = "900" />
+  <img src="readme_images/admin/admin attendance.png" alt="Home Screen" width="250" height="900" />
+  <img src="readme_images/admin/admin payroll.png" alt="Home Screen" width="230" height="900" />
+  <img src="readme_images/manager/admin task.png" alt="Home Screen" width="250" height="900" />
+</div>
+
+
+
+
+### Manager Features
+<div style="display: flex; gap: 10px; align-items: center;">
+  <img src="readme_images/manager/dash.png" alt="Home Screen" width="250" height = "900" />
+  <img src="readme_images/manager/manager attendance-1.png" alt="Home Screen" width="250" height="900" />
+  <img src="readme_images/manager/Database - Staff Details.png" alt="Home Screen" width="230" height="900" />
+  <img src="readme_images/admin/manager schedule.png" alt="Home Screen" width="250" height="900" />
+  <img src="readme_images/admin/profile.png" alt="Home Screen" width="250" height="900" />
+</div>
+
+### Receptionist Features
+<div style="display: flex; gap: 10px; align-items: center;">
+  <img src="readme_images/receptionist/receptionist dashboard.png" alt="Home Screen" width="250" height = "900" />
+  <img src="readme_images/receptionist/assign room.png" alt="Home Screen" width="250" height="900" />
+  <img src="readme_images/receptionist/Database - customer Details.png" alt="Home Screen" width="230" height="900" />
+
+</div>
+
+### Staff Features
+<div style="display: flex; gap: 10px; align-items: center;">
+  <img src="readme_images/staff/staff dashboard.png" alt="Home Screen" width="250" height = "900" />
+  <img src="readme_images/staff/staff task update.png" alt="Home Screen" width="250" height="900" />
+  <img src="readme_images/staff/staff dashboard (1).png" alt="Home Screen" width="230" height="900" />
+  <img src="readme_images/staff/leave.png" alt="Home Screen" width="250" height="900" />
+  <img src="readme_images/staff/attendance summary month'.png" alt="Home Screen" width="250" height="900" />
+   <img src="readme_images/staff/announcement.png" alt="Home Screen" width="250" height="900" />
+  <img src="readme_images/staff/profile.png" alt="Home Screen" width="250" height="900" />
+</div>
+
+
+### Authentication
+<div style="display: flex; gap: 10px; align-items: center;">
+  <img src="readme_images/auth/onboarding1.png" alt="Home Screen" width="250" height = "900" />
+  <img src="readme_images/auth/onboarding5.png" alt="Home Screen" width="250" height="900" />
+  <img src="readme_images/auth/pwd typing.png" alt="Home Screen" width="230" height="900" />
+  <img src="readme_images/auth/reset password.png" alt="Home Screen" width="250" height="900" />
+  <img src="readme_images/auth/correct otp.png" alt="Home Screen" width="250" height="900" />
+   <img src="readme_images/auth/email focused.png" alt="Home Screen" width="250" height="900" />
+  <img src="readme_images/auth/info1.png" alt="Home Screen" width="250" height="900" />
+<img src="readme_images/auth/info1 (1).png" alt="Home Screen" width="250" height="900" />
+<img src="readme_images/auth/info2.png" alt="Home Screen" width="250" height="900" />
+  <img src="readme_images/auth/upload staff details.png" alt="Home Screen" width="250" height="900" />
+
+</div>
 ## Features
 
 ### Admin
@@ -98,50 +161,7 @@ GitHub Repository: [Mrigank Raj's Backend](https://github.com/mrigank-raj-backen
 
 ---
 
-## Screenshots and Videos
 
-### Admin Features
-- **Hotel Registration**:
-<div style="display: flex; gap: 10px; align-items: center;">
-  <img src="readme_images/admin dashboard.png" alt="Home Screen" width="250" height = "900" />
-  <img src="readme_images/admin analytics.png" alt="Home Screen" width="250" height="900" />
-  <img src="readme_images/admin attendance.png" alt="Home Screen" width="230" height="900" />
-  <img src="readme_images/announcement.png" alt="Home Screen" width="250" height="900" />
-</div>
-
-<div style="display: flex; gap: 10px; align-items: center; margin-top:10px">
-  <img src="readme_images/admin payroll.png" alt="Home Screen" width="250" height = "900" />
-  <img src="readme_images/admin attendance.png" alt="Home Screen" width="250" height="900" />
-  <img src="readme_images/admin attendance.png" alt="Home Screen" width="230" height="900" />
-  <img src="readme_images/announcement.png" alt="Home Screen" width="250" height="900" />
-</div>
-
-
-
-
-### Manager Features
-<div style="display: flex; gap: 10px; align-items: center;">
-  <img src="readme_images/admin dashboard.png" alt="Home Screen" width="250" height = "900" />
-  <img src="readme_images/admin analytics.png" alt="Home Screen" width="250" height="900" />
-  <img src="readme_images/admin attendance.png" alt="Home Screen" width="230" height="900" />
-  <img src="readme_images/announcement.png" alt="Home Screen" width="250" height="900" />
-</div>
-
-### Receptionist Features
-- **Task Assignment**:
-  ![Receptionist Task Assignment](https://via.placeholder.com/800x400?text=Task+Assignment)
-- **Leave Management**:
-  ![Receptionist Leave Management](https://via.placeholder.com/800x400?text=Leave+Management)
-
-🎥 [Receptionist Demo Video](https://www.youtube.com/your-receptionist-demo-link)
-
-### Staff Features
-- **Task Updates**:
-  ![Staff Task Updates](https://via.placeholder.com/800x400?text=Task+Updates)
-- **Attendance View**:
-  ![Staff Attendance](https://via.placeholder.com/800x400?text=Attendance)
-
-🎥 [Staff Demo Video](https://www.youtube.com/your-staff-demo-link)
 
 ---
 
