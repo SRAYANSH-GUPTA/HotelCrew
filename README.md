@@ -102,21 +102,30 @@ GitHub Repository: [Mrigank Raj's Backend](https://github.com/mrigank-raj-backen
 
 ### Admin Features
 - **Hotel Registration**:
-  ![Hotel Registration](https://via.placeholder.com/800x400?text=Hotel+Registration)
-- **Dashboard**:
-  ![Admin Dashboard](https://via.placeholder.com/800x400?text=Admin+Dashboard)
-- **Analytics**:
-  ![Admin Analytics](https://via.placeholder.com/800x400?text=Admin+Analytics)
+<div style="display: flex; gap: 10px; align-items: center;">
+  <img src="readme_images/admin dashboard.png" alt="Home Screen" width="250" height = "900" />
+  <img src="readme_images/admin analytics.png" alt="Home Screen" width="250" height="900" />
+  <img src="readme_images/admin attendance.png" alt="Home Screen" width="230" height="900" />
+  <img src="readme_images/announcement.png" alt="Home Screen" width="250" height="900" />
+</div>
 
-🎥 [Admin Demo Video](https://www.youtube.com/your-admin-demo-link)
+<div style="display: flex; gap: 10px; align-items: center; margin-top:10px">
+  <img src="readme_images/admin payroll.png" alt="Home Screen" width="250" height = "900" />
+  <img src="readme_images/admin attendance.png" alt="Home Screen" width="250" height="900" />
+  <img src="readme_images/admin attendance.png" alt="Home Screen" width="230" height="900" />
+  <img src="readme_images/announcement.png" alt="Home Screen" width="250" height="900" />
+</div>
+
+
+
 
 ### Manager Features
-- **Staff Management**:
-  ![Manager Staff Management](https://via.placeholder.com/800x400?text=Manager+Staff+Management)
-- **Announcements**:
-  ![Manager Announcements](https://via.placeholder.com/800x400?text=Manager+Announcements)
-
-🎥 [Manager Demo Video](https://www.youtube.com/your-manager-demo-link)
+<div style="display: flex; gap: 10px; align-items: center;">
+  <img src="readme_images/admin dashboard.png" alt="Home Screen" width="250" height = "900" />
+  <img src="readme_images/admin analytics.png" alt="Home Screen" width="250" height="900" />
+  <img src="readme_images/admin attendance.png" alt="Home Screen" width="230" height="900" />
+  <img src="readme_images/announcement.png" alt="Home Screen" width="250" height="900" />
+</div>
 
 ### Receptionist Features
 - **Task Assignment**:
