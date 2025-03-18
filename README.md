@@ -12,14 +12,13 @@ Hotelcrew is an all-in-one hotel staff management application designed to simpli
   <img src="readme_images/admin/admin analytics.png" alt="Home Screen" width="250" height="900" />
   <img src="readme_images/admin/admin attendance.png" alt="Home Screen" width="230" height="900" />
   <img src="readme_images/admin/announcement.png" alt="Home Screen" width="250" height="900" />
-</div>
-
-<div style="display: flex; gap: 10px; align-items: center; margin-top:10px">
-  <img src="readme_images/admin/admin payroll.png" alt="Home Screen" width="250" height = "900" />
+   <img src="readme_images/admin/admin payroll.png" alt="Home Screen" width="250" height = "900" />
   <img src="readme_images/admin/admin attendance.png" alt="Home Screen" width="250" height="900" />
   <img src="readme_images/admin/admin payroll.png" alt="Home Screen" width="230" height="900" />
   <img src="readme_images/manager/admin task.png" alt="Home Screen" width="250" height="900" />
 </div>
+
+
 
 
 
