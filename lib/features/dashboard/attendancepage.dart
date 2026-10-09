@@ -12,7 +12,7 @@ class AttendancePage extends StatefulWidget {
 
 class _AttendancePageState extends State<AttendancePage> {
   final Dio _dio = Dio();
-  final String apiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/list/';
+  final String apiUrl = 'https://backend.srayansh.in/api/attendance/list/';
 
   List<dynamic> attendanceList = [
   //   {
@@ -47,7 +47,7 @@ class _AttendancePageState extends State<AttendancePage> {
 List<String> dept = [];
 
 void fetchDepartments(BuildContext context) async {
-  final Uri url = Uri.parse('https://hotelcrew-1.onrender.com/api/edit/department_list/'); // Replace with your actual endpoint
+  final Uri url = Uri.parse('https://backend.srayansh.in/api/edit/department_list/'); // Replace with your actual endpoint
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString('access_token'); // Fetch access token from shared preferences
 
@@ -120,7 +120,7 @@ void getrole() async {
       String? accessToken = prefs.getString('access_token');
     try {
       final response = await _dio.get(
-        'https://hotelcrew-1.onrender.com/api/attendance/list/',
+        'https://backend.srayansh.in/api/attendance/list/',
         options: Options(
           validateStatus: (status) => status! < 501,
           headers: {

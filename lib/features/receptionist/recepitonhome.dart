@@ -36,7 +36,7 @@ bool isLoadingRoomData = false;
   void fetchAvailableStaff() async {
      SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    const url = 'https://hotelcrew-1.onrender.com/api/taskassignment/staff/available/';
+    const url = 'https://backend.srayansh.in/api/taskassignment/staff/available/';
 // Replace with your actual token
 
     try {
@@ -79,7 +79,7 @@ bool isLoadingRoomData = false;
    Future<void> fetchRoomPieData() async {
      SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    const String apiUrl = "https://hotelcrew-1.onrender.com/api/hoteldetails/all-rooms/";
+    const String apiUrl = "https://backend.srayansh.in/api/hoteldetails/all-rooms/";
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
@@ -120,7 +120,7 @@ bool isLoadingRoomData = false;
   Future<void> fetchAttendancePieData() async {
      SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    const String apiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/week-stats/';
+    const String apiUrl = 'https://backend.srayansh.in/api/attendance/week-stats/';
     
 
     try {
@@ -191,7 +191,7 @@ Future<void> fetchCheckInOutData() async {
     print('Access token is null or empty');
     return;
   }
-    const apiUrl = 'https://hotelcrew-1.onrender.com/api/hoteldetails/room-stats/'; // Replace with your API endpoint
+    const apiUrl = 'https://backend.srayansh.in/api/hoteldetails/room-stats/'; // Replace with your API endpoint
     try {
       final response = await http.get(Uri.parse(apiUrl),
        headers: {

@@ -249,7 +249,7 @@ Future<void> getToken() async {
 List<String> dept = ['Housekeeping', 'Maintenance', 'Kitchen', 'Security'];
 
 void fetchDepartments(BuildContext context) async {
-  final Uri url = Uri.parse('https://hotelcrew-1.onrender.com/api/edit/department_list/'); // Replace with your actual endpoint
+  final Uri url = Uri.parse('https://backend.srayansh.in/api/edit/department_list/'); // Replace with your actual endpoint
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString('access_token'); // Fetch access token from shared preferences
 
@@ -304,7 +304,7 @@ String access_token = "";
   required String department,
   required String shift,
 }) async {
-  const String url = 'https://hotelcrew-1.onrender.com/api/edit/create/';
+  const String url = 'https://backend.srayansh.in/api/edit/create/';
    SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString('access_token');
   final Map<String, String> headers = {
@@ -384,7 +384,7 @@ Future<void> fetchAttendanceData({String? department}) async {
 
   try {
     final response = await _dio.get(
-      'https://hotelcrew-1.onrender.com/api/attendance/list/',
+      'https://backend.srayansh.in/api/attendance/list/',
       options: Options(
         validateStatus: (status) => status! < 501,
         headers: {
@@ -811,7 +811,7 @@ Future<void> updateStaff(BuildContext context, {
   required String department,
   required String shift,
 }) async {
-  final String url = 'https://hotelcrew-1.onrender.com/api/edit/update/$userId/';
+  final String url = 'https://backend.srayansh.in/api/edit/update/$userId/';
    SharedPreferences prefs = await SharedPreferences.getInstance();
       String? accessToken = prefs.getString('access_token');
   
@@ -1096,7 +1096,7 @@ void showEditStaffBottomSheet(BuildContext context,
 
 
  Future<void> deleteItem(int id) async {
-    final String url = 'https://hotelcrew-1.onrender.com/api/edit/delete/$id/';
+    final String url = 'https://backend.srayansh.in/api/edit/delete/$id/';
      SharedPreferences prefs = await SharedPreferences.getInstance();
       String? accessToken = prefs.getString('access_token');
     print(id);

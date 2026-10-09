@@ -45,7 +45,7 @@ class _StaffAnnouncementPageState extends State<StaffAnnouncementPage> {
 
     try {
       final response = await Dio().get(
-        'https://hotelcrew-1.onrender.com/api/taskassignment/announcements/?page=$page',
+        'https://backend.srayansh.in/api/taskassignment/announcements/?page=$page',
         options: Options(
           headers: {
             'Authorization': 'Bearer $access_token',

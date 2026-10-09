@@ -9,7 +9,7 @@ class ForgetPasswordViewModel {
     try {
       print("&"*100);
       final response = await _dio.post(
-        'https://hotelcrew-1.onrender.com/api/auth/forget-password/',
+        'https://backend.srayansh.in/api/auth/forget-password/',
         options: Options(
           headers: {
             'Content-Type': 'application/json',

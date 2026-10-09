@@ -130,7 +130,7 @@ Future<void> uploadData({String? filePath, String? fileName}) async {
 
     // Send POST request
     Response response = await dio.post(
-      'https://hotelcrew-1.onrender.com/api/hoteldetails/register/',
+      'https://backend.srayansh.in/api/hoteldetails/register/',
       data: jsonEncode(rawData), // Encode raw data as JSON
     );
 

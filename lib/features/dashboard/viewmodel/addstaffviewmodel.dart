@@ -4,7 +4,7 @@ import "../model/addstaff.dart";
 import 'package:shared_preferences/shared_preferences.dart';
 class StaffViewModel extends ChangeNotifier {
   final Dio _dio = Dio(); // Initialize Dio instance
-  final String apiUrl = 'https://hotelcrew-1.onrender.com/edit/create/';
+  final String apiUrl = 'https://backend.srayansh.in/edit/create/';
 
   List<Staff> _staffList = [];
   bool _isLoading = false;

@@ -39,7 +39,7 @@ class _AttendanceSummaryPageState extends State<AttendanceSummaryPage> {
 
     try {
       final response = await http.get(
-        Uri.parse('https://hotelcrew-1.onrender.com/api/attendance/week/'),
+        Uri.parse('https://backend.srayansh.in/api/attendance/week/'),
         headers: {
           'Authorization': 'Bearer $access_token',
           'Content-Type': 'application/json',
@@ -104,7 +104,7 @@ class _AttendanceSummaryPageState extends State<AttendanceSummaryPage> {
 
     try {
       final response = await http.get(
-        Uri.parse('https://hotelcrew-1.onrender.com/api/attendance/month/'),
+        Uri.parse('https://backend.srayansh.in/api/attendance/month/'),
         headers: {
           'Authorization': 'Bearer $access_token',
           'Content-Type': 'application/json',

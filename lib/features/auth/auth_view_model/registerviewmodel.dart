@@ -9,7 +9,7 @@ class DioClient {
   DioClient()
       : dio = Dio(
           BaseOptions(
-            baseUrl: 'https://hotelcrew-1.onrender.com/api/auth/registrationOTP/',
+            baseUrl: 'https://backend.srayansh.in/api/auth/registrationOTP/',
             connectTimeout: const Duration(seconds: 10), // 10 seconds to establish connection
             receiveTimeout: const Duration(seconds: 15), // 15 seconds to receive data
             headers: {

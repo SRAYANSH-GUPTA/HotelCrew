@@ -231,7 +231,7 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
 void _deleteTask(int taskId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token =  prefs.getString('access_token'); // Fetch access token from shared preferences
-  final Uri url = Uri.parse('https://hotelcrew-1.onrender.com/api/taskassignment/tasks/delete/$taskId/'); // Replace with your API URL
+  final Uri url = Uri.parse('https://backend.srayansh.in/api/taskassignment/tasks/delete/$taskId/'); // Replace with your API URL
 
   try {
     final response = await http.delete(

@@ -25,7 +25,7 @@ class AuthViewModel {
   }
 
   Future<dynamic> loginUser(BuildContext context, String email, String password) async {
-    final apiUrl = dotenv.env['API_URL'] ?? 'https://hotelcrew-1.onrender.com/api/auth/login/';
+    final apiUrl = dotenv.env['API_URL'] ?? 'https://backend.srayansh.in/api/auth/login/';
     print(apiUrl);
     print("^^^^^^^^^^^^^^^");
    
@@ -95,7 +95,7 @@ class AuthViewModel {
   }
 
   Future<void> registerDeviceToken(String fcmToken, String authToken) async {
-    final apiUrl = dotenv.env['REGISTER_DEVICE_TOKEN_URL'] ?? 'https://hotelcrew-1.onrender.com/api/auth/register-device-token/';
+    final apiUrl = dotenv.env['REGISTER_DEVICE_TOKEN_URL'] ?? 'https://backend.srayansh.in/api/auth/register-device-token/';
     print(apiUrl);
     print("Registering device token...");
 

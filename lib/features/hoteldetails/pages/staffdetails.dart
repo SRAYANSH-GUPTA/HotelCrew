@@ -29,7 +29,7 @@ class _StaffdetailsState extends State<Staffdetails> {
     _loadSavedFile(); // Load saved file information from SharedPreferences
   }
 Future<void> registerDeviceToken(String fcmToken, String authToken) async {
-    const String apiUrl = 'https://hotelcrew-1.onrender.com/api/auth/register-device-token/';
+    const String apiUrl = 'https://backend.srayansh.in/api/auth/register-device-token/';
     
     final url = Uri.parse(apiUrl);
 
@@ -139,7 +139,7 @@ Future<void> registerDeviceToken(String fcmToken, String authToken) async {
       });
       print("^^^^^"* 100);
       Response response = await dio.post(
-        'https://hotelcrew-1.onrender.com/api/hoteldetails/excel/', // Replace with your API endpoint
+        'https://backend.srayansh.in/api/hoteldetails/excel/', // Replace with your API endpoint
         data: formData,
       );
       print(response.data);

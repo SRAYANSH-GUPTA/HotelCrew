@@ -44,7 +44,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     
     try {
       final response = await http.get(
-        Uri.parse('https://hotelcrew-1.onrender.com/api/taskassignment/staff/available/'),
+        Uri.parse('https://backend.srayansh.in/api/taskassignment/staff/available/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     
     try {
       final response = await http.get(
-        Uri.parse('https://hotelcrew-1.onrender.com/api/hoteldetails/all-rooms/'),
+        Uri.parse('https://backend.srayansh.in/api/hoteldetails/all-rooms/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     
     try {
       final response = await http.get(
-        Uri.parse('https://hotelcrew-1.onrender.com/api/attendance/week-stats/'),
+        Uri.parse('https://backend.srayansh.in/api/attendance/week-stats/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

@@ -11,14 +11,14 @@ class ManagerAttendancePage extends StatefulWidget {
 
 class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
   final Dio _dio = Dio();
-  final String attendanceApiUrl = 'https://hotelcrew-1.onrender.com/api/attendance';
+  final String attendanceApiUrl = 'https://backend.srayansh.in/api/attendance';
 
   String selectedAttendanceStatus = 'Absent';
   String selectedDepartment = 'All Staff';
 List<String> dept = [];
 
 void fetchDepartments(BuildContext context) async {
-  final Uri url = Uri.parse('https://hotelcrew-1.onrender.com/api/edit/department_list/'); // Replace with your actual endpoint
+  final Uri url = Uri.parse('https://backend.srayansh.in/api/edit/department_list/'); // Replace with your actual endpoint
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString('access_token'); // Fetch access token from shared preferences
 
@@ -86,7 +86,7 @@ void fetchDepartments(BuildContext context) async {
 
     try {
       final response = await _dio.get(
-        'https://hotelcrew-1.onrender.com/api/attendance/list/',
+        'https://backend.srayansh.in/api/attendance/list/',
         options: Options(
           validateStatus: (status) => status! < 501,
           headers: {
@@ -146,7 +146,7 @@ void fetchDepartments(BuildContext context) async {
         print("^"*20);
         print(userId);
         final response = await _dio.post(
-          'https://hotelcrew-1.onrender.com/api/attendance/change/$id/',
+          'https://backend.srayansh.in/api/attendance/change/$id/',
           options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
         );
         print(response.statusCode);
@@ -185,7 +185,7 @@ void fetchDepartments(BuildContext context) async {
     print(accessToken);
         // Make API request to update attendance
         final response = await _dio.post(
-          'https://hotelcrew-1.onrender.com/api/attendance/change/${staff['id'].toString()}/',
+          'https://backend.srayansh.in/api/attendance/change/${staff['id'].toString()}/',
           options: Options(
             validateStatus: (status) => status! < 501,
             headers: {

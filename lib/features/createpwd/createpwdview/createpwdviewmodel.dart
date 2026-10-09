@@ -25,7 +25,7 @@ class DioClient {
   Future<String> sendOtp(ResetPasswordRequest resetPasswordRequest) async {
     try {
       final response = await dio.post(
-        'https://hotelcrew-1.onrender.com/api/auth/reset-password/',
+        'https://backend.srayansh.in/api/auth/reset-password/',
         data: json.encode(resetPasswordRequest.toJson()),
       );
 

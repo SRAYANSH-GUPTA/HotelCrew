@@ -25,7 +25,7 @@ class DioClient {
   Future<SuccessResponse> sendOtp(OtpRequest otpRequest) async {
   try {
     final response = await dio.post(
-      'https://hotelcrew-1.onrender.com/api/auth/register/',
+      'https://backend.srayansh.in/api/auth/register/',
       data: json.encode(otpRequest.toJson()),
        options: Options(
         validateStatus: (status) => status! < 501, // Treats 500+ codes as errors

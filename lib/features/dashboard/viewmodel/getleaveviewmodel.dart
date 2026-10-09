@@ -7,7 +7,7 @@ import '../model/getleavemodel.dart'; // Adjust the import path based on your pr
 class LeaveCountViewModel with ChangeNotifier {
    
   final Dio _dio;
-  final String _apiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/leave_list/';
+  final String _apiUrl = 'https://backend.srayansh.in/api/attendance/leave_list/';
 
 
   LeaveCountViewModel() : _dio = Dio() {

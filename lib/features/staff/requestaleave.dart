@@ -71,7 +71,7 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
 
     try {
       final response = await http.post(
-        Uri.parse('https://hotelcrew-1.onrender.com/api/attendance/apply_leave/'),
+        Uri.parse('https://backend.srayansh.in/api/attendance/apply_leave/'),
         headers: {
           'Authorization': 'Bearer $access_token',
           'Content-Type': 'application/json',

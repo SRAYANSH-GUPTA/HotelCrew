@@ -22,7 +22,7 @@ class AnnouncementViewModel {
     required List<String> departments,
   }) async {
     await _initializeHeaders();
-    const String endpoint = "https://hotelcrew-1.onrender.com/api/taskassignment/announcements/";
+    const String endpoint = "https://backend.srayansh.in/api/taskassignment/announcements/";
     print(departments.join(",").toLowerCase());
     print(priorityLevel.toLowerCase());
     try {

@@ -14,7 +14,7 @@ class AnnouncementViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
 
-  final String _apiUrl = 'https://hotelcrew-1.onrender.com/api/taskassignment/announcements/?page=1'; // Initial URL
+  final String _apiUrl = 'https://backend.srayansh.in/api/taskassignment/announcements/?page=1'; // Initial URL
   final Dio _dio = Dio();
 
   // Getter method for the nextPageUrl

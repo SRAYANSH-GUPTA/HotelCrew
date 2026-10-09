@@ -31,7 +31,7 @@ void fetchPerformanceData() async {
     print("^^^^"*50);
     print(token);
 
-  final url = Uri.parse('https://hotelcrew-1.onrender.com/api/statics/performance/hotel/past7/');
+  final url = Uri.parse('https://backend.srayansh.in/api/statics/performance/hotel/past7/');
   final headers = {
     'Authorization': 'Bearer $token',
   };
@@ -79,7 +79,7 @@ void fetchAttendanceData() async {
     String? token = prefs.getString('access_token');
     print("^^^^"*50);
     print(token);
-  final url = Uri.parse('https://hotelcrew-1.onrender.com/api/attendance/week-stats/');
+  final url = Uri.parse('https://backend.srayansh.in/api/attendance/week-stats/');
   final headers = {
     'Authorization': 'Bearer $token',
   };

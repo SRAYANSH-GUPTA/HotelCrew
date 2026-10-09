@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hotelcrew/features/auth/view/pages/login_page.dart';
 import 'package:hotelcrew/features/auth/view/pages/register.dart';
+import 'package:hotelcrew/core/widgets.dart';
 
 class Onboarding extends StatefulWidget {
   const Onboarding({super.key});
@@ -98,86 +99,90 @@ class _OnboardingState extends State<Onboarding> {
                   ),
                 ),
               ),
+              // Bottom Button Wrapper
               Positioned(
-                bottom: 40,
-                left: 16,
-                right: 16,
-                child: _currentPage < _onboardingData.length - 1
-                    ? ElevatedButton(
-                        onPressed: () {
-                          _pageController.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeIn,
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF47518C),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          _currentPage == 0 ? 'Getting Started' : 'Next',
-                          style: GoogleFonts.montserrat(
-                            textStyle: const TextStyle(
-                              color: Color(0xFFFAFAFA),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              height: 1.5,
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: BottomButtonWrapper(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+                  child: _currentPage < _onboardingData.length - 1
+                      ? ElevatedButton(
+                          onPressed: () {
+                            _pageController.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeIn,
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF47518C),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                        ),
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: _handleSignUp,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF47518C),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
+                          child: Text(
+                            _currentPage == 0 ? 'Getting Started' : 'Next',
+                            style: GoogleFonts.montserrat(
+                              textStyle: const TextStyle(
+                                color: Color(0xFFFAFAFA),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                height: 1.5,
                               ),
-                              child: Text(
-                                'Sign Up',
-                                style: GoogleFonts.montserrat(
-                                  textStyle: const TextStyle(
-                                    color: Color(0xFFFAFAFA),
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                    height: 1.5,
+                            ),
+                          ),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: _handleSignUp,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF47518C),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Sign Up',
+                                  style: GoogleFonts.montserrat(
+                                    textStyle: const TextStyle(
+                                      color: Color(0xFFFAFAFA),
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      height: 1.5,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: _handleLogin,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF47518C),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: _handleLogin,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF47518C),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                 ),
-                              ),
-                              child: Text(
-                                'Log In',
-                                style: GoogleFonts.montserrat(
-                                  textStyle: const TextStyle(
-                                    color: Color(0xFFFAFAFA),
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                    height: 1.5,
+                                child: Text(
+                                  'Log In',
+                                  style: GoogleFonts.montserrat(
+                                    textStyle: const TextStyle(
+                                      color: Color(0xFFFAFAFA),
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      height: 1.5,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
+                ),
               ),
             ],
           ),

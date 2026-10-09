@@ -29,7 +29,7 @@ class DioClient {
 
     try {
       final response = await dio.post(
-        'https://hotelcrew-1.onrender.com/api/auth/verify-otp/',
+        'https://backend.srayansh.in/api/auth/verify-otp/',
         data: json.encode(otpRequest.toJson()),
       );
       print("got response");

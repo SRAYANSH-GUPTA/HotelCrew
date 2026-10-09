@@ -33,7 +33,7 @@ void fetchRoomTypes() async {
     }
 
     // API endpoint
-    const String apiUrl = 'https://hotelcrew-1.onrender.com/api/hoteldetails/room/details/';
+    const String apiUrl = 'https://backend.srayansh.in/api/hoteldetails/room/details/';
 
     // Make the GET request
     final response = await http.get(
@@ -269,7 +269,7 @@ String access_token = "";
 
     try {
       final response = await http.post(
-        Uri.parse('https://hotelcrew-1.onrender.com/api/hoteldetails/book/'),
+        Uri.parse('https://backend.srayansh.in/api/hoteldetails/book/'),
         headers: {
           'Authorization':
               'Bearer $access_token',

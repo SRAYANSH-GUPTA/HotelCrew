@@ -5,7 +5,7 @@ import '../model/gettaskmodel.dart';
 
 class TaskService {
   final Dio _dio = Dio();
-  final String apiUrl = 'https://hotelcrew-1.onrender.com/api/taskassignment/tasks/all/';
+  final String apiUrl = 'https://backend.srayansh.in/api/taskassignment/tasks/all/';
 
   // Fetch tasks with pagination
   Future<List<Task>> fetchTasks({int page = 1, int pageSize = 10}) async {

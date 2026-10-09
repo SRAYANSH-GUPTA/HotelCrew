@@ -54,7 +54,7 @@ void fetchWeeklyRevenue() async {
     print(token);
 
   // Define the API endpoint
-  const url = 'https://hotelcrew-1.onrender.com/api/statics/finance/week/';
+  const url = 'https://backend.srayansh.in/api/statics/finance/week/';
 
   // Make the GET request
   final response = await http.get(
@@ -104,7 +104,7 @@ void fetchStaffPerformanceData() async {
 
     // Make a GET request to the API
     final response = await http.get(
-      Uri.parse('https://hotelcrew-1.onrender.com/api/statics/performance/hotel/week/'),
+      Uri.parse('https://backend.srayansh.in/api/statics/performance/hotel/week/'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -138,7 +138,7 @@ void fetchStaffPerformanceData() async {
   void fetchAvailableStaff() async {
      SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    const url = 'https://hotelcrew-1.onrender.com/api/taskassignment/staff/available/';
+    const url = 'https://backend.srayansh.in/api/taskassignment/staff/available/';
 // Replace with your actual token
 
     try {
@@ -197,7 +197,7 @@ String username = "";
   Future<void> approveLeaveRequest(String leaveId, String status) async {
      SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    final String url = 'https://hotelcrew-1.onrender.com/api/attendance/leave_approve/$leaveId/';
+    final String url = 'https://backend.srayansh.in/api/attendance/leave_approve/$leaveId/';
     final Map<String, String> headers = {
       'Authorization': 'Bearer $token',
       'Content-Type': 'application/json',
@@ -257,7 +257,7 @@ String username = "";
   Future<void> fetchRoomPieData() async {
      SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    const String apiUrl = "https://hotelcrew-1.onrender.com/api/hoteldetails/all-rooms/";
+    const String apiUrl = "https://backend.srayansh.in/api/hoteldetails/all-rooms/";
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
@@ -298,7 +298,7 @@ String username = "";
   Future<void> fetchAttendancePieData() async {
      SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    const String apiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/week-stats/';
+    const String apiUrl = 'https://backend.srayansh.in/api/attendance/week-stats/';
     
 
     try {

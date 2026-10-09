@@ -1899,3 +1899,79 @@ class EmailInputField extends StatelessWidget {
     );
   }
 }
+
+// Bottom Button Wrapper Widget
+class BottomButtonWrapper extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry? padding;
+  final bool showWhenKeyboardVisible;
+
+  const BottomButtonWrapper({
+    super.key,
+    required this.child,
+    this.padding,
+    this.showWhenKeyboardVisible = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Check if keyboard is visible
+    bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+    
+    // Hide button when keyboard is visible unless explicitly allowed
+    if (isKeyboardVisible && !showWhenKeyboardVisible) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: padding ?? const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+}
+
+// Floating Action Button Wrapper
+class FloatingButtonWrapper extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry? margin;
+  final bool showWhenKeyboardVisible;
+
+  const FloatingButtonWrapper({
+    super.key,
+    required this.child,
+    this.margin,
+    this.showWhenKeyboardVisible = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Check if keyboard is visible
+    bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+    
+    // Hide button when keyboard is visible unless explicitly allowed
+    if (isKeyboardVisible && !showWhenKeyboardVisible) {
+      return const SizedBox.shrink();
+    }
+
+    return Positioned(
+      bottom: MediaQuery.of(context).viewPadding.bottom + 16,
+      left: 16,
+      right: 16,
+      child: Container(
+        margin: margin,
+        child: child,
+      ),
+    );
+  }
+}

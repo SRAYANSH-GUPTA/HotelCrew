@@ -23,7 +23,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   final TaskViewModel taskViewModel = TaskViewModel();
 
 void fetchDepartments(BuildContext context) async {
-  final Uri url = Uri.parse('https://hotelcrew-1.onrender.com/api/edit/department_list/'); // Replace with your actual endpoint
+  final Uri url = Uri.parse('https://backend.srayansh.in/api/edit/department_list/'); // Replace with your actual endpoint
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString('access_token'); // Fetch access token from shared preferences
 
@@ -283,12 +283,8 @@ void fetchDepartments(BuildContext context) async {
             ),
             // Only show the button if the keyboard is not visible
             if (!isKeyboardVisible)
-              Positioned(
-                bottom: MediaQuery.of(context).viewPadding.bottom + 48, // 48 above the navigation bar
-                left: 16,
-                right: 16,
-                child: 
-                buildMainButton(
+              FloatingButtonWrapper(
+                child: buildMainButton(
                         context: context,
                         screenHeight: screenHeight,
                         screenWidth: screenWidth,

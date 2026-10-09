@@ -32,7 +32,7 @@ class _ShiftSchedulePageState extends State<ShiftSchedulePage> {
 List<String> dept = [];
 
 void fetchDepartments(BuildContext context) async {
-  final Uri url = Uri.parse('https://hotelcrew-1.onrender.com/api/edit/department_list/'); // Replace with your actual endpoint
+  final Uri url = Uri.parse('https://backend.srayansh.in/api/edit/department_list/'); // Replace with your actual endpoint
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString('access_token'); // Fetch access token from shared preferences
 
@@ -302,7 +302,7 @@ void fetchDepartments(BuildContext context) async {
 print(userId);
 print("^"*100);
   const String apiUrl =
-      'https://hotelcrew-1.onrender.com/api/edit/schedule_change/'; // API base URL
+      'https://backend.srayansh.in/api/edit/schedule_change/'; // API base URL
 
   // Retrieve the access token from SharedPreferences
   SharedPreferences prefs = await SharedPreferences.getInstance();

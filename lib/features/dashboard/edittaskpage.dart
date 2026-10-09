@@ -44,7 +44,7 @@ void initState() {
 }
 
 void fetchDepartments(BuildContext context) async {
-  final Uri url = Uri.parse('https://hotelcrew-1.onrender.com/api/edit/department_list/'); // Replace with your actual endpoint
+  final Uri url = Uri.parse('https://backend.srayansh.in/api/edit/department_list/'); // Replace with your actual endpoint
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString('access_token'); // Fetch access token from shared preferences
 
@@ -162,7 +162,7 @@ void fetchDepartments(BuildContext context) async {
 
     try {
       final response = await http.put(
-        Uri.parse('https://hotelcrew-1.onrender.com/api/taskassignment/tasks/update/${widget.id}/'),
+        Uri.parse('https://backend.srayansh.in/api/taskassignment/tasks/update/${widget.id}/'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $accessToken', // Add authentication if required

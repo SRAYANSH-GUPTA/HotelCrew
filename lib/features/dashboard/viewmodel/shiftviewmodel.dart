@@ -4,7 +4,7 @@ import '../model/shiftmodel.dart'; // Assuming you are using Dio for API request
 
 class StaffScheduleService {
   final Dio _dio = Dio();
-  final String apiUrl = 'https://hotelcrew-1.onrender.com/api/edit/schedule_list/'; // Your API endpoint
+  final String apiUrl = 'https://backend.srayansh.in/api/edit/schedule_list/'; // Your API endpoint
 
   // Fetch staff schedules from the API and transform the data
   Future<List<Map<String, dynamic>>> fetchAndTransformStaffSchedules() async {

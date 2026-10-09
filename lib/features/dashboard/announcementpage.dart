@@ -62,7 +62,7 @@ class _AnnouncementPageState extends State<AnnouncementPage> {
         throw Exception("Access token not found");
       }
 
-      final String apiUrl = url ?? 'https://hotelcrew-1.onrender.com/api/taskassignment/announcements/?page=1';
+      final String apiUrl = url ?? 'https://backend.srayansh.in/api/taskassignment/announcements/?page=1';
       final response = await http.get(
         Uri.parse(apiUrl),
         headers: {

@@ -6,7 +6,7 @@ import '../model/createtaskmodel.dart';
 class TaskViewModel {
   final Dio _dio = Dio();
 
-  final String baseUrl = 'https://hotelcrew-1.onrender.com/api/taskassignment/tasks/';
+  final String baseUrl = 'https://backend.srayansh.in/api/taskassignment/tasks/';
 
   Future<String?> _getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

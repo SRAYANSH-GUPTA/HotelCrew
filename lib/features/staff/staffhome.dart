@@ -76,7 +76,7 @@ String username = "";
       return;
     }
 
-    final url = Uri.parse('https://hotelcrew-1.onrender.com/api/statics/performance/staff/week/');
+    final url = Uri.parse('https://backend.srayansh.in/api/statics/performance/staff/week/');
     final response = await http.get(
       url,
       headers: {'Authorization': 'Bearer $access_token'},
@@ -111,7 +111,7 @@ String username = "";
     }
 
     print(access_token);
-    const String apiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/apply_leave/';
+    const String apiUrl = 'https://backend.srayansh.in/api/attendance/apply_leave/';
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
@@ -144,7 +144,7 @@ String username = "";
       return;
     }
 
-    const String apiUrl = 'https://hotelcrew-1.onrender.com/api/taskassignment/staff/tasks/day/';
+    const String apiUrl = 'https://backend.srayansh.in/api/taskassignment/staff/tasks/day/';
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
@@ -194,7 +194,7 @@ String username = "";
       return;
     }
 
-    const String apiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/month/';
+    const String apiUrl = 'https://backend.srayansh.in/api/attendance/month/';
     try {
       final response = await http.get(
         Uri.parse(apiUrl),

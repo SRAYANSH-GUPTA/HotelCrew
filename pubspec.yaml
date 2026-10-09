@@ -69,7 +69,7 @@ dependencies:
   pinput: ^5.0.0
   mockito: ^5.4.4
   image_picker: ^1.1.2
-  open_file_plus: ^3.4.1+1
+  # open_file_plus: ^3.4.1+1
 
   
 #pinput

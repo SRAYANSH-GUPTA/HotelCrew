@@ -155,7 +155,7 @@ class _StaffdetailsupdatedState extends State<Staffdetailsupdated> {
       });
 
       Response response = await dio.post(
-        'https://hotelcrew-1.onrender.com/api/hoteldetails/register/',
+        'https://backend.srayansh.in/api/hoteldetails/register/',
         data: formData,
       );
       print("response: ${response.data}");

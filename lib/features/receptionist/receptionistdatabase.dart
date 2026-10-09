@@ -17,7 +17,7 @@ class _ReceptionistCustomerDatabasePageState extends State<ReceptionistCustomerD
     
   ];
 
-  final String apiUrl = 'https://hotelcrew-1.onrender.com/api/hoteldetails/all-customers/';
+  final String apiUrl = 'https://backend.srayansh.in/api/hoteldetails/all-customers/';
 
   Future<void> fetchData() async {
      SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -293,7 +293,7 @@ String access_token = "";
     print('Access token is null or empty');
     return;
   }
-    final String checkoutUrl = 'https://hotelcrew-1.onrender.com/api/hoteldetails/checkout/$customerId/';
+    final String checkoutUrl = 'https://backend.srayansh.in/api/hoteldetails/checkout/$customerId/';
     try {
       final response = await http.post(
         Uri.parse(checkoutUrl),

@@ -34,7 +34,7 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
   Future<void> fetchAttendance() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
       String? accessToken = prefs.getString('access_token');
-    const String apiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/week-stats/';
+    const String apiUrl = 'https://backend.srayansh.in/api/attendance/week-stats/';
     const String token =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVC9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs";
 
@@ -84,7 +84,7 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
   }
 
   final Dio _dio = Dio();
-  final String apiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/leave_count/';
+  final String apiUrl = 'https://backend.srayansh.in/api/attendance/leave_count/';
 
   Future<void> fetchleavecount() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -125,7 +125,7 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
   Future<void> approveLeaveRequest(String leaveId, String status) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
       String? accessToken = prefs.getString('access_token');
-    final String url = 'https://hotelcrew-1.onrender.com/api/attendance/leave_approve/$leaveId/';
+    final String url = 'https://backend.srayansh.in/api/attendance/leave_approve/$leaveId/';
     final Map<String, String> headers = {
       'Authorization': 'Bearer $accessToken',
       'Content-Type': 'application/json',

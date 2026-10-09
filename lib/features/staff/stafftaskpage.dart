@@ -57,7 +57,7 @@ class _StaffTaskManagementPageState extends State<StaffTaskManagementPage> {
   List<Task> tasks = [];
   List<Task> filteredTasks = [];
   String selectedFilter = "All";
-  String nextPageUrl = 'https://hotelcrew-1.onrender.com/api/taskassignment/staff/tasks/day/';
+  String nextPageUrl = 'https://backend.srayansh.in/api/taskassignment/staff/tasks/day/';
   bool isLoading = false;
   bool hasMore = false;
 
@@ -75,7 +75,7 @@ class _StaffTaskManagementPageState extends State<StaffTaskManagementPage> {
   }
 
 Future<void> updateTaskStatus(int taskId, String newStatus) async {
-  final url = 'https://hotelcrew-1.onrender.com/api/taskassignment/tasks/status/$taskId/';
+  final url = 'https://backend.srayansh.in/api/taskassignment/tasks/status/$taskId/';
   
   // Show loader
   // context.loaderOverlay.show();
@@ -181,7 +181,7 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
   
   try {
     final response = await http.get(
-      Uri.parse('https://hotelcrew-1.onrender.com/api/taskassignment/staff/tasks/day/'),
+      Uri.parse('https://backend.srayansh.in/api/taskassignment/staff/tasks/day/'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',

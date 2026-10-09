@@ -27,8 +27,8 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
   String shift = 'Loading..';
   String shiftTime = 'Loading';
 
-  final String attendanceApiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/month-check/';
-  final String monthlyAttendanceApiUrl = 'https://hotelcrew-1.onrender.com/api/attendance/month/';
+  final String attendanceApiUrl = 'https://backend.srayansh.in/api/attendance/month-check/';
+  final String monthlyAttendanceApiUrl = 'https://backend.srayansh.in/api/attendance/month/';
 
   @override
   void initState() {

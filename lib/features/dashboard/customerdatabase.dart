@@ -24,7 +24,7 @@ List<Map<String, String>> customerData = [
   
 ];
 //TODO: Fix thw filter option
-final String apiUrl = 'https://hotelcrew-1.onrender.com/api/hoteldetails/all-customers/'; // Replace with your actual API URL
+final String apiUrl = 'https://backend.srayansh.in/api/hoteldetails/all-customers/'; // Replace with your actual API URL
 
   // Function to fetch data via HTTPS
  

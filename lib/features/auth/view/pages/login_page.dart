@@ -58,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  final String apiUrl = 'https://hotelcrew-1.onrender.com/api/auth/register-device-token/';
+  final String apiUrl = 'https://backend.srayansh.in/api/auth/register-device-token/';
 
   /// Registers the device token by sending it to the server.
   /// Requires the `fcmToken` and `authToken` (for authentication).

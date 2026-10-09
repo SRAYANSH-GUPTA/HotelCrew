@@ -29,7 +29,7 @@ class _StaffProfilePageState extends State<StaffProfilePage> {
       String? accessToken = prefs.getString('access_token');
 
       final response = await Dio().get(
-        'https://hotelcrew-1.onrender.com/api/edit/user_profile/',
+        'https://backend.srayansh.in/api/edit/user_profile/',
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken',
