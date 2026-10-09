@@ -34,7 +34,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       String? accessToken = prefs.getString('access_token');
 
       final response = await Dio().get(
-        'https://backend.srayansh.in/api/edit/user_profile/',
+        AppEnv.api('/api/edit/user_profile/'),
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken',
@@ -63,59 +63,54 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
   }
 
-
-void _showLogoutDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Log Out'),
-        content: const Text('Are you sure you want to log out?'),
-        actions: <Widget>[
-          ElevatedButton(
-            
-            style: ElevatedButton.styleFrom(
-              elevation: 0,
-              backgroundColor: Pallete.pagecolor, // Adjust color if needed
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Log Out'),
+          content: const Text('Are you sure you want to log out?'),
+          actions: <Widget>[
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                backgroundColor: Pallete.pagecolor, // Adjust color if needed
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
             ),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Pallete.primary700, // Use your primary color
-              foregroundColor: Pallete.neutral100, // Text color
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Pallete.primary700, // Use your primary color
+                foregroundColor: Pallete.neutral100, // Text color
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                prefs.remove("access_token");
+                prefs.remove("refresh_token");
+                prefs.remove("email");
+                prefs.remove("Role");
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                  (Route<dynamic> route) => false,
+                );
+              },
+              child: const Text('Log Out'),
             ),
-            onPressed: () async {
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              prefs.remove("access_token");
-              prefs.remove("refresh_token");
-              prefs.remove("email");
-              prefs.remove("Role");
-              Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => const LoginPage()),
-                                      (Route<dynamic> route) => false,
-                                    );
-            },
-            child: const Text('Log Out'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +140,8 @@ void _showLogoutDialog(BuildContext context) {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const AnnouncementPage()),
+                  MaterialPageRoute(
+                      builder: (context) => const AnnouncementPage()),
                 );
               },
               splashColor: Colors.transparent, // Removes the splash effect
@@ -176,16 +172,16 @@ void _showLogoutDialog(BuildContext context) {
                         alignment: Alignment.bottomRight,
                         children: [
                           CircleAvatar(
-                            radius: 50,
-                            backgroundColor: Colors.grey[300],
-                            backgroundImage: 
-                            // userProfile.isNotEmpty
-                                // ? (userProfile.startsWith('http')
-                                    // ? 
-                                    NetworkImage(userProfile)
-                                    // : FileImage(File(userProfile))) as ImageProvider
-                                // : const AssetImage('assets/profile_placeholder.png'),
-                          ),
+                              radius: 50,
+                              backgroundColor: Colors.grey[300],
+                              backgroundImage:
+                                  // userProfile.isNotEmpty
+                                  // ? (userProfile.startsWith('http')
+                                  // ?
+                                  NetworkImage(userProfile)
+                              // : FileImage(File(userProfile))) as ImageProvider
+                              // : const AssetImage('assets/profile_placeholder.png'),
+                              ),
                           Positioned(
                             bottom: 4,
                             right: 4,
@@ -202,8 +198,11 @@ void _showLogoutDialog(BuildContext context) {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => const EditProfilePage()),
-                                  ).then((_) => fetchUserData()); // Refresh data after editing profile
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const EditProfilePage()),
+                                  ).then((_) =>
+                                      fetchUserData()); // Refresh data after editing profile
                                 },
                               ),
                             ),
@@ -268,10 +267,12 @@ void _showLogoutDialog(BuildContext context) {
                           width: 22,
                         ),
                         onTap: () {
-                           Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const StaffDatabasePage()));
-                          },
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const StaffDatabasePage()));
+                        },
                       ),
                       buildMenuItem(
                         img: SvgPicture.asset(
@@ -287,11 +288,14 @@ void _showLogoutDialog(BuildContext context) {
                             scale: 0.7,
                             child: Switch(
                               value: isNotificationEnabled,
-                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
                               activeTrackColor: Pallete.neutral500,
                               activeColor: Pallete.whitecolor,
                               onChanged: (value) {
-                                ref.read(notificationProvider.notifier).toggleNotification();
+                                ref
+                                    .read(notificationProvider.notifier)
+                                    .toggleNotification();
                                 print(isNotificationEnabled);
                               },
                             ),
@@ -335,7 +339,6 @@ void _showLogoutDialog(BuildContext context) {
                         title: 'Log Out',
                         onTap: () {
                           _showLogoutDialog(context);
-                    
                         },
                       ),
                     ],

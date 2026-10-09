@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hotelcrew/core/config/app_env.dart';
 import 'package:hotelcrew/features/hoteldetails/pages/setupcomplete.dart';
 import 'dart:developer';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -55,7 +56,7 @@ class _StaffdetailsupdatedState extends State<Staffdetailsupdated> {
 
         setState(() {
           uploadedFiles.add(fileName);
-           // Store file name in the list
+          // Store file name in the list
         });
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString('filepath', filePath);
@@ -129,7 +130,8 @@ class _StaffdetailsupdatedState extends State<Staffdetailsupdated> {
         'Content-Type': 'multipart/form-data',
         'Authorization': 'Bearer $accessToken',
       };
-      dio.options.validateStatus = (status) => true; // Allows all responses for debugging
+      dio.options.validateStatus =
+          (status) => true; // Allows all responses for debugging
 
       FormData formData = FormData.fromMap({
         'user': prefs.getString('userid'),
@@ -150,12 +152,14 @@ class _StaffdetailsupdatedState extends State<Staffdetailsupdated> {
         'payment_methods': prefs.getString('payment_method'),
         'room_price': prefs.getString('price') ?? '',
         'number_of_departments': prefs.getString('numberOfDepartments'),
-        'department_names': 'Reception, Housekeeping, Maintenance, Kitchen, Security',
-        'staff_excel_sheet': await MultipartFile.fromFile(filePath, filename: fileName),
+        'department_names':
+            'Reception, Housekeeping, Maintenance, Kitchen, Security',
+        'staff_excel_sheet':
+            await MultipartFile.fromFile(filePath, filename: fileName),
       });
 
       Response response = await dio.post(
-        'https://backend.srayansh.in/api/hoteldetails/register/',
+        AppEnv.api('/api/hoteldetails/register/'),
         data: formData,
       );
       print("response: ${response.data}");
@@ -179,7 +183,8 @@ class _StaffdetailsupdatedState extends State<Staffdetailsupdated> {
         log('Response data for 401 error: ${response.data}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response.data['message'] ?? "Unauthorized. Check your credentials."),
+            content: Text(response.data['message'] ??
+                "Unauthorized. Check your credentials."),
             backgroundColor: Colors.red,
           ),
         );
@@ -188,7 +193,8 @@ class _StaffdetailsupdatedState extends State<Staffdetailsupdated> {
         log('Response data for 400 error: ${response.data}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response.data['message'] ?? "All Fields are necessary"),
+            content:
+                Text(response.data['message'] ?? "All Fields are necessary"),
             backgroundColor: Colors.red,
           ),
         );
@@ -206,7 +212,8 @@ class _StaffdetailsupdatedState extends State<Staffdetailsupdated> {
         log('Error data: ${response.data}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response.data['message'] ?? "Unexpected error occurred."),
+            content:
+                Text(response.data['message'] ?? "Unexpected error occurred."),
             backgroundColor: Colors.orange,
           ),
         );
@@ -215,11 +222,13 @@ class _StaffdetailsupdatedState extends State<Staffdetailsupdated> {
       log('Dio Exception: $e');
       String errorMessage = "An error occurred";
       if (e.type == DioExceptionType.connectionTimeout) {
-        errorMessage = "Connection timeout. Please check your network and try again.";
+        errorMessage =
+            "Connection timeout. Please check your network and try again.";
       } else if (e.type == DioExceptionType.receiveTimeout) {
         errorMessage = "Server response timeout. Please try again later.";
       } else if (e.type == DioExceptionType.badResponse) {
-        errorMessage = e.response?.data['message'] ?? "Invalid response from server.";
+        errorMessage =
+            e.response?.data['message'] ?? "Invalid response from server.";
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -281,7 +290,9 @@ class _StaffdetailsupdatedState extends State<Staffdetailsupdated> {
               ],
             ),
           ),
-          const SizedBox(height: 10,),
+          const SizedBox(
+            height: 10,
+          ),
           if (uploadedFiles.isEmpty)
             Container(
               margin: EdgeInsets.only(left: screenWidth * 0.044),
@@ -361,7 +372,8 @@ class _StaffdetailsupdatedState extends State<Staffdetailsupdated> {
           !uploadedFiles.isNotEmpty
               ? Column(
                   children: [
-                    const SizedBox(height: 34.2), // Display space when files are not empty
+                    const SizedBox(
+                        height: 34.2), // Display space when files are not empty
                     Container(
                       decoration: BoxDecoration(
                         color: const Color(0xFFD2E0F3),
@@ -372,8 +384,10 @@ class _StaffdetailsupdatedState extends State<Staffdetailsupdated> {
                       child: TextButton(
                         onPressed: _pickFile,
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center, // Centers the row horizontally
-                          crossAxisAlignment: CrossAxisAlignment.center, // Centers the row vertically
+                          mainAxisAlignment: MainAxisAlignment
+                              .center, // Centers the row horizontally
+                          crossAxisAlignment: CrossAxisAlignment
+                              .center, // Centers the row vertically
                           children: [
                             SvgPicture.asset(
                               'assets/add.svg',

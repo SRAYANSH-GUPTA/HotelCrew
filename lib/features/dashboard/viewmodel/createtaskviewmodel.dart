@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:hotelcrew/core/config/app_env.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import '../model/createtaskmodel.dart';
@@ -6,7 +7,7 @@ import '../model/createtaskmodel.dart';
 class TaskViewModel {
   final Dio _dio = Dio();
 
-  final String baseUrl = 'https://backend.srayansh.in/api/taskassignment/tasks/';
+  final String baseUrl = AppEnv.api('/api/taskassignment/tasks/');
 
   Future<String?> _getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -31,13 +32,14 @@ class TaskViewModel {
         ),
       );
       print(response.data);
-      print("%"*7);
+      print("%" * 7);
       print(response.statusCode);
       if (response.statusCode == 201) {
         print('Task Created Successfully: ${response.data}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Task Created Successfully: ${response.data['message']}'),
+            content:
+                Text('Task Created Successfully: ${response.data['message']}'),
             backgroundColor: Colors.green,
           ),
         );
@@ -49,7 +51,8 @@ class TaskViewModel {
         print('Error Response: ${e.response?.data}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.response?.data['message'] ?? 'Failed to create task'),
+            content:
+                Text(e.response?.data['message'] ?? 'Failed to create task'),
             backgroundColor: Colors.red,
           ),
         );

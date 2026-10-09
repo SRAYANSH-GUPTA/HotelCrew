@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:hotelcrew/core/config/app_env.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AnnouncementViewModel {
@@ -22,7 +23,7 @@ class AnnouncementViewModel {
     required List<String> departments,
   }) async {
     await _initializeHeaders();
-    const String endpoint = "https://backend.srayansh.in/api/taskassignment/announcements/";
+    final String endpoint = AppEnv.api("/api/taskassignment/announcements/");
     print(departments.join(",").toLowerCase());
     print(priorityLevel.toLowerCase());
     try {
@@ -51,21 +52,22 @@ class AnnouncementViewModel {
       if (response.statusCode == 201) {
         return {
           "status": true,
-          "message": response.data['message'] ?? "Announcement created successfully",
+          "message":
+              response.data['message'] ?? "Announcement created successfully",
         };
-      }
-       else if (response.statusCode == 400) {
+      } else if (response.statusCode == 400) {
         return {
           "status": true,
-          "message": response.data['department'] ?? "Failed to create Announcement",
+          "message":
+              response.data['department'] ?? "Failed to create Announcement",
         };
-      }
-       else {
+      } else {
         print(response.statusCode);
         print(response.data);
         return {
           "status": false,
-          "message": response.data['message'] ?? "Failed to create announcement",
+          "message":
+              response.data['message'] ?? "Failed to create announcement",
         };
       }
     } on DioException catch (e) {

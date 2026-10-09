@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:hotelcrew/core/config/app_env.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ShiftProvider {
@@ -7,7 +8,7 @@ class ShiftProvider {
     String? accessToken = prefs.getString('access_token');
 
     final response = await Dio().get(
-      'https://backend.srayansh.in/api/edit/user_profile/',
+      AppEnv.api('/api/edit/user_profile/'),
       options: Options(
         headers: {
           'Authorization': 'Bearer $accessToken',

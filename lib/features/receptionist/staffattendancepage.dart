@@ -27,8 +27,8 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
   String shift = 'Loading..';
   String shiftTime = 'Loading';
 
-  final String attendanceApiUrl = 'https://backend.srayansh.in/api/attendance/month-check/';
-  final String monthlyAttendanceApiUrl = 'https://backend.srayansh.in/api/attendance/month/';
+  final String attendanceApiUrl = AppEnv.api('/api/attendance/month-check/');
+  final String monthlyAttendanceApiUrl = AppEnv.api('/api/attendance/month/');
 
   @override
   void initState() {
@@ -100,7 +100,8 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
       print("%" * 50);
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        List<Map<String, dynamic>> newAttendanceData = convertAttendanceData(data['results']);
+        List<Map<String, dynamic>> newAttendanceData =
+            convertAttendanceData(data['results']);
         if (mounted) {
           setState(() {
             attendanceData.addAll(newAttendanceData);
@@ -148,14 +149,16 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
           });
         }
       } else {
-        print('Failed to load monthly attendance data. Status code: ${response.statusCode}');
+        print(
+            'Failed to load monthly attendance data. Status code: ${response.statusCode}');
       }
     } catch (e) {
       print('Error fetching monthly attendance data: $e');
     }
   }
 
-  List<Map<String, dynamic>> convertAttendanceData(List<dynamic> attendanceList) {
+  List<Map<String, dynamic>> convertAttendanceData(
+      List<dynamic> attendanceList) {
     List<Map<String, dynamic>> formattedAttendanceData = [];
     for (var attendance in attendanceList) {
       formattedAttendanceData.add({
@@ -190,7 +193,10 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
             padding: const EdgeInsets.only(right: 16, top: 16),
             child: InkWell(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const StaffAnnouncementPage()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const StaffAnnouncementPage()));
               },
               splashColor: Colors.transparent, // Removes the splash effect
               highlightColor: Colors.transparent,
@@ -221,7 +227,8 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
               Container(
                 width: screenWidth * 0.9,
                 height: 136,
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 11),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 7, vertical: 11),
                 decoration: BoxDecoration(
                   color: Pallete.pagecolor,
                   border: Border.all(
@@ -278,9 +285,12 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildOverviewCard("Present", daysPresent.toString(), Pallete.success200),
-                  _buildOverviewCard("Absent", daysAbsent.toString(), Pallete.error200),
-                  _buildOverviewCard("Leave", totalLeaveDays.toString(), Pallete.warning200),
+                  _buildOverviewCard(
+                      "Present", daysPresent.toString(), Pallete.success200),
+                  _buildOverviewCard(
+                      "Absent", daysAbsent.toString(), Pallete.error200),
+                  _buildOverviewCard(
+                      "Leave", totalLeaveDays.toString(), Pallete.warning200),
                 ],
               ),
               const SizedBox(height: 24),
@@ -290,7 +300,11 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
                     width: screenWidth * 0.4389,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const AttendanceSummaryPage()));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const AttendanceSummaryPage()));
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Pallete.primary800,
@@ -315,12 +329,17 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
                     width: screenWidth * 0.4389,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const StaffManageLeavePage()));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const StaffManageLeavePage()));
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Pallete.neutral00,
                         padding: const EdgeInsets.symmetric(horizontal: 0),
-                        side: const BorderSide(color: Pallete.primary800, width: 1),
+                        side: const BorderSide(
+                            color: Pallete.primary800, width: 1),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -350,37 +369,36 @@ class _StaffAttendancePageState extends State<StaffAttendancePage> {
               ),
               const SizedBox(height: 16),
               attendanceData.isEmpty
-    ? Center(
-        child: SvgPicture.asset(
-          'assets/staffnoattendancehistory.svg', // Replace with your SVG file path
-          width: 200, // Adjust the width as needed
-          height: 200, // Adjust the height as needed
-        ),
-      )
-    : ListView.builder(
-        itemCount: attendanceData.length + (hasMoreData ? 1 : 0),
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemBuilder: (context, index) {
-          if (index == attendanceData.length) {
-            fetchAttendanceData();
-            return const Center(child: CircularProgressIndicator());
-          }
-          final item = attendanceData[index];
-          return AttendanceCard(
-            date: item['date']!,
-            status: item['status']!,
-          );
-        },
-      )
-
+                  ? Center(
+                      child: SvgPicture.asset(
+                        'assets/staffnoattendancehistory.svg', // Replace with your SVG file path
+                        width: 200, // Adjust the width as needed
+                        height: 200, // Adjust the height as needed
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: attendanceData.length + (hasMoreData ? 1 : 0),
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        if (index == attendanceData.length) {
+                          fetchAttendanceData();
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                        final item = attendanceData[index];
+                        return AttendanceCard(
+                          date: item['date']!,
+                          status: item['status']!,
+                        );
+                      },
+                    )
             ],
           ),
         ),
       ),
     );
   }
-
 
   Widget _buildOverviewCard(String title, String count, Color color) {
     return Container(
@@ -441,9 +459,13 @@ class AttendanceCard extends StatelessWidget {
             ),
           ),
           trailing: Text(
-            status == 'Present' ? 'P' :
-            status == 'Absent' ? 'A' : 
-            status == 'Leave' ? 'L' : '',
+            status == 'Present'
+                ? 'P'
+                : status == 'Absent'
+                    ? 'A'
+                    : status == 'Leave'
+                        ? 'L'
+                        : '',
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w600,

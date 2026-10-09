@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:hotelcrew/core/config/app_env.dart';
 import 'createpwdmodel.dart';
 
 class DioClient {
@@ -25,7 +26,7 @@ class DioClient {
   Future<String> sendOtp(ResetPasswordRequest resetPasswordRequest) async {
     try {
       final response = await dio.post(
-        'https://backend.srayansh.in/api/auth/reset-password/',
+        AppEnv.api('/api/auth/reset-password/'),
         data: json.encode(resetPasswordRequest.toJson()),
       );
 
@@ -61,7 +62,8 @@ class CreatePwdViewModel extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   String? get successMessage => _successMessage;
 
-  Future<void> sendOtp(String email, String newPassword, String confirmPassword) async {
+  Future<void> sendOtp(
+      String email, String newPassword, String confirmPassword) async {
     _isLoading = true;
     _errorMessage = null;
     _successMessage = null;

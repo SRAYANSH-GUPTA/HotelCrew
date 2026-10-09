@@ -5,7 +5,6 @@ import 'package:hotelcrew/features/auth/auth_models/loginmodel.dart';
 import 'package:hotelcrew/features/auth/view/pages/register.dart';
 import 'package:flutter/services.dart'; // Add this import
 
-
 import '../../auth_view_model/loginpageviewmodel.dart';
 import '../../../resetpass/resertpasspage/resetpass.dart';
 import 'package:dio/dio.dart';
@@ -38,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
   String p = "";
 
   final RegExp emailRegex = RegExp(
-    r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$");
+      r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$");
 
   @override
   void initState() {
@@ -58,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  final String apiUrl = 'https://backend.srayansh.in/api/auth/register-device-token/';
+  final String apiUrl = AppEnv.api('/api/auth/register-device-token/');
 
   /// Registers the device token by sending it to the server.
   /// Requires the `fcmToken` and `authToken` (for authentication).
@@ -172,18 +171,22 @@ class _LoginPageState extends State<LoginPage> {
                             },
                             controller: passwordController,
                             maxLength: 50,
-                            validator: (value) => _isInvalidCredentials ? "Invalid Credentials" : null,
+                            validator: (value) => _isInvalidCredentials
+                                ? "Invalid Credentials"
+                                : null,
                             decoration: InputDecoration(
                               counterText: '',
                               labelText: 'Password',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
-                              errorStyle: const TextStyle(height: 0), // Hide the error message
+                              errorStyle: const TextStyle(
+                                  height: 0), // Hide the error message
                               suffixIcon: IconButton(
                                 icon: _obscurePassword
                                     ? SvgPicture.asset('assets/nopassword.svg')
-                                    : SvgPicture.asset('assets/passwordvisible.svg'),
+                                    : SvgPicture.asset(
+                                        'assets/passwordvisible.svg'),
                                 onPressed: () {
                                   setState(() {
                                     _obscurePassword = !_obscurePassword;
@@ -193,7 +196,9 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             obscureText: _obscurePassword,
                             obscuringCharacter: '●',
-                            style: TextStyle(fontSize: screenWidth * 0.05, color: const Color(0xFF5B6C78)),
+                            style: TextStyle(
+                                fontSize: screenWidth * 0.05,
+                                color: const Color(0xFF5B6C78)),
                             inputFormatters: [
                               FilteringTextInputFormatter.deny(RegExp(r'\s')),
                               //  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@._-]')), // Deny spaces
@@ -205,7 +210,10 @@ class _LoginPageState extends State<LoginPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           InkWell(
-                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const Resetpass())),
+                            onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const Resetpass())),
                             child: Text(
                               'Forgot Password?',
                               style: GoogleFonts.poppins(
@@ -229,17 +237,20 @@ class _LoginPageState extends State<LoginPage> {
                         child: ElevatedButton(
                           onPressed: () async {
                             if (emailController.text.isEmpty || p.isEmpty) {
-                              _showSnackbar("Email and password cannot be empty.");
+                              _showSnackbar(
+                                  "Email and password cannot be empty.");
                               return;
                             }
 
                             setState(() {
                               context.loaderOverlay.show(); // Start loading
-                              _isInvalidCredentials = false; // Reset invalid credentials flag
+                              _isInvalidCredentials =
+                                  false; // Reset invalid credentials flag
                             });
 
                             try {
-                              final loginResponse = await authViewModel.loginUser(
+                              final loginResponse =
+                                  await authViewModel.loginUser(
                                 context,
                                 emailController.text,
                                 passwordController.text,
@@ -249,37 +260,53 @@ class _LoginPageState extends State<LoginPage> {
                               if (loginResponse is LoginResponse) {
                                 print("########################");
                                 print("Login successful!");
-                                print("User Full Name: ${loginResponse.userData.fullName ?? "Not available"}");
-                                print("AccessToken: ${loginResponse.accessToken ?? "Not available"}");
-                                print("RefreshToken: ${loginResponse.refreshToken ?? "Not available"}");
+                                print(
+                                    "User Full Name: ${loginResponse.userData.fullName ?? "Not available"}");
+                                print(
+                                    "AccessToken: ${loginResponse.accessToken ?? "Not available"}");
+                                print(
+                                    "RefreshToken: ${loginResponse.refreshToken ?? "Not available"}");
                                 if (true) {
                                   print("hello done");
-                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
                                   prefs.remove("access_token");
                                   prefs.remove("refresh_token");
                                   prefs.remove("email");
                                   // prefs.remove("password");
-                                  prefs.setString('access_token', loginResponse.accessToken);
-                                  prefs.setString('refresh_token', loginResponse.refreshToken);
-                                  prefs.setString('email', emailController.text);
-                                  prefs.setString('password', passwordController.text);
+                                  prefs.setString('access_token',
+                                      loginResponse.accessToken);
+                                  prefs.setString('refresh_token',
+                                      loginResponse.refreshToken);
+                                  prefs.setString(
+                                      'email', emailController.text);
+                                  prefs.setString(
+                                      'password', passwordController.text);
                                   prefs.setString('Role', loginResponse.role);
-                                  prefs.setString('username', loginResponse.userData.fullName);
-
+                                  prefs.setString('username',
+                                      loginResponse.userData.fullName);
 
                                   print(prefs.getString('Role'));
                                   String role = prefs.getString('Role') ?? "";
                                   print(role);
-                                  print(prefs.getString('access_token') ?? "Not Available");
-                                  log(prefs.getString('access_token') ?? "Not Available");
-                                  log(prefs.getString('password') ?? "Not Available");
-                                  log(prefs.getString('email') ?? "Not Available");
-                                  print(prefs.getString('email') ?? "Not Available");
-                                  log(prefs.getString('refresh_token') ?? "Not Available");
+                                  print(prefs.getString('access_token') ??
+                                      "Not Available");
+                                  log(prefs.getString('access_token') ??
+                                      "Not Available");
+                                  log(prefs.getString('password') ??
+                                      "Not Available");
+                                  log(prefs.getString('email') ??
+                                      "Not Available");
+                                  print(prefs.getString('email') ??
+                                      "Not Available");
+                                  log(prefs.getString('refresh_token') ??
+                                      "Not Available");
                                   String fcm = prefs.getString('fcm') ?? "";
                                   print("%%%%%%%%%%%%%%");
-                                  print(prefs.getString('email') ?? "Not Available");
-                                  String access = prefs.getString('access_token') ?? "";
+                                  print(prefs.getString('email') ??
+                                      "Not Available");
+                                  String access =
+                                      prefs.getString('access_token') ?? "";
                                   if (fcm.isNotEmpty && access.isNotEmpty) {
                                     registerDeviceToken(fcm, access);
                                   }
@@ -287,44 +314,57 @@ class _LoginPageState extends State<LoginPage> {
                                   if (role == "Admin" || role == "Manager") {
                                     Navigator.pushAndRemoveUntil(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const DashboardPage()),
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const DashboardPage()),
                                       (Route<dynamic> route) => false,
                                     );
                                   } else if (role == "Receptionist") {
                                     Navigator.pushAndRemoveUntil(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const ReceptionDashboardPage()),
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const ReceptionDashboardPage()),
                                       (Route<dynamic> route) => false,
                                     );
                                   } else if (role == "Staff") {
                                     Navigator.pushAndRemoveUntil(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const StaffDashboardPage()),
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const StaffDashboardPage()),
                                       (Route<dynamic> route) => false,
                                     );
                                   } else {
                                     Navigator.pushReplacement(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const LoginPage()),
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const LoginPage()),
                                     );
                                   }
                                 }
                               } else if (loginResponse == "Server Error") {
-                                _showSnackbar("Server error, please try again later.");
-                              } else if (loginResponse == "Invalid credentials") {
-                                _showSnackbar("Invalid credentials, please try again.");
+                                _showSnackbar(
+                                    "Server error, please try again later.");
+                              } else if (loginResponse ==
+                                  "Invalid credentials") {
+                                _showSnackbar(
+                                    "Invalid credentials, please try again.");
                               } else {
                                 _showSnackbar("Connection Error");
                               }
                             } catch (e) {
                               print("###################");
                               print("Login failed: $e");
-                              _showSnackbar("An error occurred, please try again later.");
+                              _showSnackbar(
+                                  "An error occurred, please try again later.");
                               emailController.clear();
                               passwordController.clear();
 
                               setState(() {
-                                _isInvalidCredentials = true; // Show invalid credentials message
+                                _isInvalidCredentials =
+                                    true; // Show invalid credentials message
                               });
 
                               // Check if the error is a DioError
@@ -334,23 +374,31 @@ class _LoginPageState extends State<LoginPage> {
                                 print("**********");
 
                                 if (errorMessage != null) {
-                                  if (errorMessage.contains("Connection timed out")) {
+                                  if (errorMessage
+                                      .contains("Connection timed out")) {
                                     // Connection timeout
-                                    _showSnackbar("Connection timed out. Please check your internet connection.");
-                                  } else if (errorMessage.contains("TimeoutException")) {
+                                    _showSnackbar(
+                                        "Connection timed out. Please check your internet connection.");
+                                  } else if (errorMessage
+                                      .contains("TimeoutException")) {
                                     // Receive timeout
-                                    _showSnackbar("Server response timed out. Please try again.");
-                                  } else if (errorMessage.contains("No Internet")) {
+                                    _showSnackbar(
+                                        "Server response timed out. Please try again.");
+                                  } else if (errorMessage
+                                      .contains("No Internet")) {
                                     // Network error
-                                    _showSnackbar("No internet connection or unknown error. Please check your connection.");
+                                    _showSnackbar(
+                                        "No internet connection or unknown error. Please check your connection.");
                                   } else {
                                     // Handle other Dio errors here
-                                    _showSnackbar("An unexpected error occurred. Please try again.");
+                                    _showSnackbar(
+                                        "An unexpected error occurred. Please try again.");
                                   }
                                 }
                               } else {
                                 // Handle other types of exceptions
-                                _showSnackbar("Failed to log in: An error occurred.");
+                                _showSnackbar(
+                                    "Failed to log in: An error occurred.");
                               }
                             } finally {
                               setState(() {
@@ -360,17 +408,22 @@ class _LoginPageState extends State<LoginPage> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF5662AC),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
                           ),
                           child: false
                               ? const SizedBox(
                                   height: 20,
                                   width: 20,
-                                  child: CircularProgressIndicator(color: Color(0xFFFAFAFA)),
+                                  child: CircularProgressIndicator(
+                                      color: Color(0xFFFAFAFA)),
                                 )
                               : Text(
                                   'Log In',
-                                  style: TextStyle(fontSize: screenWidth * 0.04, fontWeight: FontWeight.w600, color: Colors.white),
+                                  style: TextStyle(
+                                      fontSize: screenWidth * 0.04,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white),
                                 ),
                         ),
                       ),
@@ -392,8 +445,11 @@ class _LoginPageState extends State<LoginPage> {
                             SizedBox(
                               height: screenWidth * 0.088,
                               child: TextButton(
-                                
-                                onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Register())),
+                                onPressed: () => Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const Register())),
                                 child: Text(
                                   "Sign Up",
                                   style: GoogleFonts.poppins(

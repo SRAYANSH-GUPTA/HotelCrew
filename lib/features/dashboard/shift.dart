@@ -15,7 +15,8 @@ class ShiftSchedulePage extends StatefulWidget {
 class _ShiftSchedulePageState extends State<ShiftSchedulePage> {
   final screenHeight = const MediaQueryData().size.height;
   final screenWidth = const MediaQueryData().size.width;
-  late Future<List<Map<String, dynamic>>> _staffSchedulesFuture; // Updated to dynamic
+  late Future<List<Map<String, dynamic>>>
+      _staffSchedulesFuture; // Updated to dynamic
   List<Map<String, dynamic>> staffList = []; // Updated to dynamic
   List<Map<String, dynamic>> filteredList = []; // Updated to dynamic
 
@@ -29,55 +30,52 @@ class _ShiftSchedulePageState extends State<ShiftSchedulePage> {
     _fetchAndSetStaffSchedules();
   }
 
-List<String> dept = [];
+  List<String> dept = [];
 
-void fetchDepartments(BuildContext context) async {
-  final Uri url = Uri.parse('https://backend.srayansh.in/api/edit/department_list/'); // Replace with your actual endpoint
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('access_token'); // Fetch access token from shared preferences
+  void fetchDepartments(BuildContext context) async {
+    final Uri url = AppEnv.apiUri(
+        '/api/edit/department_list/'); // Replace with your actual endpoint
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString(
+        'access_token'); // Fetch access token from shared preferences
 
-  try {
-    final response = await http.get(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-    print(response.body);
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseData = json.decode(response.body);
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print(response.body);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
 
-      if (responseData['status'] == 'success') {
-        final Map<String, dynamic> staffPerDepartment =
-            responseData['staff_per_department'] ?? {};
-        List<String> department = []; // Start with 'All Staff'
-        department.addAll(staffPerDepartment.keys);
-        setState(() {
-          dept = department + ['Manager' ,'Receptionist'];
-        });
-        
+        if (responseData['status'] == 'success') {
+          final Map<String, dynamic> staffPerDepartment =
+              responseData['staff_per_department'] ?? {};
+          List<String> department = []; // Start with 'All Staff'
+          department.addAll(staffPerDepartment.keys);
+          setState(() {
+            dept = department + ['Manager', 'Receptionist'];
+          });
+        } else {
+          throw Exception('Unexpected response: ${responseData['message']}');
+        }
       } else {
-        throw Exception('Unexpected response: ${responseData['message']}');
+        final Map<String, dynamic> errorData = json.decode(response.body);
+        throw Exception(errorData['message'] ?? 'Failed to fetch departments.');
       }
-    } else {
-      final Map<String, dynamic> errorData = json.decode(response.body);
-      throw Exception(errorData['message'] ?? 'Failed to fetch departments.');
+    } catch (error) {
+      // Show error in Snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $error'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
-  } catch (error) {
-    // Show error in Snackbar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Error: $error'),
-        backgroundColor: Colors.red,
-      ),
-    );
-
   }
-}
-
-
-
 
   Future<List<Map<String, dynamic>>> _fetchStaffSchedules() async {
     await Future.delayed(const Duration(seconds: 2)); // Simulating a delay
@@ -102,8 +100,8 @@ void fetchDepartments(BuildContext context) async {
       filteredList = staffList.where((staff) {
         final matchesDepartment = selectedDepartments.isEmpty ||
             selectedDepartments.contains(staff['Department']);
-        final matchesShift = selectedShifts.isEmpty ||
-            selectedShifts.contains(staff['Shift']);
+        final matchesShift =
+            selectedShifts.isEmpty || selectedShifts.contains(staff['Shift']);
         return matchesDepartment && matchesShift;
       }).toList();
     });
@@ -117,14 +115,16 @@ void fetchDepartments(BuildContext context) async {
     });
   }
 
-  void showEditShiftBottomSheet(BuildContext context, Map<String, dynamic> staff) {
+  void showEditShiftBottomSheet(
+      BuildContext context, Map<String, dynamic> staff) {
     final shiftController = TextEditingController(text: staff['Shift']);
     final formKey = GlobalKey<FormState>();
 
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(8)), // Bottom sheet radius
+        borderRadius: BorderRadius.vertical(
+            top: Radius.circular(8)), // Bottom sheet radius
       ),
       isScrollControlled: true,
       builder: (context) {
@@ -155,13 +155,17 @@ void fetchDepartments(BuildContext context) async {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, color: Pallete.neutral950),
-                        onPressed: () => Navigator.pop(context), // Close bottom sheet
+                        icon:
+                            const Icon(Icons.close, color: Pallete.neutral950),
+                        onPressed: () =>
+                            Navigator.pop(context), // Close bottom sheet
                       ),
                     ],
                   ),
-                  const SizedBox(height: 38), // Spacing between title row and first text field
-                  
+                  const SizedBox(
+                      height:
+                          38), // Spacing between title row and first text field
+
                   // Staff Name Field (Non-editable)
                   TextFormField(
                     readOnly: true,
@@ -169,14 +173,15 @@ void fetchDepartments(BuildContext context) async {
                       labelText: "Staff Name",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
+                        borderSide: const BorderSide(
+                            color: Pallete.neutral700, width: 1.0),
                       ),
                       // enabled: false,
                     ),
                     initialValue: staff['Staff'],
                   ),
                   const SizedBox(height: 38),
-                  
+
                   // Department Field (Non-editable)
                   TextFormField(
                     readOnly: true,
@@ -184,7 +189,8 @@ void fetchDepartments(BuildContext context) async {
                       labelText: "Department",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
+                        borderSide: const BorderSide(
+                            color: Pallete.neutral700, width: 1.0),
                       ),
                       // enabled: false,
                     ),
@@ -194,39 +200,42 @@ void fetchDepartments(BuildContext context) async {
 
                   // Shift Dropdown
                   DropdownButtonFormField<String>(
-  value: shiftController.text.isNotEmpty &&
-          ['Morning', 'Evening', 'Night'].contains(shiftController.text)
-      ? shiftController.text
-      : null,
-  items: const [
-    DropdownMenuItem(
-      value: 'Morning',
-      child: Text('Morning'),
-    ),
-    DropdownMenuItem(
-      value: 'Evening',
-      child: Text('Evening'),
-    ),
-    DropdownMenuItem(
-      value: 'Night',
-      child: Text('Night'),
-    ),
-  ],
-  onChanged: (value) {
-    shiftController.text = value ?? '';
-  },
-  decoration: InputDecoration(
-    labelText: "Shift",
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8.0),
-      borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8.0),
-      borderSide: const BorderSide(color: Pallete.primary700, width: 1.0),
-    ),
-  ),
-),
+                    value: shiftController.text.isNotEmpty &&
+                            ['Morning', 'Evening', 'Night']
+                                .contains(shiftController.text)
+                        ? shiftController.text
+                        : null,
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'Morning',
+                        child: Text('Morning'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Evening',
+                        child: Text('Evening'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Night',
+                        child: Text('Night'),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      shiftController.text = value ?? '';
+                    },
+                    decoration: InputDecoration(
+                      labelText: "Shift",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(
+                            color: Pallete.neutral700, width: 1.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: const BorderSide(
+                            color: Pallete.primary700, width: 1.0),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 114),
 
                   // Update Shift Button
@@ -238,11 +247,13 @@ void fetchDepartments(BuildContext context) async {
                           context.loaderOverlay.show();
 
                           try {
-                           await updateStaffShift(
-  context: context, // Pass the BuildContext to show Snackbar
-  userId: staff['id'], // Updated parameter name to match the function
-  newShift: shiftController.text, // No changes here
-);
+                            await updateStaffShift(
+                              context:
+                                  context, // Pass the BuildContext to show Snackbar
+                              userId: staff[
+                                  'id'], // Updated parameter name to match the function
+                              newShift: shiftController.text, // No changes here
+                            );
 
                             // ScaffoldMessenger.of(context).showSnackBar(
                             //   const SnackBar(
@@ -294,86 +305,87 @@ void fetchDepartments(BuildContext context) async {
   }
 
   Future<void> updateStaffShift({
-  required BuildContext context,
-  required String userId,
-  required String newShift,
-}) async {
-  print("pressed");
-print(userId);
-print("^"*100);
-  const String apiUrl =
-      'https://backend.srayansh.in/api/edit/schedule_change/'; // API base URL
+    required BuildContext context,
+    required String userId,
+    required String newShift,
+  }) async {
+    print("pressed");
+    print(userId);
+    print("^" * 100);
+    String apiUrl =
+        AppEnv.api('/api/edit/schedule_change/'); // API base URL
 
-  // Retrieve the access token from SharedPreferences
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? accessToken = prefs.getString('access_token');
+    // Retrieve the access token from SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString('access_token');
 
-  if (accessToken == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Access token not found. Please log in again.'),
-        backgroundColor: Colors.red,
-      ),
-    );
-    return;
-  }
-
-  try {
-    print("Started");
-    final response = await Dio().put(
-      '$apiUrl$userId/',
-      data: {'shift': newShift},
-      options: Options(
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-        },
-      ),
-    );
-    print(response.statusMessage);
-    print(response.statusCode);
-    if (response.statusCode == 200) {
-      // Show success Snackbar with response data
+    if (accessToken == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(response.data['message'] ?? 'Shift updated successfully.'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } else {
-      // Show error Snackbar for unexpected status code
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Failed to update shift. Status code: ${response.statusCode}",
-          ),
+        const SnackBar(
+          content: Text('Access token not found. Please log in again.'),
           backgroundColor: Colors.red,
         ),
       );
+      return;
     }
-  } on DioException catch (e) {
-    if (e.response != null) {
-      // Handle API errors and show the error message from the response
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            e.response?.data['error'] ?? 'Something went wrong with the request.',
+
+    try {
+      print("Started");
+      final response = await Dio().put(
+        '$apiUrl$userId/',
+        data: {'shift': newShift},
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+      print(response.statusMessage);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        // Show success Snackbar with response data
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text(response.data['message'] ?? 'Shift updated successfully.'),
+            backgroundColor: Colors.green,
           ),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } else {
-      // Handle network or unexpected errors
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Network error: ${e.message}"),
-          backgroundColor: Colors.red,
-        ),
-      );
+        );
+      } else {
+        // Show error Snackbar for unexpected status code
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Failed to update shift. Status code: ${response.statusCode}",
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        // Handle API errors and show the error message from the response
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.response?.data['error'] ??
+                  'Something went wrong with the request.',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else {
+        // Handle network or unexpected errors
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Network error: ${e.message}"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
-}
-
 
   void showFilterModal() {
     showModalBottomSheet(
@@ -430,7 +442,8 @@ print("^"*100);
                   children: dept
                       .map(
                         (department) => FilterChip(
-                          side: const BorderSide(color: Pallete.neutral200, width: 1),
+                          side: const BorderSide(
+                              color: Pallete.neutral200, width: 1),
                           selectedColor: Pallete.primary700,
                           showCheckmark: false,
                           label: Row(
@@ -442,9 +455,10 @@ print("^"*100);
                                   textStyle: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,
-                                    color: selectedDepartments.contains(department)
-                                        ? Pallete.neutral00
-                                        : Pallete.neutral900,
+                                    color:
+                                        selectedDepartments.contains(department)
+                                            ? Pallete.neutral00
+                                            : Pallete.neutral900,
                                   ),
                                 ),
                               ),
@@ -491,7 +505,8 @@ print("^"*100);
                       .map(
                         (shift) => FilterChip(
                           showCheckmark: false,
-                          side: const BorderSide(color: Pallete.neutral200, width: 1),
+                          side: const BorderSide(
+                              color: Pallete.neutral200, width: 1),
                           selectedColor: Pallete.primary700,
                           label: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -540,21 +555,22 @@ print("^"*100);
                       Navigator.of(context).pop();
                     },
                     style: ElevatedButton.styleFrom(
-                          backgroundColor: Pallete.primary800, // Button color
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0), // Button radius
-                          ),
-                          // padding: const EdgeInsets.symmetric(vertical: 14.0), // Padding
-                        ),
-                        child: Text(
-                          "Show Results",
-                          style: GoogleFonts.montserrat(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Pallete.neutral00, // Button text color
-                          ),
-                        ),
+                      backgroundColor: Pallete.primary800, // Button color
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(8.0), // Button radius
+                      ),
+                      // padding: const EdgeInsets.symmetric(vertical: 14.0), // Padding
+                    ),
+                    child: Text(
+                      "Show Results",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Pallete.neutral00, // Button text color
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -578,26 +594,32 @@ print("^"*100);
           title: Text(
             'Shift Schedule',
             style: GoogleFonts.montserrat(
-              textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black),
+              textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black),
             ),
           ),
-          actions:[
-          Padding(
-            padding: EdgeInsets.only(right: 16, top: screenHeight * 0.0125),
-            child: InkWell(
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const AnnouncementPage()));
-              },
-              splashColor: Colors.transparent, // Removes the splash effect
-              highlightColor: Colors.transparent,
-              child: SvgPicture.asset(
-                "assets/message.svg",
-                height: screenWidth * 0.12,
-                width: screenWidth * 0.12,
+          actions: [
+            Padding(
+              padding: EdgeInsets.only(right: 16, top: screenHeight * 0.0125),
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const AnnouncementPage()));
+                },
+                splashColor: Colors.transparent, // Removes the splash effect
+                highlightColor: Colors.transparent,
+                child: SvgPicture.asset(
+                  "assets/message.svg",
+                  height: screenWidth * 0.12,
+                  width: screenWidth * 0.12,
+                ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
         ),
         body: Padding(
           padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 32.0),
@@ -607,7 +629,8 @@ print("^"*100);
                 children: [
                   InkWell(
                     onTap: showFilterModal,
-                    child: SvgPicture.asset("assets/filter.svg", height: 24, width: 24),
+                    child: SvgPicture.asset("assets/filter.svg",
+                        height: 24, width: 24),
                   ),
                   Expanded(
                     child: Padding(
@@ -628,7 +651,8 @@ print("^"*100);
                             filled: true,
                             fillColor: Pallete.neutral100,
                             prefixIcon: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
                               child: SvgPicture.asset(
                                 'assets/search.svg',
                                 height: 20.0,
@@ -640,18 +664,23 @@ print("^"*100);
                               minWidth: 36,
                             ),
                             hintText: 'Search staff...',
-                            labelStyle: const TextStyle(color: Pallete.neutral400),
-                            hintStyle: const TextStyle(color: Pallete.neutral400),
+                            labelStyle:
+                                const TextStyle(color: Pallete.neutral400),
+                            hintStyle:
+                                const TextStyle(color: Pallete.neutral400),
                             border: OutlineInputBorder(
-                              borderSide: const BorderSide(color: Pallete.neutral200, width: 1),
+                              borderSide: const BorderSide(
+                                  color: Pallete.neutral200, width: 1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             enabledBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(color: Pallete.neutral200, width: 1),
+                              borderSide: const BorderSide(
+                                  color: Pallete.neutral200, width: 1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(color: Pallete.neutral200, width: 1),
+                              borderSide: const BorderSide(
+                                  color: Pallete.neutral200, width: 1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
@@ -690,7 +719,10 @@ print("^"*100);
                       return const Center(
                         child: Text(
                           'No staff schedules available',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey),
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey),
                         ),
                       );
                     } else {
@@ -707,10 +739,13 @@ print("^"*100);
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: Pallete.neutral100,
-                                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(8)),
-                                      border: Border.all(color: Pallete.neutral600, width: 1),
+                                      borderRadius: const BorderRadius.only(
+                                          topLeft: Radius.circular(8)),
+                                      border: Border.all(
+                                          color: Pallete.neutral600, width: 1),
                                     ),
-                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 8.0),
                                     child: Text(
                                       'Staff',
                                       textAlign: TextAlign.center,
@@ -729,11 +764,16 @@ print("^"*100);
                                     decoration: const BoxDecoration(
                                       color: Pallete.neutral100,
                                       border: Border(
-                                        top: BorderSide(color: Pallete.neutral600, width: 1),
-                                        bottom: BorderSide(color: Pallete.neutral600, width: 1),
+                                        top: BorderSide(
+                                            color: Pallete.neutral600,
+                                            width: 1),
+                                        bottom: BorderSide(
+                                            color: Pallete.neutral600,
+                                            width: 1),
                                       ),
                                     ),
-                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 8.0),
                                     child: Text(
                                       'Department',
                                       textAlign: TextAlign.center,
@@ -751,10 +791,13 @@ print("^"*100);
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: Pallete.neutral100,
-                                      borderRadius: const BorderRadius.only(topRight: Radius.circular(8)),
-                                      border: Border.all(color: Pallete.neutral600, width: 1),
+                                      borderRadius: const BorderRadius.only(
+                                          topRight: Radius.circular(8)),
+                                      border: Border.all(
+                                          color: Pallete.neutral600, width: 1),
                                     ),
-                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 8.0),
                                     child: Text(
                                       'Shift',
                                       textAlign: TextAlign.center,
@@ -788,14 +831,21 @@ print("^"*100);
                                     itemBuilder: (context, index) {
                                       final staff = filteredList[index];
                                       return GestureDetector(
-                                        onTap: () => showEditShiftBottomSheet(context, staff),
+                                        onTap: () => showEditShiftBottomSheet(
+                                            context, staff),
                                         child: Container(
                                           height: 56,
                                           decoration: const BoxDecoration(
                                             border: Border(
-                                              left: BorderSide(color: Pallete.neutral200, width: 1),
-                                              right: BorderSide(color: Pallete.neutral200, width: 1),
-                                              bottom: BorderSide(color: Pallete.neutral200, width: 1),
+                                              left: BorderSide(
+                                                  color: Pallete.neutral200,
+                                                  width: 1),
+                                              right: BorderSide(
+                                                  color: Pallete.neutral200,
+                                                  width: 1),
+                                              bottom: BorderSide(
+                                                  color: Pallete.neutral200,
+                                                  width: 1),
                                             ),
                                           ),
                                           child: Row(
@@ -803,20 +853,29 @@ print("^"*100);
                                               Expanded(
                                                 child: Container(
                                                   height: 56,
-                                                  decoration: const BoxDecoration(
+                                                  decoration:
+                                                      const BoxDecoration(
                                                     border: Border(
-                                                      right: BorderSide(color: Pallete.neutral200, width: 1),
+                                                      right: BorderSide(
+                                                          color: Pallete
+                                                              .neutral200,
+                                                          width: 1),
                                                     ),
                                                   ),
-                                                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 8.0),
                                                   child: Text(
                                                     staff['Staff']!,
                                                     textAlign: TextAlign.center,
-                                                    style: GoogleFonts.montserrat(
-                                                      textStyle: const TextStyle(
+                                                    style:
+                                                        GoogleFonts.montserrat(
+                                                      textStyle:
+                                                          const TextStyle(
                                                         fontSize: 14,
-                                                        fontWeight: FontWeight.w400,
-                                                        color: Pallete.neutral900,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                        color:
+                                                            Pallete.neutral900,
                                                       ),
                                                     ),
                                                   ),
@@ -825,20 +884,29 @@ print("^"*100);
                                               Expanded(
                                                 child: Container(
                                                   height: 56,
-                                                  decoration: const BoxDecoration(
+                                                  decoration:
+                                                      const BoxDecoration(
                                                     border: Border(
-                                                      right: BorderSide(color: Pallete.neutral200, width: 1),
+                                                      right: BorderSide(
+                                                          color: Pallete
+                                                              .neutral200,
+                                                          width: 1),
                                                     ),
                                                   ),
-                                                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 8.0),
                                                   child: Text(
                                                     staff['Department']!,
                                                     textAlign: TextAlign.center,
-                                                    style: GoogleFonts.montserrat(
-                                                      textStyle: const TextStyle(
+                                                    style:
+                                                        GoogleFonts.montserrat(
+                                                      textStyle:
+                                                          const TextStyle(
                                                         fontSize: 14,
-                                                        fontWeight: FontWeight.w400,
-                                                        color: Pallete.neutral900,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                        color:
+                                                            Pallete.neutral900,
                                                       ),
                                                     ),
                                                   ),
@@ -846,20 +914,29 @@ print("^"*100);
                                               ),
                                               Expanded(
                                                 child: Container(
-                                                  decoration: const BoxDecoration(
+                                                  decoration:
+                                                      const BoxDecoration(
                                                     border: Border(
-                                                      right: BorderSide(color: Pallete.neutral200, width: 1),
+                                                      right: BorderSide(
+                                                          color: Pallete
+                                                              .neutral200,
+                                                          width: 1),
                                                     ),
                                                   ),
-                                                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 8.0),
                                                   child: Text(
                                                     staff['Shift']!,
                                                     textAlign: TextAlign.center,
-                                                    style: GoogleFonts.montserrat(
-                                                      textStyle: const TextStyle(
+                                                    style:
+                                                        GoogleFonts.montserrat(
+                                                      textStyle:
+                                                          const TextStyle(
                                                         fontSize: 14,
-                                                        fontWeight: FontWeight.w400,
-                                                        color: Pallete.neutral900,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                        color:
+                                                            Pallete.neutral900,
                                                       ),
                                                     ),
                                                   ),

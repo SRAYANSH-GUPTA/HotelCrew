@@ -28,9 +28,10 @@ class _StaffdetailsState extends State<Staffdetails> {
     super.initState();
     _loadSavedFile(); // Load saved file information from SharedPreferences
   }
-Future<void> registerDeviceToken(String fcmToken, String authToken) async {
-    const String apiUrl = 'https://backend.srayansh.in/api/auth/register-device-token/';
-    
+
+  Future<void> registerDeviceToken(String fcmToken, String authToken) async {
+    final String apiUrl = AppEnv.api('/api/auth/register-device-token/');
+
     final url = Uri.parse(apiUrl);
 
     try {
@@ -45,7 +46,7 @@ Future<void> registerDeviceToken(String fcmToken, String authToken) async {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print("^"*100);
+        print("^" * 100);
         print(data['message']); // Message from the server
       } else {
         final error = jsonDecode(response.body);
@@ -56,10 +57,6 @@ Future<void> registerDeviceToken(String fcmToken, String authToken) async {
       rethrow;
     }
   }
-
-
-
-
 
   Future<void> _loadSavedFile() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -101,18 +98,18 @@ Future<void> registerDeviceToken(String fcmToken, String authToken) async {
         print('Error: File path is null');
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString('fileupload', "0");
-      
       }
     } else {
       print('No file selected');
     }
   }
-  String fileaddress = ""?? "";
-  String filename = ""?? "";
+
+  String fileaddress = "" ?? "";
+  String filename = "" ?? "";
 
   Future<void> _uploadFile() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-   
+
     String? accessToken = prefs.getString('access_token');
     print(accessToken);
 
@@ -123,7 +120,7 @@ Future<void> registerDeviceToken(String fcmToken, String authToken) async {
           backgroundColor: Colors.red,
         ),
       );
-      context.loaderOverlay.hide(); 
+      context.loaderOverlay.hide();
       return;
     }
 
@@ -135,38 +132,40 @@ Future<void> registerDeviceToken(String fcmToken, String authToken) async {
       };
 
       FormData formData = FormData.fromMap({
-        'staff_excel_sheet': await MultipartFile.fromFile(fileaddress, filename: filename),
+        'staff_excel_sheet':
+            await MultipartFile.fromFile(fileaddress, filename: filename),
       });
-      print("^^^^^"* 100);
+      print("^^^^^" * 100);
       Response response = await dio.post(
-        'https://backend.srayansh.in/api/hoteldetails/excel/', // Replace with your API endpoint
+        AppEnv.api(
+            '/api/hoteldetails/excel/'), // Replace with your API endpoint
         data: formData,
       );
       print(response.data);
       if (response.statusCode == 201) {
         String access = prefs.getString('access_token') ?? "";
         String fcm = prefs.getString('fcm') ?? "";
-         if (fcm.isNotEmpty && access.isNotEmpty) {
-                                    registerDeviceToken(fcm, access);
-                                    print("Fcm registered successfully");
-                                  }
+        if (fcm.isNotEmpty && access.isNotEmpty) {
+          registerDeviceToken(fcm, access);
+          print("Fcm registered successfully");
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Staff details uploaded successfully."),
             backgroundColor: Colors.green,
           ),
         );
-         Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => const SetupComplete()),
-                                      (Route<dynamic> route) => false,
-                                    );
-      
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const SetupComplete()),
+          (Route<dynamic> route) => false,
+        );
       } else {
         // _deleteFile(0); // Automatically remove the file if upload fails
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response.data['message'] ?? "Unexpected error occurred."),
+            content:
+                Text(response.data['message'] ?? "Unexpected error occurred."),
             backgroundColor: Colors.red,
           ),
         );
@@ -175,13 +174,14 @@ Future<void> registerDeviceToken(String fcmToken, String authToken) async {
       _deleteFile(0); // Automatically remove the file if upload fails
       String errorMessage = "An error occurred";
       if (e.type == DioExceptionType.connectionTimeout) {
-        errorMessage = "Connection timeout. Please check your network and try again.";
+        errorMessage =
+            "Connection timeout. Please check your network and try again.";
       } else if (e.type == DioExceptionType.receiveTimeout) {
         errorMessage = "Server response timeout. Please try again later.";
       } else if (e.type == DioExceptionType.badResponse) {
         print(e.response?.data);
-        print("*"*100);
-        errorMessage =  e.response?.data['message'] ?? "Failed to upload file";
+        print("*" * 100);
+        errorMessage = e.response?.data['message'] ?? "Failed to upload file";
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -265,16 +265,16 @@ Future<void> registerDeviceToken(String fcmToken, String authToken) async {
                       padding: const EdgeInsets.only(top: 38),
                       child: Center(
                         child: SvgPicture.asset(
-                        'assets/staffdetails.svg',
-                        width: screenWidth * 0.5263,
-                        height: screenWidth * 0.587,
-                      ),
+                          'assets/staffdetails.svg',
+                          width: screenWidth * 0.5263,
+                          height: screenWidth * 0.587,
+                        ),
                       ),
                     )
                   : Padding(
                       padding: const EdgeInsets.only(top: 0),
-                    child: Container(
-                      margin: const EdgeInsets.only(top: 0),
+                      child: Container(
+                        margin: const EdgeInsets.only(top: 0),
                         width: screenWidth,
                         height: screenWidth * 0.777,
                         child: ListView.builder(
@@ -295,11 +295,13 @@ Future<void> registerDeviceToken(String fcmToken, String authToken) async {
                           },
                         ),
                       ),
-                  ),
+                    ),
             ),
             const SizedBox(height: 34.2),
             if (uploadedFiles.isEmpty)
-            const SizedBox(height: 50,),
+              const SizedBox(
+                height: 50,
+              ),
             if (uploadedFiles.isEmpty)
               Container(
                 decoration: BoxDecoration(
@@ -311,8 +313,10 @@ Future<void> registerDeviceToken(String fcmToken, String authToken) async {
                 child: TextButton(
                   onPressed: _pickFile,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center, // Centers the row horizontally
-                    crossAxisAlignment: CrossAxisAlignment.center, // Centers the row vertically
+                    mainAxisAlignment: MainAxisAlignment
+                        .center, // Centers the row horizontally
+                    crossAxisAlignment:
+                        CrossAxisAlignment.center, // Centers the row vertically
                     children: [
                       SvgPicture.asset(
                         'assets/add.svg',
@@ -334,7 +338,9 @@ Future<void> registerDeviceToken(String fcmToken, String authToken) async {
               ),
             const SizedBox(height: 140),
             if (uploadedFiles.isNotEmpty)
-            const SizedBox(height: 48,),
+              const SizedBox(
+                height: 48,
+              ),
             SizedBox(
               width: screenWidth * 0.9,
               height: 40,

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:hotelcrew/core/config/app_env.dart';
 import "../model/addstaff.dart";
 import 'package:shared_preferences/shared_preferences.dart';
+
 class StaffViewModel extends ChangeNotifier {
   final Dio _dio = Dio(); // Initialize Dio instance
-  final String apiUrl = 'https://backend.srayansh.in/edit/create/';
+  final String apiUrl = AppEnv.api('/edit/create/');
 
   List<Staff> _staffList = [];
   bool _isLoading = false;
@@ -19,13 +21,13 @@ class StaffViewModel extends ChangeNotifier {
   Future<void> fetchStaff() async {
     _isLoading = true;
     notifyListeners();
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? accessToken = prefs.getString('access_token');
-
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString('access_token');
 
     try {
-      final response = await _dio.get(apiUrl,
-      options: Options(
+      final response = await _dio.get(
+        apiUrl,
+        options: Options(
           validateStatus: (status) => status! < 501,
           headers: {
             'Content-Type': 'application/json',
@@ -33,7 +35,7 @@ class StaffViewModel extends ChangeNotifier {
           },
         ),
       );
-      
+
       _staffList = (response.data as List)
           .map((staffData) => Staff.fromJson(staffData))
           .toList();

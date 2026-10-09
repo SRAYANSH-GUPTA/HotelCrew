@@ -1,6 +1,6 @@
 import "../../core/packages.dart";
 import 'attendancepage.dart';
-import 'package:dio/dio.dart'; 
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'attendancemanager.dart';
@@ -33,8 +33,8 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
 
   Future<void> fetchAttendance() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? accessToken = prefs.getString('access_token');
-    const String apiUrl = 'https://backend.srayansh.in/api/attendance/week-stats/';
+    String? accessToken = prefs.getString('access_token');
+    final String apiUrl = AppEnv.api('/api/attendance/week-stats/');
     const String token =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVC9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MjA1NDQ5LCJpYXQiOjE3MzI2MTM0NDksImp0aSI6Ijc5YzAzNWM4YTNjMjRjYWU4MDlmY2MxMWFmYTc2NTMzIiwidXNlcl9pZCI6OTB9.semxNFVAZZJreC9NWV7N0HsVzgYxpVG1ysjWG5qu8Xs";
 
@@ -84,11 +84,11 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
   }
 
   final Dio _dio = Dio();
-  final String apiUrl = 'https://backend.srayansh.in/api/attendance/leave_count/';
+  final String apiUrl = AppEnv.api('/api/attendance/leave_count/');
 
   Future<void> fetchleavecount() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? accessToken = prefs.getString('access_token');
+    String? accessToken = prefs.getString('access_token');
     setState(() {
       _isLoading = true;
     });
@@ -124,8 +124,8 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
 
   Future<void> approveLeaveRequest(String leaveId, String status) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? accessToken = prefs.getString('access_token');
-    final String url = 'https://backend.srayansh.in/api/attendance/leave_approve/$leaveId/';
+    String? accessToken = prefs.getString('access_token');
+    final String url = AppEnv.api('/api/attendance/leave_approve/$leaveId/');
     final Map<String, String> headers = {
       'Authorization': 'Bearer $accessToken',
       'Content-Type': 'application/json',
@@ -198,11 +198,13 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
 
   List<Map<String, dynamic>> get filteredRequests {
     if (selectedFilter == "All") {
-      print("#"*1000);
+      print("#" * 1000);
       print(leaveRequests);
       return leaveRequests;
     }
-    return leaveRequests.where((request) => request["status"] == selectedFilter).toList();
+    return leaveRequests
+        .where((request) => request["status"] == selectedFilter)
+        .toList();
   }
 
   bool isLoading = false;
@@ -244,7 +246,8 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
           onTap: () {
             Navigator.pop(context);
           },
-          child: const Icon(Icons.arrow_back_ios_outlined, color: Pallete.neutral900),
+          child: const Icon(Icons.arrow_back_ios_outlined,
+              color: Pallete.neutral900),
         ),
         title: Text(
           "Attendance",
@@ -275,9 +278,12 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildOverviewCard("Present", _presentCount.toString(), Pallete.success200),
-                      _buildOverviewCard("Absent", _absentCount.toString(), Pallete.error200),
-                      _buildOverviewCard("Leave", _leaveCount.toString(), Pallete.warning200),
+                      _buildOverviewCard("Present", _presentCount.toString(),
+                          Pallete.success200),
+                      _buildOverviewCard(
+                          "Absent", _absentCount.toString(), Pallete.error200),
+                      _buildOverviewCard(
+                          "Leave", _leaveCount.toString(), Pallete.warning200),
                     ],
                   ),
             const SizedBox(height: 24),
@@ -286,7 +292,11 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
                 width: screenWidth * 0.65,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ManagerAttendancePage()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                const ManagerAttendancePage()));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Pallete.primary800,
@@ -310,7 +320,10 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
                 width: screenWidth * 0.637,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const AttendancePage()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const AttendancePage()));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Pallete.primary800,
@@ -340,19 +353,24 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
               ),
             ),
             // const SizedBox(height: 16),
-            if(leaveRequests.isNotEmpty)
-            _buildFilterChips(),
+            if (leaveRequests.isNotEmpty) _buildFilterChips(),
             const SizedBox(height: 16),
             Expanded(
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : leaveRequests.isEmpty
                       ? Center(
-                          child: SvgPicture.asset("assets/emptyleave.svg",width: 328,height: 252,),
+                          child: SvgPicture.asset(
+                            "assets/emptyleave.svg",
+                            width: 328,
+                            height: 252,
+                          ),
                         )
                       : ListView.builder(
                           itemCount: filteredRequests.length,
-                          itemBuilder: (context, index) => _buildLeaveRequestCard(filteredRequests[index], screenWidth),
+                          itemBuilder: (context, index) =>
+                              _buildLeaveRequestCard(
+                                  filteredRequests[index], screenWidth),
                         ),
             ),
           ],
@@ -426,7 +444,8 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
     );
   }
 
-  Widget _buildLeaveRequestCard(Map<String, dynamic> request, double screenWidth) {
+  Widget _buildLeaveRequestCard(
+      Map<String, dynamic> request, double screenWidth) {
     return Card(
       color: Pallete.pagecolor,
       elevation: 0,
@@ -567,7 +586,8 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
-                            side: const BorderSide(color: Pallete.success600, width: 1),
+                            side: const BorderSide(
+                                color: Pallete.success600, width: 1),
                           ),
                           backgroundColor: Pallete.neutral00,
                           padding: const EdgeInsets.symmetric(
@@ -596,7 +616,8 @@ class _LeaveAttendancePageState extends State<LeaveAttendancePage> {
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
-                            side: const BorderSide(color: Pallete.error700, width: 1),
+                            side: const BorderSide(
+                                color: Pallete.error700, width: 1),
                           ),
                           backgroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(

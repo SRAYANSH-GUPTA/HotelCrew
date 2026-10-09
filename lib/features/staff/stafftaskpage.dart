@@ -50,14 +50,15 @@ class StaffTaskManagementPage extends StatefulWidget {
   const StaffTaskManagementPage({super.key});
 
   @override
-  State<StaffTaskManagementPage> createState() => _StaffTaskManagementPageState();
+  State<StaffTaskManagementPage> createState() =>
+      _StaffTaskManagementPageState();
 }
 
 class _StaffTaskManagementPageState extends State<StaffTaskManagementPage> {
   List<Task> tasks = [];
   List<Task> filteredTasks = [];
   String selectedFilter = "All";
-  String nextPageUrl = 'https://backend.srayansh.in/api/taskassignment/staff/tasks/day/';
+  String nextPageUrl = AppEnv.api('/api/taskassignment/staff/tasks/day/');
   bool isLoading = false;
   bool hasMore = false;
 
@@ -74,92 +75,93 @@ class _StaffTaskManagementPageState extends State<StaffTaskManagementPage> {
     fetchTasks();
   }
 
-Future<void> updateTaskStatus(int taskId, String newStatus) async {
-  final url = 'https://backend.srayansh.in/api/taskassignment/tasks/status/$taskId/';
-  
-  // Show loader
-  // context.loaderOverlay.show();
-  print(newStatus);
-  try {
-    final response = await http.patch(
-      Uri.parse(url),
-      headers: {
-        'Authorization': 'Bearer $access_token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({'status': newStatus}),
-    ).timeout(
-      const Duration(seconds: 30),
-      onTimeout: () {
-        throw TimeoutException('Connection timed out');
-      },
-    );
-    print(response.statusCode);
-    print(response.body);
+  Future<void> updateTaskStatus(int taskId, String newStatus) async {
+    final url = AppEnv.api('/api/taskassignment/tasks/status/$taskId/');
 
-    switch (response.statusCode) {
-      case 200:
-        final data = jsonDecode(response.body);
-        setState(() {
-          final taskIndex = tasks.indexWhere((t) => t.id == taskId);
-          if (taskIndex != -1) {
-            tasks[taskIndex] = Task(
-              id: tasks[taskIndex].id,
-              title: tasks[taskIndex].title,
-              department: tasks[taskIndex].department,
-              description: tasks[taskIndex].description,
-              status: data['status'],
-              deadline: tasks[taskIndex].deadline,
-              assignedTo: tasks[taskIndex].assignedTo,
-              assignedBy: tasks[taskIndex].assignedBy,
-              createdat: tasks[taskIndex].createdat,
-              updatedat: DateTime.now().toUtc().toIso8601String(),
-              
-            );
-            _applyFilter();
-          }
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(data['message'])),
-        );
-        break;
+    // Show loader
+    // context.loaderOverlay.show();
+    print(newStatus);
+    try {
+      final response = await http
+          .patch(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $access_token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'status': newStatus}),
+      )
+          .timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          throw TimeoutException('Connection timed out');
+        },
+      );
+      print(response.statusCode);
+      print(response.body);
 
-      case 404:
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Task not found')),
-        );
-        break;
+      switch (response.statusCode) {
+        case 200:
+          final data = jsonDecode(response.body);
+          setState(() {
+            final taskIndex = tasks.indexWhere((t) => t.id == taskId);
+            if (taskIndex != -1) {
+              tasks[taskIndex] = Task(
+                id: tasks[taskIndex].id,
+                title: tasks[taskIndex].title,
+                department: tasks[taskIndex].department,
+                description: tasks[taskIndex].description,
+                status: data['status'],
+                deadline: tasks[taskIndex].deadline,
+                assignedTo: tasks[taskIndex].assignedTo,
+                assignedBy: tasks[taskIndex].assignedBy,
+                createdat: tasks[taskIndex].createdat,
+                updatedat: DateTime.now().toUtc().toIso8601String(),
+              );
+              _applyFilter();
+            }
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data['message'])),
+          );
+          break;
 
-      case 400:
-        final error = jsonDecode(response.body)['error'];
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error)),
-        );
-        break;
+        case 404:
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Task not found')),
+          );
+          break;
 
-      case 500:
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Server error occurred')),
-        );
-        break;
+        case 400:
+          final error = jsonDecode(response.body)['error'];
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error)),
+          );
+          break;
 
-      default:
-        throw Exception('Failed to update task status: ${response.statusCode}');
+        case 500:
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Server error occurred')),
+          );
+          break;
+
+        default:
+          throw Exception(
+              'Failed to update task status: ${response.statusCode}');
+      }
+    } on TimeoutException {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Connection timed out')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating task status: $e')),
+      );
+    } finally {
+      // Hide loader
+      // context.loaderOverlay.hide();
     }
-  } on TimeoutException {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Connection timed out')),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error updating task status: $e')),
-    );
-  } finally {
-    // Hide loader
-    // context.loaderOverlay.hide();
   }
-}
-
 
   Future<void> getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -174,41 +176,42 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
     }
   }
 
- Future<void> fetchTasks() async {
-  print("^" * 100);
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('access_token');
-  
-  try {
-    final response = await http.get(
-      Uri.parse('https://backend.srayansh.in/api/taskassignment/staff/tasks/day/'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-    print(response.statusCode);
-    print(response.body);
+  Future<void> fetchTasks() async {
+    print("^" * 100);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final List<dynamic> results = data['tasks'];
-      print(results);
-      print("&"*100); // Assuming 'tasks' is the key in the response
-      final List<Task> fetchedTasks = results.map((taskJson) => Task.fromJson(taskJson as Map<String, dynamic>)).toList();
+    try {
+      final response = await http.get(
+        AppEnv.apiUri('/api/taskassignment/staff/tasks/day/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print(response.statusCode);
+      print(response.body);
 
-      setState(() {
-        tasks = fetchedTasks;  // Clear the existing tasks and set new ones
-        filteredTasks = tasks; // Assign the tasks to filteredTasks
-      });
-    } else {
-      print('Failed to load tasks. Status code: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<dynamic> results = data['tasks'];
+        print(results);
+        print("&" * 100); // Assuming 'tasks' is the key in the response
+        final List<Task> fetchedTasks = results
+            .map((taskJson) => Task.fromJson(taskJson as Map<String, dynamic>))
+            .toList();
+
+        setState(() {
+          tasks = fetchedTasks; // Clear the existing tasks and set new ones
+          filteredTasks = tasks; // Assign the tasks to filteredTasks
+        });
+      } else {
+        print('Failed to load tasks. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching tasks: $e');
     }
-  } catch (e) {
-    print('Error fetching tasks: $e');
   }
-}
-
 
   void _showStatusUpdateBottomSheet(Task task) {
     String selectedStatus = '';
@@ -241,7 +244,6 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
                         icon: const Icon(Icons.close),
                         onPressed: () {
                           Navigator.pop(context);
-                          
                         },
                       ),
                     ],
@@ -293,34 +295,35 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
                     height: 50,
                     width: double.infinity,
                     child: ElevatedButton(
-                     onPressed: () {
-  if (selectedStatus.isNotEmpty) {
-    if(task.status == "Completed") {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('The Task is Already Completed!! Cannot Update It'),
-        ),
-      );
-      return;
-    }
-    updateTaskStatus(task.id, selectedStatus);
-    
-    print("^^^^^^");
-    Navigator.pop(context);
-    setState(() {
-      // isLoading = true;
-    });
-    fetchTasks();
-  } else {
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Please select a status.'),
-      ),
-    );
-  }
-},
+                      onPressed: () {
+                        if (selectedStatus.isNotEmpty) {
+                          if (task.status == "Completed") {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'The Task is Already Completed!! Cannot Update It'),
+                              ),
+                            );
+                            return;
+                          }
+                          updateTaskStatus(task.id, selectedStatus);
+
+                          print("^^^^^^");
+                          Navigator.pop(context);
+                          setState(() {
+                            // isLoading = true;
+                          });
+                          fetchTasks();
+                        } else {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please select a status.'),
+                            ),
+                          );
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Pallete.primary700,
                         shape: RoundedRectangleBorder(
@@ -441,25 +444,26 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
                     children: [
                       const SizedBox(height: 16),
                       Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: [
-    Expanded(
-      child: Text(
-        task.title,
-        style: GoogleFonts.montserrat(
-          textStyle: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Pallete.neutral950,
-          ),
-        ),
-        overflow: TextOverflow.ellipsis, // Optional: shows an ellipsis if the text overflows
-        softWrap: true, // Ensures the text wraps to the next line when it overflows
-      ),
-    ),
-  ],
-),
-
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              task.title,
+                              style: GoogleFonts.montserrat(
+                                textStyle: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Pallete.neutral950,
+                                ),
+                              ),
+                              overflow: TextOverflow
+                                  .ellipsis, // Optional: shows an ellipsis if the text overflows
+                              softWrap:
+                                  true, // Ensures the text wraps to the next line when it overflows
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 10),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -518,10 +522,9 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
                           ),
                           children: [
                             TextSpan(
-                              text: task.deadline.isNotEmpty 
-    ? "${DateTime.parse(task.deadline).toLocal().hour}:${DateTime.parse(task.deadline).toLocal().minute.toString().padLeft(2, '0')}"
-    : "None",
-
+                              text: task.deadline.isNotEmpty
+                                  ? "${DateTime.parse(task.deadline).toLocal().hour}:${DateTime.parse(task.deadline).toLocal().minute.toString().padLeft(2, '0')}"
+                                  : "None",
                               style: GoogleFonts.montserrat(
                                 textStyle: const TextStyle(
                                   fontSize: 12,
@@ -594,8 +597,8 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
                           ),
                         ),
                         TextSpan(
-                          text: "${DateTime.parse(task.updatedat).toLocal().hour}:${DateTime.parse(task.updatedat).toLocal().minute.toString().padLeft(2, '0')}",
-
+                          text:
+                              "${DateTime.parse(task.updatedat).toLocal().hour}:${DateTime.parse(task.updatedat).toLocal().minute.toString().padLeft(2, '0')}",
                           style: GoogleFonts.montserrat(
                             textStyle: const TextStyle(
                               fontSize: 12,
@@ -612,7 +615,6 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
                   alignment: Alignment.bottomRight,
                   child: Text(
                     "${DateTime.parse(task.createdat).toLocal().hour}:${DateTime.parse(task.createdat).toLocal().minute.toString().padLeft(2, '0')}",
-
                     style: GoogleFonts.montserrat(
                       textStyle: const TextStyle(
                         fontSize: 12,
@@ -633,7 +635,8 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
   @override
   Widget build(BuildContext context) {
     return GlobalLoaderOverlay(
-      child: Scaffold(backgroundColor: Pallete.pagecolor,
+      child: Scaffold(
+        backgroundColor: Pallete.pagecolor,
         appBar: AppBar(
           title: Text(
             'Task Management',
@@ -646,35 +649,34 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
           iconTheme: const IconThemeData(color: Colors.white),
         ),
         body: Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: _buildFilterChips(), // Your filter widgets
-        ),
-        Expanded(
-          child: filteredTasks.isEmpty
-              ? Center(
-                  child: SvgPicture.asset(
-                    'assets/staffemptytask.svg', // Adjust your SVG file path
-                    width: 328,
-                    height: 272,
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: filteredTasks.length,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        _showStatusUpdateBottomSheet(filteredTasks[index]);
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: _buildFilterChips(), // Your filter widgets
+            ),
+            Expanded(
+              child: filteredTasks.isEmpty
+                  ? Center(
+                      child: SvgPicture.asset(
+                        'assets/staffemptytask.svg', // Adjust your SVG file path
+                        width: 328,
+                        height: 272,
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: filteredTasks.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            _showStatusUpdateBottomSheet(filteredTasks[index]);
+                          },
+                          child: _buildTaskCard(filteredTasks[index]),
+                        );
                       },
-                      child: _buildTaskCard(filteredTasks[index]),
-                    );
-                  },
-                ),
+                    ),
+            ),
+          ],
         ),
-      ],
-    ),
-
       ),
     );
   }
@@ -689,9 +691,7 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
               (filter) => Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: ChoiceChip(
-                  side: const BorderSide(
-                    color: Pallete.neutral200
-                  ),
+                  side: const BorderSide(color: Pallete.neutral200),
                   showCheckmark: false,
                   selectedColor: Pallete.neutral200,
                   backgroundColor: Pallete.pagecolor,
@@ -725,11 +725,9 @@ Future<void> updateTaskStatus(int taskId, String newStatus) async {
     setState(() {
       if (selectedFilter == "All") {
         filteredTasks = tasks;
-
       } else {
-        filteredTasks = tasks.where((task) => task.status == selectedFilter).toList();
-        
-        
+        filteredTasks =
+            tasks.where((task) => task.status == selectedFilter).toList();
       }
     });
   }

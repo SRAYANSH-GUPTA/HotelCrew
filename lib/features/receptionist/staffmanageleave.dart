@@ -19,28 +19,28 @@ class _StaffManageLeavePageState extends State<StaffManageLeavePage> {
     super.initState();
     fetchLeaveRequests();
   }
-String access_token = "";
- Future<void> getToken() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('access_token');
-  if (token == null || token.isEmpty) {
-    print('Token is null or empty');
-  } else {
-    setState(() {
-      access_token = token;
-    });
-    print('Token retrieved: $access_token');
-  }
-}
 
+  String access_token = "";
+  Future<void> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    if (token == null || token.isEmpty) {
+      print('Token is null or empty');
+    } else {
+      setState(() {
+        access_token = token;
+      });
+      print('Token retrieved: $access_token');
+    }
+  }
 
   Future<void> fetchLeaveRequests() async {
     await getToken(); // Wait for the token to be retrieved
-  if (access_token.isEmpty) {
-    print('Access token is null or empty');
-    return;
-  }
-    const String apiUrl = 'https://backend.srayansh.in/api/attendance/apply_leave/';
+    if (access_token.isEmpty) {
+      print('Access token is null or empty');
+      return;
+    }
+    final String apiUrl = AppEnv.api('/api/attendance/apply_leave/');
     context.loaderOverlay.show();
     try {
       final response = await http.get(
@@ -53,7 +53,8 @@ String access_token = "";
       print(response.body);
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        List<Map<String, dynamic>> formattedData = convertLeaveRequests(data['data']);
+        List<Map<String, dynamic>> formattedData =
+            convertLeaveRequests(data['data']);
         setState(() {
           leaveRequests = formattedData;
         });
@@ -83,7 +84,9 @@ String access_token = "";
   // Filtered leave requests based on the selected filter
   List<Map<String, dynamic>> get filteredRequests {
     if (selectedFilter == "All") return leaveRequests;
-    return leaveRequests.where((request) => request["status"] == selectedFilter).toList();
+    return leaveRequests
+        .where((request) => request["status"] == selectedFilter)
+        .toList();
   }
 
   @override
@@ -125,7 +128,8 @@ String access_token = "";
                 Container(
                   width: screenWidth * 0.9,
                   height: 136,
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 11),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 7, vertical: 11),
                   decoration: BoxDecoration(
                     color: Pallete.pagecolor,
                     border: Border.all(
@@ -181,8 +185,9 @@ String access_token = "";
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const RequestALeavePage()));
-                                  fetchLeaveRequests();
+                                  builder: (context) =>
+                                      const RequestALeavePage()));
+                          fetchLeaveRequests();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Pallete.primary800,
@@ -220,7 +225,7 @@ String access_token = "";
                 const SizedBox(height: 16),
                 // ListView.builder placed in an appropriate Container
                 SizedBox(
-                   // Specify a height to avoid rendering issues
+                  // Specify a height to avoid rendering issues
                   child: ListView.builder(
                     itemCount: filteredRequests.length,
                     shrinkWrap: true,
@@ -250,9 +255,7 @@ String access_token = "";
               (filter) => Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: ChoiceChip(
-                  side: const BorderSide(
-                    color: Pallete.neutral200
-                  ),
+                  side: const BorderSide(color: Pallete.neutral200),
                   showCheckmark: false,
                   selectedColor: Pallete.neutral200,
                   backgroundColor: Pallete.pagecolor,
@@ -279,7 +282,8 @@ String access_token = "";
     );
   }
 
-  Widget _buildLeaveRequestCard(Map<String, dynamic> request, double screenWidth) {
+  Widget _buildLeaveRequestCard(
+      Map<String, dynamic> request, double screenWidth) {
     Color getStatusColor(String status) {
       switch (status) {
         case "Pending":

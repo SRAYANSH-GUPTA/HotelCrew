@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../core/config/app_env.dart';
 import 'package:hotelcrew/features/hoteldetails/pages/setupcomplete.dart';
 
 class Staffdetails extends StatefulWidget {
@@ -80,7 +81,7 @@ class _StaffdetailsState extends State<Staffdetails> {
 
       // Make the POST request
       Response response = await dio.post(
-        'https://hotelcrew.onrender.com/api/hoteldetails/register/',
+        AppEnv.api('/api/hoteldetails/register/'),
         data: formData,
       );
 

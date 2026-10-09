@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
 class AssignRoomPage extends StatefulWidget {
   const AssignRoomPage({super.key});
 
@@ -19,58 +20,59 @@ class _AssignRoomPageState extends State<AssignRoomPage> {
   String? status;
   String? roomType;
 
-List<String> room = [];
+  List<String> room = [];
 
+  void fetchRoomTypes() async {
+    try {
+      // Get the access token from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final accessToken = prefs.getString('access_token');
 
-void fetchRoomTypes() async {
-  try {
-    // Get the access token from SharedPreferences
-    final prefs = await SharedPreferences.getInstance();
-    final accessToken = prefs.getString('access_token');
-
-    if (accessToken == null) {
-      throw Exception('Access token not found.');
-    }
-
-    // API endpoint
-    const String apiUrl = 'https://backend.srayansh.in/api/hoteldetails/room/details/';
-
-    // Make the GET request
-    final response = await http.get(
-      Uri.parse(apiUrl),
-      headers: {
-        'Authorization': 'Bearer $accessToken',
-        'Content-Type': 'application/json',
-      },
-    );
-
-    // Check response status
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-
-      // Extract room names from the API response
-      if (data['status'] == 'success') {
-        final roomList = data['data'] as List;
-        print("^"*100);
-        print(roomList);
-        print(roomList.map<String>((room) => room['room_type'] as String).toList());
-        setState(() {
-          room = roomList.map<String>((room) => room['room_type'] as String).toList();
-        });
-      } else {
-        throw Exception('Error: ${data['message']}');
+      if (accessToken == null) {
+        throw Exception('Access token not found.');
       }
-    } else {
-      throw Exception('Failed to fetch room details. Status: ${response.statusCode}');
+
+      // API endpoint
+      final String apiUrl = AppEnv.api('/api/hoteldetails/room/details/');
+
+      // Make the GET request
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      // Check response status
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        // Extract room names from the API response
+        if (data['status'] == 'success') {
+          final roomList = data['data'] as List;
+          print("^" * 100);
+          print(roomList);
+          print(roomList
+              .map<String>((room) => room['room_type'] as String)
+              .toList());
+          setState(() {
+            room = roomList
+                .map<String>((room) => room['room_type'] as String)
+                .toList();
+          });
+        } else {
+          throw Exception('Error: ${data['message']}');
+        }
+      } else {
+        throw Exception(
+            'Failed to fetch room details. Status: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Handle errors
+      print('Error: $e');
     }
-  } catch (e) {
-    // Handle errors
-    print('Error: $e');
-    
   }
-}
-
-
 
   final Dio _dio = Dio();
 
@@ -171,8 +173,7 @@ void fetchRoomTypes() async {
                   ),
                 ],
               ),
-              ...room
-              .map((roomOption) {
+              ...room.map((roomOption) {
                 return ListTile(
                   title: Text(
                     roomOption,
@@ -197,14 +198,11 @@ void fetchRoomTypes() async {
     );
   }
 
- @override
+  @override
   void initState() {
     super.initState();
     fetchRoomTypes();
   }
-
-
-
 
   Future<void> _selectCheckOutDateTime() async {
     DateTime? selectedDate = await showDatePicker(
@@ -239,70 +237,70 @@ void fetchRoomTypes() async {
     }
   }
 
- 
-
-Future<void> getToken() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('access_token');
-  if (token == null || token.isEmpty) {
-    print('Token is null or empty');
-  } else {
-    setState(() {
-      access_token = token;
-    });
-    print('Token retrieved: $access_token');
+  Future<void> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    if (token == null || token.isEmpty) {
+      print('Token is null or empty');
+    } else {
+      setState(() {
+        access_token = token;
+      });
+      print('Token retrieved: $access_token');
+    }
   }
-}
-String access_token = "";
+
+  String access_token = "";
   Future<void> _assignRoom() async {
     await getToken();
-  if (_formKey.currentState!.validate()) {
-    await getToken(); // Wait for the token to be retrieved
-  if (access_token.isEmpty) {
-    print('Access token is null or empty');
-    return;
-  }
+    if (_formKey.currentState!.validate()) {
+      await getToken(); // Wait for the token to be retrieved
+      if (access_token.isEmpty) {
+        print('Access token is null or empty');
+        return;
+      }
       final String name = nameController.text;
       final String email = emailController.text;
       final String contact = contactController.text;
       final String checkOut = checkOutController.text;
 
-    try {
-      final response = await http.post(
-        Uri.parse('https://backend.srayansh.in/api/hoteldetails/book/'),
-        headers: {
-          'Authorization':
-              'Bearer $access_token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'name': name,
-          'email': email,
-          'phone_number': contact,
-          'status':  status, // Replace with actual status
-          'room_type': roomType, // Replace with actual roomType
-          'check_out_time': checkOut,
-        }),
-      );
-      print(response.body);
-      if (response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Room assigned successfully')),
+      try {
+        final response = await http.post(
+          AppEnv.apiUri('/api/hoteldetails/book/'),
+          headers: {
+            'Authorization': 'Bearer $access_token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({
+            'name': name,
+            'email': email,
+            'phone_number': contact,
+            'status': status, // Replace with actual status
+            'room_type': roomType, // Replace with actual roomType
+            'check_out_time': checkOut,
+          }),
         );
-        Navigator.pop(context);
-      } else {
-        final responseData = jsonDecode(response.body);
+        print(response.body);
+        if (response.statusCode == 201) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Room assigned successfully')),
+          );
+          Navigator.pop(context);
+        } else {
+          final responseData = jsonDecode(response.body);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content:
+                    Text('Failed to assign room: ${responseData['message']}')),
+          );
+        }
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to assign room: ${responseData['message']}')),
+          SnackBar(content: Text('Error: $e')),
         );
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
     }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -314,7 +312,8 @@ String access_token = "";
             onTap: () {
               Navigator.pop(context);
             },
-            child: const Icon(Icons.arrow_back_ios_outlined, color: Pallete.neutral900),
+            child: const Icon(Icons.arrow_back_ios_outlined,
+                color: Pallete.neutral900),
           ),
           titleSpacing: 0,
           title: Text(
@@ -350,45 +349,47 @@ String access_token = "";
                         const SizedBox(height: 30),
                         _buildTextField('Contact', contactController),
                         const SizedBox(height: 30),
-                        _buildBottomSheetField('Room Type', roomType, _selectRoomType),
+                        _buildBottomSheetField(
+                            'Room Type', roomType, _selectRoomType),
                         const SizedBox(height: 30),
-                        _buildCheckOutField('Check-Out', checkOutController, _selectCheckOutDateTime),
+                        _buildCheckOutField('Check-Out', checkOutController,
+                            _selectCheckOutDateTime),
                       ],
                     ),
                   ),
                 ),
               ),
               Padding(
-        padding: const EdgeInsets.only(bottom: 30),
-        child: MediaQuery.of(context).viewInsets.bottom == 0 // Check if the keyboard is hidden
-        ? SizedBox(
-            width: screenWidth * 0.9,
-            child: ElevatedButton(
-              onPressed:() async{ 
-                context.loaderOverlay.show();
-                await _assignRoom();
-                context.loaderOverlay.hide();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Pallete.primary800,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                padding: const EdgeInsets.only(bottom: 30),
+                child: MediaQuery.of(context).viewInsets.bottom ==
+                        0 // Check if the keyboard is hidden
+                    ? SizedBox(
+                        width: screenWidth * 0.9,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            context.loaderOverlay.show();
+                            await _assignRoom();
+                            context.loaderOverlay.hide();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Pallete.primary800,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(
+                            'Assign Room',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Pallete.neutral00,
+                            ),
+                          ),
+                        ),
+                      )
+                    : const SizedBox(), // Hide the button when the keyboard is visible
               ),
-              child: Text(
-                'Assign Room',
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Pallete.neutral00,
-                ),
-              ),
-            ),
-          )
-        : const SizedBox(), // Hide the button when the keyboard is visible
-      ),
-      
             ],
           ),
         ),
@@ -432,7 +433,8 @@ String access_token = "";
     );
   }
 
-  Widget _buildBottomSheetField(String label, String? value, VoidCallback onTap) {
+  Widget _buildBottomSheetField(
+      String label, String? value, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -461,7 +463,8 @@ String access_token = "";
     );
   }
 
-  Widget _buildCheckOutField(String label, TextEditingController controller, VoidCallback onTap) {
+  Widget _buildCheckOutField(
+      String label, TextEditingController controller, VoidCallback onTap) {
     return TextFormField(
       controller: controller,
       validator: (value) {

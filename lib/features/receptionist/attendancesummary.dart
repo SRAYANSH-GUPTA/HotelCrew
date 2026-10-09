@@ -39,7 +39,7 @@ class _AttendanceSummaryPageState extends State<AttendanceSummaryPage> {
 
     try {
       final response = await http.get(
-        Uri.parse('https://backend.srayansh.in/api/attendance/week/'),
+        AppEnv.apiUri('/api/attendance/week/'),
         headers: {
           'Authorization': 'Bearer $access_token',
           'Content-Type': 'application/json',
@@ -104,7 +104,7 @@ class _AttendanceSummaryPageState extends State<AttendanceSummaryPage> {
 
     try {
       final response = await http.get(
-        Uri.parse('https://backend.srayansh.in/api/attendance/month/'),
+        AppEnv.apiUri('/api/attendance/month/'),
         headers: {
           'Authorization': 'Bearer $access_token',
           'Content-Type': 'application/json',
@@ -140,27 +140,27 @@ class _AttendanceSummaryPageState extends State<AttendanceSummaryPage> {
     return Scaffold(
       backgroundColor: Pallete.pagecolor,
       appBar: AppBar(
-          titleSpacing: 0,
-          leading: InkWell(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: const Icon(
-              Icons.arrow_back_ios_outlined,
-              color: Pallete.neutral900,
-            ),
+        titleSpacing: 0,
+        leading: InkWell(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: const Icon(
+            Icons.arrow_back_ios_outlined,
+            color: Pallete.neutral900,
           ),
-          title: Text(
-            "Attendance Summary",
-            style: GoogleFonts.montserrat(
-              textStyle: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Pallete.neutral1000,
-              ),
+        ),
+        title: Text(
+          "Attendance Summary",
+          style: GoogleFonts.montserrat(
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Pallete.neutral1000,
             ),
           ),
         ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -244,81 +244,87 @@ class _AttendanceSummaryPageState extends State<AttendanceSummaryPage> {
                 children: [
                   // Header Row
                   SizedBox(
-                    width:screenWidth * 0.9,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Pallete.neutral100,
-                                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(8)),
-                                      border: Border.all(color: Pallete.neutral300, width: 1),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                    child: Text(
-                                      'Present',
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.montserrat(
-                                        textStyle: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: Pallete.neutral900,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                    width: screenWidth * 0.9,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Pallete.neutral100,
+                              borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(8)),
+                              border: Border.all(
+                                  color: Pallete.neutral300, width: 1),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12.0),
+                            child: Text(
+                              'Present',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.montserrat(
+                                textStyle: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Pallete.neutral900,
                                 ),
-                                Expanded(
-                                  child: Container(
-                                    decoration: const BoxDecoration(
-                                      color: Pallete.neutral100,
-                                      border: Border(
-                                        top: BorderSide(color: Pallete.neutral300, width: 1),
-                                        bottom: BorderSide(color: Pallete.neutral300, width: 1),
-                                      ),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                    child: Text(
-                                      'Absent',
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.montserrat(
-                                        textStyle: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: Pallete.neutral900,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Pallete.neutral100,
-                                      borderRadius: const BorderRadius.only(topRight: Radius.circular(8)),
-                                      border: Border.all(color: Pallete.neutral300, width: 1),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                    child: Text(
-                                      'Leave',
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.montserrat(
-                                        textStyle: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: Pallete.neutral900,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              color: Pallete.neutral100,
+                              border: Border(
+                                top: BorderSide(
+                                    color: Pallete.neutral300, width: 1),
+                                bottom: BorderSide(
+                                    color: Pallete.neutral300, width: 1),
+                              ),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12.0),
+                            child: Text(
+                              'Absent',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.montserrat(
+                                textStyle: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Pallete.neutral900,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Pallete.neutral100,
+                              borderRadius: const BorderRadius.only(
+                                  topRight: Radius.circular(8)),
+                              border: Border.all(
+                                  color: Pallete.neutral300, width: 1),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12.0),
+                            child: Text(
+                              'Leave',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.montserrat(
+                                textStyle: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Pallete.neutral900,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   // Data Rows
                   SizedBox(
-                    width: screenWidth * 0.9,
-                    child: _buildAttendanceRow(screenWidth: screenWidth)),
+                      width: screenWidth * 0.9,
+                      child: _buildAttendanceRow(screenWidth: screenWidth)),
                 ],
               ),
             ),
@@ -388,101 +394,102 @@ class _AttendanceSummaryPageState extends State<AttendanceSummaryPage> {
     );
   }
 
- 
   Widget _buildAttendanceRow({required double screenWidth}) {
-  if (isLoading) {
-    return const Center(child: CircularProgressIndicator());
-  }
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-  if (selectedView == 'Month') {
-    return Row(
-      children: [
-        _buildDataCell(
-          screenWidth: screenWidth,
-          count: daysPresent.toString(),
-          isLeftTopBorder: true,
-        ),
-        _buildDataCell(
-          screenWidth: screenWidth,
-          count: (totalDays - daysPresent - totalLeaves).toString(),
-        ),
-        _buildDataCell(
-          screenWidth: screenWidth,
-          count: totalLeaves.toString(),
-          isRightTopBorder: true,
-        ),
-      ],
-    );
-  } else {
-    // Weekly View
-    return Container(
-      decoration: const BoxDecoration(
-        border: Border(
-          left: BorderSide(color: Pallete.neutral200, width: 1),
-          right: BorderSide(color: Pallete.neutral200, width: 1),
-          bottom: BorderSide(color: Pallete.neutral200, width: 1),
-        ),
-      ),
-      child: Row(
+    if (selectedView == 'Month') {
+      return Row(
         children: [
           _buildDataCell(
             screenWidth: screenWidth,
-            count: crewPresent.isNotEmpty ? crewPresent.last.toString() : '0',
+            count: daysPresent.toString(),
             isLeftTopBorder: true,
           ),
           _buildDataCell(
             screenWidth: screenWidth,
-            count: staffAbsent.isNotEmpty ? staffAbsent.last.toString() : '0',
+            count: (totalDays - daysPresent - totalLeaves).toString(),
           ),
           _buildDataCell(
             screenWidth: screenWidth,
-            count: crewLeave.isNotEmpty ? crewLeave.last.toString() : '0',
+            count: totalLeaves.toString(),
             isRightTopBorder: true,
           ),
         ],
+      );
+    } else {
+      // Weekly View
+      return Container(
+        decoration: const BoxDecoration(
+          border: Border(
+            left: BorderSide(color: Pallete.neutral200, width: 1),
+            right: BorderSide(color: Pallete.neutral200, width: 1),
+            bottom: BorderSide(color: Pallete.neutral200, width: 1),
+          ),
+        ),
+        child: Row(
+          children: [
+            _buildDataCell(
+              screenWidth: screenWidth,
+              count: crewPresent.isNotEmpty ? crewPresent.last.toString() : '0',
+              isLeftTopBorder: true,
+            ),
+            _buildDataCell(
+              screenWidth: screenWidth,
+              count: staffAbsent.isNotEmpty ? staffAbsent.last.toString() : '0',
+            ),
+            _buildDataCell(
+              screenWidth: screenWidth,
+              count: crewLeave.isNotEmpty ? crewLeave.last.toString() : '0',
+              isRightTopBorder: true,
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  Widget _buildDataCell({
+    required double screenWidth,
+    required String count,
+    bool isLeftTopBorder = false,
+    bool isRightTopBorder = false,
+  }) {
+    return Container(
+      width: screenWidth * 0.3, // Adjusted width for responsive layout
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      decoration: BoxDecoration(
+        border: Border(
+          top: const BorderSide(
+            color: Pallete.neutral200,
+            width: 2,
+          ),
+          left: BorderSide(
+            color: Pallete.neutral200,
+            width: isLeftTopBorder ? 2 : 1,
+          ),
+          right: BorderSide(
+            color: Pallete.neutral200,
+            width: isRightTopBorder ? 2 : 1,
+          ),
+          bottom: const BorderSide(
+            color: Pallete.neutral200,
+            width: 2,
+          ),
+        ),
+      ),
+      child: Text(
+        count,
+        textAlign: TextAlign.center,
+        style: GoogleFonts.montserrat(
+          textStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Pallete.neutral900,
+          ),
+        ),
       ),
     );
   }
 }
- Widget _buildDataCell({
-  required double screenWidth,
-  required String count,
-  bool isLeftTopBorder = false,
-  bool isRightTopBorder = false,
-}) {
-  return Container(
-    width: screenWidth * 0.3, // Adjusted width for responsive layout
-    padding: const EdgeInsets.symmetric(vertical: 8.0),
-    decoration: BoxDecoration(
-      border: Border(
-        top: const BorderSide(
-          color: Pallete.neutral200,
-          width: 2,
-        ),
-        left: BorderSide(
-          color: Pallete.neutral200,
-          width: isLeftTopBorder ? 2 : 1,
-        ),
-        right: BorderSide(
-          color: Pallete.neutral200,
-          width: isRightTopBorder ? 2 : 1,
-        ),
-        bottom: const BorderSide(
-          color: Pallete.neutral200,
-          width: 2,
-        ),
-      ),
-    ),
-    child: Text(
-      count,
-      textAlign: TextAlign.center,
-      style: GoogleFonts.montserrat(
-        textStyle: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: Pallete.neutral900,
-        ),
-      ),
-    ),
-  );
-}}

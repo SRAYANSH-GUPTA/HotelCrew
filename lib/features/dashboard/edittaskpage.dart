@@ -4,7 +4,6 @@ import 'model/createtaskmodel.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-
 class EditTaskPage extends StatefulWidget {
   final String taskTitle;
   final String department;
@@ -33,176 +32,180 @@ class _EditTaskPageState extends State<EditTaskPage> {
   List<String> departments = [];
   final TaskViewModel taskViewModel = TaskViewModel();
 
-  
-@override
-void initState() {
-  super.initState();
-  fetchDepartments(context);
-  titleController.text = widget.taskTitle;
-  departmentController.text = widget.department;
-  descriptionController.text = widget.description;
-}
-
-void fetchDepartments(BuildContext context) async {
-  final Uri url = Uri.parse('https://backend.srayansh.in/api/edit/department_list/'); // Replace with your actual endpoint
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('access_token'); // Fetch access token from shared preferences
-
-  try {
-    final response = await http.get(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-    print(response.body);
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseData = json.decode(response.body);
-
-      if (responseData['status'] == 'success') {
-        final Map<String, dynamic> staffPerDepartment =
-            responseData['staff_per_department'] ?? {};
-        List<String> department = []; // Start with 'All Staff'
-        department.addAll(staffPerDepartment.keys);
-        setState(() {
-          departments = department;
-        });
-        
-      } else {
-        throw Exception('Unexpected response: ${responseData['message']}');
-      }
-    } else {
-      final Map<String, dynamic> errorData = json.decode(response.body);
-      throw Exception(errorData['message'] ?? 'Failed to fetch departments.');
-    }
-  } catch (error) {
-    // Show error in Snackbar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Error: $error'),
-        backgroundColor: Colors.red,
-      ),
-    );
-
+  @override
+  void initState() {
+    super.initState();
+    fetchDepartments(context);
+    titleController.text = widget.taskTitle;
+    departmentController.text = widget.department;
+    descriptionController.text = widget.description;
   }
-}
 
-
-
-  void _showDepartmentSheet() {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-    ),
-    builder: (context) => Wrap(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Departments',
-                style: GoogleFonts.montserrat(
-            textStyle: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Pallete.neutral950,
-            ),
-              ),),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-        ),
-        // const Divider(height: 1),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: departments.length,
-          itemBuilder: (context, index) => ListTile(
-            title: Text(departments[index], style: GoogleFonts.montserrat(
-            textStyle: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Pallete.neutral950,
-            ),
-              ),),
-            onTap: () {
-              departmentController.text = departments[index];
-              Navigator.pop(context);
-            },
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-  Future<void> _submitTask() async {
-  if (context.loaderOverlay.visible) {
-    return;
-  }
-  context.loaderOverlay.show();
-   SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? accessToken = prefs.getString('access_token');
-
-  if (_formKey.currentState!.validate()) {
-    Task newTask = Task(
-      title: titleController.text,
-      department: departmentController.text,
-      deadline: deadlineController.text.isNotEmpty ? deadlineController.text : null,
-      description: descriptionController.text,
-    );
+  void fetchDepartments(BuildContext context) async {
+    final Uri url = AppEnv.apiUri(
+        '/api/edit/department_list/'); // Replace with your actual endpoint
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString(
+        'access_token'); // Fetch access token from shared preferences
 
     try {
-      final response = await http.put(
-        Uri.parse('https://backend.srayansh.in/api/taskassignment/tasks/update/${widget.id}/'),
+      final response = await http.get(
+        url,
         headers: {
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken', // Add authentication if required
         },
-        body: jsonEncode(newTask.toJson()),
       );
-      print("Response Status: ${response.statusCode}");
       print(response.body);
       if (response.statusCode == 200) {
-        // Task updated successfully
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Task updated successfully!')),
-        );
-        context.loaderOverlay.hide();
-        Navigator.pop(context);
-        // _clearForm();
+        final Map<String, dynamic> responseData = json.decode(response.body);
+
+        if (responseData['status'] == 'success') {
+          final Map<String, dynamic> staffPerDepartment =
+              responseData['staff_per_department'] ?? {};
+          List<String> department = []; // Start with 'All Staff'
+          department.addAll(staffPerDepartment.keys);
+          setState(() {
+            departments = department;
+          });
+        } else {
+          throw Exception('Unexpected response: ${responseData['message']}');
+        }
       } else {
-        // Handle error
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update task: ${response.body}')),
-        );
+        final Map<String, dynamic> errorData = json.decode(response.body);
+        throw Exception(errorData['message'] ?? 'Failed to fetch departments.');
       }
-    } catch (e) {
-      // Handle network or other errors
+    } catch (error) {
+      // Show error in Snackbar
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred: $e')),
+        SnackBar(
+          content: Text('Error: $error'),
+          backgroundColor: Colors.red,
+        ),
       );
-    } finally {
+    }
+  }
+
+  void _showDepartmentSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+      ),
+      builder: (context) => Wrap(
+        children: [
+          Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Departments',
+                  style: GoogleFonts.montserrat(
+                    textStyle: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Pallete.neutral950,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+          ),
+          // const Divider(height: 1),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: departments.length,
+            itemBuilder: (context, index) => ListTile(
+              title: Text(
+                departments[index],
+                style: GoogleFonts.montserrat(
+                  textStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Pallete.neutral950,
+                  ),
+                ),
+              ),
+              onTap: () {
+                departmentController.text = departments[index];
+                Navigator.pop(context);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _submitTask() async {
+    if (context.loaderOverlay.visible) {
+      return;
+    }
+    context.loaderOverlay.show();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString('access_token');
+
+    if (_formKey.currentState!.validate()) {
+      Task newTask = Task(
+        title: titleController.text,
+        department: departmentController.text,
+        deadline:
+            deadlineController.text.isNotEmpty ? deadlineController.text : null,
+        description: descriptionController.text,
+      );
+
+      try {
+        final response = await http.put(
+          AppEnv.apiUri('/api/taskassignment/tasks/update/${widget.id}/'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':
+                'Bearer $accessToken', // Add authentication if required
+          },
+          body: jsonEncode(newTask.toJson()),
+        );
+        print("Response Status: ${response.statusCode}");
+        print(response.body);
+        if (response.statusCode == 200) {
+          // Task updated successfully
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Task updated successfully!')),
+          );
+          context.loaderOverlay.hide();
+          Navigator.pop(context);
+          // _clearForm();
+        } else {
+          // Handle error
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to update task: ${response.body}')),
+          );
+        }
+      } catch (e) {
+        // Handle network or other errors
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An error occurred: $e')),
+        );
+      } finally {
+        context.loaderOverlay.hide();
+      }
+    } else {
       context.loaderOverlay.hide();
     }
-  } else {
-    context.loaderOverlay.hide();
   }
-}
 
   @override
   Widget build(BuildContext context) {
     // Check if the keyboard is visible
     bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
-   final screenHeight = MediaQuery.of(context).size.height;
+    final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
     return GlobalLoaderOverlay(
@@ -210,16 +213,23 @@ void fetchDepartments(BuildContext context) async {
         appBar: AppBar(
           titleSpacing: 0,
           leading: InkWell(
-            onTap: () {Navigator.pop(context);},
-            child: const Icon(Icons.arrow_back_ios_outlined,color: Pallete.neutral900,)),
-          title: Text("Edit Task",
-           style: GoogleFonts.montserrat(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: const Icon(
+                Icons.arrow_back_ios_outlined,
+                color: Pallete.neutral900,
+              )),
+          title: Text(
+            "Edit Task",
+            style: GoogleFonts.montserrat(
               textStyle: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Pallete.neutral1000,
               ),
-            ),),
+            ),
+          ),
         ),
         body: Stack(
           children: [
@@ -228,14 +238,15 @@ void fetchDepartments(BuildContext context) async {
               child: Form(
                 key: _formKey,
                 child: ListView(
-                  children: [const SizedBox(height:40),
+                  children: [
+                    const SizedBox(height: 40),
                     _buildTextFormField(
                       controller: titleController,
                       label: 'Task Title',
                       isRequired: true,
                     ),
-                    const SizedBox(height:38),
-                    
+                    const SizedBox(height: 38),
+
                     GestureDetector(
                       onTap: _showDepartmentSheet,
                       child: AbsorbPointer(
@@ -245,21 +256,20 @@ void fetchDepartments(BuildContext context) async {
                           isRequired: true,
                         ),
                       ),
-                    )
-                    ,
-                    const SizedBox(height:38),
+                    ),
+                    const SizedBox(height: 38),
                     _buildTextFormField(
                       controller: deadlineController,
                       label: 'Deadline (optional)',
                       isRequired: false,
                     ),
                     //descriptionController
-                    const SizedBox(height:38),
+                    const SizedBox(height: 38),
                     _buildTextFormField(
                       controller: descriptionController,
                       label: 'Description',
                       isRequired: true,
-                       maxLines: 2,
+                      maxLines: 2,
                     ),
                   ],
                 ),
@@ -268,18 +278,17 @@ void fetchDepartments(BuildContext context) async {
             // Only show the button if the keyboard is not visible
             if (!isKeyboardVisible)
               Positioned(
-                bottom: MediaQuery.of(context).viewPadding.bottom + 48, // 48 above the navigation bar
+                bottom: MediaQuery.of(context).viewPadding.bottom +
+                    48, // 48 above the navigation bar
                 left: 16,
                 right: 16,
-                child: 
-                buildMainButton(
-                        context: context,
-                        screenHeight: screenHeight,
-                        screenWidth: screenWidth,
-                        buttonText: "Update Task",
-                        onPressed: _submitTask,
-                        
-                      ),
+                child: buildMainButton(
+                  context: context,
+                  screenHeight: screenHeight,
+                  screenWidth: screenWidth,
+                  buttonText: "Update Task",
+                  onPressed: _submitTask,
+                ),
               ),
           ],
         ),
@@ -288,38 +297,37 @@ void fetchDepartments(BuildContext context) async {
   }
 
   Widget _buildTextFormField({
-  required TextEditingController controller,
-  required String label,
-  bool isRequired = false,
-  int maxLines = 1, // Updated maxLines property
-}) {
-  return TextFormField(
-    controller: controller,
-    decoration: InputDecoration(
-      labelText: label,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8.0),
-        borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
+    required TextEditingController controller,
+    required String label,
+    bool isRequired = false,
+    int maxLines = 1, // Updated maxLines property
+  }) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: const BorderSide(color: Pallete.neutral700, width: 1.0),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
+        ),
       ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8.0),
-        borderSide: const BorderSide(color: Pallete.error700, width: 2.0),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8.0),
-        borderSide: const BorderSide(color: Pallete.primary700, width: 2.0),
-      ),
-    ),
-    maxLines: maxLines,
-    // minLines: maxLines > 1 ? 3 : 1, // Show at least 3 lines if maxLines > 1
-    keyboardType: maxLines > 1 ? TextInputType.multiline : TextInputType.text,
-    validator: (value) {
-      if (isRequired && (value == null || value.isEmpty)) {
-        return 'This field is required';
-      }
-      return null;
-    },
-  );
-}
-
+      maxLines: maxLines,
+      // minLines: maxLines > 1 ? 3 : 1, // Show at least 3 lines if maxLines > 1
+      keyboardType: maxLines > 1 ? TextInputType.multiline : TextInputType.text,
+      validator: (value) {
+        if (isRequired && (value == null || value.isEmpty)) {
+          return 'This field is required';
+        }
+        return null;
+      },
+    );
+  }
 }

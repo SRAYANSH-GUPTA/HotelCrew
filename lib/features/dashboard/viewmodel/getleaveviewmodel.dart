@@ -1,14 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
+import 'package:hotelcrew/core/config/app_env.dart';
 import "package:shared_preferences/shared_preferences.dart";
 import '../model/getleavemodel.dart'; // Adjust the import path based on your project structure
 
 // Custom Logger Interceptor
 class LeaveCountViewModel with ChangeNotifier {
-   
   final Dio _dio;
-  final String _apiUrl = 'https://backend.srayansh.in/api/attendance/leave_list/';
-
+  final String _apiUrl = AppEnv.api('/api/attendance/leave_list/');
 
   LeaveCountViewModel() : _dio = Dio() {
     // Add logger interceptor
@@ -25,9 +24,9 @@ class LeaveCountViewModel with ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   Future<List<Map<String, dynamic>>> fetchLeaveRequests() async {
-     SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    
+
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -43,12 +42,11 @@ class LeaveCountViewModel with ChangeNotifier {
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List<dynamic>;
-        _leaveRequests = data
-            .map((json) => LeaveRequest.fromJson(json).toJson())
-            .toList();
-            print("%%%%%%%%%%%%%%%%%%%%%@");
-            print(_leaveRequests);
-          return _leaveRequests;
+        _leaveRequests =
+            data.map((json) => LeaveRequest.fromJson(json).toJson()).toList();
+        print("%%%%%%%%%%%%%%%%%%%%%@");
+        print(_leaveRequests);
+        return _leaveRequests;
       } else if (response.statusCode == 401) {
         _errorMessage = 'Authentication failed. Please log in again.';
       } else {

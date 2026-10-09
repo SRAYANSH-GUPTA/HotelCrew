@@ -12,86 +12,84 @@ class AttendancePage extends StatefulWidget {
 
 class _AttendancePageState extends State<AttendancePage> {
   final Dio _dio = Dio();
-  final String apiUrl = 'https://backend.srayansh.in/api/attendance/list/';
+  final String apiUrl = AppEnv.api('/api/attendance/list/');
 
   List<dynamic> attendanceList = [
-  //   {
-  //   'user_name': 'John Doe',
-  //   'department': 'Housekeeping',
-  //   'attendance': 'Present', // or 'Absent'
-  // },
-  // {
-  //   'user_name': 'Jane Smith',
-  //   'department': 'Receptionist',
-  //   'attendance': 'Absent',
-  // },
-  // {
-  //   'user_name': 'David Johnson',
-  //   'department': 'Security',
-  //   'attendance': 'Present',
-  // },
-  // {
-  //   'user_name': 'Emily Davis',
-  //   'department': 'Maintenance',
-  //   'attendance': 'Absent',
-  // },
-  // {
-  //   'user_name': 'Michael Brown',
-  //   'department': 'Manager',
-  //   'attendance': 'Present',
-  // },
+    //   {
+    //   'user_name': 'John Doe',
+    //   'department': 'Housekeeping',
+    //   'attendance': 'Present', // or 'Absent'
+    // },
+    // {
+    //   'user_name': 'Jane Smith',
+    //   'department': 'Receptionist',
+    //   'attendance': 'Absent',
+    // },
+    // {
+    //   'user_name': 'David Johnson',
+    //   'department': 'Security',
+    //   'attendance': 'Present',
+    // },
+    // {
+    //   'user_name': 'Emily Davis',
+    //   'department': 'Maintenance',
+    //   'attendance': 'Absent',
+    // },
+    // {
+    //   'user_name': 'Michael Brown',
+    //   'department': 'Manager',
+    //   'attendance': 'Present',
+    // },
   ];
   String selectedDepartment = 'All Staff';
   bool isLoading = true;
 
-List<String> dept = [];
+  List<String> dept = [];
 
-void fetchDepartments(BuildContext context) async {
-  final Uri url = Uri.parse('https://backend.srayansh.in/api/edit/department_list/'); // Replace with your actual endpoint
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('access_token'); // Fetch access token from shared preferences
+  void fetchDepartments(BuildContext context) async {
+    final Uri url = AppEnv.apiUri(
+        '/api/edit/department_list/'); // Replace with your actual endpoint
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString(
+        'access_token'); // Fetch access token from shared preferences
 
-  try {
-    final response = await http.get(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-    print(response.body);
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseData = json.decode(response.body);
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print(response.body);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
 
-      if (responseData['status'] == 'success') {
-        final Map<String, dynamic> staffPerDepartment =
-            responseData['staff_per_department'] ?? {};
-        List<String> departments = ['All Staff']; // Start with 'All Staff'
-        departments.addAll(staffPerDepartment.keys);
-        setState(() {
-          dept = departments + ['Manager','Receptionist'];
-        });
-        
+        if (responseData['status'] == 'success') {
+          final Map<String, dynamic> staffPerDepartment =
+              responseData['staff_per_department'] ?? {};
+          List<String> departments = ['All Staff']; // Start with 'All Staff'
+          departments.addAll(staffPerDepartment.keys);
+          setState(() {
+            dept = departments + ['Manager', 'Receptionist'];
+          });
+        } else {
+          throw Exception('Unexpected response: ${responseData['message']}');
+        }
       } else {
-        throw Exception('Unexpected response: ${responseData['message']}');
+        final Map<String, dynamic> errorData = json.decode(response.body);
+        throw Exception(errorData['message'] ?? 'Failed to fetch departments.');
       }
-    } else {
-      final Map<String, dynamic> errorData = json.decode(response.body);
-      throw Exception(errorData['message'] ?? 'Failed to fetch departments.');
+    } catch (error) {
+      // Show error in Snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $error'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
-  } catch (error) {
-    // Show error in Snackbar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Error: $error'),
-        backgroundColor: Colors.red,
-      ),
-    );
-
   }
-}
-
-
 
   @override
   void initState() {
@@ -100,8 +98,9 @@ void fetchDepartments(BuildContext context) async {
     getrole();
     fetchAttendanceData();
   }
- String Roles = '';
-void getrole() async {
+
+  String Roles = '';
+  void getrole() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String Role = prefs.getString('Role') ?? '';
     print(Role);
@@ -110,22 +109,19 @@ void getrole() async {
     });
   }
 
-
   Future<void> fetchAttendanceData({String? department}) async {
-    
     setState(() {
       isLoading = true;
     });
-     SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? accessToken = prefs.getString('access_token');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString('access_token');
     try {
       final response = await _dio.get(
-        'https://backend.srayansh.in/api/attendance/list/',
+        AppEnv.api('/api/attendance/list/'),
         options: Options(
           validateStatus: (status) => status! < 501,
           headers: {
             'Authorization': 'Bearer $accessToken',
-            
           },
         ),
         queryParameters: department != null ? {'department': department} : null,
@@ -158,10 +154,11 @@ void getrole() async {
         appBar: AppBar(
           titleSpacing: 0,
           leading: InkWell(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: const Icon(Icons.arrow_back_ios_outlined, color: Pallete.neutral900)),
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: const Icon(Icons.arrow_back_ios_outlined,
+                  color: Pallete.neutral900)),
           title: Text(
             "Today’s Attendance",
             style: GoogleFonts.montserrat(
@@ -190,7 +187,8 @@ void getrole() async {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 3),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 0, horizontal: 3),
                     child: Row(
                       children: [
                         SvgPicture.asset("assets/filter.svg"),
@@ -209,9 +207,13 @@ void getrole() async {
                               setState(() {
                                 selectedDepartment = newValue!;
                               });
-                              fetchAttendanceData(department: newValue != 'All Staff' ? newValue : null);
+                              fetchAttendanceData(
+                                  department: newValue != 'All Staff'
+                                      ? newValue
+                                      : null);
                             },
-                            items: dept.map<DropdownMenuItem<String>>((String value) {
+                            items: dept
+                                .map<DropdownMenuItem<String>>((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
                                 child: Text(
@@ -267,21 +269,19 @@ void getrole() async {
             const SizedBox(height: 10),
             // Attendance List
             Expanded(
-              child: 
-              isLoading
+              child: isLoading
                   ? const Center(child: CircularProgressIndicator())
-                  : 
-              ListView.builder(
+                  : ListView.builder(
                       itemCount: attendanceList.length,
                       itemBuilder: (context, index) {
                         final item = attendanceList[index];
-                        if(item['department'] != selectedDepartment && selectedDepartment != 'All Staff') {
+                        if (item['department'] != selectedDepartment &&
+                            selectedDepartment != 'All Staff') {
                           return const SizedBox.shrink();
                         }
                         return ListTile(
                           leading: CircleAvatar(
-                            
-                            backgroundImage:  NetworkImage(item['user_profile']),
+                            backgroundImage: NetworkImage(item['user_profile']),
                           ),
                           title: Text(
                             item['user_name'] ?? 'No Name',
@@ -310,9 +310,12 @@ void getrole() async {
                                   : Pallete.error100,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 4),
                             child: Text(
-                              item['current_attendance'] == 'Present' ? 'Present' : 'Absent',
+                              item['current_attendance'] == 'Present'
+                                  ? 'Present'
+                                  : 'Absent',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,

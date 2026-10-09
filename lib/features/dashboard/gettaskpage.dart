@@ -32,7 +32,8 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
 
     // Add scroll listener
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
         _fetchTasks();
       }
     });
@@ -103,7 +104,8 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
     );
     _fetchTasks(); // Refresh tasks after returning
   }
-   @override
+
+  @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -115,7 +117,8 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
         title: Text(
           'Task Management',
           style: GoogleFonts.montserrat(
-            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black),
+            textStyle: const TextStyle(
+                fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black),
           ),
         ),
         actions: [
@@ -123,7 +126,10 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
             padding: const EdgeInsets.only(right: 16, top: 10),
             child: InkWell(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const AnnouncementPage()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AnnouncementPage()));
               },
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
@@ -160,7 +166,8 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   backgroundColor: Pallete.primary800,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -228,43 +235,44 @@ class _TaskManagementPageState extends State<TaskManagementPage> {
     );
   }
 
-void _deleteTask(int taskId) async {
+  void _deleteTask(int taskId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token =  prefs.getString('access_token'); // Fetch access token from shared preferences
-  final Uri url = Uri.parse('https://backend.srayansh.in/api/taskassignment/tasks/delete/$taskId/'); // Replace with your API URL
+    String? token = prefs.getString(
+        'access_token'); // Fetch access token from shared preferences
+    final Uri url = AppEnv.apiUri(
+        '/api/taskassignment/tasks/delete/$taskId/'); // Replace with your API URL
 
-  try {
-    final response = await http.delete(
-      url,
-      headers: {'Authorization': 'Bearer $token'},
-    );
-
-    if (response.statusCode == 200) {
-      // Success: Show success message in Snackbar
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Task deleted successfully')),
+    try {
+      final response = await http.delete(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
       );
-      setState(() {
-        // Optionally, remove the task from the list in the UI
-        _tasks.removeWhere((task) => task.id == taskId);
-      });
-      _fetchTasks();
-    } else {
-      // Failure: Show error message in Snackbar
-      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+        // Success: Show success message in Snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Task deleted successfully')),
+        );
+        setState(() {
+          // Optionally, remove the task from the list in the UI
+          _tasks.removeWhere((task) => task.id == taskId);
+        });
+        _fetchTasks();
+      } else {
+        // Failure: Show error message in Snackbar
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(responseData['detail'] ?? 'An error occurred')),
+        );
+      }
+    } catch (e) {
+      // Network or other errors
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(responseData['detail'] ?? 'An error occurred')),
+        SnackBar(content: Text('An error occurred: $e')),
       );
     }
-  } catch (e) {
-    // Network or other errors
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('An error occurred: $e')),
-    );
   }
-}
-
-
 
   Widget _buildTaskCard(Task task) {
     // Determine icon and color based on status
@@ -285,9 +293,10 @@ void _deleteTask(int taskId) async {
       margin: const EdgeInsets.only(bottom: 16.0),
       elevation: 0,
       color: Pallete.primary50,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8),
-      side: const BorderSide(color: Pallete.primary100, width: 1),
-    ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: const BorderSide(color: Pallete.primary100, width: 1),
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
         child: Column(
@@ -330,7 +339,8 @@ void _deleteTask(int taskId) async {
                                 ),
                               ),
                               maxLines: 1, // Limit to one line
-                              overflow: TextOverflow.ellipsis, // Add ellipsis for overflow
+                              overflow: TextOverflow
+                                  .ellipsis, // Add ellipsis for overflow
                             ),
                           ),
                           PopupMenuButton<String>(
@@ -458,8 +468,10 @@ void _deleteTask(int taskId) async {
                 ),
                 children: [
                   TextSpan(
-                    text: task.deadline == null ? 'None' : DateFormat('dd MMM, hh:mm a').format(task.deadline!.toLocal()),
-
+                    text: task.deadline == null
+                        ? 'None'
+                        : DateFormat('dd MMM, hh:mm a')
+                            .format(task.deadline!.toLocal()),
                     style: GoogleFonts.montserrat(
                       textStyle: const TextStyle(
                         fontSize: 12,
@@ -490,7 +502,8 @@ void _deleteTask(int taskId) async {
                     ),
                     children: [
                       TextSpan(
-                        text: DateFormat('dd MMM, hh:mm a').format(task.updatedAt.toLocal()),
+                        text: DateFormat('dd MMM, hh:mm a')
+                            .format(task.updatedAt.toLocal()),
                         style: GoogleFonts.montserrat(
                           textStyle: const TextStyle(
                             fontSize: 12,
@@ -511,7 +524,8 @@ void _deleteTask(int taskId) async {
                   textStyle: const TextStyle(
                     fontSize: 12,
                     color: Pallete.neutral900,
-                    fontWeight: FontWeight.w500, // Slightly bolder for the label
+                    fontWeight:
+                        FontWeight.w500, // Slightly bolder for the label
                   ),
                 ),
                 children: [
@@ -521,7 +535,8 @@ void _deleteTask(int taskId) async {
                       textStyle: const TextStyle(
                         fontSize: 12,
                         color: Pallete.neutral900,
-                        fontWeight: FontWeight.w400, // Normal weight for the value
+                        fontWeight:
+                            FontWeight.w400, // Normal weight for the value
                       ),
                     ),
                   ),

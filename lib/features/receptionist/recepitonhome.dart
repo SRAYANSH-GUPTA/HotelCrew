@@ -10,33 +10,31 @@ import '../dashboard/gettaskpage.dart';
 import 'staffattendancepage.dart';
 import "staffannouncement.dart";
 
-
-
 class ReceptionistDashHomePage extends StatefulWidget {
   const ReceptionistDashHomePage({super.key});
 
   @override
-  _ReceptionistDashHomePageState createState() => _ReceptionistDashHomePageState();
+  _ReceptionistDashHomePageState createState() =>
+      _ReceptionistDashHomePageState();
 }
 
 class _ReceptionistDashHomePageState extends State<ReceptionistDashHomePage> {
   // Sample Data (Hardcoded)
-  
-List<String> dates = [];
+
+  List<String> dates = [];
   List<int> dailyCheckIns = [];
   List<int> dailyCheckOuts = [];
   bool isLoading = true;
 
+  bool isLoadingAttendanceData = false;
 
-bool isLoadingAttendanceData = false;
+  bool isLoadingStaffData = true;
 
-bool isLoadingStaffData = true;
-
-bool isLoadingRoomData = false;
+  bool isLoadingRoomData = false;
   void fetchAvailableStaff() async {
-     SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    const url = 'https://backend.srayansh.in/api/taskassignment/staff/available/';
+    final url = AppEnv.api('/api/taskassignment/staff/available/');
 // Replace with your actual token
 
     try {
@@ -47,7 +45,7 @@ bool isLoadingRoomData = false;
           'Content-Type': 'application/json',
         },
       );
-      print("="*100);
+      print("=" * 100);
       print(response.body);
       print(response.statusCode);
       if (response.statusCode == 200) {
@@ -76,10 +74,10 @@ bool isLoadingRoomData = false;
     }
   }
 
-   Future<void> fetchRoomPieData() async {
-     SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<void> fetchRoomPieData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    const String apiUrl = "https://backend.srayansh.in/api/hoteldetails/all-rooms/";
+    final String apiUrl = AppEnv.api("/api/hoteldetails/all-rooms/");
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
@@ -96,8 +94,10 @@ bool isLoadingRoomData = false;
         int availableRooms = data['available_rooms'] ?? 0;
 
         double totalRooms = (roomsOccupied + availableRooms).toDouble();
-        double occupiedPercentage = totalRooms > 0 ? (roomsOccupied / totalRooms) * 100 : 0;
-        double availablePercentage = totalRooms > 0 ? (availableRooms / totalRooms) * 100 : 0;
+        double occupiedPercentage =
+            totalRooms > 0 ? (roomsOccupied / totalRooms) * 100 : 0;
+        double availablePercentage =
+            totalRooms > 0 ? (availableRooms / totalRooms) * 100 : 0;
 
         setState(() {
           roomStatusData = {
@@ -118,10 +118,9 @@ bool isLoadingRoomData = false;
   }
 
   Future<void> fetchAttendancePieData() async {
-     SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    const String apiUrl = 'https://backend.srayansh.in/api/attendance/week-stats/';
-    
+    final String apiUrl = AppEnv.api('/api/attendance/week-stats/');
 
     try {
       final response = await http.get(
@@ -149,9 +148,12 @@ bool isLoadingRoomData = false;
 
           int totalRecords = totalPresent + totalAbsent + totalLeave;
 
-          double presentPercentage = totalRecords > 0 ? (totalPresent / totalRecords) * 100 : 0;
-          double absentPercentage = totalRecords > 0 ? (totalAbsent / totalRecords) * 100 : 0;
-          double leavePercentage = totalRecords > 0 ? (totalLeave / totalRecords) * 100 : 0;
+          double presentPercentage =
+              totalRecords > 0 ? (totalPresent / totalRecords) * 100 : 0;
+          double absentPercentage =
+              totalRecords > 0 ? (totalAbsent / totalRecords) * 100 : 0;
+          double leavePercentage =
+              totalRecords > 0 ? (totalLeave / totalRecords) * 100 : 0;
 
           setState(() {
             staffAttendancePieData = {
@@ -180,24 +182,22 @@ bool isLoadingRoomData = false;
     }
   }
 
-
-
-
-
-String access_token = "";
-Future<void> fetchCheckInOutData() async {
-  await getToken(); // Wait for the token to be retrieved
-  if (access_token.isEmpty) {
-    print('Access token is null or empty');
-    return;
-  }
-    const apiUrl = 'https://backend.srayansh.in/api/hoteldetails/room-stats/'; // Replace with your API endpoint
+  String access_token = "";
+  Future<void> fetchCheckInOutData() async {
+    await getToken(); // Wait for the token to be retrieved
+    if (access_token.isEmpty) {
+      print('Access token is null or empty');
+      return;
+    }
+    final apiUrl = AppEnv.api(
+        '/api/hoteldetails/room-stats/'); // Replace with your API endpoint
     try {
-      final response = await http.get(Uri.parse(apiUrl),
-       headers: {
-        'Authorization': 'Bearer $access_token',
-        'Content-Type': 'application/json',
-      },
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Authorization': 'Bearer $access_token',
+          'Content-Type': 'application/json',
+        },
       );
       print(response.body);
       print(response.statusCode);
@@ -206,9 +206,8 @@ Future<void> fetchCheckInOutData() async {
 
         setState(() {
           // Process and format dates to "dd/MM".
-          dates = (data['dates'] as List)
-              .map((date) => _formatDate(date))
-              .toList();
+          dates =
+              (data['dates'] as List).map((date) => _formatDate(date)).toList();
           dailyCheckIns = List<int>.from(data['daily_checkins']);
           dailyCheckOuts = List<int>.from(data['daily_checkouts']);
           isLoading = false;
@@ -216,7 +215,6 @@ Future<void> fetchCheckInOutData() async {
           print(dailyCheckOuts);
         });
       } else {
-        
         throw Exception('Failed to load data');
       }
     } catch (e) {
@@ -232,24 +230,16 @@ Future<void> fetchCheckInOutData() async {
     return DateFormat('dd/MM').format(parsedDate); // Format date as "dd/MM".
   }
 
-
-
- final leaveRequests = [
-      {'name': 'Mr. MK Joshi', 'detail': 'Sick Leave'},
-      {'name': 'Ms. Sara Smith', 'detail': 'Annual Leave'},
-      {'name': 'John Doe', 'detail': 'Casual Leave'},
-    ];
+  final leaveRequests = [
+    {'name': 'Mr. MK Joshi', 'detail': 'Sick Leave'},
+    {'name': 'Ms. Sara Smith', 'detail': 'Annual Leave'},
+    {'name': 'John Doe', 'detail': 'Casual Leave'},
+  ];
 
   List<int> weeklyStaffperformance = [7, 8, 6, 5, 7, 10, 8];
-  Map<String, double> staffAttendancePieData = {
-    
-  };
-  Map<String, double> roomStatusData = {
-    
-  };
-  Map<String, double> staffStatusData = {
-   
-  };
+  Map<String, double> staffAttendancePieData = {};
+  Map<String, double> roomStatusData = {};
+  Map<String, double> staffStatusData = {};
 
   Widget _buildLegend(Color color, String label) {
     return Row(
@@ -276,7 +266,7 @@ Future<void> fetchCheckInOutData() async {
     );
   }
 
- @override
+  @override
   void initState() {
     super.initState();
     getrole();
@@ -286,41 +276,41 @@ Future<void> fetchCheckInOutData() async {
     fetchCheckInOutData();
   }
 
- Future<void> getToken() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('access_token');
-  if (token == null || token.isEmpty) {
-    print('Token is null or empty');
-  } else {
-    setState(() {
-      access_token = token;
-    });
-    print('Token retrieved: $access_token');
+  Future<void> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    if (token == null || token.isEmpty) {
+      print('Token is null or empty');
+    } else {
+      setState(() {
+        access_token = token;
+      });
+      print('Token retrieved: $access_token');
+    }
   }
-}
-String username = "Loading..";
 
- void getrole() async {
-    print("&"*10000);
+  String username = "Loading..";
+
+  void getrole() async {
+    print("&" * 10000);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String Role = prefs.getString('Role') ?? '';
-    final String Username= prefs.getString('username') ?? '';
+    final String Username = prefs.getString('username') ?? '';
     print(Role);
     print(Username);
-    print("-"*1000);
+    print("-" * 1000);
     setState(() {
       // Roles = Role;
       username = Username;
     });
   }
 
-
- @override
-Widget build(BuildContext context) {
-  final screenWidth = MediaQuery.of(context).size.width;
-  final screenHeight = MediaQuery.of(context).size.height;
-  return Scaffold(
-    backgroundColor: Pallete.pagecolor,
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    return Scaffold(
+      backgroundColor: Pallete.pagecolor,
       appBar: AppBar(
         title: Text(
           'Good Morning, $username',
@@ -338,7 +328,10 @@ Widget build(BuildContext context) {
             padding: const EdgeInsets.only(right: 16, top: 16),
             child: InkWell(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const StaffAnnouncementPage()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const StaffAnnouncementPage()));
               },
               splashColor: Colors.transparent, // Removes the splash effect
               highlightColor: Colors.transparent,
@@ -356,82 +349,84 @@ Widget build(BuildContext context) {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [const SizedBox(height: 28),
-            Text("Quick Actions", style: GoogleFonts.montserrat(
-              textStyle: const TextStyle(
+          children: [
+            const SizedBox(height: 28),
+            Text(
+              "Quick Actions",
+              style: GoogleFonts.montserrat(
+                  textStyle: const TextStyle(
                 color: Pallete.neutral1000,
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
                 height: 1.5,
-              )
-            ),
+              )),
             ),
             const SizedBox(height: 24),
             Row(
-            children: [Container(
-              width: screenWidth * 0.428, // Set width here
-              height: 97, // Set height here
-              decoration: BoxDecoration(
-                border: Border.all(color: Pallete.primary300, width: 1),
-                 // Use the defined color from your palette
-                borderRadius: BorderRadius.circular(8),
-                // boxShadow: const [
-                //   BoxShadow(
-                //     color: Color(0x1A000000),
-                //     blurRadius: 10,
-                //     offset: Offset(0, 4),
-                //   ),
-                // ],
-              ),
-              child: QuickActionButton(
-                title: 'Assign Room',
-                iconPath: 'assets/manattendance.svg', // Your icon path
-                onPressed: () {
-            
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AssignRoomPage(),
-                    ),
-                  );  
-                },
-              ),
+              children: [
+                Container(
+                  width: screenWidth * 0.428, // Set width here
+                  height: 97, // Set height here
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Pallete.primary300, width: 1),
+                    // Use the defined color from your palette
+                    borderRadius: BorderRadius.circular(8),
+                    // boxShadow: const [
+                    //   BoxShadow(
+                    //     color: Color(0x1A000000),
+                    //     blurRadius: 10,
+                    //     offset: Offset(0, 4),
+                    //   ),
+                    // ],
+                  ),
+                  child: QuickActionButton(
+                    title: 'Assign Room',
+                    iconPath: 'assets/manattendance.svg', // Your icon path
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AssignRoomPage(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  width: screenWidth * 0.428, // Set width here
+                  height: 97, // Set height here
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Pallete.primary300, width: 1),
+                    // Use the defined color from your palette
+                    borderRadius: BorderRadius.circular(8),
+                    // boxShadow: const [
+                    //   BoxShadow(
+                    //     color: Color(0x1A000000),
+                    //     blurRadius: 10,
+                    //     offset: Offset(0, 4),
+                    //   ),
+                    // ],
+                  ),
+                  child: QuickActionButton(
+                    title: 'Manage Guests',
+                    iconPath: 'assets/mandatabase.svg', // Your icon path
+                    onPressed: () {
+                      // Handle button press
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const ReceptionistCustomerDatabasePage(),
+                        ),
+                      );
+                      print('Attendance button pressed');
+                    },
+                  ),
+                ),
+              ],
             ),
-            const Spacer(),
-            Container(
-              width: screenWidth * 0.428, // Set width here
-              height: 97, // Set height here
-              decoration: BoxDecoration(
-                border: Border.all(color: Pallete.primary300, width: 1),
-                 // Use the defined color from your palette
-                borderRadius: BorderRadius.circular(8),
-                // boxShadow: const [
-                //   BoxShadow(
-                //     color: Color(0x1A000000),
-                //     blurRadius: 10,
-                //     offset: Offset(0, 4),
-                //   ),
-                // ],
-              ),
-              child: QuickActionButton(
-                title: 'Manage Guests',
-                iconPath: 'assets/mandatabase.svg', // Your icon path
-                onPressed: () {
-                  // Handle button press
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ReceptionistCustomerDatabasePage(),
-                    ),
-                  );
-                  print('Attendance button pressed');
-                },
-              ),
-            ),
-            
-            ],
-          ),
-            
+
             const SizedBox(height: 56),
             Text(
               "Check-in/Check-out Overview",
@@ -446,40 +441,40 @@ Widget build(BuildContext context) {
             ),
             const SizedBox(height: 24),
             Container(
-  decoration: BoxDecoration(
-    color: Pallete.primary50,
-    border: Border.all(color: Pallete.primary100, width: 1),
-    borderRadius: BorderRadius.circular(0),
-  ),
-  width: screenWidth * 0.90,
-  height: 232,
-  child: Padding(
-    padding: const EdgeInsets.all(8),
-    child: isLoading
-        ? const Center(child: CircularProgressIndicator())
-        : Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: CheckInOutChart(
-                  dates: dates,
-                  dailyCheckIns: dailyCheckIns,
-                  dailyCheckOuts: dailyCheckOuts,
-                ),
+              decoration: BoxDecoration(
+                color: Pallete.primary50,
+                border: Border.all(color: Pallete.primary100, width: 1),
+                borderRadius: BorderRadius.circular(0),
               ),
-              // This Row for the Check-in and Check-out legend
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  _buildLegend(const Color(0xFF34A853), 'Check in'),
-                  const SizedBox(width: 16),
-                  _buildLegend(Pallete.error500, 'Check out'),
-                ],
+              width: screenWidth * 0.90,
+              height: 232,
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: CheckInOutChart(
+                              dates: dates,
+                              dailyCheckIns: dailyCheckIns,
+                              dailyCheckOuts: dailyCheckOuts,
+                            ),
+                          ),
+                          // This Row for the Check-in and Check-out legend
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              _buildLegend(const Color(0xFF34A853), 'Check in'),
+                              const SizedBox(width: 16),
+                              _buildLegend(Pallete.error500, 'Check out'),
+                            ],
+                          ),
+                        ],
+                      ),
               ),
-            ],
-          ),
-  ),
-),
+            ),
 
             const SizedBox(height: 56),
             Text(
@@ -502,110 +497,106 @@ Widget build(BuildContext context) {
                 child: Row(
                   children: [
                     Container(
-                        width: screenWidth * 0.483,
-                        decoration: BoxDecoration(
-                          color: Pallete.pagecolor,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Pallete.primary200, width: 1),
-                        ),
-                        child: isLoadingAttendanceData
-                            ? const Center(child: CircularProgressIndicator())
-                            : PieChartWidget(
-                                title: 'Staff Attendance',
-                                data: staffAttendancePieData,
-                                colors: const {
-                                  "Present": Color(0xFF34A853),
-                                  "Absent": Pallete.error500,
-                                  "Leave": Pallete.warning300,
-                                },
-                              ),
+                      width: screenWidth * 0.483,
+                      decoration: BoxDecoration(
+                        color: Pallete.pagecolor,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Pallete.primary200, width: 1),
                       ),
+                      child: isLoadingAttendanceData
+                          ? const Center(child: CircularProgressIndicator())
+                          : PieChartWidget(
+                              title: 'Staff Attendance',
+                              data: staffAttendancePieData,
+                              colors: const {
+                                "Present": Color(0xFF34A853),
+                                "Absent": Pallete.error500,
+                                "Leave": Pallete.warning300,
+                              },
+                            ),
+                    ),
                     const SizedBox(width: 16),
                     Container(
-                        width: screenWidth * 0.483,
-                        decoration: BoxDecoration(
-                          color: Pallete.pagecolor,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Pallete.primary200, width: 1),
-                        ),
-                        child: isLoadingRoomData
-                            ? const Center(child: CircularProgressIndicator())
-                            : PieChartWidget(
-                                title: 'Room Status',
-                                data: roomStatusData,
-                                colors: const {
-                                  "Occupied": Pallete.success500,
-                                  "Unoccupied": Pallete.error500,
-                                },
-                              ),
+                      width: screenWidth * 0.483,
+                      decoration: BoxDecoration(
+                        color: Pallete.pagecolor,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Pallete.primary200, width: 1),
                       ),
-                      const SizedBox(width: 16),
+                      child: isLoadingRoomData
+                          ? const Center(child: CircularProgressIndicator())
+                          : PieChartWidget(
+                              title: 'Room Status',
+                              data: roomStatusData,
+                              colors: const {
+                                "Occupied": Pallete.success500,
+                                "Unoccupied": Pallete.error500,
+                              },
+                            ),
+                    ),
+                    const SizedBox(width: 16),
                     Container(
-                        width: screenWidth * 0.483,
-                        decoration: BoxDecoration(
-                          color: Pallete.pagecolor,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Pallete.primary200, width: 1),
-                        ),
-                        child: isLoadingStaffData
-                            ? const Center(child: CircularProgressIndicator())
-                            : PieChartWidget(
-                                title: 'Staff Status',
-                                data: staffStatusData,
-                                colors: const {
-                                  "Busy": Pallete.success500,
-                                  "Vacant": Pallete.error500,
-                                },
-                              ),
+                      width: screenWidth * 0.483,
+                      decoration: BoxDecoration(
+                        color: Pallete.pagecolor,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Pallete.primary200, width: 1),
                       ),
+                      child: isLoadingStaffData
+                          ? const Center(child: CircularProgressIndicator())
+                          : PieChartWidget(
+                              title: 'Staff Status',
+                              data: staffStatusData,
+                              colors: const {
+                                "Busy": Pallete.success500,
+                                "Vacant": Pallete.error500,
+                              },
+                            ),
+                    ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 56),
 
-             GeneralListDisplay<Map<String, String>>(
-        items: leaveRequests,
-        title: 'Task Updates',
-        onViewAll: () {
-          // Navigate to the full list view
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const TaskManagementPage()));
-          print('View All clicked');
-        },
-        getTitle: (item) => item['name'] ?? 'Unknown',
-        getSubtitle: (item) => item['detail'] ?? 'No details',
-        onApprove: (item) {
-          // Handle approve logic
-          print('Approved: ${item['name']}');
-        },
-        onReject: (item) {
-          // Handle reject logic
-          print('Rejected: ${item['name']}');
-        },
-      ),
-           
+            GeneralListDisplay<Map<String, String>>(
+              items: leaveRequests,
+              title: 'Task Updates',
+              onViewAll: () {
+                // Navigate to the full list view
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const TaskManagementPage()));
+                print('View All clicked');
+              },
+              getTitle: (item) => item['name'] ?? 'Unknown',
+              getSubtitle: (item) => item['detail'] ?? 'No details',
+              onApprove: (item) {
+                // Handle approve logic
+                print('Approved: ${item['name']}');
+              },
+              onReject: (item) {
+                // Handle reject logic
+                print('Rejected: ${item['name']}');
+              },
+            ),
+
             // Financial Overview Chart
-            
           ],
         ),
       ),
-    )
-  ;
-}}
+    );
+  }
+}
 
-
-// 
-
-
-
-
+//
 
 Widget _buildPendingLeaveRequests() {
   return Padding(
     padding: const EdgeInsets.all(16.0),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      
       children: [
         const Text(
           'Pending Leave Requests',
@@ -627,18 +618,14 @@ Widget _buildPendingLeaveRequests() {
             style: TextStyle(color: Colors.black54),
           ),
         ),
-        
       ],
     ),
-   
   );
 }
 
-
-
-
 class CheckInOutChart extends StatelessWidget {
-  final List<String> dates; // List of dates from the API (formatted as "YYYY-MM-DD").
+  final List<String>
+      dates; // List of dates from the API (formatted as "YYYY-MM-DD").
   final List<int> dailyCheckIns; // Check-in counts for each date.
   final List<int> dailyCheckOuts; // Check-out counts for each date.
 
@@ -721,9 +708,7 @@ class CheckInOutChart extends StatelessWidget {
                   ),
                 ),
                 leftTitles: AxisTitles(
-                  
                   sideTitles: SideTitles(
-                    
                     interval: 10,
                     showTitles: true,
                     getTitlesWidget: (value, meta) {
@@ -778,7 +763,6 @@ class CheckInOutChart extends StatelessWidget {
           ),
         ),
         // const SizedBox(height: 16),
-       
       ],
     );
   }
@@ -804,10 +788,4 @@ class CheckInOutChart extends StatelessWidget {
       );
     });
   }
-
-   
 }
-
- 
-
-  

@@ -23,7 +23,8 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
 
   final bool _isLoading = false;
 
-  Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
+  Future<void> _selectDate(
+      BuildContext context, TextEditingController controller) async {
     DateTime? selectedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -53,61 +54,63 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
     }
   }
 
- Future<void> _submitLeaveRequest() async {
-  await getToken(); // Wait for the token to be retrieved
-  if (access_token.isEmpty) {
-    print('Access token is null or empty');
-    return;
-  }
+  Future<void> _submitLeaveRequest() async {
+    await getToken(); // Wait for the token to be retrieved
+    if (access_token.isEmpty) {
+      print('Access token is null or empty');
+      return;
+    }
 
-  if (_formKey.currentState!.validate()) {
-    final String fromDate = dateFromController.text;
-    final String toDate = dateToController.text;
-    final String reason = reasonController.text;
-    final String description = descriptionController.text;
+    if (_formKey.currentState!.validate()) {
+      final String fromDate = dateFromController.text;
+      final String toDate = dateToController.text;
+      final String reason = reasonController.text;
+      final String description = descriptionController.text;
 
-    // Show the global loader
-    context.loaderOverlay.show();
+      // Show the global loader
+      context.loaderOverlay.show();
 
-    try {
-      final response = await http.post(
-        Uri.parse('https://backend.srayansh.in/api/attendance/apply_leave/'),
-        headers: {
-          'Authorization': 'Bearer $access_token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'from_date': fromDate,
-          'to_date': toDate,
-          'leave_type': reason,
-          'reason': description,
-        }),
-      );
-
-      if (response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Leave request submitted successfully')),
+      try {
+        final response = await http.post(
+          AppEnv.apiUri('/api/attendance/apply_leave/'),
+          headers: {
+            'Authorization': 'Bearer $access_token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({
+            'from_date': fromDate,
+            'to_date': toDate,
+            'leave_type': reason,
+            'reason': description,
+          }),
         );
+
+        if (response.statusCode == 201) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Leave request submitted successfully')),
+          );
+          context.loaderOverlay.hide();
+          Navigator.pop(context);
+          // GlobalNotification.showSuccessMessage("Task Updated Successfully!!");
+        } else {
+          final responseData = jsonDecode(response.body);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    'Failed to submit leave request: ${responseData['message']}')),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      } finally {
+        // Hide the loader
         context.loaderOverlay.hide();
-      Navigator.pop(context);
-        // GlobalNotification.showSuccessMessage("Task Updated Successfully!!");
-      } else {
-        final responseData = jsonDecode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to submit leave request: ${responseData['message']}')),
-        );
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-    } finally {
-      // Hide the loader
-      context.loaderOverlay.hide();
-    
     }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -145,27 +148,33 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
             child: Column(
               children: [
                 const SizedBox(height: 24),
-                _buildTextField('Reason for Leave', reasonController, reasonFocusNode),
+                _buildTextField(
+                    'Reason for Leave', reasonController, reasonFocusNode),
                 const SizedBox(height: 34),
-                _buildDateField('Date From', dateFromController, dateFromFocusNode),
+                _buildDateField(
+                    'Date From', dateFromController, dateFromFocusNode),
                 const SizedBox(height: 34),
                 _buildDateField('Date To', dateToController, dateToFocusNode),
                 const SizedBox(height: 34),
-                _buildTextField('Description', descriptionController, descriptionFocusNode, maxLines: 4),
+                _buildTextField(
+                    'Description', descriptionController, descriptionFocusNode,
+                    maxLines: 4),
                 SizedBox(height: screenHeight * 0.2),
                 SizedBox(
                   width: screenWidth * 0.9,
                   child: ElevatedButton(
-                    onPressed:  _submitLeaveRequest,
+                    onPressed: _submitLeaveRequest,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Pallete.primary700,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
                     child: _isLoading
                         ? const SizedBox(
                             height: 20,
                             width: 20,
-                            child: CircularProgressIndicator(color: Color(0xFFFAFAFA)),
+                            child: CircularProgressIndicator(
+                                color: Color(0xFFFAFAFA)),
                           )
                         : Text(
                             'Request Leave',
@@ -188,7 +197,9 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, FocusNode focusNode, {int maxLines = 1}) {
+  Widget _buildTextField(
+      String label, TextEditingController controller, FocusNode focusNode,
+      {int maxLines = 1}) {
     return TextFormField(
       controller: controller,
       focusNode: focusNode,
@@ -215,13 +226,14 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
             width: 2.0,
           ),
         ),
-        focusedErrorBorder: OutlineInputBorder( // Add this to handle focus with error
-        borderRadius: BorderRadius.circular(8.0),
-        borderSide: const BorderSide(
-          color: Colors.red,
-          width: 2.0,
+        focusedErrorBorder: OutlineInputBorder(
+          // Add this to handle focus with error
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: const BorderSide(
+            color: Colors.red,
+            width: 2.0,
+          ),
         ),
-      ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
           borderSide: const BorderSide(
@@ -253,7 +265,8 @@ class _RequestALeavePageState extends State<RequestALeavePage> {
     );
   }
 
-  Widget _buildDateField(String label, TextEditingController controller, FocusNode focusNode) {
+  Widget _buildDateField(
+      String label, TextEditingController controller, FocusNode focusNode) {
     return TextFormField(
       controller: controller,
       focusNode: focusNode,

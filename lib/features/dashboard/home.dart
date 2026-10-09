@@ -45,72 +45,66 @@ class _DashHomePageState extends State<DashHomePage> {
   bool isLoadingStaffData = true;
   List<double> financialData = [];
 
-
-void fetchWeeklyRevenue() async {
-  // Retrieve the token from shared preferences
-   SharedPreferences prefs = await SharedPreferences.getInstance();
+  void fetchWeeklyRevenue() async {
+    // Retrieve the token from shared preferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    print("^^^^"*50);
+    print("^^^^" * 50);
     print(token);
 
-  // Define the API endpoint
-  const url = 'https://backend.srayansh.in/api/statics/finance/week/';
+    // Define the API endpoint
+    final url = AppEnv.api('/api/statics/finance/week/');
 
-  // Make the GET request
-  final response = await http.get(
-    Uri.parse(url),
-    headers: {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json',
-    },
-  );
-  print("@"*100);
-  print(response.statusCode);
-  print(response.body);
-
-  // Check the response status
-  if (response.statusCode == 200) {
-    final Map<String, dynamic> data = jsonDecode(response.body);
-
-    // Extract the daily stats
-    final List<dynamic> dailyStats = data['daily_stats'];
-
-    // Map the revenue to a list of doubles
-    final List<double> totalRevenue = dailyStats
-        .map<double>((item) => (item['total_revenue'] ?? 0).toDouble())
-        .toList();
-
-    setState(() {
-      financialData = totalRevenue;
-      
-    });
-    print("@"*100);
-      print(financialData);
-  } else {
-    // Throw an exception for any unsuccessful response
-    throw Exception('Failed to fetch weekly revenue: ${response.statusCode}');
-  }
-}
-
-
-
-
-
-void fetchStaffPerformanceData() async {
- SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('access_token');
-    print("^^^^"*50);
-    print(token);
-
-    // Make a GET request to the API
+    // Make the GET request
     final response = await http.get(
-      Uri.parse('https://backend.srayansh.in/api/statics/performance/hotel/week/'),
+      Uri.parse(url),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
     );
-    print("*"*100);
+    print("@" * 100);
+    print(response.statusCode);
+    print(response.body);
+
+    // Check the response status
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+
+      // Extract the daily stats
+      final List<dynamic> dailyStats = data['daily_stats'];
+
+      // Map the revenue to a list of doubles
+      final List<double> totalRevenue = dailyStats
+          .map<double>((item) => (item['total_revenue'] ?? 0).toDouble())
+          .toList();
+
+      setState(() {
+        financialData = totalRevenue;
+      });
+      print("@" * 100);
+      print(financialData);
+    } else {
+      // Throw an exception for any unsuccessful response
+      throw Exception('Failed to fetch weekly revenue: ${response.statusCode}');
+    }
+  }
+
+  void fetchStaffPerformanceData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    print("^^^^" * 50);
+    print(token);
+
+    // Make a GET request to the API
+    final response = await http.get(
+      AppEnv.apiUri('/api/statics/performance/hotel/week/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    print("*" * 100);
     print(response.statusCode);
     print(response.body);
     // If the response is successful
@@ -126,19 +120,15 @@ void fetchStaffPerformanceData() async {
       setState(() {
         weeklyStaffperformance = performancePercentages;
       });
-    
-  
     } else {
       print('Failed with status: ${response.statusCode}');
     }
-}
-
-
+  }
 
   void fetchAvailableStaff() async {
-     SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    const url = 'https://backend.srayansh.in/api/taskassignment/staff/available/';
+    final url = AppEnv.api('/api/taskassignment/staff/available/');
 // Replace with your actual token
 
     try {
@@ -149,7 +139,7 @@ void fetchStaffPerformanceData() async {
           'Content-Type': 'application/json',
         },
       );
-      print("="*100);
+      print("=" * 100);
       print(response.body);
       print(response.statusCode);
       if (response.statusCode == 200) {
@@ -177,17 +167,18 @@ void fetchStaffPerformanceData() async {
       print('Error: $e');
     }
   }
-String username = "";
+
+  String username = "";
   bool leaveisLoading = false;
 
   void getrole() async {
-    print("&"*10000);
+    print("&" * 10000);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String Role = prefs.getString('Role') ?? '';
-    final String Username= prefs.getString('username') ?? '';
+    final String Username = prefs.getString('username') ?? '';
     print(Role);
     print(Username);
-    print("-"*1000);
+    print("-" * 1000);
     setState(() {
       Roles = Role;
       username = Username;
@@ -195,9 +186,9 @@ String username = "";
   }
 
   Future<void> approveLeaveRequest(String leaveId, String status) async {
-     SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    final String url = 'https://backend.srayansh.in/api/attendance/leave_approve/$leaveId/';
+    final String url = AppEnv.api('/api/attendance/leave_approve/$leaveId/');
     final Map<String, String> headers = {
       'Authorization': 'Bearer $token',
       'Content-Type': 'application/json',
@@ -255,9 +246,9 @@ String username = "";
   String Roles = "";
 
   Future<void> fetchRoomPieData() async {
-     SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    const String apiUrl = "https://backend.srayansh.in/api/hoteldetails/all-rooms/";
+    final String apiUrl = AppEnv.api("/api/hoteldetails/all-rooms/");
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
@@ -274,8 +265,10 @@ String username = "";
         int availableRooms = data['available_rooms'] ?? 0;
 
         double totalRooms = (roomsOccupied + availableRooms).toDouble();
-        double occupiedPercentage = totalRooms > 0 ? (roomsOccupied / totalRooms) * 100 : 0;
-        double availablePercentage = totalRooms > 0 ? (availableRooms / totalRooms) * 100 : 0;
+        double occupiedPercentage =
+            totalRooms > 0 ? (roomsOccupied / totalRooms) * 100 : 0;
+        double availablePercentage =
+            totalRooms > 0 ? (availableRooms / totalRooms) * 100 : 0;
 
         setState(() {
           roomStatusData = {
@@ -296,10 +289,9 @@ String username = "";
   }
 
   Future<void> fetchAttendancePieData() async {
-     SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    const String apiUrl = 'https://backend.srayansh.in/api/attendance/week-stats/';
-    
+    final String apiUrl = AppEnv.api('/api/attendance/week-stats/');
 
     try {
       final response = await http.get(
@@ -327,9 +319,12 @@ String username = "";
 
           int totalRecords = totalPresent + totalAbsent + totalLeave;
 
-          double presentPercentage = totalRecords > 0 ? (totalPresent / totalRecords) * 100 : 0;
-          double absentPercentage = totalRecords > 0 ? (totalAbsent / totalRecords) * 100 : 0;
-          double leavePercentage = totalRecords > 0 ? (totalLeave / totalRecords) * 100 : 0;
+          double presentPercentage =
+              totalRecords > 0 ? (totalPresent / totalRecords) * 100 : 0;
+          double absentPercentage =
+              totalRecords > 0 ? (totalAbsent / totalRecords) * 100 : 0;
+          double leavePercentage =
+              totalRecords > 0 ? (totalLeave / totalRecords) * 100 : 0;
 
           setState(() {
             staffAttendancePieData = {
@@ -397,7 +392,10 @@ String username = "";
               padding: EdgeInsets.only(right: 16, top: screenHeight * 0.0125),
               child: InkWell(
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const AnnouncementPage()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const AnnouncementPage()));
                 },
                 splashColor: Colors.transparent, // Removes the splash effect
                 highlightColor: Colors.transparent,
@@ -439,29 +437,35 @@ String username = "";
                         width: screenWidth * 0.428, // Set width here
                         height: 97, // Set height here
                         decoration: BoxDecoration(
-                          border: Border.all(color: Pallete.primary300, width: 1),
+                          border:
+                              Border.all(color: Pallete.primary300, width: 1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: QuickActionButton(
                           title: 'Attendance',
-                          iconPath: 'assets/manattendance.svg', // Your icon path
+                          iconPath:
+                              'assets/manattendance.svg', // Your icon path
                           onPressed: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const LeaveAttendancePage(),
+                                builder: (context) =>
+                                    const LeaveAttendancePage(),
                               ),
                             );
                           },
                         ),
                       ),
-                    const SizedBox(width: 8,),
+                    const SizedBox(
+                      width: 8,
+                    ),
                     if (Roles == "Manager")
                       Container(
                         width: screenWidth * 0.428, // Set width here
                         height: 97, // Set height here
                         decoration: BoxDecoration(
-                          border: Border.all(color: Pallete.primary300, width: 1),
+                          border:
+                              Border.all(color: Pallete.primary300, width: 1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: QuickActionButton(
@@ -478,26 +482,29 @@ String username = "";
                           },
                         ),
                       ),
-                      if (Roles == "Manager")
-                      const SizedBox(width: 8,),
-                      if (Roles == "Manager")
+                    if (Roles == "Manager")
+                      const SizedBox(
+                        width: 8,
+                      ),
+                    if (Roles == "Manager")
                       Container(
                         width: screenWidth * 0.428, // Set width here
                         height: 97, // Set height here
                         decoration: BoxDecoration(
-                          border: Border.all(color: Pallete.primary300, width: 1),
+                          border:
+                              Border.all(color: Pallete.primary300, width: 1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: QuickActionButton(
                           title: 'Analytics',
                           iconPath: 'assets/analyticsman.svg', // Your icon path
                           onPressed: () {
-                           Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ana.AnalyticsPage(),
-                            ),
-                          );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ana.AnalyticsPage(),
+                              ),
+                            );
                             print('Attendance button pressed');
                           },
                         ),
@@ -523,9 +530,13 @@ String username = "";
                             ),
                           );
                         },
-                        icon: 'assets/attendancedash.svg', // Path to your icon asset
-                        screenWidth: MediaQuery.of(context).size.width, // Get screen width dynamically
-                        color: Pallete.primary800, // Use the defined color from your palette
+                        icon:
+                            'assets/attendancedash.svg', // Path to your icon asset
+                        screenWidth: MediaQuery.of(context)
+                            .size
+                            .width, // Get screen width dynamically
+                        color: Pallete
+                            .primary800, // Use the defined color from your palette
                       ),
                     ),
                     SizedBox(width: 0.055 * screenWidth),
@@ -542,9 +553,13 @@ String username = "";
                             ),
                           );
                         }, // The callback from the onPressedList at index 1
-                        icon: 'assets/databasedash.svg', // Path to the SVG icon for the Database
-                        screenWidth: MediaQuery.of(context).size.width, // Get screen width dynamically
-                        color: Pallete.primary800, // Background color from your Pallete
+                        icon:
+                            'assets/databasedash.svg', // Path to the SVG icon for the Database
+                        screenWidth: MediaQuery.of(context)
+                            .size
+                            .width, // Get screen width dynamically
+                        color: Pallete
+                            .primary800, // Background color from your Pallete
                       ),
                     ),
                   ],
@@ -559,17 +574,21 @@ String username = "";
                       width: screenWidth * 0.428,
                       child: HomeButtonWidget(
                         title: 'Analytics', // Title for the button
-                        onPressed:() {
+                        onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => const ana.AnalyticsPage(),
                             ),
                           );
-                        },  // The callback from the onPressedList at index 2
-                        icon: 'assets/analyticsdash.svg', // Path to the SVG icon for Analytics
-                        screenWidth: MediaQuery.of(context).size.width, // Get screen width dynamically
-                        color: Pallete.primary800, // Background color from your Pallete
+                        }, // The callback from the onPressedList at index 2
+                        icon:
+                            'assets/analyticsdash.svg', // Path to the SVG icon for Analytics
+                        screenWidth: MediaQuery.of(context)
+                            .size
+                            .width, // Get screen width dynamically
+                        color: Pallete
+                            .primary800, // Background color from your Pallete
                       ),
                     ),
                     SizedBox(width: 0.055 * screenWidth),
@@ -580,11 +599,16 @@ String username = "";
                         title: 'Pay Roll', // Title for the button
                         onPressed: () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const StaffPaymentPage()),
+                          MaterialPageRoute(
+                              builder: (context) => const StaffPaymentPage()),
                         ), // Navigation to StaffPaymentPage when the button is pressed
-                        icon: 'assets/payrolldash.svg', // Path to the SVG icon for Pay Roll
-                        screenWidth: MediaQuery.of(context).size.width, // Get screen width dynamically
-                        color: Pallete.primary800, // Background color from your Pallete
+                        icon:
+                            'assets/payrolldash.svg', // Path to the SVG icon for Pay Roll
+                        screenWidth: MediaQuery.of(context)
+                            .size
+                            .width, // Get screen width dynamically
+                        color: Pallete
+                            .primary800, // Background color from your Pallete
                       ),
                     ),
                   ],
@@ -604,33 +628,32 @@ String username = "";
               const SizedBox(height: 24),
               Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Pallete.primary50,
-                  border: Border.all(color: Pallete.primary100, width: 1)),
-                
+                    borderRadius: BorderRadius.circular(8),
+                    color: Pallete.primary50,
+                    border: Border.all(color: Pallete.primary100, width: 1)),
                 width: screenWidth * 0.9,
                 height: 200,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: weeklyStaffperformance.every((value) => value == 0.0)
-    ? Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(
-              'assets/emptystaffperformance.svg', // Replace with your SVG file path
-              width: 200,
-              height: 150,
-            ),
-            const SizedBox(height: 16),
-            // const Text(
-            //   "No performance data available",
-            //   style: TextStyle(fontSize: 16, color: Colors.grey),
-            // ),
-          ],
-        ),
-      )
-    : BarChartWidget(weeklyStaffperformance),
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                'assets/emptystaffperformance.svg', // Replace with your SVG file path
+                                width: 200,
+                                height: 150,
+                              ),
+                              const SizedBox(height: 16),
+                              // const Text(
+                              //   "No performance data available",
+                              //   style: TextStyle(fontSize: 16, color: Colors.grey),
+                              // ),
+                            ],
+                          ),
+                        )
+                      : BarChartWidget(weeklyStaffperformance),
                 ),
               ),
               const SizedBox(height: 56),
@@ -658,7 +681,8 @@ String username = "";
                         decoration: BoxDecoration(
                           color: Pallete.pagecolor,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Pallete.primary200, width: 1),
+                          border:
+                              Border.all(color: Pallete.primary200, width: 1),
                         ),
                         child: isLoadingAttendanceData
                             ? const Center(child: CircularProgressIndicator())
@@ -678,7 +702,8 @@ String username = "";
                         decoration: BoxDecoration(
                           color: Pallete.pagecolor,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Pallete.primary200, width: 1),
+                          border:
+                              Border.all(color: Pallete.primary200, width: 1),
                         ),
                         child: isLoadingRoomData
                             ? const Center(child: CircularProgressIndicator())
@@ -697,7 +722,8 @@ String username = "";
                         decoration: BoxDecoration(
                           color: Pallete.pagecolor,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Pallete.primary200, width: 1),
+                          border:
+                              Border.all(color: Pallete.primary200, width: 1),
                         ),
                         child: isLoadingStaffData
                             ? const Center(child: CircularProgressIndicator())
@@ -719,7 +745,10 @@ String username = "";
                 items: leaveRequests,
                 title: 'Pending Requests',
                 onViewAll: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const LeaveAttendancePage()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const LeaveAttendancePage()));
                   print('View All clicked');
                 },
                 getTitle: (item) => item['name'] ?? 'Unknown',
@@ -749,36 +778,30 @@ String username = "";
               const SizedBox(height: 20),
               Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Pallete.primary50,
-                  border: Border.all(color: Pallete.primary100, width: 1)),
-          
+                    borderRadius: BorderRadius.circular(8),
+                    color: Pallete.primary50,
+                    border: Border.all(color: Pallete.primary100, width: 1)),
                 width: screenWidth * 0.9,
                 child: Container(
-                   
-                
-      
                   child: financialData.every((value) => value == 0.0)
-                   
-    ? Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(
-              'assets/emptyfinancial.svg', // Replace with your SVG file path
-              width: 200,
-              height: 200,
-            ),
-            const SizedBox(height: 16),
-            // const Text(
-            //   "No announcements available",
-            //   style: TextStyle(fontSize: 16, color: Colors.grey),
-            // ),
-          ],
-        ),
-      )
-    : LineChartWidget(doubleData: financialData),
-
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                'assets/emptyfinancial.svg', // Replace with your SVG file path
+                                width: 200,
+                                height: 200,
+                              ),
+                              const SizedBox(height: 16),
+                              // const Text(
+                              //   "No announcements available",
+                              //   style: TextStyle(fontSize: 16, color: Colors.grey),
+                              // ),
+                            ],
+                          ),
+                        )
+                      : LineChartWidget(doubleData: financialData),
                 ),
               ),
               const SizedBox(height: 30),
@@ -789,8 +812,6 @@ String username = "";
     );
   }
 }
-
-
 
 class GeneralListDisplay<T> extends StatelessWidget {
   final List<T> items;
@@ -849,7 +870,8 @@ class GeneralListDisplay<T> extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  SvgPicture.asset('assets/dasharrow.svg', height: 12, width: 6),
+                  SvgPicture.asset('assets/dasharrow.svg',
+                      height: 12, width: 6),
                 ],
               ),
             ),
@@ -868,7 +890,6 @@ class GeneralListDisplay<T> extends StatelessWidget {
                   width: 316,
                 ),
                 const SizedBox(height: 8),
-               
               ],
             ),
           )
@@ -881,10 +902,10 @@ class GeneralListDisplay<T> extends StatelessWidget {
               final item = items[index];
               return Material(
                 elevation: 0,
-              
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                   decoration: BoxDecoration(
                     color: Pallete.pagecolor,
                     borderRadius: BorderRadius.circular(8),
@@ -922,7 +943,7 @@ class GeneralListDisplay<T> extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 16),
-                
+
                       // Approve and Reject Buttons
                       Row(
                         children: [
@@ -955,5 +976,3 @@ class GeneralListDisplay<T> extends StatelessWidget {
     );
   }
 }
-
-

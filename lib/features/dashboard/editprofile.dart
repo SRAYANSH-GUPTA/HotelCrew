@@ -35,7 +35,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       String? accessToken = prefs.getString('access_token');
 
       final response = await Dio().get(
-        'https://backend.srayansh.in/api/edit/user_profile/',
+        AppEnv.api('/api/edit/user_profile/'),
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken',
@@ -76,12 +76,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
       FormData formData = FormData.fromMap({
         'user_name': nameController.text,
         'user_profile': selectedImage != null
-            ? await MultipartFile.fromFile(selectedImage!.path, filename: 'profile.jpg')
+            ? await MultipartFile.fromFile(selectedImage!.path,
+                filename: 'profile.jpg')
             : null,
       });
 
       final response = await Dio().put(
-        'https://backend.srayansh.in/api/edit/user_profile/',
+        AppEnv.api('/api/edit/user_profile/'),
         data: formData,
         options: Options(
           headers: {
@@ -97,11 +98,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
         prefs.setString('user_profile', data['user_profile'] ?? '');
         setState(() {
           nameController.text = data['user_name'] ?? '';
-          if(selectedImage != null)
-          {
+          if (selectedImage != null) {
             userProfile = data['user_profile'] ?? '';
           }
-          
         });
         // Refresh the page
         fetchUserData();
@@ -164,11 +163,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               backgroundColor: Colors.grey[300],
                               backgroundImage: userProfile.isNotEmpty
                                   ? (userProfile.startsWith('http')
-                                      ? NetworkImage(userProfile)
-                                      : FileImage(File(userProfile))) as ImageProvider
+                                          ? NetworkImage(userProfile)
+                                          : FileImage(File(userProfile)))
+                                      as ImageProvider
                                   : null,
                               child: userProfile.isEmpty
-                                  ? const Icon(Icons.person, size: 50, color: Colors.grey)
+                                  ? const Icon(Icons.person,
+                                      size: 50, color: Colors.grey)
                                   : null,
                             ),
                             Positioned(
@@ -194,16 +195,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       maxWidth: 800,
                                       requestFullMetadata: false,
                                     );
-                                    if (image != null && image.path.endsWith('.jpg')) {
+                                    if (image != null &&
+                                        image.path.endsWith('.jpg')) {
                                       setState(() {
                                         selectedImage = image;
                                         userProfile = image.path;
                                       });
                                     } else {
                                       // Show error message if the file is not a JPG
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
                                         const SnackBar(
-                                          content: Text('Please select a JPG file.'),
+                                          content:
+                                              Text('Please select a JPG file.'),
                                         ),
                                       );
                                     }
@@ -252,7 +256,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           alignment: Alignment.centerLeft,
                           child: TextButton(
                             onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const Resetpass()));
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const Resetpass()));
                             },
                             child: Text(
                               'Change Password',
@@ -268,7 +275,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 // Save Changes Button at Bottom
                 if (!isKeyboardVisible)
                   BottomButtonWrapper(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 20.0),
                     child: isUpdating
                         ? const CircularProgressIndicator()
                         : buildMainButton(

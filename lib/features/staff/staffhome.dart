@@ -50,24 +50,21 @@ class _StaffHomePageState extends State<StaffHomePage> {
     }
   }
 
-String username = "";
-
+  String username = "";
 
   void getrole() async {
-    print("&"*10000);
+    print("&" * 10000);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String Role = prefs.getString('Role') ?? '';
-    final String Username= prefs.getString('username') ?? '';
+    final String Username = prefs.getString('username') ?? '';
     print(Role);
     print(Username);
-    print("-"*1000);
+    print("-" * 1000);
     setState(() {
       // Roles = Role;
       username = Username;
     });
   }
-
-
 
   Future<dynamic> fetchWeeklyPerformance() async {
     await getToken(); // Wait for the token to be retrieved
@@ -76,7 +73,7 @@ String username = "";
       return;
     }
 
-    final url = Uri.parse('https://backend.srayansh.in/api/statics/performance/staff/week/');
+    final url = AppEnv.apiUri('/api/statics/performance/staff/week/');
     final response = await http.get(
       url,
       headers: {'Authorization': 'Bearer $access_token'},
@@ -111,7 +108,7 @@ String username = "";
     }
 
     print(access_token);
-    const String apiUrl = 'https://backend.srayansh.in/api/attendance/apply_leave/';
+    final String apiUrl = AppEnv.api('/api/attendance/apply_leave/');
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
@@ -123,7 +120,8 @@ String username = "";
       print(response.body);
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        List<Map<String, dynamic>> formattedData = convertLeaveRequests(data['data']);
+        List<Map<String, dynamic>> formattedData =
+            convertLeaveRequests(data['data']);
         if (mounted) {
           setState(() {
             leaveRequests = formattedData;
@@ -144,7 +142,7 @@ String username = "";
       return;
     }
 
-    const String apiUrl = 'https://backend.srayansh.in/api/taskassignment/staff/tasks/day/';
+    final String apiUrl = AppEnv.api('/api/taskassignment/staff/tasks/day/');
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
@@ -194,12 +192,13 @@ String username = "";
       return;
     }
 
-    const String apiUrl = 'https://backend.srayansh.in/api/attendance/month/';
+    final String apiUrl = AppEnv.api('/api/attendance/month/');
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
         headers: {
-          'Authorization': 'Bearer $access_token', // Properly formatted Authorization header
+          'Authorization':
+              'Bearer $access_token', // Properly formatted Authorization header
           'Content-Type': 'application/json',
         },
       );
@@ -213,7 +212,7 @@ String username = "";
         double daysPresent = data['days_present'];
         double totalLeaveDays = data['leaves'];
         double totalDaysUpToToday = data['total_days_up_to_today'];
-        print("^^^^"*100);
+        print("^^^^" * 100);
         print(daysPresent);
         print(totalLeaveDays);
         print(totalDaysUpToToday);
@@ -221,20 +220,23 @@ String username = "";
         if (mounted) {
           setState(() {
             present = (daysPresent / totalDaysUpToToday) * 100;
-          leave = (totalLeaveDays / totalDaysUpToToday) * 100;
-          if(100 - daysPresent -totalLeaveDays >= 0){ absent = 100 - daysPresent - totalLeaveDays;}
-          else{ absent = 0;}
+            leave = (totalLeaveDays / totalDaysUpToToday) * 100;
+            if (100 - daysPresent - totalLeaveDays >= 0) {
+              absent = 100 - daysPresent - totalLeaveDays;
+            } else {
+              absent = 0;
+            }
             // if(100 - daysPresent -totalLeaveDays >= 0){
             // double absent = 100 - daysPresent - totalLeaveDays;}
             // else
             // {
             //   absent = 0;
             // }
-             
           });
         }
       } else {
-        print('Failed to load monthly attendance data. Status code: ${response.statusCode}');
+        print(
+            'Failed to load monthly attendance data. Status code: ${response.statusCode}');
       }
     } catch (e) {
       print('Error fetching monthly attendance data: $e');
@@ -263,7 +265,10 @@ String username = "";
             padding: const EdgeInsets.only(right: 16, top: 16),
             child: InkWell(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const StaffAnnouncementPage()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const StaffAnnouncementPage()));
               },
               splashColor: Colors.transparent, // Removes the splash effect
               highlightColor: Colors.transparent,
@@ -344,46 +349,44 @@ String username = "";
             ),
             const SizedBox(height: 56),
             Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Pallete.pagecolor,
-                border: Border.all(color: Pallete.neutral200, width: 1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: (present == 0 && absent == 0 && leave == 0)
-    ? Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SvgPicture.asset(
-            'assets/emptystaffattendance.svg', // Replace with your SVG file path
-            width: 200, // Adjust width as needed
-            height: 200, // Adjust height as needed
-          ),
-          const SizedBox(height: 16),
-          // Text(
-          //   "No attendance data available",
-          //   style: TextStyle(
-          //     fontSize: 16,
-          //     color: Colors.grey,
-          //   ),
-          // ),
-        ],
-      )
-    : PieChartWidgetstaff(
-        title: "Your Attendance",
-        data: {
-          "Present": present,
-          "Absent": absent,
-          "Leave": leave,
-        },
-        colors: const {
-          "Present": Colors.green,
-          "Absent": Colors.red,
-          "Leave": Colors.orange,
-        },
-      )
-
-            ),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Pallete.pagecolor,
+                  border: Border.all(color: Pallete.neutral200, width: 1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: (present == 0 && absent == 0 && leave == 0)
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/emptystaffattendance.svg', // Replace with your SVG file path
+                            width: 200, // Adjust width as needed
+                            height: 200, // Adjust height as needed
+                          ),
+                          const SizedBox(height: 16),
+                          // Text(
+                          //   "No attendance data available",
+                          //   style: TextStyle(
+                          //     fontSize: 16,
+                          //     color: Colors.grey,
+                          //   ),
+                          // ),
+                        ],
+                      )
+                    : PieChartWidgetstaff(
+                        title: "Your Attendance",
+                        data: {
+                          "Present": present,
+                          "Absent": absent,
+                          "Leave": leave,
+                        },
+                        colors: const {
+                          "Present": Colors.green,
+                          "Absent": Colors.red,
+                          "Leave": Colors.orange,
+                        },
+                      )),
             const SizedBox(height: 56),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -401,7 +404,11 @@ String username = "";
                 const SizedBox(width: 20),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const StaffManageLeavePage()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                const StaffManageLeavePage()));
                   },
                   child: Row(
                     children: [
@@ -416,50 +423,53 @@ String username = "";
                         ),
                       ),
                       const SizedBox(width: 4),
-                      SvgPicture.asset('assets/dasharrow.svg', height: 12, width: 6),
+                      SvgPicture.asset('assets/dasharrow.svg',
+                          height: 12, width: 6),
                     ],
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 20),
-           SizedBox(
-  child: leaveRequests.isEmpty
-      ? Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(
-              'assets/staffleave.svg', // Replace with your SVG file path
-              width: 200, // Adjust width as needed
-              height: 200, // Adjust height as needed
-            ),
-            const SizedBox(height: 16),
-            // Text(
-            //   "No leave requests available",
-            //   style: TextStyle(
-            //     fontSize: 16,
-            //     color: Colors.grey,
-            //   ),
-            // ),
-          ],
-        )
-      : ListView.builder(
-          itemCount: leaveRequests.length > 2 ? 2 : leaveRequests.length,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) {
-            return _buildLeaveRequestCard(leaveRequests[index], screenWidth);
-          },
-        ),
-)
-
+            SizedBox(
+              child: leaveRequests.isEmpty
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/staffleave.svg', // Replace with your SVG file path
+                          width: 200, // Adjust width as needed
+                          height: 200, // Adjust height as needed
+                        ),
+                        const SizedBox(height: 16),
+                        // Text(
+                        //   "No leave requests available",
+                        //   style: TextStyle(
+                        //     fontSize: 16,
+                        //     color: Colors.grey,
+                        //   ),
+                        // ),
+                      ],
+                    )
+                  : ListView.builder(
+                      itemCount:
+                          leaveRequests.length > 2 ? 2 : leaveRequests.length,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return _buildLeaveRequestCard(
+                            leaveRequests[index], screenWidth);
+                      },
+                    ),
+            )
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLeaveRequestCard(Map<String, dynamic> request, double screenWidth) {
+  Widget _buildLeaveRequestCard(
+      Map<String, dynamic> request, double screenWidth) {
     Color getStatusColor(String status) {
       switch (status) {
         case "Pending":
@@ -692,172 +702,175 @@ class LineChartWidget extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     return Stack(
       children: [
-         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
-           child: Container(
-        
-        padding: const EdgeInsets.symmetric(horizontal: 0,vertical: 0),
-        // decoration: BoxDecoration(
-        //   color: Pallete.pagecolor,
-        //   borderRadius: BorderRadius.circular(12),
-        //   border: Border.all(color: Colors.blue.shade200, width: 1),
-        // ),
-        child: LineChart(
-          LineChartData(
-            // gridData: const FlGridData(
-            //   show: false,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+            // decoration: BoxDecoration(
+            //   color: Pallete.pagecolor,
+            //   borderRadius: BorderRadius.circular(12),
+            //   border: Border.all(color: Colors.blue.shade200, width: 1),
             // ),
-            gridData: FlGridData(
-            drawHorizontalLine: true,
-            drawVerticalLine: true,
-            horizontalInterval: 20,
-            verticalInterval: 1,
-            getDrawingHorizontalLine: (value) {
-              return const FlLine(
-                color: Colors.grey,
-                strokeWidth: 0.5,
-                // dashArray: [4, 4], // Dash pattern for horizontal lines
-              );
-            },
-             getDrawingVerticalLine: (value) {
-              return const FlLine(
-                color: Colors.grey,
-                strokeWidth: 0.5,
-                // dashArray: [4, 4], // Dash pattern for vertical lines
-              );
-            },
-            ),
-            titlesData: FlTitlesData(
-              rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  interval: 25,
-                  reservedSize: 28,
-                  getTitlesWidget: (value, meta) {
-                    return Text(
-                      value.toInt().toString(),
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 12,
-                      ),
+            child: LineChart(
+              LineChartData(
+                // gridData: const FlGridData(
+                //   show: false,
+                // ),
+                gridData: FlGridData(
+                  drawHorizontalLine: true,
+                  drawVerticalLine: true,
+                  horizontalInterval: 20,
+                  verticalInterval: 1,
+                  getDrawingHorizontalLine: (value) {
+                    return const FlLine(
+                      color: Colors.grey,
+                      strokeWidth: 0.5,
+                      // dashArray: [4, 4], // Dash pattern for horizontal lines
+                    );
+                  },
+                  getDrawingVerticalLine: (value) {
+                    return const FlLine(
+                      color: Colors.grey,
+                      strokeWidth: 0.5,
+                      // dashArray: [4, 4], // Dash pattern for vertical lines
                     );
                   },
                 ),
-              ),
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  interval: 1,
-                  getTitlesWidget: (value, meta) {
-                    switch (value.toInt()) {
-                      case 0:
-                        return const Text('Mon',
-                            style: TextStyle(
-                                color: Colors.black, fontSize: 12));
-                      case 1:
-                        return const Text('Tue',
-                            style: TextStyle(
-                                color: Colors.black, fontSize: 12));
-                      case 2:
-                        return const Text('Wed',
-                            style: TextStyle(
-                                color: Colors.black, fontSize: 12));
-                      case 3:
-                        return const Text('Thu',
-                            style: TextStyle(
-                                color: Colors.black, fontSize: 12));
-                      case 4:
-                        return const Text('Fri',
-                            style: TextStyle(
-                                color: Colors.black, fontSize: 12));
-                      case 5:
-                        return const Text('Sat',
-                            style: TextStyle(
-                                color: Colors.black, fontSize: 12));
-                      case 6:
-                        return const Text('Sun',
-                            style: TextStyle(
-                                color: Colors.black, fontSize: 12));
-                      default:
-                        return const Text('');
-                    }
-                  },
+                titlesData: FlTitlesData(
+                  rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 25,
+                      reservedSize: 28,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          value.toInt().toString(),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 12,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 1,
+                      getTitlesWidget: (value, meta) {
+                        switch (value.toInt()) {
+                          case 0:
+                            return const Text('Mon',
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 12));
+                          case 1:
+                            return const Text('Tue',
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 12));
+                          case 2:
+                            return const Text('Wed',
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 12));
+                          case 3:
+                            return const Text('Thu',
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 12));
+                          case 4:
+                            return const Text('Fri',
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 12));
+                          case 5:
+                            return const Text('Sat',
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 12));
+                          case 6:
+                            return const Text('Sun',
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 12));
+                          default:
+                            return const Text('');
+                        }
+                      },
+                    ),
+                  ),
                 ),
+                borderData: FlBorderData(
+                  show: true,
+                  border: const Border(
+                    top: BorderSide(
+                      color: Colors.grey, // Color for the top border
+                      width: 0.5, // Width of the top border
+                    ),
+                    right: BorderSide(
+                      color: Colors.grey, // Color for the right border
+                      width: 0.5, // Width of the right border
+                    ),
+                    bottom: BorderSide(
+                      color: Colors.grey, // Color for the bottom border
+                      width: 3, // Width of the bottom border
+                    ),
+                    left: BorderSide(
+                      color: Colors.grey, // Color for the left border
+                      width: 3, // Width of the left border
+                    ),
+                  ),
+                ),
+
+                minX: 0,
+                maxX: 6,
+                minY: 0,
+                maxY: 100,
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: [
+                      FlSpot(0, doubleData[0]), // Monday
+                      FlSpot(1, doubleData[1]), // Tuesday
+                      FlSpot(2, doubleData[2]), // Wednesday
+                      FlSpot(3, doubleData[3]), // Thursday
+                      FlSpot(4, doubleData[4]), // Friday
+                      FlSpot(5, doubleData[5]), // Saturday
+                      FlSpot(
+                          6,
+                          doubleData[
+                              6]), // Uncomment this if data includes Sunday
+                    ],
+                    isCurved: true,
+                    isStrokeJoinRound: true,
+                    color: Pallete.primary700,
+                    barWidth: 2,
+                    isStrokeCapRound: true,
+                    curveSmoothness: 0,
+                    belowBarData: BarAreaData(
+                      show: false,
+                    ),
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, xPercentage, bar, index) {
+                        // Returns a transparent dot painter
+                        return FlDotCirclePainter(
+                          radius:
+                              3, // Or set radius to zero to make them invisible
+                          color: Pallete.primary700,
+                          strokeColor: Pallete.primary700,
+                          strokeWidth: 1,
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-            borderData: FlBorderData(
-  show: true,
-  border: const Border(
-    top: BorderSide(
-      color: Colors.grey, // Color for the top border
-      width: 0.5,           // Width of the top border
-    ),
-    right: BorderSide(
-      color: Colors.grey, // Color for the right border
-      width: 0.5,           // Width of the right border
-    ),
-    bottom: BorderSide(
-      color: Colors.grey, // Color for the bottom border
-      width: 3,           // Width of the bottom border
-    ),
-    left: BorderSide(
-      color: Colors.grey, // Color for the left border
-      width: 3,           // Width of the left border
-    ),
-  ),
-),
-
-            minX: 0,
-            maxX: 6,
-            minY: 0,
-            maxY: 100,
-            lineBarsData: [
-              LineChartBarData(
-                spots: [
-    FlSpot(0, doubleData[0]), // Monday
-    FlSpot(1, doubleData[1]), // Tuesday
-    FlSpot(2, doubleData[2]), // Wednesday
-    FlSpot(3, doubleData[3]), // Thursday
-    FlSpot(4, doubleData[4]), // Friday
-    FlSpot(5, doubleData[5]), // Saturday
-    FlSpot(6, doubleData[6]), // Uncomment this if data includes Sunday
-  ],
-
-                isCurved: true,
-                isStrokeJoinRound: true,
-                color: Pallete.primary700,
-                barWidth: 2,
-                isStrokeCapRound: true,
-                curveSmoothness: 0,
-                belowBarData: BarAreaData(
-                  show: false,
-                ),
-                dotData: FlDotData(
-                  show: true,
-                   getDotPainter: (spot, xPercentage, bar, index) {
-      // Returns a transparent dot painter
-      return FlDotCirclePainter(
-        radius: 3, // Or set radius to zero to make them invisible
-        color: Pallete.primary700,
-        strokeColor: Pallete.primary700,
-        strokeWidth: 1,
-      );},
-                ),
-              ),
-            ],
           ),
         ),
-    ),
-         ),
       ],
     );
   }
-
-
-  
 }
+
 class DashedLinePainter extends CustomPainter {
   final double minX, maxX, minY, maxY;
   final int horizontalDivisions, verticalDivisions;
@@ -949,138 +962,139 @@ class DashedLinePainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
 
- Widget _buildLeaveRequestCard(Map<String, dynamic> request, double screenWidth) {
-    Color getStatusColor(String status) {
-      switch (status) {
-        case "Pending":
-          return Pallete.warning700;
-        case "Approved":
-          return Pallete.success600;
-        case "Rejected":
-          return Pallete.error700;
-        default:
-          return Pallete.neutral700;
-      }
+Widget _buildLeaveRequestCard(
+    Map<String, dynamic> request, double screenWidth) {
+  Color getStatusColor(String status) {
+    switch (status) {
+      case "Pending":
+        return Pallete.warning700;
+      case "Approved":
+        return Pallete.success600;
+      case "Rejected":
+        return Pallete.error700;
+      default:
+        return Pallete.neutral700;
     }
-
-    return Card(
-      color: Pallete.pagecolor,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: Pallete.neutral300, width: 1),
-      ),
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Leave Type
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: "Leave Type: ",
-                        style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Pallete.neutral950,
-                          height: 1.5,
-                        ),
-                      ),
-                      TextSpan(
-                        text: request["type"],
-                        style: GoogleFonts.montserrat(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Pallete.neutral950,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 4),
-                // Duration
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: "Duration: ",
-                        style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Pallete.neutral950,
-                          height: 1.5,
-                        ),
-                      ),
-                      TextSpan(
-                        text: request["duration"],
-                        style: GoogleFonts.montserrat(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Pallete.neutral950,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 4),
-                // Dates
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: "Dates: ",
-                        style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Pallete.neutral950,
-                          height: 1.5,
-                        ),
-                      ),
-                      TextSpan(
-                        text: request["dates"],
-                        style: GoogleFonts.montserrat(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Pallete.neutral950,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                // Status in a Row
-              ],
-            ),
-            Container(
-              height: 36,
-              width: 94,
-              // padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: getStatusColor(request["status"]).withOpacity(0.1),
-                border: Border.all(color: getStatusColor(request["status"])),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Center(
-                child: Text(
-                  request["status"],
-                  style: GoogleFonts.montserrat(
-                    textStyle: const TextStyle(),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: getStatusColor(request["status"]),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
+
+  return Card(
+    color: Pallete.pagecolor,
+    elevation: 0,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+      side: const BorderSide(color: Pallete.neutral300, width: 1),
+    ),
+    margin: const EdgeInsets.only(bottom: 12),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Leave Type
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: "Leave Type: ",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Pallete.neutral950,
+                        height: 1.5,
+                      ),
+                    ),
+                    TextSpan(
+                      text: request["type"],
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Pallete.neutral950,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 4),
+              // Duration
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: "Duration: ",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Pallete.neutral950,
+                        height: 1.5,
+                      ),
+                    ),
+                    TextSpan(
+                      text: request["duration"],
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Pallete.neutral950,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 4),
+              // Dates
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: "Dates: ",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Pallete.neutral950,
+                        height: 1.5,
+                      ),
+                    ),
+                    TextSpan(
+                      text: request["dates"],
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Pallete.neutral950,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              // Status in a Row
+            ],
+          ),
+          Container(
+            height: 36,
+            width: 94,
+            // padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: getStatusColor(request["status"]).withOpacity(0.1),
+              border: Border.all(color: getStatusColor(request["status"])),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(
+              child: Text(
+                request["status"],
+                style: GoogleFonts.montserrat(
+                  textStyle: const TextStyle(),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: getStatusColor(request["status"]),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}

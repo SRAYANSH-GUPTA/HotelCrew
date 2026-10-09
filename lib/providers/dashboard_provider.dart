@@ -1,6 +1,7 @@
 // FILE: lib/providers/dashboard_provider.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hotelcrew/core/config/app_env.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -41,10 +42,10 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
   Future<void> fetchStaffStatus(String token) async {
     state = state.copyWith(isLoading: true);
-    
+
     try {
       final response = await http.get(
-        Uri.parse('https://backend.srayansh.in/api/taskassignment/staff/available/'),
+        AppEnv.apiUri('/api/taskassignment/staff/available/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -77,10 +78,10 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
   Future<void> fetchRoomData(String token) async {
     state = state.copyWith(isLoading: true);
-    
+
     try {
       final response = await http.get(
-        Uri.parse('https://backend.srayansh.in/api/hoteldetails/all-rooms/'),
+        AppEnv.apiUri('/api/hoteldetails/all-rooms/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -96,7 +97,8 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         state = state.copyWith(
           roomStatusData: {
             "Occupied": totalRooms > 0 ? (roomsOccupied / totalRooms) * 100 : 0,
-            "Unoccupied": totalRooms > 0 ? (availableRooms / totalRooms) * 100 : 0,
+            "Unoccupied":
+                totalRooms > 0 ? (availableRooms / totalRooms) * 100 : 0,
           },
           isLoading: false,
         );
@@ -113,10 +115,10 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
   Future<void> fetchAttendanceData(String token) async {
     state = state.copyWith(isLoading: true);
-    
+
     try {
       final response = await http.get(
-        Uri.parse('https://backend.srayansh.in/api/attendance/week-stats/'),
+        AppEnv.apiUri('/api/attendance/week-stats/'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -126,7 +128,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final List<String> dates = List<String>.from(data['dates']);
-        
+
         if (dates.isNotEmpty) {
           final int lastIndex = dates.length - 1;
           final int totalPresent = data['total_crew_present'][lastIndex];
@@ -136,8 +138,10 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
           state = state.copyWith(
             attendanceData: {
-              "Present": totalRecords > 0 ? (totalPresent / totalRecords) * 100 : 0,
-              "Absent": totalRecords > 0 ? (totalAbsent / totalRecords) * 100 : 0,
+              "Present":
+                  totalRecords > 0 ? (totalPresent / totalRecords) * 100 : 0,
+              "Absent":
+                  totalRecords > 0 ? (totalAbsent / totalRecords) * 100 : 0,
               "Leave": totalRecords > 0 ? (totalLeave / totalRecords) * 100 : 0,
             },
             isLoading: false,
@@ -155,6 +159,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   }
 }
 
-final dashboardProvider = StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
+final dashboardProvider =
+    StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
   return DashboardNotifier();
 });

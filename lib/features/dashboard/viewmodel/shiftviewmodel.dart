@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:hotelcrew/core/config/app_env.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../model/shiftmodel.dart'; // Assuming you are using Dio for API requests
 
 class StaffScheduleService {
   final Dio _dio = Dio();
-  final String apiUrl = 'https://backend.srayansh.in/api/edit/schedule_list/'; // Your API endpoint
+  final String apiUrl =
+      AppEnv.api('/api/edit/schedule_list/'); // Your API endpoint
 
   // Fetch staff schedules from the API and transform the data
   Future<List<Map<String, dynamic>>> fetchAndTransformStaffSchedules() async {

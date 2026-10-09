@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:hotelcrew/core/config/app_env.dart';
 import '../models/otpresetmodel.dart';
 
 class DioClient {
@@ -29,7 +30,7 @@ class DioClient {
 
     try {
       final response = await dio.post(
-        'https://backend.srayansh.in/api/auth/verify-otp/',
+        AppEnv.api('/api/auth/verify-otp/'),
         data: json.encode(otpRequest.toJson()),
       );
       print("got response");
@@ -53,8 +54,6 @@ class DioClient {
     }
   }
 }
-
-
 
 class OtpresetModel extends ChangeNotifier {
   final DioClient _dioClient = DioClient();

@@ -45,7 +45,7 @@ class _StaffAnnouncementPageState extends State<StaffAnnouncementPage> {
 
     try {
       final response = await Dio().get(
-        'https://backend.srayansh.in/api/taskassignment/announcements/?page=$page',
+        AppEnv.api('/api/taskassignment/announcements/?page=$page'),
         options: Options(
           headers: {
             'Authorization': 'Bearer $access_token',
@@ -53,11 +53,12 @@ class _StaffAnnouncementPageState extends State<StaffAnnouncementPage> {
         ),
       );
       print(response.data);
-      print("^^"*100);
+      print("^^" * 100);
       if (response.statusCode == 200) {
         List<dynamic> data = response.data['results'];
         setState(() {
-          announcements.addAll(data.map((json) => Announcement.fromJson(json)).toList());
+          announcements
+              .addAll(data.map((json) => Announcement.fromJson(json)).toList());
           hasMore = response.data['next'] != null;
           page++;
         });
@@ -101,7 +102,8 @@ class _StaffAnnouncementPageState extends State<StaffAnnouncementPage> {
           onTap: () {
             Navigator.pop(context);
           },
-          child: const Icon(Icons.arrow_back_ios_outlined, color: Pallete.neutral900),
+          child: const Icon(Icons.arrow_back_ios_outlined,
+              color: Pallete.neutral900),
         ),
         titleSpacing: 0,
         title: Text(
@@ -124,7 +126,10 @@ class _StaffAnnouncementPageState extends State<StaffAnnouncementPage> {
               ? const Center(child: Text('No Announcement'))
               : NotificationListener<ScrollNotification>(
                   onNotification: (ScrollNotification scrollInfo) {
-                    if (!isLoading && hasMore && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+                    if (!isLoading &&
+                        hasMore &&
+                        scrollInfo.metrics.pixels ==
+                            scrollInfo.metrics.maxScrollExtent) {
                       fetchAnnouncements();
                     }
                     return false;
@@ -181,7 +186,9 @@ class AnnouncementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localDate = DateFormat.yMMMd().add_jm().format(DateTime.parse(announcement.date).toLocal());
+    final localDate = DateFormat.yMMMd()
+        .add_jm()
+        .format(DateTime.parse(announcement.date).toLocal());
 
     return Card(
       color: Pallete.primary50,
@@ -215,16 +222,21 @@ class AnnouncementCard extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                   decoration: BoxDecoration(
-                    color: announcement.priority == 'Urgent' ? Pallete.accent200 : Pallete.success100,
+                    color: announcement.priority == 'Urgent'
+                        ? Pallete.accent200
+                        : Pallete.success100,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     announcement.priority,
                     style: GoogleFonts.montserrat(
                       textStyle: TextStyle(
-                        color: announcement.priority == 'Urgent' ? Pallete.accent800 : Pallete.success800,
+                        color: announcement.priority == 'Urgent'
+                            ? Pallete.accent800
+                            : Pallete.success800,
                         fontWeight: FontWeight.w500,
                         fontSize: 12,
                         height: 1.3,
@@ -234,14 +246,16 @@ class AnnouncementCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 16),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                   decoration: BoxDecoration(
                     color: Pallete.primary200,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Row(
                     children: [
-                      SvgPicture.asset('assets/anndept.svg', height: 12, width: 12),
+                      SvgPicture.asset('assets/anndept.svg',
+                          height: 12, width: 12),
                       const SizedBox(width: 4),
                       Text(
                         announcement.department,
@@ -277,7 +291,8 @@ class AnnouncementCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    SvgPicture.asset('assets/annuser.svg', height: 28, width: 28),
+                    SvgPicture.asset('assets/annuser.svg',
+                        height: 28, width: 28),
                     const SizedBox(width: 4),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

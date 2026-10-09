@@ -14,13 +14,12 @@ import "features/auth/view/pages/login_page.dart";
 import 'core/packages.dart';
 
 void main() async {
-  await dotenv.load();
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  
+
   await Firebase.initializeApp();
   print("Firebase initialized successfully!");
-  
+
   runApp(
     ProviderScope(
       child: provider.ChangeNotifierProvider(
@@ -75,9 +74,9 @@ class _MyHomePageState extends State<MyHomePage> {
     String? token = await messaging.getToken() ?? "";
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('fcm', token);
-    
+
     print("FCM Token: $token");
-      FirebaseFirestore firestore = FirebaseFirestore.instance;
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
 
     try {
       // Fetch data from the "messages" collection
@@ -85,7 +84,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
       // Iterate through the documents and print the message fields
       for (var doc in snapshot.docs) {
-        String message = doc['message'];  // Assuming you have a 'message' field in your Firestore documents
+        String message = doc[
+            'message']; // Assuming you have a 'message' field in your Firestore documents
         print('Message: $message');
       }
     } catch (e) {
@@ -161,8 +161,9 @@ class _MyHomePageState extends State<MyHomePage> {
     return currentTime >= exp;
   }
 
-  Future<void> _refreshAccessToken(String refreshToken, String role, BuildContext context) async {
-    final url = Uri.parse('https://backend.srayansh.in/api/auth/token/refresh/');
+  Future<void> _refreshAccessToken(
+      String refreshToken, String role, BuildContext context) async {
+    final url = AppEnv.apiUri('/api/auth/token/refresh/');
     final response = await http.post(url, body: {
       'refresh': refreshToken,
     });

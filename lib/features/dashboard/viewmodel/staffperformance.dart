@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/config/app_env.dart';
 
 final staffPerformanceProvider = StateNotifierProvider<StaffPerformanceViewModel, StaffPerformanceState>(
   (ref) => StaffPerformanceViewModel(),
@@ -49,7 +50,7 @@ class StaffPerformanceViewModel extends StateNotifier<StaffPerformanceState> {
       String? accessToken = prefs.getString('access_token');
 
       final response = await http.get(
-        Uri.parse('http://hotelcrew-1.onrender.com/api/statics/performance/hotel/week/'),
+        AppEnv.apiUri('/api/statics/performance/hotel/week/'),
         headers: {
           'Authorization': 'Bearer $accessToken',
           'Content-Type': 'application/json',

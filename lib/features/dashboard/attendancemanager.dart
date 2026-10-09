@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../../core/packages.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+
 class ManagerAttendancePage extends StatefulWidget {
   const ManagerAttendancePage({super.key});
 
@@ -11,62 +12,58 @@ class ManagerAttendancePage extends StatefulWidget {
 
 class _ManagerAttendancePageState extends State<ManagerAttendancePage> {
   final Dio _dio = Dio();
-  final String attendanceApiUrl = 'https://backend.srayansh.in/api/attendance';
+  final String attendanceApiUrl = AppEnv.api('/api/attendance');
 
   String selectedAttendanceStatus = 'Absent';
   String selectedDepartment = 'All Staff';
-List<String> dept = [];
+  List<String> dept = [];
 
-void fetchDepartments(BuildContext context) async {
-  final Uri url = Uri.parse('https://backend.srayansh.in/api/edit/department_list/'); // Replace with your actual endpoint
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('access_token'); // Fetch access token from shared preferences
+  void fetchDepartments(BuildContext context) async {
+    final Uri url = AppEnv.apiUri(
+        '/api/edit/department_list/'); // Replace with your actual endpoint
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString(
+        'access_token'); // Fetch access token from shared preferences
 
-  try {
-    final response = await http.get(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-    print(response.body);
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseData = json.decode(response.body);
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      print(response.body);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
 
-      if (responseData['status'] == 'success') {
-        final Map<String, dynamic> staffPerDepartment =
-            responseData['staff_per_department'] ?? {};
-        List<String> departments = ['All Staff']; // Start with 'All Staff'
-        departments.addAll(staffPerDepartment.keys);
-        setState(() {
-          dept = departments + ['Manager','Receptionist'];
-        });
-        
+        if (responseData['status'] == 'success') {
+          final Map<String, dynamic> staffPerDepartment =
+              responseData['staff_per_department'] ?? {};
+          List<String> departments = ['All Staff']; // Start with 'All Staff'
+          departments.addAll(staffPerDepartment.keys);
+          setState(() {
+            dept = departments + ['Manager', 'Receptionist'];
+          });
+        } else {
+          throw Exception('Unexpected response: ${responseData['message']}');
+        }
       } else {
-        throw Exception('Unexpected response: ${responseData['message']}');
+        final Map<String, dynamic> errorData = json.decode(response.body);
+        throw Exception(errorData['message'] ?? 'Failed to fetch departments.');
       }
-    } else {
-      final Map<String, dynamic> errorData = json.decode(response.body);
-      throw Exception(errorData['message'] ?? 'Failed to fetch departments.');
+    } catch (error) {
+      // Show error in Snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $error'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
-  } catch (error) {
-    // Show error in Snackbar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Error: $error'),
-        backgroundColor: Colors.red,
-      ),
-    );
-
   }
-}
 
-
-
-  List<dynamic> attendanceList = [
-  
-  ];
+  List<dynamic> attendanceList = [];
 
   @override
   void initState() {
@@ -81,12 +78,12 @@ void fetchDepartments(BuildContext context) async {
     setState(() {
       _isLoading = true;
     });
-     SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? accessToken = prefs.getString('access_token');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString('access_token');
 
     try {
       final response = await _dio.get(
-        'https://backend.srayansh.in/api/attendance/list/',
+        AppEnv.api('/api/attendance/list/'),
         options: Options(
           validateStatus: (status) => status! < 501,
           headers: {
@@ -97,21 +94,22 @@ void fetchDepartments(BuildContext context) async {
       );
       print(response.data);
       if (response.statusCode == 200) {
-       setState(() {
-  attendanceList = response.data.map((item) {
-    return {
-      'id': item['id'] ?? '',
-      'user_name': item['user_name'] ?? 'N/A',
-      'email': item['email'] ?? 'N/A',
-      'role': item['role'] ?? 'N/A',
-      'department': item['department'] ?? 'N/A',
-      'current_attendance': item['current_attendance'] ?? 'N/A',
-      'user_profile': item['user_profile'] ?? '', // Handle null user_profile
-      'shift': item['shift'] ?? 'N/A',
-    };
-  }).toList();
-  _isLoading = false;
-});
+        setState(() {
+          attendanceList = response.data.map((item) {
+            return {
+              'id': item['id'] ?? '',
+              'user_name': item['user_name'] ?? 'N/A',
+              'email': item['email'] ?? 'N/A',
+              'role': item['role'] ?? 'N/A',
+              'department': item['department'] ?? 'N/A',
+              'current_attendance': item['current_attendance'] ?? 'N/A',
+              'user_profile':
+                  item['user_profile'] ?? '', // Handle null user_profile
+              'shift': item['shift'] ?? 'N/A',
+            };
+          }).toList();
+          _isLoading = false;
+        });
         print(response.data);
       } else {
         throw Exception('Failed to fetch attendance');
@@ -137,16 +135,16 @@ void fetchDepartments(BuildContext context) async {
         attendanceList[userIndex]['current_attendance'] = newStatus;
       });
       String id = userId.toString();
-       SharedPreferences prefs = await SharedPreferences.getInstance();
-   
-    String? accessToken = prefs.getString('access_token');
-    print(accessToken);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      String? accessToken = prefs.getString('access_token');
+      print(accessToken);
       try {
         // API request
-        print("^"*20);
+        print("^" * 20);
         print(userId);
         final response = await _dio.post(
-          'https://backend.srayansh.in/api/attendance/change/$id/',
+          AppEnv.api('/api/attendance/change/$id/'),
           options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
         );
         print(response.statusCode);
@@ -171,42 +169,41 @@ void fetchDepartments(BuildContext context) async {
   }
 
   Future<void> markAll(String status) async {
-  try {
-    for (var staff in attendanceList) {
-      // Check if staff matches filter and needs updating
-      if (_matchesFilter(staff) && staff['current_attendance'] != status) {
-        // Update attendance locally
-        setState(() {
-          staff['current_attendance'] = status;
-        });
- SharedPreferences prefs = await SharedPreferences.getInstance();
-   
-    String? accessToken = prefs.getString('access_token');
-    print(accessToken);
-        // Make API request to update attendance
-        final response = await _dio.post(
-          'https://backend.srayansh.in/api/attendance/change/${staff['id'].toString()}/',
-          options: Options(
-            validateStatus: (status) => status! < 501,
-            headers: {
-              'Authorization': 'Bearer $accessToken',
-            },
-          ),
-         // Include data if required
-        );
-        print(response.statusCode);
-      }
-    }
-    print('All matching attendance updated to $status');
-  } catch (e) {
-    print('Error marking all as $status: $e');
-  }
-}
+    try {
+      for (var staff in attendanceList) {
+        // Check if staff matches filter and needs updating
+        if (_matchesFilter(staff) && staff['current_attendance'] != status) {
+          // Update attendance locally
+          setState(() {
+            staff['current_attendance'] = status;
+          });
+          SharedPreferences prefs = await SharedPreferences.getInstance();
 
+          String? accessToken = prefs.getString('access_token');
+          print(accessToken);
+          // Make API request to update attendance
+          final response = await _dio.post(
+            AppEnv.api('/api/attendance/change/${staff['id'].toString()}/'),
+            options: Options(
+              validateStatus: (status) => status! < 501,
+              headers: {
+                'Authorization': 'Bearer $accessToken',
+              },
+            ),
+            // Include data if required
+          );
+          print(response.statusCode);
+        }
+      }
+      print('All matching attendance updated to $status');
+    } catch (e) {
+      print('Error marking all as $status: $e');
+    }
+  }
 
   bool _matchesFilter(dynamic staff) {
-    final matchesDepartment =
-        staff['department'] == selectedDepartment || selectedDepartment == 'All Staff';
+    final matchesDepartment = staff['department'] == selectedDepartment ||
+        selectedDepartment == 'All Staff';
     return matchesDepartment;
   }
 
@@ -223,7 +220,8 @@ void fetchDepartments(BuildContext context) async {
             onTap: () {
               Navigator.pop(context);
             },
-            child: const Icon(Icons.arrow_back_ios_outlined, color: Pallete.neutral900),
+            child: const Icon(Icons.arrow_back_ios_outlined,
+                color: Pallete.neutral900),
           ),
           title: Text(
             "Today’s Attendance",
@@ -245,9 +243,9 @@ void fetchDepartments(BuildContext context) async {
                 children: [
                   SizedBox(
                     height: 35,
-                width: screenWidth * 0.35,
+                    width: screenWidth * 0.35,
                     child: _buildFilterDropdown(
-                      pic: true,  
+                      pic: true,
                       screenWidth: screenWidth,
                       value: selectedDepartment,
                       items: dept,
@@ -274,13 +272,12 @@ void fetchDepartments(BuildContext context) async {
                       ),
                       const SizedBox(width: 5),
                       SizedBox(
-                        height: 35 ,
+                        height: 35,
                         child: _buildFilterDropdown(
                           pic: false,
                           screenWidth: screenWidth,
                           value: selectedAttendanceStatus,
                           items: <String>[
-            
                             'Present',
                             'Absent',
                           ],
@@ -289,7 +286,8 @@ void fetchDepartments(BuildContext context) async {
                               setState(() {
                                 selectedAttendanceStatus = newValue;
                               });
-                              if (newValue == 'Present' || newValue == 'Absent') {
+                              if (newValue == 'Present' ||
+                                  newValue == 'Absent') {
                                 await markAll(newValue);
                                 print('called');
                               }
@@ -346,7 +344,8 @@ void fetchDepartments(BuildContext context) async {
 
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundImage:  NetworkImage(staff['user_profile']),
+                            backgroundImage:
+                                NetworkImage(staff['user_profile']),
                           ),
                           title: Text(
                             staff['user_name'] ?? 'No Name',
@@ -382,26 +381,26 @@ void fetchDepartments(BuildContext context) async {
                                     : const Color(0xFFFFDFDF),
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: 
-                                  staff['current_attendance'] == 'Present'
-                                  ?
-                                  const Color(0xFF4CAF50)
-                                  : const Color(0xFFC80D0D),
+                                  color:
+                                      staff['current_attendance'] == 'Present'
+                                          ? const Color(0xFF4CAF50)
+                                          : const Color(0xFFC80D0D),
                                   width: 1,
                                 ),
                               ),
                               child: Center(
                                 child: Text(
                                   staff['current_attendance'] == 'Present'
-                                  ?'P'
-                                  :'A',
+                                      ? 'P'
+                                      : 'A',
                                   style: TextStyle(
                                     fontSize: 14,
                                     height: 1.5,
                                     fontWeight: FontWeight.w400,
-                                    color: staff['current_attendance'] == 'Present'
-                                        ? const Color(0xFF2D6830)
-                                        : const Color(0xFF881414),
+                                    color:
+                                        staff['current_attendance'] == 'Present'
+                                            ? const Color(0xFF2D6830)
+                                            : const Color(0xFF881414),
                                   ),
                                 ),
                               ),
@@ -440,8 +439,7 @@ void fetchDepartments(BuildContext context) async {
             padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
             child: Row(
               children: [
-                if(pic)
-                SvgPicture.asset("assets/filter.svg"),
+                if (pic) SvgPicture.asset("assets/filter.svg"),
                 const SizedBox(width: 3),
                 Expanded(
                   child: DropdownButton<String>(

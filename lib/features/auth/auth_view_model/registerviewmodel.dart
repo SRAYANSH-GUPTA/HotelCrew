@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'dart:convert';
+import 'package:hotelcrew/core/config/app_env.dart';
 import '../models/register.dart';
 
 // Dio Client Setup
@@ -9,9 +10,11 @@ class DioClient {
   DioClient()
       : dio = Dio(
           BaseOptions(
-            baseUrl: 'https://backend.srayansh.in/api/auth/registrationOTP/',
-            connectTimeout: const Duration(seconds: 10), // 10 seconds to establish connection
-            receiveTimeout: const Duration(seconds: 15), // 15 seconds to receive data
+            baseUrl: AppEnv.api('/api/auth/registrationOTP/'),
+            connectTimeout: const Duration(
+                seconds: 10), // 10 seconds to establish connection
+            receiveTimeout:
+                const Duration(seconds: 15), // 15 seconds to receive data
             headers: {
               'Content-Type': 'application/json', // Default headers
             },
@@ -69,7 +72,8 @@ class DioClient {
         '',
         data: json.encode(user.toJson()),
         options: Options(
-          validateStatus: (status) => status! < 501, // Treats 500+ codes as errors
+          validateStatus: (status) =>
+              status! < 501, // Treats 500+ codes as errors
         ),
       );
 

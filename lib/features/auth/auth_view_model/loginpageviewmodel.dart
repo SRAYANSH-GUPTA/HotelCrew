@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart'; // Make sure to import this for showing SnackBars
+import 'package:hotelcrew/core/config/app_env.dart';
 import '../auth_models/loginmodel.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthViewModel {
@@ -24,11 +24,12 @@ class AuthViewModel {
     ));
   }
 
-  Future<dynamic> loginUser(BuildContext context, String email, String password) async {
-    final apiUrl = dotenv.env['API_URL'] ?? 'https://backend.srayansh.in/api/auth/login/';
+  Future<dynamic> loginUser(
+      BuildContext context, String email, String password) async {
+    final apiUrl = AppEnv.endpoint('API_URL', '/api/auth/login/');
     print(apiUrl);
     print("^^^^^^^^^^^^^^^");
-   
+
     try {
       final response = await _dio.post(
         apiUrl,
@@ -37,10 +38,11 @@ class AuthViewModel {
           "password": password,
         },
         options: Options(
-          validateStatus: (status) => status! < 501, // Treats 500+ codes as errors
+          validateStatus: (status) =>
+              status! < 501, // Treats 500+ codes as errors
         ),
       );
-       print(response.statusMessage);
+      print(response.statusMessage);
 
       print("Response received: ${response.data}"); // Log the raw response data
       print("Status code: ${response.statusCode}");
@@ -75,9 +77,11 @@ class AuthViewModel {
       // Handling Dio exceptions
       String errorMessage = "";
       if (e.type == DioExceptionType.connectionTimeout) {
-        errorMessage = "Connection timeout, please try again"; // Timeout error message
+        errorMessage =
+            "Connection timeout, please try again"; // Timeout error message
       } else if (e.type == DioExceptionType.receiveTimeout) {
-        errorMessage = "Receive timeout, please try again"; // Receive timeout message
+        errorMessage =
+            "Receive timeout, please try again"; // Receive timeout message
       } else if (e.type == DioExceptionType.badResponse) {
         errorMessage = "Bad response from server"; // Bad response error message
       } else {
@@ -95,7 +99,10 @@ class AuthViewModel {
   }
 
   Future<void> registerDeviceToken(String fcmToken, String authToken) async {
-    final apiUrl = dotenv.env['REGISTER_DEVICE_TOKEN_URL'] ?? 'https://backend.srayansh.in/api/auth/register-device-token/';
+    final apiUrl = AppEnv.endpoint(
+      'REGISTER_DEVICE_TOKEN_URL',
+      '/api/auth/register-device-token/',
+    );
     print(apiUrl);
     print("Registering device token...");
 
@@ -109,7 +116,8 @@ class AuthViewModel {
           headers: {
             'Authorization': 'Bearer $authToken',
           },
-          validateStatus: (status) => status! < 501, // Treats 500+ codes as errors
+          validateStatus: (status) =>
+              status! < 501, // Treats 500+ codes as errors
         ),
       );
 

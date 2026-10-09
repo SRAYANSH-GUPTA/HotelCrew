@@ -6,22 +6,22 @@ class ReceptionistCustomerDatabasePage extends StatefulWidget {
   const ReceptionistCustomerDatabasePage({super.key});
 
   @override
-  _ReceptionistCustomerDatabasePageState createState() => _ReceptionistCustomerDatabasePageState();
+  _ReceptionistCustomerDatabasePageState createState() =>
+      _ReceptionistCustomerDatabasePageState();
 }
 
-class _ReceptionistCustomerDatabasePageState extends State<ReceptionistCustomerDatabasePage> {
+class _ReceptionistCustomerDatabasePageState
+    extends State<ReceptionistCustomerDatabasePage> {
   final screenHeight = const MediaQueryData().size.height;
   final screenWidth = const MediaQueryData().size.width;
 
-  List<Map<String, String>> customerData = [
-    
-  ];
+  List<Map<String, String>> customerData = [];
 
-  final String apiUrl = 'https://backend.srayansh.in/api/hoteldetails/all-customers/';
+  final String apiUrl = AppEnv.api('/api/hoteldetails/all-customers/');
 
   Future<void> fetchData() async {
-     SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? accessToken = prefs.getString('access_token');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString('access_token');
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
@@ -81,7 +81,9 @@ class _ReceptionistCustomerDatabasePageState extends State<ReceptionistCustomerD
     setState(() {
       filteredList = customerData.where((customer) {
         final customerStatus = customer['status']?.trim().toLowerCase() ?? '';
-        final selectedStatusesLower = selectedStatuses.map((status) => status.trim().toLowerCase()).toList();
+        final selectedStatusesLower = selectedStatuses
+            .map((status) => status.trim().toLowerCase())
+            .toList();
         if (selectedStatuses.isEmpty) {
           return true;
         }
@@ -100,200 +102,207 @@ class _ReceptionistCustomerDatabasePageState extends State<ReceptionistCustomerD
     });
   }
 
- void showFilterModal(BuildContext context) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Pallete.pagecolor,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-    ),
-    builder: (context) => StatefulBuilder(
-      builder: (BuildContext context, StateSetter setModalState) {
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Filters',
-                    style: GoogleFonts.montserrat(
-                      textStyle: const TextStyle(
-                        fontSize: 16,
+  void showFilterModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Pallete.pagecolor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+      ),
+      builder: (context) => StatefulBuilder(
+        builder: (BuildContext context, StateSetter setModalState) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Filters',
+                      style: GoogleFonts.montserrat(
+                        textStyle: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Pallete.neutral950,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        resetFilters();
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 44),
+
+                // Status Filter
+                Text(
+                  'Status',
+                  style: GoogleFonts.montserrat(
+                    textStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Pallete.neutral900,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // "All" button to clear the status filter
+                // FilterChip(
+                //   side: const BorderSide(color: Pallete.neutral200, width: 1),
+                //   selectedColor: Pallete.primary700,
+                //   showCheckmark: false,
+                //   label: Row(
+                //     mainAxisSize: MainAxisSize.min,
+                //     children: [
+                //       // Text(
+                //       //   'All',
+                //       //   style: GoogleFonts.montserrat(
+                //       //     textStyle: TextStyle(
+                //       //       fontSize: 14,
+                //       //       fontWeight: FontWeight.w400,
+                //       //       color: selectedStatuses.isEmpty
+                //       //           ? Pallete.neutral00
+                //       //           : Pallete.neutral900,
+                //       //     ),
+                //       //   ),
+                //       // ),
+                //       if (selectedStatuses.isEmpty)
+                //         const Padding(
+                //           padding: EdgeInsets.only(left: 4.0),
+                //           child: Icon(
+                //             Icons.check,
+                //             color: Pallete.neutral00,
+                //             size: 18,
+                //           ),
+                //         ),
+                //     ],
+                //   ),
+                //   selected: selectedStatuses.isEmpty,
+                //   onSelected: (bool selected) {
+                //     setModalState(() {
+                //       selectedStatuses.clear(); // Clear all statuses to show all
+                //     });
+                //   },
+                // ),
+                const SizedBox(height: 24),
+
+                // VIP and Regular Filters
+                Wrap(
+                  spacing: 8.0,
+                  children: ['VIP', 'Regular']
+                      .map(
+                        (status) => FilterChip(
+                          side: const BorderSide(
+                              color: Pallete.neutral200, width: 1),
+                          selectedColor: Pallete.primary700,
+                          showCheckmark: false,
+                          label: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                status,
+                                style: GoogleFonts.montserrat(
+                                  textStyle: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: selectedStatuses.contains(status)
+                                        ? Pallete.neutral00
+                                        : Pallete.neutral900,
+                                  ),
+                                ),
+                              ),
+                              if (selectedStatuses.contains(status))
+                                const Padding(
+                                  padding: EdgeInsets.only(left: 4.0),
+                                  child: Icon(
+                                    Icons.check,
+                                    color: Pallete.neutral00,
+                                    size: 18,
+                                  ),
+                                ),
+                            ],
+                          ),
+                          selected: selectedStatuses.contains(status),
+                          onSelected: (bool selected) {
+                            setModalState(() {
+                              if (selected) {
+                                selectedStatuses
+                                    .add(status); // Add to selected statuses
+                              } else {
+                                selectedStatuses.remove(
+                                    status); // Remove from selected statuses
+                              }
+                            });
+                          },
+                        ),
+                      )
+                      .toList(),
+                ),
+                const SizedBox(height: 106),
+
+                // Apply Filters Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: applyFilters,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Pallete.primary800, // Button color
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(8.0), // Button radius
+                      ),
+                      // padding: const EdgeInsets.symmetric(vertical: 14.0), // Padding
+                    ),
+                    child: Text(
+                      "Show Results",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Pallete.neutral950,
+                        color: Pallete.neutral00, // Button text color
                       ),
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      resetFilters();
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 44),
-
-              // Status Filter
-              Text(
-                'Status',
-                style: GoogleFonts.montserrat(
-                  textStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Pallete.neutral900,
-                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
-
-              // "All" button to clear the status filter
-              // FilterChip(
-              //   side: const BorderSide(color: Pallete.neutral200, width: 1),
-              //   selectedColor: Pallete.primary700,
-              //   showCheckmark: false,
-              //   label: Row(
-              //     mainAxisSize: MainAxisSize.min,
-              //     children: [
-              //       // Text(
-              //       //   'All',
-              //       //   style: GoogleFonts.montserrat(
-              //       //     textStyle: TextStyle(
-              //       //       fontSize: 14,
-              //       //       fontWeight: FontWeight.w400,
-              //       //       color: selectedStatuses.isEmpty
-              //       //           ? Pallete.neutral00
-              //       //           : Pallete.neutral900,
-              //       //     ),
-              //       //   ),
-              //       // ),
-              //       if (selectedStatuses.isEmpty)
-              //         const Padding(
-              //           padding: EdgeInsets.only(left: 4.0),
-              //           child: Icon(
-              //             Icons.check,
-              //             color: Pallete.neutral00,
-              //             size: 18,
-              //           ),
-              //         ),
-              //     ],
-              //   ),
-              //   selected: selectedStatuses.isEmpty,
-              //   onSelected: (bool selected) {
-              //     setModalState(() {
-              //       selectedStatuses.clear(); // Clear all statuses to show all
-              //     });
-              //   },
-              // ),
-              const SizedBox(height: 24),
-
-              // VIP and Regular Filters
-              Wrap(
-                spacing: 8.0,
-                children: ['VIP', 'Regular']
-                    .map(
-                      (status) => FilterChip(
-                        side: const BorderSide(color: Pallete.neutral200, width: 1),
-                        selectedColor: Pallete.primary700,
-                        showCheckmark: false,
-                        label: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              status,
-                              style: GoogleFonts.montserrat(
-                                textStyle: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: selectedStatuses.contains(status)
-                                      ? Pallete.neutral00
-                                      : Pallete.neutral900,
-                                ),
-                              ),
-                            ),
-                            if (selectedStatuses.contains(status))
-                              const Padding(
-                                padding: EdgeInsets.only(left: 4.0),
-                                child: Icon(
-                                  Icons.check,
-                                  color: Pallete.neutral00,
-                                  size: 18,
-                                ),
-                              ),
-                          ],
-                        ),
-                        selected: selectedStatuses.contains(status),
-                        onSelected: (bool selected) {
-                          setModalState(() {
-                            if (selected) {
-                              selectedStatuses.add(status); // Add to selected statuses
-                            } else {
-                              selectedStatuses.remove(status); // Remove from selected statuses
-                            }
-                          });
-                        },
-                      ),
-                    )
-                    .toList(),
-              ),
-              const SizedBox(height: 106),
-
-              // Apply Filters Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: applyFilters,
-                   style: ElevatedButton.styleFrom(
-                        backgroundColor: Pallete.primary800, // Button color
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0), // Button radius
-                        ),
-                        // padding: const EdgeInsets.symmetric(vertical: 14.0), // Padding
-                      ),
-                      child: Text(
-                        "Show Results",
-                        style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Pallete.neutral00, // Button text color
-                        ),
-                      ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    ),
-  );
-}
-   Future<void> getToken() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('access_token');
-  if (token == null || token.isEmpty) {
-    print('Token is null or empty');
-  } else {
-    setState(() {
-      access_token = token;
-    });
-    print('Token retrieved: $access_token');
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
-}
-String access_token = "";
+
+  Future<void> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    if (token == null || token.isEmpty) {
+      print('Token is null or empty');
+    } else {
+      setState(() {
+        access_token = token;
+      });
+      print('Token retrieved: $access_token');
+    }
+  }
+
+  String access_token = "";
   Future<void> checkoutCustomer(String customerId) async {
     await getToken(); // Wait for the token to be retrieved
-  if (access_token.isEmpty) {
-    print('Access token is null or empty');
-    return;
-  }
-    final String checkoutUrl = 'https://backend.srayansh.in/api/hoteldetails/checkout/$customerId/';
+    if (access_token.isEmpty) {
+      print('Access token is null or empty');
+      return;
+    }
+    final String checkoutUrl =
+        AppEnv.api('/api/hoteldetails/checkout/$customerId/');
     try {
       final response = await http.post(
         Uri.parse(checkoutUrl),
@@ -311,7 +320,8 @@ String access_token = "";
       } else {
         final responseData = jsonDecode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to checkout: ${responseData['message']}')),
+          SnackBar(
+              content: Text('Failed to checkout: ${responseData['message']}')),
         );
       }
     } catch (e) {
@@ -328,14 +338,15 @@ String access_token = "";
       backgroundColor: Pallete.pagecolor,
       appBar: AppBar(
         scrolledUnderElevation: 0,
-          foregroundColor: Pallete.pagecolor,
-          backgroundColor: Pallete.pagecolor,
+        foregroundColor: Pallete.pagecolor,
+        backgroundColor: Pallete.pagecolor,
         titleSpacing: 0,
         leading: InkWell(
           onTap: () {
             Navigator.pop(context);
           },
-          child: const Icon(Icons.arrow_back_ios_outlined, color: Pallete.neutral900),
+          child: const Icon(Icons.arrow_back_ios_outlined,
+              color: Pallete.neutral900),
         ),
         title: Text(
           "Manage Guests",
@@ -359,7 +370,8 @@ String access_token = "";
                   onTap: () {
                     showFilterModal(context);
                   },
-                  child: SvgPicture.asset("assets/filter.svg", height: 24, width: 24),
+                  child: SvgPicture.asset("assets/filter.svg",
+                      height: 24, width: 24),
                 ),
                 Expanded(
                   child: Padding(
@@ -380,7 +392,8 @@ String access_token = "";
                           filled: true,
                           fillColor: Pallete.neutral100,
                           prefixIcon: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
                             child: SvgPicture.asset(
                               'assets/search.svg',
                               height: 20.0,
@@ -392,18 +405,22 @@ String access_token = "";
                             minWidth: 36,
                           ),
                           hintText: 'Search Customer...',
-                          labelStyle: const TextStyle(color: Pallete.neutral400),
+                          labelStyle:
+                              const TextStyle(color: Pallete.neutral400),
                           hintStyle: const TextStyle(color: Pallete.neutral400),
                           border: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Pallete.neutral200, width: 1),
+                            borderSide: const BorderSide(
+                                color: Pallete.neutral200, width: 1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Pallete.neutral200, width: 1),
+                            borderSide: const BorderSide(
+                                color: Pallete.neutral200, width: 1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Pallete.neutral200, width: 1),
+                            borderSide: const BorderSide(
+                                color: Pallete.neutral200, width: 1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
@@ -413,8 +430,10 @@ String access_token = "";
                           setState(() {
                             if (value.isNotEmpty) {
                               filteredList = customerData.where((customer) {
-                                final customerName = customer['name']?.toLowerCase() ?? '';
-                                return customerName.contains(value.toLowerCase());
+                                final customerName =
+                                    customer['name']?.toLowerCase() ?? '';
+                                return customerName
+                                    .contains(value.toLowerCase());
                               }).toList();
                             } else {
                               filteredList = List.from(customerData);
@@ -429,21 +448,21 @@ String access_token = "";
             ),
             const SizedBox(height: 35),
             Expanded(
-          child: filteredList.isEmpty
-        ? Center(
-              child: SvgPicture.asset(
-                'assets/noguest.svg',
-                height: 272,
-                width: 293.03,
-              ),
-            )
-        : Column(mainAxisSize: MainAxisSize.min,
-            children: [
-              // Table headers with vertical lines
-             
-          
-              // Table header with vertical lines
-             Expanded(
+              child: filteredList.isEmpty
+                  ? Center(
+                      child: SvgPicture.asset(
+                        'assets/noguest.svg',
+                        height: 272,
+                        width: 293.03,
+                      ),
+                    )
+                  : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Table headers with vertical lines
+
+                        // Table header with vertical lines
+                        Expanded(
                           child: ListView.builder(
                             itemCount: filteredList.length,
                             shrinkWrap: true,
@@ -457,7 +476,9 @@ String access_token = "";
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(10),
                                       border: const Border(
-                                        left: BorderSide(color: Pallete.primary300, width: 4),
+                                        left: BorderSide(
+                                            color: Pallete.primary300,
+                                            width: 4),
                                       ),
                                     ),
                                     child: CustomerPaymentCard(
@@ -470,7 +491,8 @@ String access_token = "";
                                       checkOut: customer['checkOut'] ?? "",
                                       status: customer['status'] ?? "",
                                       screenWidth: screenWidth,
-                                      onCheckout: () => checkoutCustomer(customer['customerId'] ?? ""),
+                                      onCheckout: () => checkoutCustomer(
+                                          customer['customerId'] ?? ""),
                                     ),
                                   ),
                                   const SizedBox(height: 12),
@@ -556,12 +578,17 @@ class CustomerPaymentCard extends StatelessWidget {
                 const Spacer(),
                 Container(
                   margin: const EdgeInsets.only(left: 8.0),
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 4.0),
                   decoration: BoxDecoration(
-                    color: status == 'VIP' ? Pallete.warning100 : Pallete.neutral00,
+                    color: status == 'VIP'
+                        ? Pallete.warning100
+                        : Pallete.neutral00,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: status == 'VIP' ? Pallete.warning200 : Pallete.neutral400,
+                      color: status == 'VIP'
+                          ? Pallete.warning200
+                          : Pallete.neutral400,
                       width: 1,
                     ),
                   ),
@@ -570,7 +597,9 @@ class CustomerPaymentCard extends StatelessWidget {
                     style: GoogleFonts.montserrat(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color: status == 'VIP' ? Pallete.neutral900 : Pallete.neutral900,
+                      color: status == 'VIP'
+                          ? Pallete.neutral900
+                          : Pallete.neutral900,
                     ),
                   ),
                 ),
@@ -710,7 +739,8 @@ class CustomerPaymentCard extends StatelessWidget {
                   onPressed: onCheckout,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Pallete.primary800,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

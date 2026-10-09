@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import '../../core/packages.dart';
 import '../auth/view/pages/login_page.dart';
-import '../dashboard/editprofile.dart'; 
+import '../dashboard/editprofile.dart';
 import 'staffannouncement.dart';
 
 class StaffProfilePage extends StatefulWidget {
@@ -29,7 +29,7 @@ class _StaffProfilePageState extends State<StaffProfilePage> {
       String? accessToken = prefs.getString('access_token');
 
       final response = await Dio().get(
-        'https://backend.srayansh.in/api/edit/user_profile/',
+        AppEnv.api('/api/edit/user_profile/'),
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken',
@@ -82,7 +82,10 @@ class _StaffProfilePageState extends State<StaffProfilePage> {
             padding: EdgeInsets.only(right: 16, top: screenHeight * 0.0125),
             child: InkWell(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const StaffAnnouncementPage()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const StaffAnnouncementPage()));
               },
               splashColor: Colors.transparent, // Removes the splash effect
               highlightColor: Colors.transparent,
@@ -117,7 +120,8 @@ class _StaffProfilePageState extends State<StaffProfilePage> {
                                 ? NetworkImage(userProfile)
                                 : null,
                             child: userProfile.isEmpty
-                                ? const Icon(Icons.person, size: 50, color: Colors.grey)
+                                ? const Icon(Icons.person,
+                                    size: 50, color: Colors.grey)
                                 : null,
                           ),
                           Positioned(
@@ -134,7 +138,11 @@ class _StaffProfilePageState extends State<StaffProfilePage> {
                                   height: 16,
                                 ),
                                 onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfilePage()));
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const EditProfilePage()));
                                   fetchUserData();
                                 },
                               ),
@@ -201,7 +209,8 @@ class _StaffProfilePageState extends State<StaffProfilePage> {
                             scale: 0.7,
                             child: Switch(
                               value: true,
-                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
                               activeTrackColor: Pallete.neutral500,
                               activeColor: Pallete.whitecolor,
                               onChanged: (value) {
@@ -282,54 +291,52 @@ class _StaffProfilePageState extends State<StaffProfilePage> {
   }
 
   // Method to show the logout dialog
- void _showLogoutDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Log Out'),
-        content: const Text('Are you sure you want to log out?'),
-        actions: <Widget>[
-          ElevatedButton(
-            
-            style: ElevatedButton.styleFrom(
-              elevation: 0,
-              backgroundColor: Pallete.pagecolor, // Adjust color if needed
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Log Out'),
+          content: const Text('Are you sure you want to log out?'),
+          actions: <Widget>[
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                backgroundColor: Pallete.pagecolor, // Adjust color if needed
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
             ),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Pallete.primary700, // Use your primary color
-              foregroundColor: Pallete.neutral100, // Text color
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Pallete.primary700, // Use your primary color
+                foregroundColor: Pallete.neutral100, // Text color
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                prefs.remove("access_token");
+                prefs.remove("refresh_token");
+                prefs.remove("email");
+                prefs.remove("Role");
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                  (Route<dynamic> route) => false,
+                );
+              },
+              child: const Text('Log Out'),
             ),
-            onPressed: () async {
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              prefs.remove("access_token");
-              prefs.remove("refresh_token");
-              prefs.remove("email");
-              prefs.remove("Role");
-              Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => const LoginPage()),
-                                      (Route<dynamic> route) => false,
-                                    );
-            },
-            child: const Text('Log Out'),
-          ),
-        ],
-      );
-    },
-  );
-}
+          ],
+        );
+      },
+    );
+  }
 }

@@ -1,4 +1,6 @@
 {
   "cmake.sourceDirectory": "C:/Users/Srayansh Gupta/Desktop/HotelCrew/HotelCrew/hotelcrew/linux",
-  "dart.flutterSdkPath": ".fvm/versions/3.27.3"
+  "dart.flutterSdkPath": ".fvm/versions/3.27.3",
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.configuration.updateBuildConfiguration": "interactive"
 }

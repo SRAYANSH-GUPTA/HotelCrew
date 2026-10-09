@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hotelcrew/core/config/app_env.dart';
 import 'page3.dart';
 import 'page4.dart';
 import 'page5.dart';
@@ -70,39 +71,44 @@ class _ProgressPageViewState extends State<ProgressPageView> {
     await prefs.remove('parking_capacity');
     await prefs.remove('numberOfDepartments');
     await prefs.remove('rooms');
-     await prefs.remove('filepath');
-    await prefs.remove('filename'); 
+    await prefs.remove('filepath');
+    await prefs.remove('filename');
     await prefs.remove('types'); // Clear room details
   }
 
-Future<void> uploadData({String? filePath, String? fileName}) async {
-  try {
-    log('Uploading data');
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final accessToken = prefs.getString('access_token') ?? "";
-    print(accessToken);
-    if (accessToken.isEmpty) {
-      log("Access token is missing.");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Access token is missing."), backgroundColor: Colors.red),
-      );
-      return;
-    }
+  Future<void> uploadData({String? filePath, String? fileName}) async {
+    try {
+      log('Uploading data');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final accessToken = prefs.getString('access_token') ?? "";
+      print(accessToken);
+      if (accessToken.isEmpty) {
+        log("Access token is missing.");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Access token is missing."),
+              backgroundColor: Colors.red),
+        );
+        return;
+      }
 
-    Dio dio = Dio();
-    dio.options.headers = {
-      'Content-Type': 'application/json', // Set Content-Type to JSON
-      'Authorization': 'Bearer $accessToken',
-    };
-     dio.options.validateStatus = (status) => true; // Allows all responses for debugging
+      Dio dio = Dio();
+      dio.options.headers = {
+        'Content-Type': 'application/json', // Set Content-Type to JSON
+        'Authorization': 'Bearer $accessToken',
+      };
+      dio.options.validateStatus =
+          (status) => true; // Allows all responses for debugging
 
-    // Retrieve room details from SharedPreferences
-    String? roomsJson = prefs.getString('room_types');
-    List<Map<String, dynamic>> rooms = roomsJson != null ? List<Map<String, dynamic>>.from(jsonDecode(roomsJson)) : [];
+      // Retrieve room details from SharedPreferences
+      String? roomsJson = prefs.getString('room_types');
+      List<Map<String, dynamic>> rooms = roomsJson != null
+          ? List<Map<String, dynamic>>.from(jsonDecode(roomsJson))
+          : [];
 
-    // Prepare raw JSON body
-    Map<String, dynamic> rawData = {
-       'user': prefs.getString('userid'),
+      // Prepare raw JSON body
+      Map<String, dynamic> rawData = {
+        'user': prefs.getString('userid'),
         'hotel_name': prefs.getString('hotel_name'),
         'legal_business_name': prefs.getString('legal_business_name'),
         'year_established': prefs.getString('year_established'),
@@ -120,25 +126,26 @@ Future<void> uploadData({String? filePath, String? fileName}) async {
         'payment_methods': prefs.getString('payment_method'),
         'room_price': prefs.getString('price') ?? '',
         'number_of_departments': 2,
-        'department_names': 'Reception, Housekeeping, Maintenance, Kitchen, Security',
-      "room_types": rooms, // Use the room types list
-    };
+        'department_names':
+            'Reception, Housekeeping, Maintenance, Kitchen, Security',
+        "room_types": rooms, // Use the room types list
+      };
 
-    log("Raw Data: $rawData");
-    print("Raw Data: $rawData");
-    print("&"*100);
+      log("Raw Data: $rawData");
+      print("Raw Data: $rawData");
+      print("&" * 100);
 
-    // Send POST request
-    Response response = await dio.post(
-      'https://backend.srayansh.in/api/hoteldetails/register/',
-      data: jsonEncode(rawData), // Encode raw data as JSON
-    );
+      // Send POST request
+      Response response = await dio.post(
+        AppEnv.api('/api/hoteldetails/register/'),
+        data: jsonEncode(rawData), // Encode raw data as JSON
+      );
 
-    print("^"*100);
-  print(response.statusCode);
-  print(response.data);
-    // Handle response
-   if (response.statusCode == 201) {
+      print("^" * 100);
+      print(response.statusCode);
+      print(response.data);
+      // Handle response
+      if (response.statusCode == 201) {
         print('Upload successful: ${response.data['message']}');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -157,7 +164,8 @@ Future<void> uploadData({String? filePath, String? fileName}) async {
         log('Response data for 401 error: ${response.data}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response.data['name'] ?? "Unauthorized. Check your credentials."),
+            content: Text(response.data['name'] ??
+                "Unauthorized. Check your credentials."),
             backgroundColor: Colors.red,
           ),
         );
@@ -170,7 +178,8 @@ Future<void> uploadData({String? filePath, String? fileName}) async {
           errorMessage = response.data['message']; // Extract the message
         } else {
           // Fallback to a default error message
-          errorMessage = response.data.toString() ?? "Bad request. Please check your data and try again.";
+          errorMessage = response.data.toString() ??
+              "Bad request. Please check your data and try again.";
         }
 
         log('Response data for 400 error: ${response.data}');
@@ -194,7 +203,8 @@ Future<void> uploadData({String? filePath, String? fileName}) async {
         log('Error data: ${response.data}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response.data['message'] ?? "Unexpected error occurred."),
+            content:
+                Text(response.data['message'] ?? "Unexpected error occurred."),
             backgroundColor: Colors.orange,
           ),
         );
@@ -203,12 +213,14 @@ Future<void> uploadData({String? filePath, String? fileName}) async {
       log('Dio Exception: $e');
       String errorMessage = "An error occurred";
       if (e.type == DioExceptionType.connectionTimeout) {
-        errorMessage = "Connection timeout. Please check your network and try again.";
+        errorMessage =
+            "Connection timeout. Please check your network and try again.";
       } else if (e.type == DioExceptionType.receiveTimeout) {
         errorMessage = "Server response timeout. Please try again later.";
       } else if (e.type == DioExceptionType.badResponse) {
         print(e.response?.data);
-        errorMessage = e.response?.data['message'] ?? "Invalid response from server.";
+        errorMessage =
+            e.response?.data['message'] ?? "Invalid response from server.";
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -281,7 +293,8 @@ Future<void> uploadData({String? filePath, String? fileName}) async {
                       children: [
                         Padding(
                           padding: EdgeInsets.symmetric(
-                              horizontal: screenWidth * 0.05, vertical: screenHeight * 0.01),
+                              horizontal: screenWidth * 0.05,
+                              vertical: screenHeight * 0.01),
                           child: Container(
                             width: screenWidth * 0.8,
                             height: screenHeight * 0.01,
@@ -292,7 +305,8 @@ Future<void> uploadData({String? filePath, String? fileName}) async {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(8),
                               child: LinearProgressIndicator(
-                                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                    Color(0xFF4CAF50)),
                                 backgroundColor: Colors.transparent,
                                 value: (_currentPage + 1) / _totalPages,
                               ),
@@ -316,7 +330,9 @@ Future<void> uploadData({String? filePath, String? fileName}) async {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20,),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     Container(
                       margin: EdgeInsets.only(left: screenWidth * 0.05),
                       child: InkWell(
@@ -344,9 +360,10 @@ Future<void> uploadData({String? filePath, String? fileName}) async {
                         ),
                       ),
                     ),
-                    const SizedBox(height:24),
+                    const SizedBox(height: 24),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Text(
                         _hotelInfo[_currentPage],
                         style: GoogleFonts.montserrat(
@@ -394,16 +411,16 @@ Future<void> uploadData({String? filePath, String? fileName}) async {
                 width: screenWidth * 0.9,
                 child: ElevatedButton(
                   onPressed: () async {
-                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
                     if (_currentPage != _totalPages - 1) {
                       _goToNextPage();
                     } else {
                       print(prefs.getString("filepath"));
-                      print("!!!"*100);
+                      print("!!!" * 100);
                       context.loaderOverlay.show(); // Show the loader overlay
                       await uploadData(
                         filePath: prefs.getString('filepath'),
-                      
                         fileName: prefs.getString('filename'),
                       );
                     }
@@ -415,7 +432,9 @@ Future<void> uploadData({String? filePath, String? fileName}) async {
                     ),
                   ),
                   child: Text(
-                    _currentPage < _totalPages - 1 ? 'Next' : 'Save Information',
+                    _currentPage < _totalPages - 1
+                        ? 'Next'
+                        : 'Save Information',
                     style: GoogleFonts.montserrat(
                       textStyle: TextStyle(
                         color: const Color(0xFFFAFAFA),

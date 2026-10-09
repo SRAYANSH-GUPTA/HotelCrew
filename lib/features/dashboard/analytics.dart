@@ -2,12 +2,12 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart'; // Add this import for date formatting
 import "../../core/packages.dart"; // Add the correct path to your palette
-import 'analyticschart.dart' as chart; 
+import 'analyticschart.dart' as chart;
 import 'package:http/http.dart' as http;
 import "dart:convert";
 
-import 'package:flutter/material.dart';// Import the bar chart widget
- // Import the bar chart widget
+import 'package:flutter/material.dart'; // Import the bar chart widget
+// Import the bar chart widget
 
 class AnalyticsPage extends StatefulWidget {
   const AnalyticsPage({super.key});
@@ -17,201 +17,147 @@ class AnalyticsPage extends StatefulWidget {
 }
 
 class _AnalyticsPageState extends State<AnalyticsPage> {
-  final CalendarFormat _calendarFormat = CalendarFormat.week; // Fixed to week format
+  final CalendarFormat _calendarFormat =
+      CalendarFormat.week; // Fixed to week format
   final DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
- 
-
-
-void fetchPerformanceData() async {
-  print("^"*100);
-   SharedPreferences prefs = await SharedPreferences.getInstance();
+  void fetchPerformanceData() async {
+    print("^" * 100);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    print("^^^^"*50);
+    print("^^^^" * 50);
     print(token);
 
-  final url = Uri.parse('https://backend.srayansh.in/api/statics/performance/hotel/past7/');
-  final headers = {
-    'Authorization': 'Bearer $token',
-  };
+    final url = AppEnv.apiUri('/api/statics/performance/hotel/past7/');
+    final headers = {
+      'Authorization': 'Bearer $token',
+    };
 
+    final response = await http.get(url, headers: headers);
+    print(response.body);
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      print(data);
+      // Map the response data to the required format
+      final Map<String, double> performanceData = {};
+      final weeklyStats = data['weekly_stats'] as List;
+      print(weeklyStats);
+      print("^" * 100);
 
-  final response = await http.get(url, headers: headers);
-  print(response.body);
-  print(response.statusCode);
-  if (response.statusCode == 200) {
-    final Map<String, dynamic> data = jsonDecode(response.body);
-    print(data);
-    // Map the response data to the required format
-    final Map<String, double> performanceData = {};
-    final weeklyStats = data['weekly_stats'] as List;
-    print(weeklyStats);
-    print("^"*100);
+      for (var stat in weeklyStats) {
+        print("1");
+        final date = stat['date'] as String;
+        print("2");
+        final performancePercentage = stat['performance_percentage'] as double;
+        print("3");
+        final formattedDate = _formatDate(date); // Format the date to 'dd/MM'
 
-    for (var stat in weeklyStats) {
-      print("1");
-      final date = stat['date'] as String;
-      print("2");
-      final performancePercentage = stat['performance_percentage'] as double;
-      print("3");
-      final formattedDate = _formatDate(date);  // Format the date to 'dd/MM'
-
-      performanceData[formattedDate] = performancePercentage;
+        performanceData[formattedDate] = performancePercentage;
+        print(performanceData);
+      }
       print(performanceData);
-    }
-    print(performanceData);
-    print("&"*100);
-    // convertPerformanceDataToSampleData(performanceData);
-    setState(() {
-      sampleData = performanceData;
-    });
-
-    
-  } else {
-    throw Exception('Failed to load performance data');
-  }
-}
-
-
-void fetchAttendanceData() async {
-   SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('access_token');
-    print("^^^^"*50);
-    print(token);
-  final url = Uri.parse('https://backend.srayansh.in/api/attendance/week-stats/');
-  final headers = {
-    'Authorization': 'Bearer $token',
-  };
-
-  final response = await http.get(url, headers: headers);
-  print(response.body);
-  print(response.statusCode);
-  if (response.statusCode == 200) {
-    final Map<String, dynamic> data = jsonDecode(response.body);
-    final List<String> dates = List<String>.from(data['dates']);
-    final List<int> totalCrewPresent = List<int>.from(data['total_crew_present']);
-    final List<int> totalStaffAbsent = List<int>.from(data['total_staff_absent']);
-    
-    List<Map<String, dynamic>> formattedData = [];
-
-    for (int i = 0; i < dates.length; i++) {
-      final date = dates[i];
-      final present = totalCrewPresent[i];
-      final absent = totalStaffAbsent[i];
-      final total = present + absent;
-
-      // Format date to "dd/MM"
-      final formattedDate = _formatDate(date);
-
-      // Add the formatted data to the list
-      formattedData.add({
-        'date': formattedDate,
-        'present': present,
-        'absent': absent,
-        'total': total,
+      print("&" * 100);
+      // convertPerformanceDataToSampleData(performanceData);
+      setState(() {
+        sampleData = performanceData;
       });
+    } else {
+      throw Exception('Failed to load performance data');
+    }
+  }
+
+  void fetchAttendanceData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    print("^^^^" * 50);
+    print(token);
+    final url = AppEnv.apiUri('/api/attendance/week-stats/');
+    final headers = {
+      'Authorization': 'Bearer $token',
+    };
+
+    final response = await http.get(url, headers: headers);
+    print(response.body);
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final List<String> dates = List<String>.from(data['dates']);
+      final List<int> totalCrewPresent =
+          List<int>.from(data['total_crew_present']);
+      final List<int> totalStaffAbsent =
+          List<int>.from(data['total_staff_absent']);
+
+      List<Map<String, dynamic>> formattedData = [];
+
+      for (int i = 0; i < dates.length; i++) {
+        final date = dates[i];
+        final present = totalCrewPresent[i];
+        final absent = totalStaffAbsent[i];
+        final total = present + absent;
+
+        // Format date to "dd/MM"
+        final formattedDate = _formatDate(date);
+
+        // Add the formatted data to the list
+        formattedData.add({
+          'date': formattedDate,
+          'present': present,
+          'absent': absent,
+          'total': total,
+        });
+      }
+
+      // Update the dailyData list using setState
+      setState(() {
+        dailyData = formattedData;
+      });
+    } else {
+      throw Exception('Failed to load attendance data');
+    }
+  }
+
+  String _formatDate(String date) {
+    final parts = date.split('-');
+    final dayAndMonth = '${parts[2]}/${parts[1]}'; // Format as "dd/MM"
+    return dayAndMonth;
+  }
+
+  Map<String, double> convertPerformanceDataToSampleData(
+      List<Map<String, dynamic>> performanceData) {
+    Map<String, double> formattedData = {};
+
+    // Iterate over the performance data and format the date
+    for (var stat in performanceData) {
+      final String date = stat['date'];
+      final double performancePercentage = stat['performance_percentage'];
+
+      // Extract the day and month from the date (in the format 'yyyy-MM-dd')
+      final DateTime dateTime = DateTime.parse(date);
+      final String formattedDate = DateFormat('dd/MM').format(dateTime);
+
+      // Add the formatted date and performance percentage to the map
+      formattedData[formattedDate] = performancePercentage;
     }
 
-    // Update the dailyData list using setState
-    setState(() {
-      dailyData = formattedData;
-    });
-
-  } else {
-    throw Exception('Failed to load attendance data');
-  }
-}
-
-
-String _formatDate(String date) {
-  final parts = date.split('-');
-  final dayAndMonth = '${parts[2]}/${parts[1]}';  // Format as "dd/MM"
-  return dayAndMonth;
-}
-
-
-Map<String, double> convertPerformanceDataToSampleData(List<Map<String, dynamic>> performanceData) {
-  Map<String, double> formattedData = {};
-
-  // Iterate over the performance data and format the date
-  for (var stat in performanceData) {
-    final String date = stat['date'];
-    final double performancePercentage = stat['performance_percentage'];
-
-    // Extract the day and month from the date (in the format 'yyyy-MM-dd')
-    final DateTime dateTime = DateTime.parse(date);
-    final String formattedDate = DateFormat('dd/MM').format(dateTime);
-
-    // Add the formatted date and performance percentage to the map
-    formattedData[formattedDate] = performancePercentage;
+    return formattedData;
   }
 
-  return formattedData;
-}
-
-
-
-  Map<String, double> sampleData = {
-    
-  };
+  Map<String, double> sampleData = {};
 
   // Weekly attendance data
   // Daily attendance data from 13/11 to 23/11
-  List<Map<String, dynamic>> dailyData = [
-  
-  
+  List<Map<String, dynamic>> dailyData = [];
+  List<Map<String, dynamic>> dailyroomData = [
+    {'date': '13/11', 'present': 42, 'absent': 3, 'total': 45},
+    {'date': '14/11', 'present': 44, 'absent': 2, 'total': 46},
+    {'date': '15/11', 'present': 43, 'absent': 3, 'total': 46},
+    {'date': '16/11', 'present': 45, 'absent': 1, 'total': 46},
+    {'date': '17/11', 'present': 41, 'absent': 4, 'total': 45},
+    {'date': '20/11', 'present': 44, 'absent': 2, 'total': 46},
+    {'date': '21/11', 'present': 43, 'absent': 2, 'total': 45},
   ];
-   List<Map<String, dynamic>> dailyroomData = [
-     {
-      'date': '13/11',
-      'present': 42,
-      'absent': 3,
-      'total': 45
-    },
-    {
-      'date': '14/11',
-      'present': 44,
-      'absent': 2,
-      'total': 46
-    },
-    {
-      'date': '15/11',
-      'present': 43,
-      'absent': 3,
-      'total': 46
-    },
-    {
-      'date': '16/11',
-      'present': 45,
-      'absent': 1,
-      'total': 46
-    },
-    {
-      'date': '17/11',
-      'present': 41,
-      'absent': 4,
-      'total': 45
-    },
-    {
-      'date': '20/11',
-      'present': 44,
-      'absent': 2,
-      'total': 46
-    },
-    {
-      'date': '21/11',
-      'present': 43,
-      'absent': 2,
-      'total': 45
-    },
-   
-  
-  
-  ];
-  
-
-
 
   // Sample data for the bar chart, you can fetch this based on the selected date
   final Map<String, List<int>> performanceData = {
@@ -280,16 +226,19 @@ Map<String, double> convertPerformanceDataToSampleData(List<Map<String, dynamic>
     List<int> performance = performanceData[day] ?? [0, 0];
 
     setState(() {
-      barChartData = performance; // Store the performance data for the selected day
+      barChartData =
+          performance; // Store the performance data for the selected day
     });
   }
 
   // Get data for last 7 days from selected date
   List<Map<String, dynamic>> getFilteredData() {
-    DateTime startDate = _selectedDay?.subtract(const Duration(days: 7)) ?? DateTime.now();
+    DateTime startDate =
+        _selectedDay?.subtract(const Duration(days: 7)) ?? DateTime.now();
     return attendanceData.where((data) {
-      return data['date'].isAfter(startDate) && 
-             data['date'].isBefore((_selectedDay ?? DateTime.now()).add(const Duration(days: 1)));
+      return data['date'].isAfter(startDate) &&
+          data['date'].isBefore(
+              (_selectedDay ?? DateTime.now()).add(const Duration(days: 1)));
     }).toList()
       ..sort((a, b) => a['date'].compareTo(b['date']));
   }
@@ -363,238 +312,219 @@ Map<String, double> convertPerformanceDataToSampleData(List<Map<String, dynamic>
 
               // Text for metrics
               Text(
-  'Staff Performance Metrics',
-  style: GoogleFonts.montserrat(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    height: 24 / 16, // line-height in px / font-size in px
-    textBaseline: TextBaseline.alphabetic, // Ensure proper text alignment
-  ),
-  textAlign: TextAlign.left, // Align text to the left
-),
-
-              const SizedBox(height: 20),
-Container(
-                color: Pallete.primary50,
-                width: screenWidth*0.9,
-                height: 220,
-                child: Column(
-                  children: [Padding(
-                    padding: const EdgeInsets.only(left: 12.0,right: 12.0,top: 12.0),
-                    child: SizedBox(
-                      height: 200,
-                      width: screenWidth*0.9,
-                      child: WeeklyBarChart(sampleData)),
-                  ),
-                  
-
-                  ]
-                )),
-              // Bar chart widget using the new BarChartWidget
-             
-              const SizedBox(height: 20),
-
-              Text(
-  'Staff Attendance',
-  style: GoogleFonts.montserrat(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    height: 24 / 16, // line-height in px / font-size in px
-    textBaseline: TextBaseline.alphabetic, // Ensure proper text alignment
-  ),
-  textAlign: TextAlign.left, // Align text to the left
-),
-
-
-
-
-              const SizedBox(height: 24),
-
-              // Bar chart widget using the new BarChartWidget
-               Container(
-                 decoration: BoxDecoration(
-                color: Pallete.primary50,
-                border: Border.all(color: Pallete.primary100, width: 1),
-                borderRadius: BorderRadius.circular(0),
-              ),
-                // color: Pallete.primary50,
-                width: screenWidth*0.9,
-                height: 260,
-                child: Column(
-                  children: [Padding(
-                    padding: const EdgeInsets.only(left: 12.0,right: 12.0,top: 12.0),
-                    child: SizedBox(
-                      height: 200,
-                      width: screenWidth*0.9,
-                      child: BarChartWidget(dailyData: dailyData)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0,right: 8.0),
-                    child: Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-    Row(
-      children: [
-        const Icon(Icons.circle, color: Colors.green, size: 12),
-        const SizedBox(width: 8),
-        Text(
-          'Present',
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
-            color: Colors.black,
-          ),
-        ),
-      ],
-    ),
-    const SizedBox(height: 8),
-    Row(
-      children: [
-        const Icon(Icons.circle, color: Colors.red, size: 12),
-        const SizedBox(width: 8),
-        Text(
-          'Absent',
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
-            color: Colors.black,
-          ),
-        ),
-      ],
-    ),
-  ],
-),
-                  )
-
-                  ]
-                )),
-
-
-                              const SizedBox(height: 20),
-
-              Text(
-  'Room Status',
-  style: GoogleFonts.montserrat(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    height: 24 / 16, // line-height in px / font-size in px
-    textBaseline: TextBaseline.alphabetic, // Ensure proper text alignment
-  ),
-  textAlign: TextAlign.left, // Align text to the left
-),
-
-
-
-
-              const SizedBox(height: 24),
-
-              // Bar chart widget using the new BarChartWidget
-               Container(
-                 decoration: BoxDecoration(
-                color: Pallete.primary50,
-                border: Border.all(color: Pallete.primary100, width: 1),
-                borderRadius: BorderRadius.circular(0),
-              ),
-                
-                width: screenWidth*0.9,
-                height: 260,
-                child: Column(
-                  children: [Padding(
-                    padding: const EdgeInsets.only(left: 12.0,right: 12.0,top: 12.0),
-                    child: SizedBox(
-                      height: 200,
-                      width: screenWidth*0.9,
-                      child: BarChartWidget(dailyData: dailyroomData)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0,right: 8.0),
-                    child: Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-    Row(
-      children: [
-        const Icon(Icons.circle, color: Colors.green, size: 12),
-        const SizedBox(width: 8),
-        Text(
-          'Occupied',
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
-            color: Colors.black,
-          ),
-        ),
-      ],
-    ),
-    const SizedBox(height: 8),
-    Row(
-      children: [
-        const Icon(Icons.circle, color: Colors.red, size: 12),
-        const SizedBox(width: 8),
-        Text(
-          'Unoccupied',
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
-            color: Colors.black,
-          ),
-        ),
-
-        
-
-
-
-
-
-      ],
-    ),
-    
-  
-  
-  ],
-),
-                  ),
-                  
-
-                  ]
-                )),
-                const SizedBox(height: 24),
-                Text(
-  'Check-in revenue',
-  style: GoogleFonts.montserrat(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    height: 24 / 16, // line-height in px / font-size in px
-    textBaseline: TextBaseline.alphabetic, // Ensure proper text alignment
-  ),
-  textAlign: TextAlign.left, // Align text to the left
-),
-const SizedBox(height: 20),
-              // Bar chart widget using the new BarChartWidget
-               Container(
-                decoration: BoxDecoration(
-                color: Pallete.primary50,
-                border: Border.all(color: Pallete.primary100, width: 1),
-                borderRadius: BorderRadius.circular(0),
-              ),
-          
-                width: screenWidth*0.9,
-                height: 210,
-                child: Column(
-                  children: [Padding(
-                    padding: const EdgeInsets.only(left: 0,right: 0,top: 0),
-                    child: SizedBox(
-                      height: 200,
-                      width: screenWidth*0.9,
-                      child: const LineChartWidget(doubleData: [20,40,50,40,60,10,50],),
-                  ),),
-                  
-                  
-                  
-
-                  ])
+                'Staff Performance Metrics',
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  height: 24 / 16, // line-height in px / font-size in px
+                  textBaseline:
+                      TextBaseline.alphabetic, // Ensure proper text alignment
                 ),
-                const SizedBox(height: 138),
-             
+                textAlign: TextAlign.left, // Align text to the left
+              ),
+
+              const SizedBox(height: 20),
+              Container(
+                  color: Pallete.primary50,
+                  width: screenWidth * 0.9,
+                  height: 220,
+                  child: Column(children: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          left: 12.0, right: 12.0, top: 12.0),
+                      child: SizedBox(
+                          height: 200,
+                          width: screenWidth * 0.9,
+                          child: WeeklyBarChart(sampleData)),
+                    ),
+                  ])),
+              // Bar chart widget using the new BarChartWidget
+
+              const SizedBox(height: 20),
+
+              Text(
+                'Staff Attendance',
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  height: 24 / 16, // line-height in px / font-size in px
+                  textBaseline:
+                      TextBaseline.alphabetic, // Ensure proper text alignment
+                ),
+                textAlign: TextAlign.left, // Align text to the left
+              ),
+
+              const SizedBox(height: 24),
+
+              // Bar chart widget using the new BarChartWidget
+              Container(
+                  decoration: BoxDecoration(
+                    color: Pallete.primary50,
+                    border: Border.all(color: Pallete.primary100, width: 1),
+                    borderRadius: BorderRadius.circular(0),
+                  ),
+                  // color: Pallete.primary50,
+                  width: screenWidth * 0.9,
+                  height: 260,
+                  child: Column(children: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          left: 12.0, right: 12.0, top: 12.0),
+                      child: SizedBox(
+                          height: 200,
+                          width: screenWidth * 0.9,
+                          child: BarChartWidget(dailyData: dailyData)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.circle,
+                                  color: Colors.green, size: 12),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Present',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              const Icon(Icons.circle,
+                                  color: Colors.red, size: 12),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Absent',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )
+                  ])),
+
+              const SizedBox(height: 20),
+
+              Text(
+                'Room Status',
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  height: 24 / 16, // line-height in px / font-size in px
+                  textBaseline:
+                      TextBaseline.alphabetic, // Ensure proper text alignment
+                ),
+                textAlign: TextAlign.left, // Align text to the left
+              ),
+
+              const SizedBox(height: 24),
+
+              // Bar chart widget using the new BarChartWidget
+              Container(
+                  decoration: BoxDecoration(
+                    color: Pallete.primary50,
+                    border: Border.all(color: Pallete.primary100, width: 1),
+                    borderRadius: BorderRadius.circular(0),
+                  ),
+                  width: screenWidth * 0.9,
+                  height: 260,
+                  child: Column(children: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          left: 12.0, right: 12.0, top: 12.0),
+                      child: SizedBox(
+                          height: 200,
+                          width: screenWidth * 0.9,
+                          child: BarChartWidget(dailyData: dailyroomData)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.circle,
+                                  color: Colors.green, size: 12),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Occupied',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              const Icon(Icons.circle,
+                                  color: Colors.red, size: 12),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Unoccupied',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ])),
+              const SizedBox(height: 24),
+              Text(
+                'Check-in revenue',
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  height: 24 / 16, // line-height in px / font-size in px
+                  textBaseline:
+                      TextBaseline.alphabetic, // Ensure proper text alignment
+                ),
+                textAlign: TextAlign.left, // Align text to the left
+              ),
+              const SizedBox(height: 20),
+              // Bar chart widget using the new BarChartWidget
+              Container(
+                  decoration: BoxDecoration(
+                    color: Pallete.primary50,
+                    border: Border.all(color: Pallete.primary100, width: 1),
+                    borderRadius: BorderRadius.circular(0),
+                  ),
+                  width: screenWidth * 0.9,
+                  height: 210,
+                  child: Column(children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 0, right: 0, top: 0),
+                      child: SizedBox(
+                        height: 200,
+                        width: screenWidth * 0.9,
+                        child: const LineChartWidget(
+                          doubleData: [20, 40, 50, 40, 60, 10, 50],
+                        ),
+                      ),
+                    ),
+                  ])),
+              const SizedBox(height: 138),
             ],
           ),
         ),
@@ -602,6 +532,7 @@ const SizedBox(height: 20),
     );
   }
 }
+
 class BarChartWidget extends StatelessWidget {
   final List<Map<String, dynamic>> dailyData;
 
@@ -659,7 +590,6 @@ class BarChartWidget extends StatelessWidget {
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-              
                 getTitlesWidget: (value, meta) {
                   if (value.toInt() >= dailyData.length) return const Text('');
                   return Text(
@@ -677,24 +607,26 @@ class BarChartWidget extends StatelessWidget {
               ),
             ),
             leftTitles: AxisTitles(
-  sideTitles: SideTitles(
-    interval: 15,
-    showTitles: true,
-    getTitlesWidget: (value, meta) {
-      return Text(
-        value.toInt().toString(), // Convert the double value to an integer
-        style: GoogleFonts.inter(
-          fontSize: 12,
-          fontWeight: FontWeight.w400,
-          height: 14.52 / 12, // line-height in px / font-size in px
-          textBaseline: TextBaseline.alphabetic,
-        ),
-        textAlign: TextAlign.left,
-      );
-    },
-    reservedSize: 30,
-  ),
-),
+              sideTitles: SideTitles(
+                interval: 15,
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  return Text(
+                    value
+                        .toInt()
+                        .toString(), // Convert the double value to an integer
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      height: 14.52 / 12, // line-height in px / font-size in px
+                      textBaseline: TextBaseline.alphabetic,
+                    ),
+                    textAlign: TextAlign.left,
+                  );
+                },
+                reservedSize: 30,
+              ),
+            ),
             topTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false),
             ),
@@ -754,7 +686,6 @@ class BarChartWidget extends StatelessWidget {
   }
 }
 
-
 class WeeklyBarChart extends StatelessWidget {
   final Map<String, double> data; // Data for the bar chart as a map
 
@@ -807,7 +738,7 @@ class WeeklyBarChart extends StatelessWidget {
                       color: Pallete.primary800,
                       width: 1,
                     ),
-                     right: BorderSide(
+                    right: BorderSide(
                       color: Pallete.neutral300,
                       width: 0.5,
                     ),
@@ -888,7 +819,8 @@ class WeeklyBarChart extends StatelessWidget {
                     sideTitles: SideTitles(
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
-                        if (value.toInt() >= 0 && value.toInt() < dates.length) {
+                        if (value.toInt() >= 0 &&
+                            value.toInt() < dates.length) {
                           return Text(
                             dates[value.toInt()],
                             style: const TextStyle(
@@ -908,6 +840,7 @@ class WeeklyBarChart extends StatelessWidget {
     );
   }
 }
+
 class LineChartWidget extends StatelessWidget {
   final List<double> doubleData; // Input data for the line chart
 
@@ -947,10 +880,10 @@ class LineChartWidget extends StatelessWidget {
                     },
                   ),
                   titlesData: FlTitlesData(
-                    rightTitles:
-                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    topTitles:
-                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
@@ -959,14 +892,14 @@ class LineChartWidget extends StatelessWidget {
                         getTitlesWidget: (value, meta) {
                           return Text(
                             value.toInt().toString(),
-                           style: GoogleFonts.inter(
-                                textStyle: const TextStyle(
-                                  color: Pallete.neutral900,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 12,
-                                  height: 1.5,
-                                ),
+                            style: GoogleFonts.inter(
+                              textStyle: const TextStyle(
+                                color: Pallete.neutral900,
+                                fontWeight: FontWeight.w400,
+                                fontSize: 12,
+                                height: 1.5,
                               ),
+                            ),
                           );
                         },
                       ),
@@ -980,31 +913,45 @@ class LineChartWidget extends StatelessWidget {
                             case 0:
                               return const Text('14/11',
                                   style: TextStyle(
-                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                                      color: Pallete.neutral900,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400));
                             case 1:
                               return const Text('15/11',
                                   style: TextStyle(
-                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                                      color: Pallete.neutral900,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400));
                             case 2:
                               return const Text('16/11',
                                   style: TextStyle(
-                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                                      color: Pallete.neutral900,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400));
                             case 3:
                               return const Text('17/11',
                                   style: TextStyle(
-                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                                      color: Pallete.neutral900,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400));
                             case 4:
                               return const Text('20/11',
                                   style: TextStyle(
-                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                                      color: Pallete.neutral900,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400));
                             case 5:
                               return const Text('21/11',
                                   style: TextStyle(
-                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                                      color: Pallete.neutral900,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400));
                             case 6:
                               return const Text('22/11',
                                   style: TextStyle(
-                                      color: Pallete.neutral900, fontSize: 12,fontWeight: FontWeight.w400));
+                                      color: Pallete.neutral900,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400));
                             default:
                               return const Text('');
                           }
@@ -1077,4 +1024,3 @@ class LineChartWidget extends StatelessWidget {
     );
   }
 }
-

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:hotelcrew/core/config/app_env.dart';
 import '../models/resetpassemailmode.dart';
 
 class ForgetPasswordViewModel {
@@ -7,9 +8,9 @@ class ForgetPasswordViewModel {
   Future<dynamic> sendForgetPasswordRequest(String email) async {
     final requestModel = ForgetPasswordRequest(email: email);
     try {
-      print("&"*100);
+      print("&" * 100);
       final response = await _dio.post(
-        'https://backend.srayansh.in/api/auth/forget-password/',
+        AppEnv.api('/api/auth/forget-password/'),
         options: Options(
           headers: {
             'Content-Type': 'application/json',
@@ -24,17 +25,18 @@ class ForgetPasswordViewModel {
       if (response.statusCode == 200 && response.data.containsKey('message')) {
         return ForgetPasswordSuccessResponse.fromJson(response.data);
       } else if (response.statusCode == 400) {
-        return ForgetPasswordErrorResponse(errors: ["Error: Invalid otp or expired otp"]);
-      }
-       else if (response.statusCode == 404) {
-        return ForgetPasswordErrorResponse(errors: ["Error: Email not found in the databbase "]);
-      }
-       else if (response.statusCode == 500) {
+        return ForgetPasswordErrorResponse(
+            errors: ["Error: Invalid otp or expired otp"]);
+      } else if (response.statusCode == 404) {
+        return ForgetPasswordErrorResponse(
+            errors: ["Error: Email not found in the databbase "]);
+      } else if (response.statusCode == 500) {
         return ForgetPasswordErrorResponse(errors: ["Error: Server Error"]);
       } else if (response.data.containsKey('error')) {
         return ForgetPasswordErrorResponse.fromJson(response.data);
       } else {
-        return ForgetPasswordErrorResponse(errors: ["Unexpected error occurred"]);
+        return ForgetPasswordErrorResponse(
+            errors: ["Unexpected error occurred"]);
       }
     } on DioException catch (e) {
       print("Request error: ${e.response?.statusCode}");
@@ -55,7 +57,8 @@ class ForgetPasswordViewModel {
       return ForgetPasswordErrorResponse(errors: [errorMessage]);
     } catch (e) {
       print("Unexpected error: $e");
-      return ForgetPasswordErrorResponse(errors: ["An unexpected error occurred"]);
+      return ForgetPasswordErrorResponse(
+          errors: ["An unexpected error occurred"]);
     }
   }
 }

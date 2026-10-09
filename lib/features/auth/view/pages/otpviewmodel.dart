@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:hotelcrew/core/config/app_env.dart';
 import 'otpmodel.dart';
 import 'dart:developer';
+
 class DioClient {
   final Dio dio;
 
@@ -23,38 +25,36 @@ class DioClient {
   }
 
   Future<SuccessResponse> sendOtp(OtpRequest otpRequest) async {
-  try {
-    final response = await dio.post(
-      'https://backend.srayansh.in/api/auth/register/',
-      data: json.encode(otpRequest.toJson()),
-       options: Options(
-        validateStatus: (status) => status! < 501, // Treats 500+ codes as errors
-      ),
-    );
+    try {
+      final response = await dio.post(
+        AppEnv.api('/api/auth/register/'),
+        data: json.encode(otpRequest.toJson()),
+        options: Options(
+          validateStatus: (status) =>
+              status! < 501, // Treats 500+ codes as errors
+        ),
+      );
 
-    if (response.statusCode == 201) {
-      final successResponse = SuccessResponse.fromJson(response.data);
-      return successResponse;
-    } else if (response.statusCode == 400) {
-      final errorResponse = ErrorResponse.fromJson(response.data);
-      throw Exception(errorResponse.error.join(', '));
-    } else {
-      throw Exception('Unexpected error');
-    }
-  } on DioException catch (e) {
-    if (e.response != null) {
-      final errorResponse = ErrorResponse.fromJson(e.response!.data);
-      print(errorResponse.error);
-      throw Exception(errorResponse.error.join(', '));
-    } else {
-      throw Exception('Network error:');
+      if (response.statusCode == 201) {
+        final successResponse = SuccessResponse.fromJson(response.data);
+        return successResponse;
+      } else if (response.statusCode == 400) {
+        final errorResponse = ErrorResponse.fromJson(response.data);
+        throw Exception(errorResponse.error.join(', '));
+      } else {
+        throw Exception('Unexpected error');
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final errorResponse = ErrorResponse.fromJson(e.response!.data);
+        print(errorResponse.error);
+        throw Exception(errorResponse.error.join(', '));
+      } else {
+        throw Exception('Network error:');
+      }
     }
   }
 }
-
-}
-
-
 
 class OtpViewModel extends ChangeNotifier {
   final DioClient _dioClient = DioClient();
@@ -90,7 +90,7 @@ class OtpViewModel extends ChangeNotifier {
       _accessToken = response.accessToken;
       _refreshToken = response.refreshToken;
       _userId = response.userId; // Set the userId
-      
+
       // Optionally log these for debugging
       log(_accessToken ?? "Access token not available");
       log(_refreshToken ?? "Refresh token not available");
